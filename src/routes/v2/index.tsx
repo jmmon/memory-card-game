@@ -88,17 +88,6 @@ export function shuffle1(arr: any[]): any[] {
     .map(([, i], newPos) => ({ ...arr[i], position: newPos })); // match input arr to new arr by index
 }
 
-const loopedShuffle = (cards: Card[]): Card[] => {
-  let counter = 1;
-  let shuffled = shuffle1(cards);
-  while (shuffled[0].id === cards[0].id) {
-    counter++;
-    shuffled = shuffle1(shuffled);
-  }
-  console.log(`reshuffled ${counter} times`);
-  return shuffled;
-};
-
 // this shuffles indices into the remaining array
 const shuffle_FY_alg = (_array: Card[]): Card[] => {
   // walk backward
@@ -155,14 +144,12 @@ console.log({ unshuffledCards, cards });
 
 const windowDimensionsColor = "text-gray-400";
 
-export const GreySpan = component$(
-  ({ title, ml }: { title: string; ml?: number }) => (
-    <code class={`bg-black ${ml ? `ml-${ml}` : ""}`}>
-      <span class={` mr-2 ${windowDimensionsColor} `}>{title}</span>
-      <Slot />
-    </code>
-  )
-);
+export const GreySpan = component$(({ title }: { title: string }) => (
+  <code class={`bg-black`}>
+    <span class={` mr-2 ${windowDimensionsColor} `}>{title}</span>
+    <Slot />
+  </code>
+));
 
 export const checkMatch = (
   cardA: Card | undefined,
@@ -242,7 +229,7 @@ export default component$(() => {
       const card2 = findCardById(cardId2);
       const isMatch = checkMatch(card1, card2);
 
-      console.log({ isMatch, card1, card2 });
+      // console.log({ isMatch, card1, card2 });
 
       if (!isMatch) {
         mismatchCount.value++;
@@ -300,8 +287,8 @@ export default component$(() => {
     // console.log("clicked board:", { event: e, target: e.target });
     const isCardFlipped = flippedCardId.value !== -1;
 
+    // handle unflip the flipped card
     if (isCardFlipped) {
-      // un-flip it
       flippedCardId.value = -1;
       return;
     }
@@ -347,46 +334,33 @@ export default component$(() => {
   // whenever resizing, update our dimensions state
   useOnWindow("resize", updateDimensions);
 
-  // console.log({
-  //   boardDimensions,
-  //   middle: {
-  //     width: boardDimensions.value.width / 2,
-  //     height: boardDimensions.value.height / 2,
-  //   },
-  // });
-
   return (
-    <div class="h-screen flex flex-col items-stretch">
+    <div class="h-screen flex flex-col items-stretch m-4">
       <header class="grid grid-cols-5 text-center items-center">
-        <small class="col-span-2">
+        <small class="col-span-2 flex gap-2 justify-center">
           <GreySpan title="flippedCardId:">{flippedCardId.value}</GreySpan>
-          <GreySpan ml={4} title="selectedCards:">
+          <GreySpan title="selected:">
             {selectedCards.value[0] || "-"} : {selectedCards.value[1] || "-"}
-          </GreySpan>
-          <GreySpan ml={4} title="pairs:">
-            {successfulPairs.value.length || 0}
           </GreySpan>
         </small>
         <h1 class="col-start-3 col-span-1">Flipping Cards</h1>
-        <small class="col-span-2">
+        <small class="col-span-2 flex gap-2 justify-center">
+          <GreySpan title="pairs:">
+            {successfulPairs.value.length || 0}
+          </GreySpan>
           <GreySpan title="mismatchCount:">{mismatchCount.value}</GreySpan>
-          <GreySpan ml={4} title="w.width:">
-            {boardDimensions.value.width}px,
-          </GreySpan>
-          <GreySpan title="h.height:" ml={4}>
-            {boardDimensions.value.height}px,
-          </GreySpan>
         </small>
       </header>
 
       <div
         ref={boardRef}
-        class={`grid gap-[${gapPx}px] w-full h-full`}
+        class={`grid w-full h-full`}
         style={{
           gridTemplateColumns: `repeat(${COLUMN_COUNT}, 1fr)`,
           gridTemplateRows: `repeat(${Math.ceil(
             TOTAL_CARDS / COLUMN_COUNT
           )}, 1fr)`,
+          gridGap: `${gapPx}px`,
         }}
         onClick$={(e: QwikMouseEvent) => handleClick(e)}
       >
@@ -429,16 +403,9 @@ type FlippableCardProps = {
 };
 
 export const FlippableCard = component$(
-  ({
-    card,
-    flippedCardId,
-    pairs,
-    slotDimensions,
-    gap,
-  }: FlippableCardProps) => {
-    // timer-controlled so text doesn't show in the DOM when back of card is showing
+  ({ card, flippedCardId, pairs, slotDimensions, gap }: FlippableCardProps) => {
+    // timer-controlled, so text doesn't show in the DOM when back of card is showing
     const isTextShowing = useSignal<boolean>(false);
-    const containerRef = useSignal<HTMLElement>();
 
     const isThisCardFlipped = useComputed$(() => {
       return flippedCardId.value === card.id;
@@ -446,20 +413,6 @@ export const FlippableCard = component$(
 
     const isRemoved = useComputed$(() => {
       return isCardRemoved(pairs.value, card.id);
-      // const removedCards = new Set();
-      // pairs.value.forEach((pair) => {
-      //   const [c1, c2] = pair.split(":");
-      //   removedCards.add(Number(c1));
-      //   removedCards.add(Number(c2));
-      // });
-      // console.log({
-      //   pairs: pairs.value,
-      //   pairsLen: pairs.value.length,
-      //   removedCards: Object.fromEntries(removedCards.entries()),
-      //   removedLen: removedCards.size,
-      //   isRemoved: removedCards.has(card.id),
-      // });
-      // return removedCards.has(card.id);
     });
 
     /*  this task handles the hiding and showing of text
@@ -500,6 +453,12 @@ export const FlippableCard = component$(
       perspective: 1400px; /* for 3D effect, adjust based on width, and card area compared to viewport */
 
       margin: auto; /* center in frame */
+
+      aspect-ratio: 2.25 / 3.5;
+      width: 100%;
+      height: auto;
+      maxWidth: 100%;
+      maxHeight: 100%;
     }
 
     /* front and back varying styles */
@@ -537,94 +496,28 @@ export const FlippableCard = component$(
     }
 
     .flip-card-inner .back .circle {
+      position: absolute;
       border-radius: 50%;
       background-color: #ffffff40;
-      width: 100px;
-      height: 100px;
-      position: absolute;
+
+      width: 50%;
+      height: auto;
+      aspect-ratio: 1 / 1;
+
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
     }
     `);
 
-    // need to figure out how to translate each grid slot to the middle
-    // I have the coords for the middle of the board.
-    // I have the number of columns (6)
-    // I have the dimensions of the board
-    //
-    // I can take board.width / columns === column.width
-    // Then need to figure out how to get from each column to the middle
-
-    // need to take gaps into account...
-    // 5 gaps for 6 columns, and 12px per gap
-
-    // 2.5 - 0 = 2.5
-    // 2.5 - 1 = 1.5
-    // 2.5 - 2 = 0.5
-    //
-    // 2.5 - 3 = -0.5
-    // 2.5 - 4 = -1.5
-    // 2.5 - 5 = -2.5
-    // 2.5 === (columns - 1) / 2
-    //
-
-    // ((columns - 1) / 2) - coords.value.x === ratio for this card column to get to the center
-
-    // multiply ratio by column.width + gap
-
-    // cols: 0, 1, 2, 3, 4, 5
-    // before middle: (coords.value.x)
-    // 0 => translateX((column.width + gap) * 2.5)
-    // 1 => translateX((column.width + gap) * 1.5)
-    // 2 => translateX((column.width + gap) * 0.5)
-    // after middle:
-    // 3 => translateX(-((column.width + gap) * 0.5))
-    // 4 => translateX(-((column.width + gap) * 1.5))
-    // 5 => translateX(-((column.width + gap) * 2.5))
-
-    // IF columns === 8...
-    // 0 => 3.5x
-    // 1 => 2.5x
-    // 2 => 1.5x
-    // 3 => 0.5x
-
-    // Rows:
-    // Then I have the number of rows === TOTAL_CARDS / columns === 3
-    // rows: 0, 1, 2, 3
-    // 0 => translateY(column.height * 1)
-    // 1 => translateY(column.height * 0)
-    // 2 => translateY(column.height * -1)
-    //
-
     const translationsToMiddle = useComputed$(() => {
       const colRatio = MIN_MAX_COLUMNS_OFFSET - coords.value.x;
       const columnWidthPlusGap = slotDimensions.value.width + gap;
       const translateX = columnWidthPlusGap * colRatio;
 
-      // console.log({
-      //   columns,
-      //   boardWidth: boardDimensions.value.width,
-      //   columnBetweenGapsWidth: columnWidth,
-      //   columnWidthPlusGap, // distance a card needs to move to move 1 column over (column.width + gap)
-      //   MIN_MAX_COLUMNS_OFFSET, // should be constant depending on columns
-      //   thisCardTranslateRatio: colRatio, // 2.5, 1.5, 0.5, -0.5, ...
-      //   translateX,
-      // });
-
       const rowRatio = MIN_MAX_ROWS_OFFSET - coords.value.y;
       const rowHeightPlusGap = slotDimensions.value.height + gap;
       const translateY = rowHeightPlusGap * rowRatio;
-
-      // console.log({
-      //   rows,
-      //   boardHeight: boardDimensions.value.height,
-      //   rowBetweenGapsHeight: rowHeight,
-      //   rowHeightPlusGap, // distance a card needs to move to move 1 column over (column.width + gap)
-      //   MIN_MAX_ROWS_OFFSET, // should be constant depending on columns
-      //   thisCardTranslateRatio: rowRatio, // 2.5, 1.5, 0.5, -0.5, ...
-      //   translateY,
-      // });
 
       return {
         translateX,
@@ -633,38 +526,15 @@ export const FlippableCard = component$(
       };
     });
 
-    useTask$((taskCtx) => {
-      taskCtx.track(() => (isRemoved.value, flippedCardId.value));
-      console.log({
-        isRemoved: isRemoved.value,
-        flippedCardId: flippedCardId.value,
-      });
-    });
-
     const flipTransform = useComputed$(() => {
       return `translateX(${translationsToMiddle.value.translateX}px) 
-                  translateY(${translationsToMiddle.value.translateY}px) 
-                  rotateY(${
-                    translationsToMiddle.value.isOnLeftSide ? "" : "-"
-                  }180deg) 
-                  scale(2)`; // maybe should be dynamic depending on screen size??
-    });
-
-    useTask$((taskCtx) => {
-      taskCtx.track(() => containerRef.value);
-      console.log({
-        containerRef: containerRef.value,
-        offsetWidth: containerRef.value?.offsetWidth,
-      });
-    });
-
-    const circleWidth = useComputed$(() => {
-      return (containerRef.value?.offsetWidth ?? 1) / 2;
+        translateY(${translationsToMiddle.value.translateY}px) 
+        rotateY(${translationsToMiddle.value.isOnLeftSide ? "" : "-"}180deg) 
+        scale(2)`; // maybe should be dynamic depending on screen size??
     });
 
     return (
       <div
-        ref={containerRef}
         class={`flip-card rounded-md transition-all ${
           isRemoved.value &&
           flippedCardId.value !== card.id &&
@@ -676,9 +546,6 @@ export const FlippableCard = component$(
         style={{
           gridColumn: `${coords.value.x + 1} / ${coords.value.x + 2}`,
           gridRow: `${coords.value.y + 1} / ${coords.value.y + 2}`,
-          aspectRatio: "2.25/3.5",
-          width: `${slotDimensions.value?.width * 0.8}px`,
-          height: `auto`,
           zIndex: isThisCardFlipped.value || isTextShowing.value ? 1000 : 0,
         }}
       >
@@ -693,20 +560,12 @@ export const FlippableCard = component$(
               : ""
           }
         >
-          <div class={`back  rounded-md`} data-id={card.id}>
-            <div
-              data-id={card.id}
-              class="circle"
-              style={{
-                width: `${circleWidth.value}px`, // based off container width
-                height: "auto",
-                aspectRatio: "1/1",
-              }}
-            ></div>
+          <div class={`back rounded-md`} data-id={card.id}>
+            <div data-id={card.id} class="circle"></div>
           </div>
-          <div class={`front  rounded-md`} data-id={card.id}>
+          <div class={`front rounded-md`} data-id={card.id}>
             <div
-              class={` flex justify-center items-center w-full h-full `}
+              class={`flex justify-center items-center w-full h-full `}
               data-id={card.id}
             >
               {isTextShowing.value ? card.text : ""}

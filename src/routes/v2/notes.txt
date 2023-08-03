@@ -1,0 +1,48 @@
+    // need to figure out how to translate each grid slot to the middle
+    // I have the coords for the middle of the board.
+    // I have the number of columns (6)
+    // I have the dimensions of the board
+    //
+    // I can take board.width / columns === column.width
+    // Then need to figure out how to get from each column to the middle
+
+    // need to take gaps into account...
+    // 5 gaps for 6 columns, and 12px per gap
+
+    // 2.5 - 0 = 2.5
+    // 2.5 - 1 = 1.5
+    // 2.5 - 2 = 0.5
+    //
+    // 2.5 - 3 = -0.5
+    // 2.5 - 4 = -1.5
+    // 2.5 - 5 = -2.5
+    // 2.5 === (columns - 1) / 2
+    //
+
+    // ((columns - 1) / 2) - coords.value.x === ratio for this card column to get to the center
+
+    // multiply ratio by column.width + gap
+
+    // cols: 0, 1, 2, 3, 4, 5
+    // before middle: (coords.value.x)
+    // 0 => translateX((column.width + gap) * 2.5)
+    // 1 => translateX((column.width + gap) * 1.5)
+    // 2 => translateX((column.width + gap) * 0.5)
+    // after middle:
+    // 3 => translateX(-((column.width + gap) * 0.5))
+    // 4 => translateX(-((column.width + gap) * 1.5))
+    // 5 => translateX(-((column.width + gap) * 2.5))
+
+    // IF columns === 8...
+    // 0 => 3.5x
+    // 1 => 2.5x
+    // 2 => 1.5x
+    // 3 => 0.5x
+
+    // Rows:
+    // Then I have the number of rows === TOTAL_CARDS / columns === 3
+    // rows: 0, 1, 2, 3
+    // 0 => translateY(column.height * 1)
+    // 1 => translateY(column.height * 0)
+    // 2 => translateY(column.height * -1)
+    //
