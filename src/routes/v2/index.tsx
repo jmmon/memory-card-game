@@ -12,7 +12,9 @@ import {
   useTask$,
   useVisibleTask$,
 } from "@builder.io/qwik";
+import { Card } from "~/context/context";
 import { MatchModalContext } from "~/context/match-modal.context";
+import { generateCards, shuffle_FY_algo } from "~/utils/cardUtils";
 
 export const CARD_FLIP_ANIMATION_DURATION = 800;
 export const CARD_FLIP_ANIMATION_DURATION_HALF =
@@ -37,78 +39,9 @@ const getXYFromPosition = (
   y: Math.floor(position / columnCount),
 });
 
-type Card = {
-  id: number;
-  text: string;
-  pairId: number;
-  position: number;
-};
-
 // set up cards
-const unshuffledCards: Card[] = [];
-
-// build cards
-for (let i = 0; i < TOTAL_CARDS / 2; i++) {
-  // create a pair of cards
-  const thisId = new Array(5)
-    .fill(0)
-    .map((_, i) => {
-      const num = Math.floor(Math.random() * 10);
-      // should prevent 0's from being the first digit, so all nums should be 5 digits
-      return i === 0 ? num || 1 : num;
-    })
-    .join("");
-
-  // const thisId = Math.ceil(Math.random() * 10000);
-  const id1 = Number(thisId + "0");
-  const id2 = Number(thisId + "1");
-  const num = i * 2;
-
-  const card1 = {
-    id: id1,
-    text: `card text ${num} a`,
-    pairId: id2,
-    position: num, // eventually should be a random position
-  };
-  const card2 = {
-    id: id2,
-    text: `card text ${num + 1} b`,
-    pairId: id1,
-    position: num + 1, // eventually should be a random position
-  };
-
-  unshuffledCards.push(card1, card2);
-}
-
-export function shuffle1(arr: any[]): any[] {
-  return Array(arr.length) // create new array
-    .fill(null)
-    .map((_, i) => [Math.random(), i]) // map so we have [random, index]
-    .sort(([randA], [randB]) => randA - randB) // sort by the random numbers
-    .map(([, i], newPos) => ({ ...arr[i], position: newPos })); // match input arr to new arr by index
-}
-
-// this shuffles indices into the remaining array
-const shuffle_FY_alg = (_array: Card[]): Card[] => {
-  // walk backward
-  const array = _array.slice();
-  for (let i = array.length - 1; i > 0; i--) {
-    // pick random index from 'remaining' indices
-    const j = Math.floor(Math.random() * (i + 1));
-
-    // swap the current with the target indices
-    const temp = array[i];
-    array[i] = array[j];
-    array[j] = temp;
-
-    // swap the two using destructuring
-    // [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-};
-
-export const cards = shuffle_FY_alg(unshuffledCards) as Card[];
-
+const unshuffledCards = generateCards(TOTAL_CARDS);
+const cards = shuffle_FY_algo(unshuffledCards);
 console.log({ unshuffledCards, cards });
 
 // flow:
@@ -155,15 +88,14 @@ export const checkMatch = (
   cardA: Card | undefined,
   cardB: Card | undefined
 ): boolean => {
-  if (!cardA || !cardB) {
+  if (cardA === undefined || cardB === undefined) {
     return false;
   }
   return cardA.pairId === cardB.id && cardB.pairId === cardA.id;
 };
 
-export const findCardById = (id: number): Card | undefined => {
-  return cards.find((card) => card.id === id);
-};
+export const findCardById = (id: number) =>
+  cards.find((card) => card.id === String(id));
 
 export const buildSetFromPairs = (pairs: `${number}:${number}`[]) => {
   const set = new Set<number>();
@@ -408,11 +340,11 @@ export const FlippableCard = component$(
     const isTextShowing = useSignal<boolean>(false);
 
     const isThisCardFlipped = useComputed$(() => {
-      return flippedCardId.value === card.id;
+      return String(flippedCardId.value) === card.id;
     });
 
     const isRemoved = useComputed$(() => {
-      return isCardRemoved(pairs.value, card.id);
+      return isCardRemoved(pairs.value, Number(card.id));
     });
 
     /*  this task handles the hiding and showing of text
@@ -537,8 +469,8 @@ export const FlippableCard = component$(
       <div
         class={`flip-card rounded-md transition-all ${
           isRemoved.value &&
-          flippedCardId.value !== card.id &&
-          flippedCardId.value !== card.pairId
+          String(flippedCardId.value) !== card.id &&
+          String(flippedCardId.value) !== card.pairId
             ? "opacity-0"
             : "opacity-100 cursor-pointer"
         }`}
