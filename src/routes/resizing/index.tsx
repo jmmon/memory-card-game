@@ -1,5 +1,6 @@
 import {
   $,
+  PropFunction,
   component$,
   useOnWindow,
   useSignal,
@@ -7,35 +8,75 @@ import {
   useTask$,
   useVisibleTask$,
 } from "@builder.io/qwik";
-const CARD_COUNT = 18;
-// const cards = new Array(CARD_COUNT).fill(0).map((_, i) => i);
+const INITIAL_CARD_COUNT = 18;
 const CARD_RATIO = 2.25 / 3.5;
 
+type Store = {
+  game: {
+    cards: number[];
+    deck: {
+      size: number;
+      isLocked: boolean;
+    };
+  };
+  boardLayout: {
+    width: number;
+    height: number;
+    area: number;
+    rows: number;
+    columns: number;
+    isLocked: boolean;
+  };
+  cardLayout: {
+    width: number;
+    height: number;
+    area: number;
+  };
+};
+
+const INITIAL = {
+  boardLayout: {
+    width: 992,
+    height: 559,
+    area: 554528,
+    rows: 3,
+    columns: 7,
+  },
+  cardLayout: {
+    width: 119.7857142857143,
+    height: 186.33333333333334,
+    area: 22320.071428571435,
+  },
+};
+
 export default component$(() => {
-  const store = useStore({
+  const store = useStore<Store>({
+    game: {
+      cards: [],
+      deck: { size: INITIAL_CARD_COUNT, isLocked: false },
+    },
     boardLayout: {
-      width: 0,
-      height: 0,
-      area: 0,
-      rows: 0,
-      columns: 0,
+      width: 992,
+      height: 559,
+      area: 554528,
+      rows: 3,
+      columns: 7,
+      isLocked: false, // prevent recalculation of board layout
     },
     cardLayout: {
-      width: 0,
-      height: 0,
-      area: 0,
+      width: 119.7857142857143,
+      height: 186.33333333333334,
+      area: 22320.071428571435,
     },
   });
   const boardRef = useSignal<HTMLDivElement>();
-  const cardsSliderSignal = useSignal<number>(CARD_COUNT);
-  const cards = useSignal<number[]>([]);
 
-  const calculateBoard = $(() => {
-    const boardWidth = boardRef.value?.offsetWidth || 0;
-    const boardHeight = boardRef.value?.offsetHeight || 0;
+  const calculateBoard = $((width?: number, height?: number) => {
+    const boardWidth = boardRef.value?.offsetWidth || width || 0;
+    const boardHeight = boardRef.value?.offsetHeight || height || 0;
     const boardArea = boardWidth * boardHeight;
 
-    const maxAreaPerCard = boardArea / cardsSliderSignal.value;
+    const maxAreaPerCard = boardArea / store.game.deck.size;
 
     // w * h : 2.25 * 3.5 && w * h === maxAreaPerCard
     // maxAreaPerCard = maxWidthPerCard * maxHeightPerCard;
@@ -48,7 +89,7 @@ export default component$(() => {
 
     const maxWidthPerCard = Math.sqrt(maxAreaPerCard * CARD_RATIO);
     const cardsPerRow = Math.floor(boardWidth / maxWidthPerCard);
-    const rows = Math.ceil(cardsSliderSignal.value / cardsPerRow);
+    const rows = Math.ceil(store.game.deck.size / cardsPerRow);
     // max height per card is restricted by number of rows:
     const maxHeightPerCard = boardHeight / rows;
     const newCardWidth = maxHeightPerCard * CARD_RATIO;
@@ -61,6 +102,7 @@ export default component$(() => {
 
     // save board width/height
     store.boardLayout = {
+      ...store.boardLayout,
       width: boardWidth,
       height: boardHeight,
       area: boardArea,
@@ -77,36 +119,77 @@ export default component$(() => {
   });
 
   useVisibleTask$((taskCtx) => {
-    taskCtx.track(() => cardsSliderSignal.value);
-    calculateBoard();
+    taskCtx.track(
+      () => store.game.deck.size
+      // ||
+      //         boardRef.value?.offsetWidth ||
+      //         boardRef.value?.offsetHeight
+    );
   });
 
+  // track window resizes for responsive rearrangement (can shuffle cards around!
   useOnWindow(
     "resize",
     $(() => {
+      if (store.boardLayout.isLocked) {
+        return;
+      }
       calculateBoard();
     })
   );
 
+  // track deck size changes
   useTask$((taskCtx) => {
-    taskCtx.track(() => cardsSliderSignal.value);
-    cards.value = new Array(cardsSliderSignal.value).fill(0).map((_, i) => i);
+    taskCtx.track(() => store.game.deck.size);
+    if (store.game.deck.isLocked) {
+      return;
+    }
+    store.game.cards = new Array(store.game.deck.size).fill(0).map((_, i) => i);
+    calculateBoard();
+  });
+
+  // initialize board on server at specific dimensions
+  useTask$(() => {
+    calculateBoard(INITIAL.boardLayout.width, INITIAL.boardLayout.height);
   });
 
   return (
-    <div class="w-full h-full p-4 flex flex-col">
-      <div class="mx-auto p-4">
+    <div class="w-full h-full p-4 grid" style="grid-template-rows: 8% 92%;">
+      <div class="mx-auto p-4 flex gap-4">
+        <div class="flex gap-4">
+          <Lock
+            text="Lock Deck"
+            onChange$={() => {
+              store.game.deck.isLocked = !store.game.deck.isLocked;
+            }}
+          />
+          <Lock
+            text="Lock Board"
+            onChange$={() => {
+              store.boardLayout.isLocked = !store.boardLayout.isLocked;
+            }}
+          />
+        </div>
         <input
           type="range"
           max="52"
           min="12"
           step="2"
-          value={CARD_COUNT}
+          value={INITIAL_CARD_COUNT}
           onInput$={(e, t: HTMLInputElement) => {
             console.log("input");
-            cardsSliderSignal.value = Number(t?.value);
+            store.game.deck.size = Number(t?.value);
           }}
+          disabled={store.game.deck.isLocked}
         />
+        <button
+          type="button"
+          onClick$={() => calculateBoard()}
+          class="border rounded border-white bg-white p-2"
+          disabled={store.boardLayout.isLocked}
+        >
+          Refresh
+        </button>
       </div>
       <div
         ref={boardRef}
@@ -116,7 +199,7 @@ export default component$(() => {
           gridTemplateColumns: `repeat(${store.boardLayout.columns}, 1fr)`,
         }}
       >
-        {cards.value.map((card) => (
+        {store.game.cards.map((card) => (
           <Card i={card} store={store} />
         ))}
       </div>
@@ -124,16 +207,38 @@ export default component$(() => {
   );
 });
 
+const Lock = component$(
+  ({
+    text,
+    onChange$,
+  }: {
+    text: string;
+    onChange$: PropFunction<() => void>;
+  }) => {
+    return (
+      <div class="flex gap- items-center justify-end">
+        <label for={text} class="mr-2 mb-1">{text}</label>
+        <input class="" type="checkbox" name={text} onChange$={onChange$} />
+      </div>
+    );
+  }
+);
+
 const Card = component$(({ i, store }: any) => {
   return (
     <div
-      class={`mx-auto aspect-[2.25/3.5] bg-gray-50 border rounded-xl border-gray-400 p-4`}
+      class={`mx-auto aspect-[2.25/3.5] bg-gray-50 flex flex-col justify-center`}
       style={{
         width: store.cardLayout.width + "px",
         height: store.cardLayout.height + "px",
       }}
     >
-      some text
+      <div
+        class="border rounded-xl border-gray-400 p-4 mx-auto flex flex-col justify-center items-center"
+        style="width: 90%; height: 90%;"
+      >
+        some text
+      </div>
     </div>
   );
 });
