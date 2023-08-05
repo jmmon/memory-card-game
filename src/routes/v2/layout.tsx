@@ -6,8 +6,8 @@ import {
   useOnDocument,
   useStore,
 } from "@builder.io/qwik";
-import MatchModal from "~/components/match-modal/match-modal";
-import { MatchModalContext } from "~/context/match-modal.context";
+import MatchModal from "~/components/v2/match-modal/match-modal";
+import { MatchModalContext } from "~/components/v2/context/match-modal.context";
 
 export default component$(() => {
   const MatchModalStore = useStore<MatchModalContext>({
@@ -19,6 +19,7 @@ export default component$(() => {
 
   useContextProvider(MatchModalContext, MatchModalStore);
 
+  // set up esc hotkey to close modal
   useOnDocument(
     "keydown",
     $((e: Event) => {

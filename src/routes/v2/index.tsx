@@ -1,49 +1,3 @@
-import {
-  $,
-  QwikMouseEvent,
-  Signal,
-  Slot,
-  component$,
-  useComputed$,
-  useContext,
-  useOnWindow,
-  useSignal,
-  useStylesScoped$,
-  useTask$,
-  useVisibleTask$,
-} from "@builder.io/qwik";
-import { Card } from "~/context/context";
-import { MatchModalContext } from "~/context/match-modal.context";
-import { generateCards, shuffle_FY_algo } from "~/utils/cardUtils";
-
-export const CARD_FLIP_ANIMATION_DURATION = 800;
-export const CARD_FLIP_ANIMATION_DURATION_HALF =
-  CARD_FLIP_ANIMATION_DURATION / 2;
-
-export const TOTAL_CARDS = 18;
-export const COLUMN_COUNT = 6;
-export const ROW_COUNT = Math.ceil(TOTAL_CARDS / COLUMN_COUNT);
-
-// should only depend on columns
-export const MIN_MAX_COLUMNS_OFFSET = (COLUMN_COUNT - 1) / 2; // 6 => 2.5, 8 => 3.5
-export const MIN_MAX_ROWS_OFFSET = (ROW_COUNT - 1) / 2;
-// same as (columns / 2) - 0.5
-
-const getXYFromPosition = (
-  position: number,
-  columnCount: number = COLUMN_COUNT
-) => ({
-  // 23 % 6 = 5; 16 % 6 = 4;
-  x: position % columnCount,
-  // 23 / 6 = 3.; 16 / 6 = 2.;
-  y: Math.floor(position / columnCount),
-});
-
-// set up cards
-const unshuffledCards = generateCards(TOTAL_CARDS);
-const cards = shuffle_FY_algo(unshuffledCards);
-console.log({ unshuffledCards, cards });
-
 // flow:
 // click on a card, it flips and enlarges to cover center of screen
 // (Now one card is "selected," added to the selected array)
@@ -74,6 +28,49 @@ console.log({ unshuffledCards, cards });
 // board has to hold the flip state
 // should hold the id of the currently flipped card (if any)
 //
+
+import {
+  $,
+  QwikMouseEvent,
+  Slot,
+  component$,
+  useContext,
+  useOnWindow,
+  useSignal,
+  useVisibleTask$,
+} from "@builder.io/qwik";
+import { FlippableCard } from "~/components/v2/FlippableCard";
+import { MatchModalContext } from "~/components/v2/context/match-modal.context";
+import { generateCards, shuffle_FY_algo, Card } from "~/utils/cardUtils";
+
+export const CARD_FLIP_ANIMATION_DURATION = 800;
+export const CARD_FLIP_ANIMATION_DURATION_HALF = CARD_FLIP_ANIMATION_DURATION / 2;
+
+// these could be changeable in settings
+export const TOTAL_CARDS = 18;
+export const COLUMN_COUNT = 6; // TODO: make this dynamic!!
+
+export const ROW_COUNT = Math.ceil(TOTAL_CARDS / COLUMN_COUNT); // TODO: make this dynamic!
+
+// should only depend on columns
+export const MIN_MAX_COLUMNS_OFFSET = (COLUMN_COUNT - 1) / 2; // 6 => 2.5, 8 => 3.5// TODO: make this dynamic!
+export const MIN_MAX_ROWS_OFFSET = (ROW_COUNT - 1) / 2;// TODO: make this dynamic!
+// same as (columns / 2) - 0.5
+
+export const getXYFromPosition = (
+  position: number,
+  columnCount: number = COLUMN_COUNT // TODO: comes from DYNAMIC columns!
+) => ({
+  // 23 % 6 = 5; 16 % 6 = 4;
+  x: position % columnCount,
+  // 23 / 6 = 3.; 16 / 6 = 2.;
+  y: Math.floor(position / columnCount),
+});
+
+// set up cards
+const unshuffledCards = generateCards(TOTAL_CARDS);
+const cards = shuffle_FY_algo(unshuffledCards);
+console.log({ unshuffledCards, cards });
 
 const windowDimensionsColor = "text-gray-400";
 
@@ -247,15 +244,18 @@ export default component$(() => {
     };
 
     const columnWidth =
-      (boardDimensions.value.width - gapPx * (COLUMN_COUNT - 1)) / COLUMN_COUNT;
+      ((boardDimensions.value.width - gapPx * (COLUMN_COUNT - 1)) / COLUMN_COUNT) || 0;
     const rowHeight =
-      (boardDimensions.value.height - gapPx * (ROW_COUNT - 1)) / ROW_COUNT;
+      ((boardDimensions.value.height - gapPx * (ROW_COUNT - 1)) / ROW_COUNT) || 0;
 
     gridSlotDimensions.value = {
-      width: columnWidth || 0,
-      height: rowHeight || 0,
+      width: columnWidth,
+      height: rowHeight,
     };
   });
+
+
+
 
   // when first hitting client, now we have dimensions, so update our state
   useVisibleTask$(() => {
@@ -326,185 +326,3 @@ export default component$(() => {
   );
 });
 
-type FlippableCardProps = {
-  card: Card;
-  flippedCardId: Signal<number>;
-  pairs: Signal<`${number}:${number}`[]>;
-  slotDimensions: Signal<{ width: number; height: number }>;
-  gap: number;
-};
-
-export const FlippableCard = component$(
-  ({ card, flippedCardId, pairs, slotDimensions, gap }: FlippableCardProps) => {
-    // timer-controlled, so text doesn't show in the DOM when back of card is showing
-    const isTextShowing = useSignal<boolean>(false);
-
-    const isThisCardFlipped = useComputed$(() => {
-      return String(flippedCardId.value) === card.id;
-    });
-
-    const isRemoved = useComputed$(() => {
-      return isCardRemoved(pairs.value, Number(card.id));
-    });
-
-    /*  this task handles the hiding and showing of text
-     *  to be sure that people can't inspect the cards face-down and see the text
-     * */
-    useTask$((taskCtx) => {
-      taskCtx.track(() => isThisCardFlipped.value);
-      let timer: ReturnType<typeof setTimeout>;
-
-      // when switched to not showing, need to start timer to hide text after 0.4s (half the transition time)
-      // duration is ~half the transition time, but adding/subtracting 100ms for margin to make sure the text doesn't show up after the flip
-      if (!isThisCardFlipped.value) {
-        timer = setTimeout(() => {
-          isTextShowing.value = false;
-        }, CARD_FLIP_ANIMATION_DURATION_HALF + 100);
-      } else {
-        // when switched to showing, should show text immediately
-        timer = setTimeout(() => {
-          isTextShowing.value = true;
-        }, CARD_FLIP_ANIMATION_DURATION_HALF - 100);
-      }
-
-      taskCtx.cleanup(() => {
-        if (timer) clearTimeout(timer);
-      });
-    });
-
-    const coords = useComputed$(() => {
-      return getXYFromPosition(card.position, COLUMN_COUNT);
-    });
-
-    useStylesScoped$(`
-    /* container, set width/height */
-    .flip-card {
-      background-color: transparent; 
-      border: 1px solid #f1f1f120;
-      border-radius: 10px;
-      perspective: 1400px; /* for 3D effect, adjust based on width, and card area compared to viewport */
-
-      margin: auto; /* center in frame */
-
-      aspect-ratio: 2.25 / 3.5;
-      width: 100%;
-      height: auto;
-      maxWidth: 100%;
-      maxHeight: 100%;
-    }
-
-    /* front and back varying styles */
-    .flip-card-inner {
-      position: relative;
-      z-index: 1;
-      width: 100%;
-      height: 100%;
-      text-align: center;
-      transition: transform ${CARD_FLIP_ANIMATION_DURATION}ms;
-      transform-style: preserve-3d;
-    }
-
-    /* set up front/back, make backface hidden */
-    .flip-card-inner .back,
-    .flip-card-inner .front {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border: 2px solid #f1f1f1;
-
-      -webkit-backface-visibility: hidden;
-      backface-visibility: hidden;    
-    }
-
-    /* front and back varying styles */
-    .flip-card-inner .front {
-      background-color: #bbb;
-      color: black;
-      transform: rotateY(180deg);
-    }
-    .flip-card-inner .back {
-      background-color: dodgerblue;
-      color: white;
-    }
-
-    .flip-card-inner .back .circle {
-      position: absolute;
-      border-radius: 50%;
-      background-color: #ffffff40;
-
-      width: 50%;
-      height: auto;
-      aspect-ratio: 1 / 1;
-
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-    `);
-
-    const translationsToMiddle = useComputed$(() => {
-      const colRatio = MIN_MAX_COLUMNS_OFFSET - coords.value.x;
-      const columnWidthPlusGap = slotDimensions.value.width + gap;
-      const translateX = columnWidthPlusGap * colRatio;
-
-      const rowRatio = MIN_MAX_ROWS_OFFSET - coords.value.y;
-      const rowHeightPlusGap = slotDimensions.value.height + gap;
-      const translateY = rowHeightPlusGap * rowRatio;
-
-      return {
-        translateX,
-        translateY,
-        isOnLeftSide: coords.value.x < COLUMN_COUNT / 2,
-      };
-    });
-
-    const flipTransform = useComputed$(() => {
-      return `translateX(${translationsToMiddle.value.translateX}px) 
-        translateY(${translationsToMiddle.value.translateY}px) 
-        rotateY(${translationsToMiddle.value.isOnLeftSide ? "" : "-"}180deg) 
-        scale(2)`; // maybe should be dynamic depending on screen size??
-    });
-
-    return (
-      <div
-        class={`flip-card rounded-md transition-all ${
-          isRemoved.value &&
-          String(flippedCardId.value) !== card.id &&
-          String(flippedCardId.value) !== card.pairId
-            ? "opacity-0"
-            : "opacity-100 cursor-pointer"
-        }`}
-        data-id={card.id}
-        style={{
-          gridColumn: `${coords.value.x + 1} / ${coords.value.x + 2}`,
-          gridRow: `${coords.value.y + 1} / ${coords.value.y + 2}`,
-          zIndex: isThisCardFlipped.value || isTextShowing.value ? 1000 : 0,
-        }}
-      >
-        <div
-          class="flip-card-inner rounded-md"
-          data-id={card.id}
-          style={
-            isThisCardFlipped.value
-              ? {
-                  transform: flipTransform.value,
-                }
-              : ""
-          }
-        >
-          <div class={`back rounded-md`} data-id={card.id}>
-            <div data-id={card.id} class="circle"></div>
-          </div>
-          <div class={`front rounded-md`} data-id={card.id}>
-            <div
-              class={`flex justify-center items-center w-full h-full `}
-              data-id={card.id}
-            >
-              {isTextShowing.value ? card.text : ""}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-);

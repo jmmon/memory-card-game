@@ -8,7 +8,8 @@ import {
   useTask$,
   useComputed$,
 } from "@builder.io/qwik";
-import { Card, AppContext, Coords, CardPair } from "~/context/context";
+import { Card } from "~/utils/cardUtils";
+import { AppContext, Coords, CardPair } from "../context/context";
 import Jabber from "jabber";
 
 export default component$(() => {

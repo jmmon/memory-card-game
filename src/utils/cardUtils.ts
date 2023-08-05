@@ -1,4 +1,9 @@
-import { Card } from "~/context/context";
+export type Card = {
+  id: string; // unique id
+  text: string; // content of the card
+  position: number; // where it lands in the order of slots on the board
+  pairId: string;
+};
 
 export const generateCards = (total: number) => {
   let unshuffledCards: Card[] = [];
