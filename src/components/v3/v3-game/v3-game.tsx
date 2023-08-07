@@ -179,7 +179,7 @@ const GameHeader = component$(() => {
 
   return (
     <header
-      class={`mx-auto text-center grid text-sm grid-cols-[1fr_6em_1fr] items-center w-full px-[5%]`}
+      class={`mx-auto text-center grid text-xs md:text-sm grid-cols-[1fr_5em_1fr] items-center w-full px-[5%]`}
     >
       <HeaderSection justify="left">
         <SelectionHeaderComponent />
@@ -218,14 +218,17 @@ const GameHeader = component$(() => {
 const SelectionHeaderComponent = component$(() => {
   const appStore = useContext(AppContext);
   return (
-    <code class="bg-gray-800 grid grid-cols-[5.8em_3.6em_0.6em_3.6em] text-center text-gray-200">
-      <div class="w-min inline-block">selected:</div>
+    <code class="bg-gray-800 flex flex-wrap text-center gap-x-4 text-gray-200">
+      <div class="w-min inline-block mx-auto">selected:</div>
+<div class="grid grid-cols-[3.6em_0.6em_3.6em] mx-auto">
       <span>{appStore.game.selectedCardIds[0] ?? "-"}</span>
       <span>:</span>
       <span>{appStore.game.selectedCardIds[1] ?? "-"}</span>
+</div>
     </code>
   );
 });
+
 const HeaderSection = component$(
   ({ justify = "center" }: { justify?: "left" | "right" | "center" }) => {
     return (

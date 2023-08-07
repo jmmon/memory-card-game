@@ -11,6 +11,8 @@ export default component$(() => {
       <div>
         <h3 class="text-gray-500 mb-2 text-2xl text-center">Links:</h3>
         <ul class="flex flex-col gap-2">
+          <LinkLi href="/v3" pretext="v3" text="Third version" />
+          <LinkLi href="/resize" pretext="v2.5" text="Better dynamic board resizing" />
           <LinkLi href="/v2" pretext="v2" text="Second version" />
           <LinkLi href="/v1.5" pretext="v1.5" text="Card flip prototype" />
           <LinkLi href="/v1" pretext="v1" text="First version" />

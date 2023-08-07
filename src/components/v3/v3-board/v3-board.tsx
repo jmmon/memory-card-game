@@ -223,6 +223,7 @@ export default component$(() => {
     "resize",
     $(() => {
       if (appStore.boardLayout.isLocked) return;
+console.log('resize');
 
       resizeBoard();
     })
