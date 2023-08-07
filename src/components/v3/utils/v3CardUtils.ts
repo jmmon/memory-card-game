@@ -26,15 +26,55 @@ export const v3GenerateCards = (total: number) => {
       text: `card text ${num} a`,
       pairId: id2,
       position: num, // eventually should be a random position
+      isMismatched: false,
     };
     const card2 = {
       id: id2,
       text: `card text ${num + 1} b`,
       pairId: id1,
       position: num + 1, // eventually should be a random position
+      isMismatched: false,
     };
 
     unshuffledCards.push(card1, card2);
   }
   return unshuffledCards;
+};
+
+// this shuffles indices into the remaining array
+export function v3Shuffle_FY_algo<T>(_array: T[]): T[] {
+  // walk backward
+  const array = [ ..._array ];
+  for (let i = array.length - 1; i > 0; i--) {
+    // pick random index from 'remaining' indices
+    const j = Math.floor(Math.random() * (i + 1));
+
+    // swap the current with the target indices
+    const temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+
+    // swap the two using destructuring
+    // [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+};
+
+/* TODO:
+* some sort of shufflePosition algorithm, 
+* so I can shuffle the deck with a cool animation! 
+*
+* opt 1: take the previous array, shuffle it, then map through and select new positions
+* hope transition all will cover it
+*
+* */
+
+
+export const shuffleCardPositions = (cards: V3Card[]) => {
+  const newOrder = v3Shuffle_FY_algo<number>(
+    new Array(cards.length).fill(0).map((_, i) => i)
+  );
+  return cards
+    .map((card, i) => ({ ...card, position: newOrder[i] }))
+    .sort((a, b) => a.position - b.position);
 };
