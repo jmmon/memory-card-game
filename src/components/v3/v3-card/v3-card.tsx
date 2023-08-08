@@ -8,6 +8,7 @@ import {
 } from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
 import { V3Card } from "../v3-game/v3-game";
+import { CORNERS_WIDTH_RATIO } from "../v3-board/v3-board";
 
 /*
  * Card has id, text, flip state
@@ -134,9 +135,6 @@ export default component$(({ card }: V3CardProps) => {
     return transform;
   });
 
-  const rounded = "rounded-[12px]"; // should be based on size, but can't use percent because the shape is rectangular so corners won't be the same
-  /* perspective: for 3D effect, adjust based on width, and card area compared to viewport */
-
   useStylesScoped$(`
     .shake-card {
       animation: shake-card ${CARD_SHAKE_ANIMATION_DURATION}ms;
@@ -170,6 +168,7 @@ export default component$(({ card }: V3CardProps) => {
 
   const shakeSignal = useSignal(false);
 
+  // handle turn on shake animation (after card is set back down animation)
   useTask$((taskCtx) => {
     taskCtx.track(() => card.isMismatched);
     // console.log({ card, isMismatched: card.isMismatched });
@@ -189,7 +188,7 @@ export default component$(({ card }: V3CardProps) => {
     });
   });
 
-
+  // handle turn off shake animation
   useTask$((taskCtx) => {
     taskCtx.track(() => shakeSignal.value);
     // console.log({ card, isMismatched: card.isMismatched });
@@ -207,6 +206,11 @@ export default component$(({ card }: V3CardProps) => {
     });
   });
 
+  const rounded = useComputed$(() => {
+    return `rounded-[${appStore.cardLayout.roundedCornersPx}px]`;
+  }); // should be based on size, but can't use percent because the shape is rectangular so corners won't be the same
+  /* perspective: for 3D effect, adjust based on width, and card area compared to viewport */
+
   return (
     <div
       class={`mx-auto aspect-[2.25/3.5] flex flex-col justify-center transition-all`}
@@ -216,29 +220,37 @@ export default component$(({ card }: V3CardProps) => {
         gridColumn: `${coords.value.x + 1} / ${coords.value.x + 2}`,
         gridRow: `${coords.value.y + 1} / ${coords.value.y + 2}`,
         zIndex: isThisCardFlipped.value || isBackTextShowing.value ? 20 : 0,
+        borderRadius: (appStore.cardLayout.width * CORNERS_WIDTH_RATIO) + "px",
       }}
     >
       <div
-        class={`w-[90%] h-[90%] mx-auto [perspective:1400px] bg-transparent border ${rounded} border-gray-50/20 flip-card transition-all ${
+        class={`w-[90%] h-[90%] mx-auto [perspective:1400px] bg-transparent border border-gray-50/20 flip-card transition-all ${
           isRemovedDelayedTrue.value &&
           appStore.game.flippedCardId !== card.id &&
           appStore.game.flippedCardId !== card.pairId
             ? "opacity-0 scale-105"
             : "opacity-100 scale-100 cursor-pointer"
         } ${shakeSignal.value === true ? "shake-card" : ""}`}
+        style={{
+          borderRadius: (appStore.cardLayout.width * CORNERS_WIDTH_RATIO)  + "px",
+        }}
         data-id={card.id}
       >
         <div
-          class={`w-full h-full relative text-center [transform-style:preserve-3d]   [transition-property:transform] ${rounded}`}
+          class={`w-full h-full relative text-center [transform-style:preserve-3d] [transition-property:transform]`}
           data-id={card.id}
           style={{
             transform: isThisCardFlipped.value ? flipTransform.value : "",
             transitionDuration: CARD_FLIP_ANIMATION_DURATION + "ms",
+            borderRadius: (appStore.cardLayout.width * CORNERS_WIDTH_RATIO) + "px",
           }}
         >
           <div
-            class={`absolute w-full h-full border-2 border-gray-50 text-white bg-[dodgerblue] flex flex-col justify-center [backface-visibility:hidden] ${rounded}`}
+            class={`absolute w-full h-full border-2 border-gray-50 text-white bg-[dodgerblue] flex flex-col justify-center [backface-visibility:hidden]`}
             data-id={card.id}
+            style={{
+              borderRadius: (appStore.cardLayout.width * CORNERS_WIDTH_RATIO) + "px",
+            }}
           >
             <div
               data-id={card.id}
@@ -261,15 +273,19 @@ export default component$(({ card }: V3CardProps) => {
             </div>
           </div>
           <div
-            class={`absolute w-full h-full border-2 border-gray-50 text-black bg-gray-300 [transform:rotateY(180deg)] [backface-visibility:hidden] ${rounded}`}
+            class={`absolute w-full h-full border-2 border-gray-50 text-black bg-gray-300 [transform:rotateY(180deg)] [backface-visibility:hidden] `}
             data-id={card.id}
+            style={{
+              borderRadius: (appStore.cardLayout.width * CORNERS_WIDTH_RATIO) + "px",
+            }}
           >
-            <div
-              class={`flex justify-center items-center w-full h-full`}
-              data-id={card.id}
-            >
-              {isBackTextShowing.value ? card.text : ""}
-            </div>
+            {/* <div */}
+            {/*   class={`flex justify-center items-center w-full h-full`} */}
+            {/*   data-id={card.id} */}
+            {/* > */}
+            {/*   {isBackTextShowing.value ? card.text : ""} */}
+            {/* </div> */}
+            {card.image && <img src={card.image} class="w-full h-full" />}
           </div>
         </div>
       </div>

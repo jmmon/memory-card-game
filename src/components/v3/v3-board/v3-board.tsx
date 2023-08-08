@@ -10,9 +10,16 @@ import {
 } from "@builder.io/qwik";
 import V3Card from "../v3-card/v3-card";
 import { AppContext } from "../v3-context/v3.context";
-import { v3GenerateCards, v3Shuffle_FY_algo } from "../utils/v3CardUtils";
+import {
+  DeckOfCardsApi_Card,
+  formatCards,
+  getNewCards,
+  v3GenerateCards,
+  v3Shuffle_FY_algo,
+} from "../utils/v3CardUtils";
 import { Pair, V3Card as V3CardType } from "../v3-game/v3-game";
 const CARD_RATIO = 2.25 / 3.5; // w / h
+export const CORNERS_WIDTH_RATIO = 1/18;
 
 /*
  * card utils
@@ -115,6 +122,7 @@ export default component$(() => {
     appStore.cardLayout = {
       width: newCardWidth,
       height: newCardHeight,
+      roundedCornersPx: CORNERS_WIDTH_RATIO * newCardWidth,
       area: cardArea,
     };
 
@@ -223,19 +231,34 @@ export default component$(() => {
     "resize",
     $(() => {
       if (appStore.boardLayout.isLocked) return;
-console.log('resize');
+      console.log("resize");
 
       resizeBoard();
     })
   );
 
   // track deck size changes to adjust board
-  useTask$((taskCtx) => {
+  useTask$(async (taskCtx) => {
     taskCtx.track(() => appStore.settings.deck.size);
     if (appStore.settings.deck.isLocked) {
       return;
     }
-    appStore.game.cards = v3GenerateCards(appStore.settings.deck.size);
+    // appStore.game.cards = v3GenerateCards(appStore.settings.deck.size);
+    let cards: DeckOfCardsApi_Card[] | undefined = [];
+    try {
+      cards = await getNewCards(appStore.settings.deck.size);
+    } catch (err) {
+      console.log("card API error:", { err });
+    }
+
+    if (cards !== undefined && cards.length > 0) {
+      appStore.game.cards = formatCards(cards);
+    } else {
+      // backup, in case our api fails to fetch
+      appStore.game.cards = v3GenerateCards(appStore.settings.deck.size);
+      console.log("-- defaulting to old cards:", { cards: appStore.game.cards });
+    }
+
     appStore.shuffleCardPositions();
 
     if (appStore.boardLayout.isLocked) {

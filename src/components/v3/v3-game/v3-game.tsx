@@ -12,74 +12,18 @@ import {
   useStore,
   useStyles$,
   useStylesScoped$,
+  useTask$,
 } from "@builder.io/qwik";
 import V3Board from "../v3-board/v3-board";
 import { AppContext } from "../v3-context/v3.context";
-import { shuffleCardPositions, v3GenerateCards } from "../utils/v3CardUtils";
+import {
+    formatCards,
+    getNewCards,
+  shuffleCardPositions,
+  v3GenerateCards,
+} from "../utils/v3CardUtils";
 
-const deckCardsApi = "https://deckofcardsapi.com/api/deck/new/";
-const partialDeckApi =
-  "https://deckofcardsapi.com/api/deck/new/shuffle/?cards=";
-
-const deckCardsDrawApi = {
-  base: "https://deckofcardsapi.com/api/deck/",
-  remainder: "/draw/?count=",
-  generate: function (
-    this: { base: string; remainder: string; generate: any },
-    deckId: string,
-    cardCount: number
-  ): string {
-    return this.base + deckId + this.remainder + cardCount;
-  },
-};
-const CARD_CODES = [
-  "A",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "0",
-  "J",
-  "Q",
-  "K",
-];
-const CARD_SUITS = ["S", "H", "C", "D"];
-export const getNewCards = async (cardCount: number) => {
-  const cards = [];
-  for (let i = 0; i < cardCount / 2; i++) {
-    const isEven = i % 2 === 0;
-    const thisCardCode = CARD_CODES[Math.floor(i / 2)];
-    const newCards = [
-      `${isEven ? "D" : "C"}${thisCardCode}`,
-      `${isEven ? "H" : "S"}${thisCardCode}`,
-    ];
-
-    cards.push(newCards);
-  }
-
-  try {
-    // get new partial deck
-    const response = await fetch(partialDeckApi + cards.join(","));
-    const deckJson = await response.json();
-    console.log({ deckJson });
-
-    // draw cardCount cards
-    const cardsResponse = await fetch(
-      deckCardsDrawApi.generate(deckJson.deck_id, cardCount)
-    );
-    const drawnCardsJson = await cardsResponse.json();
-    console.log({ drawnCardsJson });
-
-    // return them
-    return drawnCardsJson.cards;
-  } catch (err) {
-    console.log({ err });
-  }
-};
+// const deckCardsApi = "https://deckofcardsapi.com/api/deck/new/";
 
 const DEFAULT_CARD_COUNT = 18;
 
@@ -92,6 +36,7 @@ export type V3Card = {
   position: number; // where it lands in the order of slots on the board
   pairId: number;
   isMismatched: boolean;
+  image?: string;
 };
 
 export type AppStore = {
@@ -107,6 +52,7 @@ export type AppStore = {
   cardLayout: {
     width: number;
     height: number;
+    roundedCornersPx: number;
     area: number;
   };
 
@@ -116,7 +62,9 @@ export type AppStore = {
     successfulPairs: Pair[];
     cards: V3Card[];
     mismatchPairs: Pair[];
+    isLoading: boolean;
   };
+
   settings: {
     cardFlipAnimationDuration: number;
     columnCount: number; // default 6, should dynamically adjust
@@ -160,6 +108,7 @@ const INITIAL = {
   cardLayout: {
     width: 119.7857142857143,
     height: 186.33333333333334,
+    roundedCornersPx: 12,
     area: 22320.071428571435,
   },
 
@@ -169,6 +118,7 @@ const INITIAL = {
     successfulPairs: [],
     cards: v3GenerateCards(DEFAULT_CARD_COUNT),
     mismatchPairs: [],
+    isLoading: true,
   },
 
   settings: {
@@ -233,7 +183,6 @@ export default component$(() => {
       <GameHeader />
       <V3Board />
       <SettingsModal />
-      {/* maybe have the modal here */}
     </div>
   );
 });
@@ -270,8 +219,6 @@ const GameHeader = component$(() => {
           mismatches: {appStore.game.mismatchPairs.length}
           {appStore.settings.maxAllowableMismatches === -1
             ? ""
-            : appStore.settings.maxAllowableMismatches === 0
-            ? `/0`
             : `/${appStore.settings.maxAllowableMismatches}`}
         </code>
       </HeaderSection>
