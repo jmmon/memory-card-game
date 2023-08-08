@@ -18,7 +18,7 @@ import {
 } from "../utils/v3CardUtils";
 import { Pair, V3Card as V3CardType } from "../v3-game/v3-game";
 // const CARD_RATIO = 2.5 / 3.5; // w / h
-const CARD_RATIO = 113/ 157; // w / h
+const CARD_RATIO = 113 / 157; // w / h
 export const CORNERS_WIDTH_RATIO = 1 / 20;
 
 /*
@@ -85,8 +85,11 @@ export default component$(() => {
   const boardRef = useSignal<HTMLDivElement>();
 
   const resizeBoard = $((width?: number, height?: number) => {
-    const boardWidth = boardRef.value?.offsetWidth || width || 0;
-    const boardHeight = boardRef.value?.offsetHeight || height || 0;
+    // if (width) appStore.boardLayout.width = width;
+    const boardWidth = width || boardRef.value?.offsetWidth || 0;
+    const boardHeight = height || boardRef.value?.offsetHeight || 0;
+    // const boardWidth = boardRef.value?.offsetWidth  || 0;
+    // const boardHeight = boardRef.value?.offsetHeight || 0;
     const boardArea = boardWidth * boardHeight;
 
     const maxAreaPerCard = boardArea / appStore.settings.deck.size; // to get approx cols/rows
@@ -229,11 +232,14 @@ export default component$(() => {
 
   useOnWindow(
     "resize",
-    $(() => {
+    $((e) => {
       if (appStore.boardLayout.isLocked) return;
-      console.log("resize");
 
-      resizeBoard();
+      const width = (e.target as Window).innerWidth;
+      console.log("resize:", { e, width });
+
+      // make sure window width (minus padding) is passed in, to fix resizing occasional issue
+      resizeBoard(width - 32);
     })
   );
 
@@ -286,7 +292,7 @@ export default component$(() => {
   return (
     <>
       <div
-        class="grid"
+        class="grid max-w-full"
         style={{
           gridTemplateColumns: `repeat(${
             appStore.boardLayout.columns || 4
