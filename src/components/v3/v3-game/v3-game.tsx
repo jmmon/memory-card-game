@@ -17,6 +17,70 @@ import V3Board from "../v3-board/v3-board";
 import { AppContext } from "../v3-context/v3.context";
 import { shuffleCardPositions, v3GenerateCards } from "../utils/v3CardUtils";
 
+const deckCardsApi = "https://deckofcardsapi.com/api/deck/new/";
+const partialDeckApi =
+  "https://deckofcardsapi.com/api/deck/new/shuffle/?cards=";
+
+const deckCardsDrawApi = {
+  base: "https://deckofcardsapi.com/api/deck/",
+  remainder: "/draw/?count=",
+  generate: function (
+    this: { base: string; remainder: string; generate: any },
+    deckId: string,
+    cardCount: number
+  ): string {
+    return this.base + deckId + this.remainder + cardCount;
+  },
+};
+const CARD_CODES = [
+  "A",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "0",
+  "J",
+  "Q",
+  "K",
+];
+const CARD_SUITS = ["S", "H", "C", "D"];
+export const getNewCards = async (cardCount: number) => {
+  const cards = [];
+  for (let i = 0; i < cardCount / 2; i++) {
+    const isEven = i % 2 === 0;
+    const thisCardCode = CARD_CODES[Math.floor(i / 2)];
+    const newCards = [
+      `${isEven ? "D" : "C"}${thisCardCode}`,
+      `${isEven ? "H" : "S"}${thisCardCode}`,
+    ];
+
+    cards.push(newCards);
+  }
+
+  try {
+    // get new partial deck
+    const response = await fetch(partialDeckApi + cards.join(","));
+    const deckJson = await response.json();
+    console.log({ deckJson });
+
+    // draw cardCount cards
+    const cardsResponse = await fetch(
+      deckCardsDrawApi.generate(deckJson.deck_id, cardCount)
+    );
+    const drawnCardsJson = await cardsResponse.json();
+    console.log({ drawnCardsJson });
+
+    // return them
+    return drawnCardsJson.cards;
+  } catch (err) {
+    console.log({ err });
+  }
+};
+
 const DEFAULT_CARD_COUNT = 18;
 
 export type Pair = `${number}:${number}`;
@@ -220,11 +284,11 @@ const SelectionHeaderComponent = component$(() => {
   return (
     <code class="bg-gray-800 flex flex-wrap text-center gap-x-4 text-gray-200">
       <div class="w-min inline-block mx-auto">selected:</div>
-<div class="grid grid-cols-[3.6em_0.6em_3.6em] mx-auto">
-      <span>{appStore.game.selectedCardIds[0] ?? "-"}</span>
-      <span>:</span>
-      <span>{appStore.game.selectedCardIds[1] ?? "-"}</span>
-</div>
+      <div class="grid grid-cols-[3.6em_0.6em_3.6em] mx-auto">
+        <span>{appStore.game.selectedCardIds[0] ?? "-"}</span>
+        <span>:</span>
+        <span>{appStore.game.selectedCardIds[1] ?? "-"}</span>
+      </div>
     </code>
   );
 });
@@ -441,14 +505,14 @@ const SettingsModal = component$(() => {
             <div class="flex gap-8 flex-col">
               <SettingsRow>
                 <div class="flex gap-4 items-center tooltip">
-                <button
-                  class="bg-slate-500 rounded p-2"
-                  onClick$={() => appStore.shuffleCardPositions()}
-                >
-                  Shuffle Deck
-                </button>
-<span class="tooltiptext">Shuffle the card positions.</span>
-</div>
+                  <button
+                    class="bg-slate-500 rounded p-2"
+                    onClick$={() => appStore.shuffleCardPositions()}
+                  >
+                    Shuffle Deck
+                  </button>
+                  <span class="tooltiptext">Shuffle the card positions.</span>
+                </div>
               </SettingsRow>
             </div>
           </div>
