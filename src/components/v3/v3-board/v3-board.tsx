@@ -15,11 +15,11 @@ import {
   formatCards,
   getNewCards,
   v3GenerateCards,
-  v3Shuffle_FY_algo,
 } from "../utils/v3CardUtils";
 import { Pair, V3Card as V3CardType } from "../v3-game/v3-game";
-const CARD_RATIO = 2.25 / 3.5; // w / h
-export const CORNERS_WIDTH_RATIO = 1/18;
+// const CARD_RATIO = 2.5 / 3.5; // w / h
+const CARD_RATIO = 113/ 157; // w / h
+export const CORNERS_WIDTH_RATIO = 1 / 20;
 
 /*
  * card utils
@@ -243,6 +243,7 @@ export default component$(() => {
     if (appStore.settings.deck.isLocked) {
       return;
     }
+    appStore.game.isLoading = true;
     // appStore.game.cards = v3GenerateCards(appStore.settings.deck.size);
     let cards: DeckOfCardsApi_Card[] | undefined = [];
     try {
@@ -256,10 +257,19 @@ export default component$(() => {
     } else {
       // backup, in case our api fails to fetch
       appStore.game.cards = v3GenerateCards(appStore.settings.deck.size);
-      console.log("-- defaulting to old cards:", { cards: appStore.game.cards });
+      console.log("-- defaulting to old cards:", {
+        cards: appStore.game.cards,
+      });
     }
 
     appStore.shuffleCardPositions();
+
+    // reset stats
+    appStore.game.selectedCardIds = [];
+    appStore.game.flippedCardId = -1;
+    appStore.game.mismatchPairs = [];
+    appStore.game.successfulPairs = [];
+    appStore.game.isLoading = false;
 
     if (appStore.boardLayout.isLocked) {
       return;
@@ -274,21 +284,23 @@ export default component$(() => {
   });
 
   return (
-    <div
-      class="grid"
-      style={{
-        gridTemplateColumns: `repeat(${
-          appStore.boardLayout.columns || 4
-        }, 1fr)`,
-        gridTemplateRows: `repeat(${appStore.boardLayout.rows}, 1fr)`,
-      }}
-      ref={boardRef}
-      onClick$={(e: QwikMouseEvent) => handleClickBoard(e)}
-    >
-      {appStore.game.cards.map((card) => (
-        <V3Card card={card} />
-      ))}
-    </div>
+    <>
+      <div
+        class="grid"
+        style={{
+          gridTemplateColumns: `repeat(${
+            appStore.boardLayout.columns || 4
+          }, 1fr)`,
+          gridTemplateRows: `repeat(${appStore.boardLayout.rows}, 1fr)`,
+        }}
+        ref={boardRef}
+        onClick$={(e: QwikMouseEvent) => handleClickBoard(e)}
+      >
+        {appStore.game.cards.map((card) => (
+          <V3Card card={card} />
+        ))}
+      </div>
+    </>
   );
 });
 

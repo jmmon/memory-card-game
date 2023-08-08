@@ -1,5 +1,7 @@
 import { V3Card } from "../v3-game/v3-game";
 
+export const IMAGE_TYPE = 'png';
+
 export const genId = (length = 5) => {
     return new Array(length)
       .fill(0)
@@ -139,7 +141,7 @@ export const CARD_CODES = [
   "K",
 ];
 
-export const getNewCards = async (cardCount: number) => {
+export const buildCardIdsArray = (cardCount: number) => {
   const cards = [];
   for (let i = 0; i < cardCount / 2; i++) {
     const isEven = i % 2 === 0;
@@ -149,8 +151,16 @@ export const getNewCards = async (cardCount: number) => {
       `${thisCardCode}${isEven ? "H" : "S"}`,
     ];
 
-    cards.push(newCards);
+    cards.push(...newCards);
   }
+  return cards;
+}
+
+export const deckOfCardsIds = buildCardIdsArray(52);
+
+export const getNewCards = async (cardCount: number) => {
+  const cards = deckOfCardsIds.slice(0, cardCount);
+  console.log({cards});
 
   try {
     // get new partial deck
@@ -192,7 +202,7 @@ export const formatCards = (cards: DeckOfCardsApi_Card[]) => {
       pairId: id2,
       position: num,
       isMismatched: false,
-      image: thisCard1.image,
+      image: thisCard1.images[IMAGE_TYPE],
     };
     const newCard2 = {
       id: id2,
@@ -200,7 +210,7 @@ export const formatCards = (cards: DeckOfCardsApi_Card[]) => {
       pairId: id1,
       position: num + 1,
       isMismatched: false,
-      image: thisCard2.image,
+      image: thisCard2.images[IMAGE_TYPE],
     };
 
     outputCards.push(newCard1, newCard2);

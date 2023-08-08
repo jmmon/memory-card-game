@@ -307,7 +307,7 @@ const SettingsModal = component$(() => {
       class={` backdrop-blur-sm top-0 left-0 absolute w-full h-full bg-black flex justify-center transition-all duration-300 items-center ${
         appStore.settings.modal.isShowing
           ? "z-[100] bg-opacity-30"
-          : "z-[-1] bg-opacity-0"
+          : "z-[-10] bg-opacity-0"
       }`}
       data-name="background"
       onClick$={closeModal}

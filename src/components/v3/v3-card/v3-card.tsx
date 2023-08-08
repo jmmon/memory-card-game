@@ -7,7 +7,7 @@ import {
   useTask$,
 } from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
-import { V3Card } from "../v3-game/v3-game";
+import { Pair, V3Card } from "../v3-game/v3-game";
 import { CORNERS_WIDTH_RATIO } from "../v3-board/v3-board";
 
 /*
@@ -49,26 +49,36 @@ export const getXYFromPosition = (position: number, columnCount: number) => ({
   y: Math.floor(position / columnCount),
 });
 
+const getCardsArrayFromPairsReduce = (accum: number[], cur: Pair) => {
+  const [c1, c2] = cur.split(":");
+  accum.push(Number(c1), Number(c2));
+  return accum;
+};
+
+const getCardsArrayFromPairs = (arr: Pair[]) => {
+  return arr.reduce(getCardsArrayFromPairsReduce, []);
+};
+
 export default component$(({ card }: V3CardProps) => {
   const appStore = useContext(AppContext);
 
+  // break matches into cards, and see if our card is included
   const isRemoved = useComputed$(() => {
-    return appStore.game.successfulPairs
-      .reduce((accum: number[], cur) => {
-        const [c1, c2] = cur.split(":");
-        accum.push(Number(c1), Number(c2));
-        return accum;
-      }, [])
-      .includes(card.id);
+    return getCardsArrayFromPairs(appStore.game.successfulPairs).includes(
+      card.id
+    );
   });
 
+  // delayed indicator, turns true once the flipped card returns to the board
   const isRemovedDelayedTrue = useSignal(false);
 
+  // when card is removed, trigger our isRemovedDelayedTrue
+  // after card has enough time to return to the board
   useTask$((taskCtx) => {
     taskCtx.track(() => isRemoved.value);
     let timer: ReturnType<typeof setTimeout>;
 
-    if (!isRemoved.value) {
+    if (isRemoved.value === false) {
       isRemovedDelayedTrue.value = false;
     } else {
       timer = setTimeout(() => {
@@ -81,27 +91,30 @@ export default component$(({ card }: V3CardProps) => {
     });
   });
 
+  // is our card the flipped card?
   const isThisCardFlipped = useComputed$(() => {
     return appStore.game.flippedCardId === card.id;
   });
 
-  const isBackTextShowing = useSignal(false);
+  // show and hide the back face, so the backs of cards can't be inspected when face-down
+  const isUnderSideShowing = useSignal(false);
 
+  // runs when a card is flipped
   useTask$((taskCtx) => {
     taskCtx.track(() => isThisCardFlipped.value);
     let timer: ReturnType<typeof setTimeout>;
+    const durationRatio = 50 / 100;
 
     // when switched to not showing, need to start timer to hide text after 0.4s (half the transition time)
-    // duration is ~half the transition time, but adding/subtracting 100ms for margin to make sure the text doesn't show up after the flip
-    if (!isThisCardFlipped.value) {
+    // duration is ~half the transition time, but adding/subtracting some margin to make sure the text doesn't show up after the flip
+    if (isThisCardFlipped.value === false) {
       timer = setTimeout(() => {
-        isBackTextShowing.value = false;
-      }, CARD_FLIP_ANIMATION_DURATION_HALF + 100);
+        isUnderSideShowing.value = false;
+      }, CARD_FLIP_ANIMATION_DURATION_HALF + CARD_FLIP_ANIMATION_DURATION_HALF * durationRatio);
     } else {
-      // when switched to showing, should show text immediately
       timer = setTimeout(() => {
-        isBackTextShowing.value = true;
-      }, CARD_FLIP_ANIMATION_DURATION_HALF - 100);
+        isUnderSideShowing.value = true;
+      }, CARD_FLIP_ANIMATION_DURATION_HALF - CARD_FLIP_ANIMATION_DURATION_HALF * durationRatio);
     }
 
     taskCtx.cleanup(() => {
@@ -109,10 +122,12 @@ export default component$(({ card }: V3CardProps) => {
     });
   });
 
+  // get grid coords from card position; can shuffle position to shuffle cards
   const coords = useComputed$(() => {
     return getXYFromPosition(card.position, appStore.boardLayout.columns);
   });
 
+  // calculates the transform required to flip this card to the center of the screen
   const flipTransform = useComputed$(() => {
     const colsOffsetMax = (appStore.boardLayout.columns - 1) / 2; // 6 => 2.5, 8 => 3.5, 7 => 3
     const rowsOffsetMax = (appStore.boardLayout.rows - 1) / 2;
@@ -131,7 +146,6 @@ export default component$(({ card }: V3CardProps) => {
         translateY(${translateY}px) 
         rotateY(${isOnLeftSide ? "" : "-"}180deg) 
         scale(2)`; // maybe should be dynamic depending on screen size??
-    // console.log({ transform });
     return transform;
   });
 
@@ -164,7 +178,7 @@ export default component$(({ card }: V3CardProps) => {
         box-shadow: none;
       }
     }
-`);
+  `);
 
   const shakeSignal = useSignal(false);
 
@@ -172,43 +186,39 @@ export default component$(({ card }: V3CardProps) => {
   useTask$((taskCtx) => {
     taskCtx.track(() => card.isMismatched);
     // console.log({ card, isMismatched: card.isMismatched });
-    if (!card.isMismatched) return;
+    if (card.isMismatched === false) return;
 
     // delay until the animation is over, then start the shake
-    let timer1: ReturnType<typeof setTimeout>;
+    let timeout: ReturnType<typeof setTimeout>;
 
-    timer1 = setTimeout(() => {
+    timeout = setTimeout(() => {
       // runs when card returns to its place
       shakeSignal.value = true;
       card.isMismatched = false;
     }, CARD_FLIP_ANIMATION_DURATION - 100);
 
     taskCtx.cleanup(() => {
-      timer1 && clearTimeout(timer1);
+      timeout && clearTimeout(timeout);
     });
   });
 
   // handle turn off shake animation
   useTask$((taskCtx) => {
     taskCtx.track(() => shakeSignal.value);
-    // console.log({ card, isMismatched: card.isMismatched });
-    if (!shakeSignal.value) return;
+    if (shakeSignal.value === false) return;
 
     // delay until the animation is over, then start the shake
-    let timer1: ReturnType<typeof setTimeout>;
+    let timeout: ReturnType<typeof setTimeout>;
 
-    timer1 = setTimeout(() => {
+    timeout = setTimeout(() => {
       shakeSignal.value = false;
     }, CARD_SHAKE_ANIMATION_DURATION);
 
     taskCtx.cleanup(() => {
-      timer1 && clearTimeout(timer1);
+      timeout && clearTimeout(timeout);
     });
   });
 
-  const rounded = useComputed$(() => {
-    return `rounded-[${appStore.cardLayout.roundedCornersPx}px]`;
-  }); // should be based on size, but can't use percent because the shape is rectangular so corners won't be the same
   /* perspective: for 3D effect, adjust based on width, and card area compared to viewport */
 
   return (
@@ -219,8 +229,12 @@ export default component$(({ card }: V3CardProps) => {
         height: appStore.cardLayout.height + "px",
         gridColumn: `${coords.value.x + 1} / ${coords.value.x + 2}`,
         gridRow: `${coords.value.y + 1} / ${coords.value.y + 2}`,
-        zIndex: isThisCardFlipped.value || isBackTextShowing.value ? 20 : 0,
-        borderRadius: (appStore.cardLayout.width * CORNERS_WIDTH_RATIO) + "px",
+        zIndex: isThisCardFlipped.value
+          ? 20 // applies while card is being flipped up but not while being flipped down
+          : isUnderSideShowing.value 
+          ? 10 // applies starting halfway in flip up, and ending halfway in flip down
+          : 0, // applies otherwise (when face down);
+        borderRadius: appStore.cardLayout.roundedCornersPx + "px",
       }}
     >
       <div
@@ -232,7 +246,7 @@ export default component$(({ card }: V3CardProps) => {
             : "opacity-100 scale-100 cursor-pointer"
         } ${shakeSignal.value === true ? "shake-card" : ""}`}
         style={{
-          borderRadius: (appStore.cardLayout.width * CORNERS_WIDTH_RATIO)  + "px",
+          borderRadius: appStore.cardLayout.roundedCornersPx + "px",
         }}
         data-id={card.id}
       >
@@ -242,14 +256,14 @@ export default component$(({ card }: V3CardProps) => {
           style={{
             transform: isThisCardFlipped.value ? flipTransform.value : "",
             transitionDuration: CARD_FLIP_ANIMATION_DURATION + "ms",
-            borderRadius: (appStore.cardLayout.width * CORNERS_WIDTH_RATIO) + "px",
+            borderRadius: appStore.cardLayout.roundedCornersPx + "px",
           }}
         >
           <div
             class={`absolute w-full h-full border-2 border-gray-50 text-white bg-[dodgerblue] flex flex-col justify-center [backface-visibility:hidden]`}
             data-id={card.id}
             style={{
-              borderRadius: (appStore.cardLayout.width * CORNERS_WIDTH_RATIO) + "px",
+              borderRadius: appStore.cardLayout.roundedCornersPx + "px",
             }}
           >
             <div
@@ -257,35 +271,39 @@ export default component$(({ card }: V3CardProps) => {
               data-name="circle"
               class="w-1/2 h-auto aspect-square rounded-[50%] bg-white/40 mx-auto flex flex-col justify-center items-center"
             >
-              <small data-id={card.id} class="block">
-                {card.id}
-              </small>
-              <small
-                data-id={card.id}
-                class={`text-red block ${
-                  card.isMismatched || shakeSignal.value
-                    ? "opacity-100"
-                    : "opacity-0"
-                }`}
-              >
-                MISMATCH
-              </small>
+              {/* <small data-id={card.id} class="block"> */}
+              {/*   {card.id} */}
+              {/* </small> */}
+              {/* <small */}
+              {/*   data-id={card.id} */}
+              {/*   class={`text-red block ${ */}
+              {/*     card.isMismatched || shakeSignal.value */}
+              {/*       ? "opacity-100" */}
+              {/*       : "opacity-0" */}
+              {/*   }`} */}
+              {/* > */}
+              {/*   MISMATCH */}
+              {/* </small> */}
             </div>
           </div>
           <div
-            class={`absolute w-full h-full border-2 border-gray-50 text-black bg-gray-300 [transform:rotateY(180deg)] [backface-visibility:hidden] `}
+            class={`absolute w-full border border-white h-full flex justify-center items-center text-black bg-gray-300 [transform:rotateY(180deg)] [backface-visibility:hidden] `}
             data-id={card.id}
             style={{
-              borderRadius: (appStore.cardLayout.width * CORNERS_WIDTH_RATIO) + "px",
+              borderRadius: appStore.cardLayout.roundedCornersPx + "px",
             }}
           >
-            {/* <div */}
-            {/*   class={`flex justify-center items-center w-full h-full`} */}
-            {/*   data-id={card.id} */}
-            {/* > */}
-            {/*   {isBackTextShowing.value ? card.text : ""} */}
-            {/* </div> */}
-            {card.image && <img src={card.image} class="w-full h-full" />}
+            {isUnderSideShowing.value &&
+              (card.image ? (
+                <img src={card.image} class="w-full h-full" />
+              ) : (
+                <div
+                  // class={`flex justify-center items-center w-full h-full`}
+                  data-id={card.id}
+                >
+                  {card.text}
+                </div>
+              ))}
           </div>
         </div>
       </div>
