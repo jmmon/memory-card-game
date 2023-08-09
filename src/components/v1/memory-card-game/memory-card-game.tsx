@@ -9,7 +9,7 @@ import {
   useComputed$,
 } from "@builder.io/qwik";
 import { Card } from "~/utils/cardUtils";
-import { AppContext, Coords, CardPair } from "../context/context";
+import { AppContext, type CardPair } from "../context/context";
 import Jabber from "jabber";
 
 export default component$(() => {
@@ -38,7 +38,7 @@ export default component$(() => {
   });
 
   // initialization
-  useTask$((taskCtx) => {
+  useTask$(() => {
     const totalCards = appStore.settings.pairCount * 2;
     appStore.board.cards = generateCards(totalCards);
     appStore.board.totalCards = totalCards;
@@ -96,7 +96,7 @@ export const Board = component$(() => {
         }}
       >
         {Object.entries(cards.value)
-          .sort(([posA, va], [posB, vb]) => Number(posA) - Number(posB))
+          .sort(([posA, ], [posB, ]) => Number(posA) - Number(posB))
           .map(([position, card]) => (
             <CardUnit key={position} card={card} />
           ))}
@@ -235,7 +235,7 @@ export const CardUnit = component$(({ card }: { card: Card }) => {
 
 // for displaying settings:
 export const Settings = component$(() => {
-  const appStore = useContext(AppContext);
+  // const appStore = useContext(AppContext);
   return (
     <div>
       <table>
