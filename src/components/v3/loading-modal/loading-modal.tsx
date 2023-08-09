@@ -2,9 +2,6 @@ import { component$, $, useContext, useTask$ } from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
 import Modal from "../modal/modal";
 
-
-
-
 export default component$(() => {
   const appStore = useContext(AppContext);
 
