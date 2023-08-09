@@ -17,11 +17,9 @@ export default component$(
     classes?: string;
   }) => {
     const closeModal = $((e: QwikMouseEvent) => {
-      console.log((e.target as HTMLElement).dataset.name);
-      if (e.target && (e.target as HTMLElement).dataset.name === "background") {
-        if (isShowing) {
-          hideModal(); // fn to turn off boolean
-        }
+      // console.log((e.target as HTMLElement).dataset.name);
+      if (e.target && (e.target as HTMLElement).dataset.name === "background" && isShowing) {
+        hideModal(); // fn to turn off boolean
       }
     });
 
