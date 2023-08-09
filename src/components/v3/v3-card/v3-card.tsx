@@ -153,29 +153,30 @@ export default component$(({ card }: V3CardProps) => {
     .shake-card {
       animation: shake-card ${CARD_SHAKE_ANIMATION_DURATION}ms;
     }
+
     @keyframes shake-card {
       0% {
         transform: translateX(0%);
       }
-      05% {
-        transform: translateX(-5%);  
-        box-shadow: 5px 0px 5px 5px rgba(255, 63, 63, 0.4);
+      10% {
+        transform: translateX(-7%);  
+        box-shadow: 5px 0px 5px 5px rgba(255, 63, 63, 0.5);
       }
-      18% {
-        transform: translateX(4%);  
+      23% {
+        transform: translateX(5%);  
         box-shadow: -4px 0px 4px 4px rgba(255, 63, 63, 0.4);
       }
-      51% {
+      56% {
         transform: translateX(-3%);  
-        box-shadow: 3px 0px 3px 3px rgba(255, 63, 63, 0.4);
+        box-shadow: 3px 0px 3px 3px rgba(255, 63, 63, 0.3);
       }
-      79% {
-        transform: translateX(2%);  
-        box-shadow: -2px 0px 2px 2px rgba(255, 63, 63, 0.4);
+      84% {
+        transform: translateX(1%);  
+        box-shadow: -2px 0px 2px 2px rgba(255, 63, 63, 0.2);
       }
       100% {
         transform: translateX(0%);  
-        box-shadow: none;
+        box-shadow: 1px 0px 1px 1px rgba(255, 63, 63, 0.1);
       }
     }
   `);
@@ -185,17 +186,17 @@ export default component$(({ card }: V3CardProps) => {
   // handle turn on shake animation (after card is set back down animation)
   useTask$((taskCtx) => {
     taskCtx.track(() => card.isMismatched);
-    // console.log({ card, isMismatched: card.isMismatched });
+    // continue only if card is mismatched
     if (card.isMismatched === false) return;
 
     // delay until the animation is over, then start the shake
     let timeout: ReturnType<typeof setTimeout>;
 
+    // turn on shake after duration (once card returns to its spaces)
     timeout = setTimeout(() => {
-      // runs when card returns to its place
-      shakeSignal.value = true;
       card.isMismatched = false;
-    }, CARD_FLIP_ANIMATION_DURATION - 100);
+      shakeSignal.value = true;
+    }, CARD_FLIP_ANIMATION_DURATION - 200);
 
     taskCtx.cleanup(() => {
       timeout && clearTimeout(timeout);
@@ -210,6 +211,7 @@ export default component$(({ card }: V3CardProps) => {
     // delay until the animation is over, then start the shake
     let timeout: ReturnType<typeof setTimeout>;
 
+    // turn off shake after duration
     timeout = setTimeout(() => {
       shakeSignal.value = false;
     }, CARD_SHAKE_ANIMATION_DURATION);
@@ -238,7 +240,7 @@ export default component$(({ card }: V3CardProps) => {
       }}
     >
       <div
-        class={`w-[90%] h-[90%] mx-auto [perspective:1400px] bg-transparent border border-gray-50/20 flip-card transition-all ${
+        class={`w-[90%] h-[90%] mx-auto [perspective:1400px] bg-transparent border border-gray-50/20 flip-card transition-all [animation-timing-function:ease-in-out] ${
           isRemovedDelayedTrue.value &&
           appStore.game.flippedCardId !== card.id &&
           appStore.game.flippedCardId !== card.pairId

@@ -2,6 +2,7 @@ import { V3Card } from "../v3-game/v3-game";
 
 export const IMAGE_TYPE = 'png';
 
+// generates 5 random numbers and concats them as a string
 export const genId = (length = 5) => {
     return new Array(length)
       .fill(0)
