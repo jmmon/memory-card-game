@@ -1,0 +1,1 @@
+import{$ as s,w as n,h as r,j as a}from"./q-b0c5ea11.js";import{_auto_windowDimensionsColor as i}from"./q-c0a5c9c7.js";const w=o=>s("code",null,{class:"bg-black"},[s("span",null,{class:` mr-2 ${i} `},n(l=>l.title,[o]),3,null),r(a,null,3,"ON_0")],1,"ON_1");export{w as s_vy0DSALrCNs};

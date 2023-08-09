@@ -1,0 +1,1 @@
+import{V as r}from"./q-8803f606.js";import{$ as l,h as e}from"./q-b0c5ea11.js";import"./q-a5436561.js";const s=()=>l("div",null,{class:"flex flex-col w-full h-screen items-center"},[l("h1",null,null,"v3 Route",3,null),e(r,null,3,"fn_0")],1,"fn_1");export{s as s_1GMQLhqft7Y};

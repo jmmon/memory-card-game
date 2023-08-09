@@ -1,0 +1,1 @@
+import{$ as r,w as e,h as l,j as f}from"./q-b0c5ea11.js";const i=s=>r("div",null,{class:e(t=>`w-full flex gap-3 ${(t.justify??"center")==="right"?"justify-end":(t.justify??"center")==="left"?"justify-start":"justify-center"} `,[s])},l(f,null,3,"Zr_8"),1,"Zr_9");export{i as s_gG6l1WBsA4g};

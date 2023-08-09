@@ -1,0 +1,1 @@
+import{$ as l}from"./q-b0c5ea11.js";const u=()=>l("div",null,{class:"w-full h-full"},[l("h1",null,{class:"text-2xl"},"Task testing",3,null),l("p",null,null,"Tracking multiple things",3,null),l("p",null,null,"Tracking properties of a ref",3,null)],3,"CP_0");export{u as s_ydkt9QmJ8bM};
