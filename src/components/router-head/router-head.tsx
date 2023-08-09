@@ -34,8 +34,8 @@ export const RouterHead = component$(() => {
       {head.styles.map((s) => (
         <style key={s.key} {...s.props} dangerouslySetInnerHTML={s.style} />
       ))}
-      {cardImageUrls.map(url => (
-        <link rel="preload" as="image" href={url}/>
+      {cardImageUrls.map((url) => (
+        <link key={url} rel="preload" as="image" href={url} />
       ))}
     </>
   );

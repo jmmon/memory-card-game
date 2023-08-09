@@ -6,7 +6,7 @@ export type Card = {
 };
 
 export const generateCards = (total: number) => {
-  let unshuffledCards: Card[] = [];
+  const unshuffledCards: Card[] = [];
   // build cards
   for (let i = 0; i < total / 2; i++) {
     // create a pair of cards
