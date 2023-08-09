@@ -10,9 +10,11 @@ export default component$(
   ({
     isShowing,
     hideModal,
+    classes = " bg-slate-600 ",
   }: {
     isShowing: boolean;
     hideModal: PropFunction<() => void>;
+    classes?: string;
   }) => {
     const closeModal = $((e: QwikMouseEvent) => {
       console.log((e.target as HTMLElement).dataset.name);
@@ -32,7 +34,7 @@ export default component$(
         onClick$={closeModal}
       >
         <div
-          class={` text-center bg-slate-700 rounded-3xl p-12 transition-all duration-300 ${
+          class={` text-center ${classes} rounded-3xl p-12 transition-all duration-300 ${
             isShowing
               ? "pointer-events-auto opacity-100 scale-100 z-[100]"
               : "pointer-events-none opacity-0 scale-150 z-[-1]"

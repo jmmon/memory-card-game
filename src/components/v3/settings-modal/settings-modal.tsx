@@ -1,6 +1,15 @@
-import { component$, $, useStyles$, useContext, PropFunction, QwikChangeEvent, Slot } from "@builder.io/qwik";
+import {
+  component$,
+  $,
+  useStyles$,
+  useContext,
+  PropFunction,
+  QwikChangeEvent,
+  Slot,
+} from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
 import Modal from "../modal/modal";
+import Button from "../button/button";
 
 export default component$(() => {
   const appStore = useContext(AppContext);
@@ -44,10 +53,11 @@ export default component$(() => {
   return (
     <Modal isShowing={appStore.settings.modal.isShowing} hideModal={hideModal}>
       <div class="flex gap-8 flex-col">
-        <SettingsRow>
+        <SettingsRow disabled={true}>
           <div class="flex gap-4 items-center tooltip">
             <label>Shuffle Cards After N Mismatches:</label>
             <input
+              disabled={true}
               name="deck-shuffle-mismatches"
               id="deck-shuffle-mismatches"
               class="bg-slate-700 border border-slate-800 p-2 rounded text-center"
@@ -64,13 +74,15 @@ export default component$(() => {
               }}
             />
             <span class="tooltiptext">
-              Count of how many mismatches before shuffling the board.
+              COMING SOON: Count of how many mismatches before shuffling the
+              board.
             </span>
           </div>
           <div class="w-6"></div>
           <Lock
+            disabled={true}
             text="Shuffle Board After Pair:"
-            tooltip="After each successful match, shuffle the board."
+            tooltip="COMING SOON: After each successful match, shuffle the board."
             onChange$={(e) => {
               appStore.settings.shuffleBoardAfterPair = (
                 e.target as HTMLInputElement
@@ -79,10 +91,11 @@ export default component$(() => {
           />
         </SettingsRow>
 
-        <SettingsRow>
+        <SettingsRow disabled={true}>
           <Lock
+            disabled={true}
             text="Shuffle Board After Round:"
-            tooltip="After each round (success or mismatch), shuffle the board."
+            tooltip="COMING SOON: After each round (success or mismatch), shuffle the board."
             onChange$={(e) => {
               appStore.settings.shuffleBoardAfterRound = (
                 e.target as HTMLInputElement
@@ -91,8 +104,9 @@ export default component$(() => {
           />
           <div class="w-6"></div>
           <Lock
+            disabled={true}
             text="Shuffle Picked Cards After Mismatch:"
-            tooltip="After mismatching a pair of cards, shuffle them with two other cards."
+            tooltip="COMING SOON: After mismatching a pair of cards, shuffle them with two other cards."
             onChange$={(e) => {
               appStore.settings.shufflePickedAfterMismatch = (
                 e.target as HTMLInputElement
@@ -101,10 +115,11 @@ export default component$(() => {
           />
         </SettingsRow>
 
-        <SettingsRow>
+        <SettingsRow disabled={true}>
           <Lock
+            disabled={true}
             text="Reorganize Board After Mismatch:"
-            tooltip="After mismatching a pair, reorganize the board to fill in gaps and adjust to window size."
+            tooltip="COMING SOON: After mismatching a pair, reorganize the board to fill in gaps and adjust to window size."
             onChange$={(e) => {
               appStore.settings.reorgnanizeBoardOnMismatch = (
                 e.target as HTMLInputElement
@@ -113,8 +128,9 @@ export default component$(() => {
           />
           <div class="w-6"></div>
           <Lock
+            disabled={true}
             text="Reorganize Board After Pair:"
-            tooltip="After a successful pair, reorganize the board to fill in gaps and adjust to window size."
+            tooltip="COMING SOON: After a successful pair, reorganize the board to fill in gaps and adjust to window size."
             onChange$={(e) => {
               appStore.settings.reorgnanizeBoardOnPair = (
                 e.target as HTMLInputElement
@@ -175,12 +191,10 @@ export default component$(() => {
           <div class="flex gap-8 flex-col">
             <SettingsRow>
               <div class="flex gap-4 items-center tooltip">
-                <button
-                  class="bg-slate-500 rounded p-2"
+                <Button
+                  text="Shuffle Deck"
                   onClick$={() => appStore.shuffleCardPositions()}
-                >
-                  Shuffle Deck
-                </button>
+                />
                 <span class="tooltiptext">Shuffle the card positions.</span>
               </div>
             </SettingsRow>
@@ -191,15 +205,19 @@ export default component$(() => {
   );
 });
 
-const SettingsRow = component$(() => {
-  return (
-    <div class="flex justify-center w-full border border-slate-800 rounded-lg p-6">
-      <div class="flex justify-between gap-2">
-        <Slot />
+const SettingsRow = component$(
+  ({ disabled = false }: { disabled?: boolean }) => {
+    return (
+      <div class="flex justify-center w-full border border-slate-800 rounded-lg p-6">
+        <div
+          class={` flex justify-between gap-2 ${disabled ? "opacity-50" : ""}`}
+        >
+          <Slot />
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  }
+);
 
 const Lock = component$(
   ({
@@ -207,11 +225,13 @@ const Lock = component$(
     onChange$,
     classes,
     tooltip,
+    disabled = false,
   }: {
     text: string;
     onChange$: PropFunction<(e: QwikChangeEvent) => void>;
     classes?: string;
     tooltip?: string;
+    disabled?: boolean;
   }) => {
     return (
       <div
@@ -223,6 +243,7 @@ const Lock = component$(
           {text}
         </label>
         <input
+          disabled={disabled}
           class="cursor-pointer w-6 h-6"
           type="checkbox"
           id={text}

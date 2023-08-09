@@ -80,7 +80,7 @@ export type AppStore = {
     };
   };
   shuffleCardPositions: QRL<() => void>;
-  toggleModal: QRL<() => void>;
+  toggleSettingsModal: QRL<() => void>;
 };
 
 const INITIAL = {
@@ -150,7 +150,7 @@ const INITIAL = {
     this.game.cards = shuffled;
   }),
 
-  toggleModal: $(function (this: AppStore) {
+  toggleSettingsModal: $(function (this: AppStore) {
     this.settings.modal.isShowing = !this.settings.modal.isShowing;
   }),
 };
