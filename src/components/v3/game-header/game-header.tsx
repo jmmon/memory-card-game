@@ -1,5 +1,6 @@
-import { Slot, component$, useContext  } from "@builder.io/qwik";
+import { Slot, component$, useContext } from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
+import Button from "../button/button";
 
 export default component$(() => {
   const appStore = useContext(AppContext);
@@ -17,12 +18,7 @@ export default component$(() => {
           <code class="bg-gray-800 text-gray-200">deck locked</code>
         )}
       </HeaderSection>
-      <button
-        onClick$={() => appStore.toggleModal()}
-        class="p-2 border border-gray-200 bg-slate-700 rounded hover:bg-slate-500"
-      >
-        Settings
-      </button>
+      <Button text="Settings" onClick$={() => appStore.toggleSettingsModal()} />
       <HeaderSection>
         <code class="bg-gray-800 text-gray-200">
           pairs: {appStore.game.successfulPairs.length}/
@@ -71,4 +67,3 @@ const HeaderSection = component$(
     );
   }
 );
-

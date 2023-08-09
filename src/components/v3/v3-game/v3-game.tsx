@@ -154,7 +154,7 @@ const INITIAL = {
     this.game.cards = shuffled;
   }),
 
-  toggleModal: $(function (this: AppStore) {
+  toggleSettingsModal: $(function (this: AppStore) {
     this.settings.modal.isShowing = !this.settings.modal.isShowing;
   }),
 
