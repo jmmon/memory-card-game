@@ -3,7 +3,6 @@ import {
   PropFunction,
   Signal,
   component$,
-  useComputed$,
   useOnWindow,
   useSignal,
   useStore,
