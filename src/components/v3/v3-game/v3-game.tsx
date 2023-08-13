@@ -81,7 +81,7 @@ export type AppStore = {
     };
   };
   shuffleCardPositions: QRL<() => void>;
-  toggleModal: QRL<() => void>;
+  toggleSettingsModal: QRL<() => void>;
   shuffleCardPositionsWithTransition: QRL<() => void>;
   isShufflingCards: boolean;
 };

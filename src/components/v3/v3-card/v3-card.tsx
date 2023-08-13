@@ -32,7 +32,7 @@ import { Pair, V3Card } from "../v3-game/v3-game";
 const CARD_FLIP_ANIMATION_DURATION = 800;
 const CARD_FLIP_ANIMATION_DURATION_HALF = 400;
 const CARD_SHAKE_ANIMATION_DURATION = 600;
-const CARD_SHUFFLE_DURATION = 1000;
+const CARD_SHUFFLE_DURATION = 2000;
 
 type V3CardProps = {
   card: V3Card;
@@ -180,16 +180,19 @@ export default component$(({ card }: V3CardProps) => {
     return transform;
   });
 
+  // set up shuffleTransform timer
   useTask$((taskCtx) => {
     taskCtx.track(() => shuffleTransform.value);
+    console.log("shuffleTransform task:", shuffleTransform.value);
     let timer: ReturnType<typeof setTimeout>;
 
     if (shuffleTransform.value === "") {
       return;
     }
+    console.log("starting timer for shuffle transform");
     timer = setTimeout(() => {
       // turn off transform
-      console.log('turning off shuffle transform');
+      console.log("turning off shuffle transform");
       shuffleTransform.value = "";
     }, CARD_SHUFFLE_DURATION);
 

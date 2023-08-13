@@ -13,7 +13,7 @@ import { AppContext } from "../v3-context/v3.context";
 import {
   DeckOfCardsApi_Card,
   formatCards,
-  getNewCards,
+  getCardsFromApi,
   v3GenerateCards,
 } from "../utils/v3CardUtils";
 import { Pair, V3Card as V3CardType } from "../v3-game/v3-game";
@@ -253,7 +253,7 @@ export default component$(() => {
     // appStore.game.cards = v3GenerateCards(appStore.settings.deck.size);
     let cards: DeckOfCardsApi_Card[] | undefined = [];
     try {
-      cards = await getNewCards(appStore.settings.deck.size);
+      cards = await getCardsFromApi(appStore.settings.deck.size);
     } catch (err) {
       console.log("card API error:", { err });
     }

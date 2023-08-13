@@ -126,7 +126,8 @@ export type DeckOfCardsApi_Card = {
 export type DeckOfCardsApi_DeckWithCards = DeckOfCardsApi_Deck_Base & {
   cards: DeckOfCardsApi_Card[];
 };
-export const CARD_CODES = [
+
+const CARD_CODES = [
   "A",
   "2",
   "3",
@@ -159,7 +160,7 @@ export const buildCardIdsArray = (cardCount: number) => {
 
 export const deckOfCardsIds = buildCardIdsArray(52);
 
-export const getNewCards = async (cardCount: number) => {
+export const getCardsFromApi = async (cardCount: number) => {
   const cards = deckOfCardsIds.slice(0, cardCount);
   console.log({ cards });
 
@@ -219,4 +220,12 @@ export const formatCards = (cards: DeckOfCardsApi_Card[]) => {
     outputCards.push(newCard1, newCard2);
   }
   return outputCards;
+};
+
+export const cardUtils = {
+  formatCards,
+  getCardsFromApi,
+  shuffleCardPositions,
+  v3Shuffle_FY_algo,
+  v3GenerateCards,
 };
