@@ -1,4 +1,5 @@
 import {
+    type PropFunction,
   Signal,
   component$,
   useSignal,
@@ -42,7 +43,7 @@ export default component$(() => {
 
 type FlippableCardProps = {
   cardText: string;
-  handleToggle$: () => void;
+  handleToggle$: PropFunction<() => void>;
   isFrontShowing: Signal<boolean>;
   isRemoved: Signal<boolean>;
 };

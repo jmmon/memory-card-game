@@ -513,7 +513,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/express@npm:*, @types/express@npm:4.17.17":
+"@types/express@npm:*, @types/express@npm:^4.17.17":
   version: 4.17.17
   resolution: "@types/express@npm:4.17.17"
   dependencies:
@@ -4032,7 +4032,7 @@ __metadata:
     "@builder.io/qwik-city": ^1.2.6
     "@types/compression": ^1.7.2
     "@types/eslint": 8.40.2
-    "@types/express": 4.17.17
+    "@types/express": ^4.17.17
     "@types/node": ^20.4.0
     "@typescript-eslint/eslint-plugin": 5.61.0
     "@typescript-eslint/parser": 5.61.0

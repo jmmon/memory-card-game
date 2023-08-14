@@ -1,6 +1,6 @@
 import {
   $,
-  PropFunction,
+  type PropFunction,
   Signal,
   component$,
   useOnWindow,
@@ -163,7 +163,6 @@ export default component$(() => {
         store={store}
         calculateBoard$={calculateBoard}
         containerRef={containerRef}
-        // newCalc={newCalc}
       />
       <div
         ref={boardRef}
@@ -174,7 +173,7 @@ export default component$(() => {
         }}
       >
         {store.game.cards.map((card) => (
-          <Card i={card} store={store} />
+          <Card i={card} key={card} store={store} />
         ))}
       </div>
     </div>
@@ -200,7 +199,7 @@ const Lock = component$(
   }
 );
 
-const Card = component$(({ i, store }: any) => {
+const Card = component$(({ store }: any) => {
   return (
     <div
       class={`mx-auto aspect-[2.25/3.5] flex flex-col justify-center`}
@@ -224,7 +223,7 @@ const Settings = component$(
     newCalc,
   }: {
     store: Store;
-    calculateBoard$: () => void;
+    calculateBoard$: PropFunction<() => void>;
     containerRef: Signal<HTMLDivElement | undefined>;
     newCalc?: Signal<{ board: { width: number; height: number } }>;
   }) => {

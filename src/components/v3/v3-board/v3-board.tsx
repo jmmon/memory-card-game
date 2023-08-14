@@ -303,7 +303,7 @@ export default component$(() => {
         onClick$={(e: QwikMouseEvent) => handleClickBoard(e)}
       >
         {appStore.game.cards.map((card) => (
-          <V3Card card={card} />
+          <V3Card card={card} key={card.id}/>
         ))}
       </div>
     </>
