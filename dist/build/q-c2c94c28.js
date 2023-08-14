@@ -1,1 +1,0 @@
-import{A as t}from"./q-7be8c47a.js";import{G as a,$ as l,w as o}from"./q-b0c5ea11.js";const u=()=>{const n=a(t);return l("div",null,{class:"m-auto"},[l("h4",null,{class:"inline mr-2"},"Mismatches:",3,null),l("span",null,null,o(s=>s.board.mismatchCount,[n]),3,null)],3,"Qe_8")};export{u as s_r07WKeBKhUw};

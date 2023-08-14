@@ -1,1 +1,0 @@
-import{O as s,c as r,_ as o}from"./q-b0c5ea11.js";import{d as t,I as c}from"./q-a5436561.js";const e=a=>`https://deckofcardsapi.com/static/img/${a}.${c}`,m=t.map(a=>e(a)),_=s(r(()=>o(()=>import("./q-29b3a441.js"),["build/q-29b3a441.js","build/q-b0c5ea11.js","build/q-b3c89def.js","build/q-a5436561.js"]),"s_zrbrqoaqXSY"));export{_ as R,m as c};

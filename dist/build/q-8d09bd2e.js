@@ -1,1 +1,0 @@
-import{$ as o,w as e}from"./q-b0c5ea11.js";const a=r=>o("button",{onClick$:r.onClick$},{class:"p-2 border border-gray-200 bg-slate-700 rounded hover:bg-slate-500"},e(t=>t.text,[r]),2,"KZ_0");export{a as s_mpMUSTkcMsk};

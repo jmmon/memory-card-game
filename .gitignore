@@ -42,3 +42,4 @@ lerna-debug.log*
 .env
 dist.zip
 server.zip
+dist

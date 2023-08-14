@@ -1,1 +1,0 @@
-import{P as r,M as s}from"./q-11895ed8.js";import{$ as l,h as t}from"./q-b0c5ea11.js";const a=()=>l("div",null,{class:"grid w-full h-4 grid-cols-3"},[t(r,null,3,"Qe_4"),l("h2",null,{class:"text-center text-2xl"},"Board",3,null),t(s,null,3,"Qe_5")],1,"Qe_6");export{a as s_nCNTWv5thNg};

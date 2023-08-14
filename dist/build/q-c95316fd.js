@@ -1,1 +1,0 @@
-import{A as r}from"./q-7be8c47a.js";import{G as a,$ as l,w as t}from"./q-b0c5ea11.js";const u=()=>{const n=a(r);return l("div",null,{class:"m-auto"},[l("h4",null,{class:"inline mr-2"},"Pairs:",3,null),l("span",null,null,t(s=>s.board.pairs.length,[n]),3,null)],3,"Qe_7")};export{u as s_DmRWK78wT0k};
