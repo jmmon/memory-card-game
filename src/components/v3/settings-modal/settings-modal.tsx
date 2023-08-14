@@ -51,7 +51,7 @@ export default component$(() => {
 `);
 
   return (
-    <Modal isShowing={appStore.settings.modal.isShowing} hideModal={hideModal}>
+    <Modal isShowing={appStore.settings.modal.isShowing} hideModal={hideModal} bgClasses="">
       <div class="flex gap-8 flex-col">
         <SettingsRow disabled={true}>
           <div class="flex gap-4 items-center tooltip">
