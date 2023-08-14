@@ -8,7 +8,6 @@ import {
 } from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
 import { Pair, V3Card } from "../v3-game/v3-game";
-import { CORNERS_WIDTH_RATIO } from "../v3-board/v3-board";
 
 /*
  * Card has id, text, flip state
@@ -33,6 +32,7 @@ import { CORNERS_WIDTH_RATIO } from "../v3-board/v3-board";
 const CARD_FLIP_ANIMATION_DURATION = 800;
 const CARD_FLIP_ANIMATION_DURATION_HALF = 400;
 const CARD_SHAKE_ANIMATION_DURATION = 600;
+const CARD_SHUFFLE_DURATION = 2000;
 
 type V3CardProps = {
   card: V3Card;
@@ -102,29 +102,60 @@ export default component$(({ card }: V3CardProps) => {
   // runs when a card is flipped
   useTask$((taskCtx) => {
     taskCtx.track(() => isThisCardFlipped.value);
-    let timer: ReturnType<typeof setTimeout>;
+    let revealDelayTimer: ReturnType<typeof setTimeout>;
     const durationRatio = 50 / 100;
 
-    // when switched to not showing, need to start timer to hide text after 0.4s (half the transition time)
-    // duration is ~half the transition time, but adding/subtracting some margin to make sure the text doesn't show up after the flip
-    if (isThisCardFlipped.value === false) {
-      timer = setTimeout(() => {
-        isUnderSideShowing.value = false;
-      }, CARD_FLIP_ANIMATION_DURATION_HALF + CARD_FLIP_ANIMATION_DURATION_HALF * durationRatio);
-    } else {
-      timer = setTimeout(() => {
-        isUnderSideShowing.value = true;
-      }, CARD_FLIP_ANIMATION_DURATION_HALF - CARD_FLIP_ANIMATION_DURATION_HALF * durationRatio);
-    }
+    // when showing the back side, partway through we reveal the back side.
+    // when going back to the board, partway through we hide the back side.
+    revealDelayTimer = setTimeout(() => {
+      isUnderSideShowing.value = isThisCardFlipped.value;
+    }, CARD_FLIP_ANIMATION_DURATION_HALF + (isThisCardFlipped.value ? -1 : 1) * CARD_FLIP_ANIMATION_DURATION_HALF * durationRatio);
 
     taskCtx.cleanup(() => {
-      if (timer) clearTimeout(timer);
+      if (revealDelayTimer) clearTimeout(revealDelayTimer);
     });
   });
 
-  // get grid coords from card position; can shuffle position to shuffle cards
+  // so when shuffling, position is updated so card is moved immediately.
+  // We should calculate the transition from prevPosition => position as the position is updated.
+  // NOW I have the transition.
+  // - INVERSE the transition immediately so to move the card backward to prevPosition.
+  // - apply transition-duration
+  // - turn off transition so it moves forward (remove the class/props)
+
+  const shuffleTransform = useSignal("");
+
+  // shuffle will change the card position, causing this to run
+  // get grid coords from that card position;
   const coords = useComputed$(() => {
-    return getXYFromPosition(card.position, appStore.boardLayout.columns);
+    const prevCoords = getXYFromPosition(
+      card.prevPosition ?? 0,
+      appStore.boardLayout.columns
+    );
+    const newCoords = getXYFromPosition(
+      card.position,
+      appStore.boardLayout.columns
+    );
+
+    //e.g. 0, 1, 2, 3 columns, new = 3; prev = 0
+    // 3 - 0 = 3 columns
+    // 3 columns * columnWidth = px
+    const colWidth = appStore.boardLayout.width / appStore.boardLayout.columns;
+    const rowHeight = appStore.boardLayout.height / appStore.boardLayout.rows;
+    const translateX = (newCoords.x - prevCoords.x) * colWidth;
+    const translateY = (newCoords.y - prevCoords.y) * rowHeight;
+    console.log({
+      prevCoords,
+      newCoords,
+      translateX,
+      translateY,
+      colWidth,
+      rowHeight,
+    });
+
+    shuffleTransform.value = `translateX(${translateX}px) 
+        translateY(${translateY}px)`;
+    return newCoords;
   });
 
   // calculates the transform required to flip this card to the center of the screen
@@ -147,6 +178,27 @@ export default component$(({ card }: V3CardProps) => {
         rotateY(${isOnLeftSide ? "" : "-"}180deg) 
         scale(2)`; // maybe should be dynamic depending on screen size??
     return transform;
+  });
+
+  // set up shuffleTransform timer
+  useTask$((taskCtx) => {
+    taskCtx.track(() => shuffleTransform.value);
+    console.log("shuffleTransform task:", shuffleTransform.value);
+    let timer: ReturnType<typeof setTimeout>;
+
+    if (shuffleTransform.value === "") {
+      return;
+    }
+    console.log("starting timer for shuffle transform");
+    timer = setTimeout(() => {
+      // turn off transform
+      console.log("turning off shuffle transform");
+      shuffleTransform.value = "";
+    }, CARD_SHUFFLE_DURATION);
+
+    taskCtx.cleanup(() => {
+      timer && clearTimeout(timer);
+    });
   });
 
   useStylesScoped$(`
@@ -225,7 +277,12 @@ export default component$(({ card }: V3CardProps) => {
 
   return (
     <div
-      class={`mx-auto aspect-[2.25/3.5] flex flex-col justify-center transition-all`}
+      class={`mx-auto aspect-[2.25/3.5] flex flex-col justify-center ${
+        shuffleTransform.value === ""
+          ? shuffleTransform.value +
+            ` [transition-duration:${CARD_SHUFFLE_DURATION}] transition-[transform]`
+          : "transition-all"
+      }`}
       style={{
         width: appStore.cardLayout.width + "px",
         height: appStore.cardLayout.height + "px",
@@ -233,7 +290,7 @@ export default component$(({ card }: V3CardProps) => {
         gridRow: `${coords.value.y + 1} / ${coords.value.y + 2}`,
         zIndex: isThisCardFlipped.value
           ? 20 // applies while card is being flipped up but not while being flipped down
-          : isUnderSideShowing.value 
+          : isUnderSideShowing.value
           ? 10 // applies starting halfway in flip up, and ending halfway in flip down
           : 0, // applies otherwise (when face down);
         borderRadius: appStore.cardLayout.roundedCornersPx + "px",
