@@ -8,6 +8,8 @@ import {
   useTask$,
   useVisibleTask$,
 } from "@builder.io/qwik";
+import { isServer } from "@builder.io/qwik/build";
+
 import V3Card from "../v3-card/v3-card";
 import { AppContext } from "../v3-context/v3.context";
 import {
@@ -21,6 +23,9 @@ import { Pair, V3Card as V3CardType } from "../v3-game/v3-game";
 const CARD_RATIO = 113 / 157; // w / h
 export const CORNERS_WIDTH_RATIO = 1 / 20;
 
+export const CARD_SHUFFLE_DELAYED_START = 100;
+export const CARD_SHUFFLE_DURATION = 400;
+export const CARD_SHUFFLE_ROUNDS = 5;
 /*
  * card utils
  *
@@ -288,6 +293,55 @@ export default component$(() => {
     console.log("board useVisibleTask");
     resizeBoard();
   });
+  const shuffleCounterSignal = useSignal(CARD_SHUFFLE_ROUNDS);
+
+  // when shuffling, start timer to turn off after duration
+  useTask$((taskCtx) => {
+    taskCtx.track(() => appStore.game.isShuffling);
+    if (isServer) {
+      shuffleCounterSignal.value = CARD_SHUFFLE_ROUNDS;
+      return;
+    }
+    let rerun: ReturnType<typeof setTimeout>;
+    if (shuffleCounterSignal.value > 0) {
+      // run again
+      rerun = setTimeout(() => {
+        appStore.shuffleCardPositions();
+      }, 0);
+    } else if (shuffleCounterSignal.value < CARD_SHUFFLE_ROUNDS) {
+      shuffleCounterSignal.value = CARD_SHUFFLE_ROUNDS;
+      return;
+    }
+
+    if (appStore.game.isShuffling === false) return;
+
+    console.log("start shuffling");
+
+    // for activating animation (after initial instant transform)
+    const delayedStart = setTimeout(() => {
+      appStore.game.isShufflingDelayed = true;
+      console.log("start animation");
+    }, CARD_SHUFFLE_DELAYED_START);
+
+    // deactivate shuffling & animation
+    const shuffleTimeout = setTimeout(() => {
+      appStore.game.isShuffling = false;
+      appStore.game.isShufflingDelayed = false;
+      console.log(
+        `END shuffling: ${CARD_SHUFFLE_DURATION}ms #${shuffleCounterSignal.value}`
+      );
+      shuffleCounterSignal.value--;
+    }, CARD_SHUFFLE_DURATION);
+
+    // const delayedEnd = setTimeout(() => {
+    // }, SHUFFLE_CARD_DURATION + CARD_SHUFFLE_DELAYED_START);
+
+    taskCtx.cleanup(() => {
+      clearTimeout(shuffleTimeout);
+      clearTimeout(delayedStart);
+      clearTimeout(rerun);
+    });
+  });
 
   return (
     <>
@@ -303,7 +357,7 @@ export default component$(() => {
         onClick$={(e: QwikMouseEvent) => handleClickBoard(e)}
       >
         {appStore.game.cards.map((card) => (
-          <V3Card card={card} key={card.id}/>
+          <V3Card card={card} key={card.id} />
         ))}
       </div>
     </>

@@ -8,6 +8,7 @@ import {
 } from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
 import { Pair, V3Card } from "../v3-game/v3-game";
+import { CARD_SHUFFLE_DELAYED_START, CARD_SHUFFLE_DURATION } from "../v3-board/v3-board";
 
 /*
  * Card has id, text, flip state
@@ -32,7 +33,6 @@ import { Pair, V3Card } from "../v3-game/v3-game";
 const CARD_FLIP_ANIMATION_DURATION = 800;
 const CARD_FLIP_ANIMATION_DURATION_HALF = 400;
 const CARD_SHAKE_ANIMATION_DURATION = 600;
-const CARD_SHUFFLE_DURATION = 2000;
 
 type V3CardProps = {
   card: V3Card;
@@ -40,6 +40,14 @@ type V3CardProps = {
   // pairs: Signal<`${number}:${number}`[]>;
   // slotDimensions: Signal<{ width: number; height: number }>;
   // gap: number;
+};
+
+type Coords = { x: number; y: number };
+type BoardLayout = {
+  width: number;
+  height: number;
+  columns: number;
+  rows: number;
 };
 
 export const getXYFromPosition = (position: number, columnCount: number) => ({
@@ -57,6 +65,54 @@ const getCardsArrayFromPairsReduce = (accum: number[], cur: Pair) => {
 
 const getCardsArrayFromPairs = (arr: Pair[]) => {
   return arr.reduce(getCardsArrayFromPairsReduce, []);
+};
+
+// calculates transform from position to prevPosition;
+// applied instantly on shuffle; transition undone over time to commence shuffle animation
+const generateShuffleTransform = (
+  boardLayout: BoardLayout,
+  prevCoords: Coords,
+  newCoords: Coords
+) => {
+  //e.g. 0, 1, 2, 3 columns, new = 3; prev = 0
+  // prev - new = -3 columns from new position back to old position
+  // 3 columns * columnWidth = px
+  const colWidth = boardLayout.width / boardLayout.columns;
+  const rowHeight = boardLayout.height / boardLayout.rows;
+  const translateX = (prevCoords.x - newCoords.x) * colWidth;
+  const translateY = (prevCoords.y - newCoords.y) * rowHeight;
+  console.log({
+    prevCoords,
+    newCoords,
+    translateX,
+    translateY,
+    colWidth,
+    rowHeight,
+  });
+
+  return `translateX(${translateX}px) 
+      translateY(${translateY}px)`;
+};
+
+// calculates the transform required to flip this card to the center of the screen
+const generateFlipTransform = (boardLayout: BoardLayout, newCoords: Coords) => {
+  const colsOffsetMax = (boardLayout.columns - 1) / 2; // 6 => 2.5, 8 => 3.5, 7 => 3
+  const rowsOffsetMax = (boardLayout.rows - 1) / 2;
+  const rowHeight = boardLayout.height / boardLayout.rows;
+  const colWidth = boardLayout.width / boardLayout.columns;
+
+  const colRatio = colsOffsetMax - newCoords.x; // depends on COLUMN_COUNT
+  const translateX = colWidth * colRatio;
+
+  const rowRatio = rowsOffsetMax - newCoords.y; // depends on ROW_COUNT
+  const translateY = rowHeight * rowRatio;
+
+  const isOnLeftSide = newCoords.x < boardLayout.columns / 2;
+
+  return `translateX(${translateX}px) 
+      translateY(${translateY}px) 
+      rotateY(${isOnLeftSide ? "" : "-"}180deg) 
+      scale(2)`; // maybe should be dynamic depending on screen size??
 };
 
 export default component$(({ card }: V3CardProps) => {
@@ -124,9 +180,10 @@ export default component$(({ card }: V3CardProps) => {
   // - turn off transition so it moves forward (remove the class/props)
 
   const shuffleTransform = useSignal("");
+  const flipTransform = useSignal("");
 
-  // shuffle will change the card position, causing this to run
-  // get grid coords from that card position;
+  // shuffling will change the card position, causing this to run
+  // calc & save prev/cur grid coords from that card position;
   const coords = useComputed$(() => {
     const prevCoords = getXYFromPosition(
       card.prevPosition ?? 0,
@@ -137,68 +194,16 @@ export default component$(({ card }: V3CardProps) => {
       appStore.boardLayout.columns
     );
 
-    //e.g. 0, 1, 2, 3 columns, new = 3; prev = 0
-    // 3 - 0 = 3 columns
-    // 3 columns * columnWidth = px
-    const colWidth = appStore.boardLayout.width / appStore.boardLayout.columns;
-    const rowHeight = appStore.boardLayout.height / appStore.boardLayout.rows;
-    const translateX = (newCoords.x - prevCoords.x) * colWidth;
-    const translateY = (newCoords.y - prevCoords.y) * rowHeight;
-    console.log({
+    shuffleTransform.value = generateShuffleTransform(
+      appStore.boardLayout,
       prevCoords,
-      newCoords,
-      translateX,
-      translateY,
-      colWidth,
-      rowHeight,
-    });
-
-    shuffleTransform.value = `translateX(${translateX}px) 
-        translateY(${translateY}px)`;
+      newCoords
+    );
+    flipTransform.value = generateFlipTransform(
+      appStore.boardLayout,
+      newCoords
+    );
     return newCoords;
-  });
-
-  // calculates the transform required to flip this card to the center of the screen
-  const flipTransform = useComputed$(() => {
-    const colsOffsetMax = (appStore.boardLayout.columns - 1) / 2; // 6 => 2.5, 8 => 3.5, 7 => 3
-    const rowsOffsetMax = (appStore.boardLayout.rows - 1) / 2;
-    const rowHeight = appStore.boardLayout.height / appStore.boardLayout.rows;
-    const colWidth = appStore.boardLayout.width / appStore.boardLayout.columns;
-
-    const colRatio = colsOffsetMax - coords.value.x; // depends on COLUMN_COUNT
-    const translateX = colWidth * colRatio;
-
-    const rowRatio = rowsOffsetMax - coords.value.y; // depends on ROW_COUNT
-    const translateY = rowHeight * rowRatio;
-
-    const isOnLeftSide = coords.value.x < appStore.boardLayout.columns / 2;
-
-    const transform = `translateX(${translateX}px) 
-        translateY(${translateY}px) 
-        rotateY(${isOnLeftSide ? "" : "-"}180deg) 
-        scale(2)`; // maybe should be dynamic depending on screen size??
-    return transform;
-  });
-
-  // set up shuffleTransform timer
-  useTask$((taskCtx) => {
-    taskCtx.track(() => shuffleTransform.value);
-    console.log("shuffleTransform task:", shuffleTransform.value);
-    let timer: ReturnType<typeof setTimeout>;
-
-    if (shuffleTransform.value === "") {
-      return;
-    }
-    console.log("starting timer for shuffle transform");
-    timer = setTimeout(() => {
-      // turn off transform
-      console.log("turning off shuffle transform");
-      shuffleTransform.value = "";
-    }, CARD_SHUFFLE_DURATION);
-
-    taskCtx.cleanup(() => {
-      timer && clearTimeout(timer);
-    });
   });
 
   useStylesScoped$(`
@@ -275,13 +280,29 @@ export default component$(({ card }: V3CardProps) => {
 
   /* perspective: for 3D effect, adjust based on width, and card area compared to viewport */
 
+  // delayed transition signal
+  // const delayedTransitionSignal = useSignal(false);
+  // useTask$((taskCtx) => {
+  //   taskCtx.track(() => appStore.game.isShuffling);
+  //   const timer = setTimeout(() => {
+  //     delayedTransitionSignal.value = appStore.game.isShuffling;
+  //     console.log(
+  //       `delayedTransitionSignal, turning animation duration ${
+  //         delayedTransitionSignal.value ? "ON" : "OFF"
+  //       }`
+  //     );
+  //   }, CARD_SHUFFLE_DELAYED_START);
+  //
+  //   taskCtx.cleanup(() => clearTimeout(timer));
+  // });
+
   return (
     <div
-      class={`mx-auto aspect-[2.25/3.5] flex flex-col justify-center ${
-        shuffleTransform.value === ""
-          ? shuffleTransform.value +
-            ` [transition-duration:${CARD_SHUFFLE_DURATION}] transition-[transform]`
-          : "transition-all"
+      class={`mx-auto aspect-[2.25/3.5] flex flex-col justify-center   ${
+        appStore.game.isShufflingDelayed
+        // delayedTransitionSignal.value
+          ? `[transition-duration:${CARD_SHUFFLE_DURATION}ms] transition-[transform]`
+          : ""
       }`}
       style={{
         width: appStore.cardLayout.width + "px",
@@ -294,6 +315,29 @@ export default component$(({ card }: V3CardProps) => {
           ? 10 // applies starting halfway in flip up, and ending halfway in flip down
           : 0, // applies otherwise (when face down);
         borderRadius: appStore.cardLayout.roundedCornersPx + "px",
+
+        // do transform immediately when starting shuffling
+        transitionProperty: "transform",
+        transform:
+          (appStore.game.isShuffling && appStore.game.isShufflingDelayed) ||
+          !appStore.game.isShuffling
+            ? ""
+            : shuffleTransform.value,
+
+        transitionDuration: appStore.game.isShufflingDelayed
+          ? CARD_SHUFFLE_DURATION + "ms"
+          : "0ms",
+
+        // transform:
+        //   (delayedTransitionSignal.value && appStore.game.isShuffling) ||
+        //   !appStore.game.isShuffling
+        //     ? ""
+        //     : shuffleTransform.value,
+        //
+        // // apply duration AFTER the initial transform is complete
+        // transitionDuration: delayedTransitionSignal.value
+        //   ? CARD_SHUFFLE_DURATION + "ms"
+        //   : "0ms",
       }}
     >
       <div
@@ -330,9 +374,9 @@ export default component$(({ card }: V3CardProps) => {
               data-name="circle"
               class="w-1/2 h-auto aspect-square rounded-[50%] bg-white/40 mx-auto flex flex-col justify-center items-center"
             >
-              {/* <small data-id={card.id} class="block"> */}
-              {/*   {card.id} */}
-              {/* </small> */}
+              <span data-id={card.id} class="block text-amber-200">
+                {card.id}
+              </span>
               {/* <small */}
               {/*   data-id={card.id} */}
               {/*   class={`text-red block ${ */}

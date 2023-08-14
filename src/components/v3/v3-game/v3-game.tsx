@@ -12,6 +12,7 @@ import { shuffleCardPositions, v3GenerateCards } from "../utils/v3CardUtils";
 import SettingsModal from "../settings-modal/settings-modal";
 import LoadingModal from "../loading-modal/loading-modal";
 import GameHeader from "../game-header/game-header";
+import { isServer } from "@builder.io/qwik/build";
 
 // const deckCardsApi = "https://deckofcardsapi.com/api/deck/new/";
 
@@ -54,6 +55,8 @@ export type AppStore = {
     cards: V3Card[];
     mismatchPairs: Pair[];
     isLoading: boolean;
+    isShuffling: boolean;
+isShufflingDelayed: boolean;
   };
 
   settings: {
@@ -82,8 +85,7 @@ export type AppStore = {
   };
   shuffleCardPositions: QRL<() => void>;
   toggleSettingsModal: QRL<() => void>;
-  shuffleCardPositionsWithTransition: QRL<() => void>;
-  isShufflingCards: boolean;
+  // shuffleCardPositionsWithTransition: QRL<() => void>;
 };
 
 const INITIAL = {
@@ -112,6 +114,8 @@ const INITIAL = {
     cards: v3GenerateCards(DEFAULT_CARD_COUNT),
     mismatchPairs: [],
     isLoading: true,
+    isShuffling: false,
+    isShufflingDelayed: false,
   },
 
   settings: {
@@ -147,11 +151,17 @@ const INITIAL = {
   },
 
   shuffleCardPositions: $(function (this: AppStore) {
+    console.log("shuffleCardPositionsWithTransition");
     const cards = this.game.cards;
     // shuffle and set new positions, save old positions
-    const shuffled = shuffleCardPositions(this.game.cards);
+    const shuffled = shuffleCardPositions(cards);
     console.log({ cards, shuffled });
+
     this.game.cards = shuffled;
+
+    // to activate animation - only when running on client
+    if (isServer) return;
+    this.game.isShuffling = true;
   }),
 
   toggleSettingsModal: $(function (this: AppStore) {
@@ -164,25 +174,25 @@ const INITIAL = {
   //   - take old positions, get new positions, generate transition path for each card
   //   - apply transition (each card)
   //   - afterwards, swap the card positions to the new positions
-  // or inverse: 
+  // or inverse:
   //   - swap card positions but transition back to previous positions;
   //   - then revert over duration to slide into new position
-  isShufflingCards: false,
-  shuffleCardPositionsWithTransition: $(function (this: AppStore) {
-// mark game as isShuffling
-    this.isShufflingCards = true;
-    console.log("shuffleCardPositionsWithTransition");
-
-    const cards = this.game.cards;
-    const oldPositions = cards.map((each) => each.position);
-
-    // shuffle and set new positions, save old positions
-    const shuffled = shuffleCardPositions(this.game.cards);
-    const newPositions = shuffled.map((each) => each.position);
-// can then apply translations immediately and then revert back to the new positions
-    console.log({ cards, shuffled });
-    this.game.cards = shuffled;
-  }),
+  // shuffleCardPositionsWithTransition: $(function (this: AppStore) {
+  //   console.log("shuffleCardPositionsWithTransition");
+  //
+  //   const cards = this.game.cards;
+  //   // const oldPositions = cards.map((each) => each.position);
+  //
+  //   // shuffle and set new positions, save old positions
+  //   const shuffled = shuffleCardPositions(cards);
+  //   // const newPositions = shuffled.map((each) => each.position);
+  //   // can then apply translations immediately and then revert back to the new positions
+  //   console.log({ cards, shuffled });
+  //   this.game.cards = shuffled;
+  //
+  //   // mark game as isShuffling so we can show the animation
+  //   this.game.isShuffling = true;
+  // }),
 };
 
 export default component$(() => {
