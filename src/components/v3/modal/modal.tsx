@@ -1,26 +1,24 @@
-import {
-  QwikMouseEvent,
-  component$,
-  $,
-  Slot,
-  PropFunction,
-} from "@builder.io/qwik";
+import type { QwikMouseEvent, PropFunction } from "@builder.io/qwik";
+import { component$, $, Slot } from "@builder.io/qwik";
 
 export default component$(
   ({
     isShowing,
     hideModal,
     classes = " bg-slate-600 ",
-bgClasses = 'backdrop-blur-sm',
+    bgClasses = "backdrop-blur-sm",
   }: {
     isShowing: boolean;
     hideModal: PropFunction<() => void>;
     classes?: string;
-bgClasses?: string;
+    bgClasses?: string;
   }) => {
     const closeModal = $((e: QwikMouseEvent) => {
       // console.log((e.target as HTMLElement).dataset.name);
-      if (e.target && (e.target as HTMLElement).dataset.name === "background" && isShowing) {
+      if (
+        (e.target as HTMLElement).dataset.name === "background" &&
+        isShowing
+      ) {
         hideModal(); // fn to turn off boolean
       }
     });

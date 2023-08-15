@@ -1,6 +1,7 @@
+import type {
+  QwikMouseEvent} from "@builder.io/qwik";
 import {
   $,
-  QwikMouseEvent,
   component$,
   useContext,
   useOnWindow,
@@ -12,13 +13,14 @@ import { isServer } from "@builder.io/qwik/build";
 
 import V3Card from "../v3-card/v3-card";
 import { AppContext } from "../v3-context/v3.context";
+import type {
+  DeckOfCardsApi_Card} from "../utils/v3CardUtils";
 import {
-  DeckOfCardsApi_Card,
   formatCards,
   getCardsFromApi,
   v3GenerateCards,
 } from "../utils/v3CardUtils";
-import { Pair, V3Card as V3CardType } from "../v3-game/v3-game";
+import type { Pair, V3Card as V3CardType } from "../v3-game/v3-game";
 // const CARD_RATIO = 2.5 / 3.5; // w / h
 const CARD_RATIO = 113 / 157; // w / h
 export const CORNERS_WIDTH_RATIO = 1 / 20;
@@ -195,7 +197,7 @@ export default component$(() => {
     // console.log("clicked board:", { event: e, target: e.target });
     const isCardFlipped = appStore.game.flippedCardId !== -1;
     // attempt to get the card id if click is on a card
-    const clickedId = Number((e.target as HTMLElement)?.dataset?.id) || false;
+    const clickedId = Number((e.target as HTMLElement).dataset.id) || false;
     const isClickedOnCard = !!clickedId;
 
     switch (true) {
@@ -225,7 +227,7 @@ export default component$(() => {
             [...appStore.game.selectedCardIds],
             cardId
           );
-          if (!!selected) {
+          if (selected) {
             // flip our card
             appStore.game.selectedCardIds = selected;
             appStore.game.flippedCardId = cardId;

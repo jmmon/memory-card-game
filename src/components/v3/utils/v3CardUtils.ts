@@ -1,4 +1,4 @@
-import { V3Card } from "../v3-game/v3-game";
+import type { V3Card } from "../v3-game/v3-game";
 
 export const IMAGE_TYPE = "png";
 
@@ -15,7 +15,7 @@ export const genId = (length = 5) => {
 };
 
 export const v3GenerateCards = (total: number) => {
-  let unshuffledCards: V3Card[] = [];
+  const unshuffledCards: V3Card[] = [];
   // build cards, pair by pair
   for (let i = 0; i < total / 2; i++) {
     const thisId = genId();

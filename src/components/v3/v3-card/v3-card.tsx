@@ -7,8 +7,8 @@ import {
   useTask$,
 } from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
-import { Pair, V3Card } from "../v3-game/v3-game";
-import { CARD_SHUFFLE_DELAYED_START, CARD_SHUFFLE_DURATION } from "../v3-board/v3-board";
+import type { Pair, V3Card } from "../v3-game/v3-game";
+import { CARD_SHUFFLE_DURATION } from "../v3-board/v3-board";
 
 /*
  * Card has id, text, flip state
@@ -143,7 +143,7 @@ export default component$(({ card }: V3CardProps) => {
     }
 
     taskCtx.cleanup(() => {
-      if (timer) clearTimeout(timer);
+      clearTimeout(timer);
     });
   });
 
@@ -158,17 +158,16 @@ export default component$(({ card }: V3CardProps) => {
   // runs when a card is flipped
   useTask$((taskCtx) => {
     taskCtx.track(() => isThisCardFlipped.value);
-    let revealDelayTimer: ReturnType<typeof setTimeout>;
     const durationRatio = 50 / 100;
 
     // when showing the back side, partway through we reveal the back side.
     // when going back to the board, partway through we hide the back side.
-    revealDelayTimer = setTimeout(() => {
+    const revealDelayTimer = setTimeout(() => {
       isUnderSideShowing.value = isThisCardFlipped.value;
     }, CARD_FLIP_ANIMATION_DURATION_HALF + (isThisCardFlipped.value ? -1 : 1) * CARD_FLIP_ANIMATION_DURATION_HALF * durationRatio);
 
     taskCtx.cleanup(() => {
-      if (revealDelayTimer) clearTimeout(revealDelayTimer);
+      clearTimeout(revealDelayTimer);
     });
   });
 
@@ -247,16 +246,14 @@ export default component$(({ card }: V3CardProps) => {
     if (card.isMismatched === false) return;
 
     // delay until the animation is over, then start the shake
-    let timeout: ReturnType<typeof setTimeout>;
-
     // turn on shake after duration (once card returns to its spaces)
-    timeout = setTimeout(() => {
+    const timeout = setTimeout(() => {
       card.isMismatched = false;
       shakeSignal.value = true;
     }, CARD_FLIP_ANIMATION_DURATION - 200);
 
     taskCtx.cleanup(() => {
-      timeout && clearTimeout(timeout);
+      clearTimeout(timeout);
     });
   });
 
@@ -266,15 +263,13 @@ export default component$(({ card }: V3CardProps) => {
     if (shakeSignal.value === false) return;
 
     // delay until the animation is over, then start the shake
-    let timeout: ReturnType<typeof setTimeout>;
-
     // turn off shake after duration
-    timeout = setTimeout(() => {
+    const timeout = setTimeout(() => {
       shakeSignal.value = false;
     }, CARD_SHAKE_ANIMATION_DURATION);
 
     taskCtx.cleanup(() => {
-      timeout && clearTimeout(timeout);
+      clearTimeout(timeout);
     });
   });
 
@@ -374,9 +369,10 @@ export default component$(({ card }: V3CardProps) => {
               data-name="circle"
               class="w-1/2 h-auto aspect-square rounded-[50%] bg-white/40 mx-auto flex flex-col justify-center items-center"
             >
-              <span data-id={card.id} class="block text-amber-200">
-                {card.id}
-              </span>
+              {/* <span data-id={card.id} class="block text-amber-200"> */}
+              {/*   {card.id} */}
+              {/* </span> */}
+
               {/* <small */}
               {/*   data-id={card.id} */}
               {/*   class={`text-red block ${ */}
@@ -398,7 +394,7 @@ export default component$(({ card }: V3CardProps) => {
           >
             {isUnderSideShowing.value &&
               (card.image ? (
-                <img src={card.image} class="w-full h-full" />
+                <img width="25" height="35" src={card.image} class="w-full h-full" />
               ) : (
                 <div
                   // class={`flex justify-center items-center w-full h-full`}

@@ -29,9 +29,10 @@
 // should hold the id of the currently flipped card (if any)
 //
 
+import type {
+  QwikMouseEvent} from "@builder.io/qwik";
 import {
   $,
-  QwikMouseEvent,
   Slot,
   component$,
   useContext,
@@ -41,7 +42,8 @@ import {
 } from "@builder.io/qwik";
 import { FlippableCard } from "~/components/v2/FlippableCard";
 import { MatchModalContext } from "~/components/v2/context/match-modal.context";
-import { generateCards, shuffle_FY_algo, Card } from "~/utils/cardUtils";
+import type { Card } from "~/utils/cardUtils";
+import { generateCards, shuffle_FY_algo } from "~/utils/cardUtils";
 
 export const CARD_FLIP_ANIMATION_DURATION = 800;
 export const CARD_FLIP_ANIMATION_DURATION_HALF = CARD_FLIP_ANIMATION_DURATION / 2;
@@ -223,7 +225,7 @@ export default component$(() => {
     }
 
     // else get the id and save it as our flipped card
-    const dataId = Number((e.target as HTMLElement)?.dataset?.id);
+    const dataId = Number((e.target as HTMLElement).dataset.id);
     // console.log({ dataId });
     if (dataId) {
       // check if it's already removed, if so we do nothing

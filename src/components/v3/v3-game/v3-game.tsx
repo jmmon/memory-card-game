@@ -1,6 +1,7 @@
+import type {
+  QRL} from "@builder.io/qwik";
 import {
   $,
-  QRL,
   component$,
   useContextProvider,
   useSignal,
@@ -10,7 +11,7 @@ import V3Board from "../v3-board/v3-board";
 import { AppContext } from "../v3-context/v3.context";
 import { shuffleCardPositions, v3GenerateCards } from "../utils/v3CardUtils";
 import SettingsModal from "../settings-modal/settings-modal";
-import LoadingModal from "../loading-modal/loading-modal";
+// import LoadingModal from "../loading-modal/loading-modal";
 import GameHeader from "../game-header/game-header";
 import { isServer } from "@builder.io/qwik/build";
 

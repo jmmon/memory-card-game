@@ -1,6 +1,6 @@
+import type { Signal } from "@builder.io/qwik";
 import {
-    type PropFunction,
-  Signal,
+  type PropFunction,
   component$,
   useSignal,
   useStylesScoped$,
@@ -15,7 +15,6 @@ export default component$(() => {
   const isFrontShowing = useSignal(false);
   const isRemoved = useSignal(false);
 
-
   return (
     <div class="w-full h-full flex flex-col gap-4 items-center ">
       <button
@@ -26,7 +25,6 @@ export default component$(() => {
       >
         {isRemoved.value ? "Unremove Card" : "Remove Card"}
       </button>
-
 
       <FlippableCard
         cardText="This is the text of the card"
@@ -141,7 +139,7 @@ export const FlippableCard = component$(
       }
 
       taskCtx.cleanup(() => {
-        if (timer) clearTimeout(timer);
+        clearTimeout(timer);
       });
     });
 

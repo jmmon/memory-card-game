@@ -1,7 +1,8 @@
+import type {
+  Signal} from "@builder.io/qwik";
 import {
   $,
   type PropFunction,
-  Signal,
   component$,
   useOnWindow,
   useSignal,
@@ -289,7 +290,7 @@ const Settings = component$(
           value={INITIAL_CARD_COUNT}
           onInput$={(e, t: HTMLInputElement) => {
             console.log("input");
-            store.game.deck.size = Number(t?.value);
+            store.game.deck.size = Number(t.value);
           }}
           disabled={store.game.deck.isLocked}
         />
@@ -307,8 +308,8 @@ const Settings = component$(
         </div>
         <div class="text-gray-400">{heightAdjSignal.value.multiplier}x</div>
         <div class="text-gray-400">
-          {newCalc?.value?.board.width ?? "-"}x
-          {newCalc?.value?.board.height ?? "-"}
+          {newCalc?.value.board.width ?? "-"}x
+          {newCalc?.value.board.height ?? "-"}
         </div>
       </div>
     );

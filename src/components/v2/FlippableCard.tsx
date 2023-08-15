@@ -1,11 +1,11 @@
+import type { Signal } from "@builder.io/qwik";
 import {
-  Signal,
   component$,
   useComputed$,
   useSignal,
   useTask$,
 } from "@builder.io/qwik";
-import { Card } from "~/utils/cardUtils";
+import type { Card } from "~/utils/cardUtils";
 import {
   CARD_FLIP_ANIMATION_DURATION,
   CARD_FLIP_ANIMATION_DURATION_HALF,
@@ -60,7 +60,7 @@ export const FlippableCard = component$(
       }
 
       taskCtx.cleanup(() => {
-        if (timer) clearTimeout(timer);
+        clearTimeout(timer);
       });
     });
 

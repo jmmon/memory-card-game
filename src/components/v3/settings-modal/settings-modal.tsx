@@ -1,10 +1,11 @@
+import type {
+  PropFunction,
+  QwikChangeEvent} from "@builder.io/qwik";
 import {
   component$,
   $,
   useStyles$,
   useContext,
-  PropFunction,
-  QwikChangeEvent,
   Slot,
 } from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
@@ -67,9 +68,9 @@ export default component$(() => {
               step="1"
               value={Number(appStore.settings.shuffleBoardAfterMismatches)}
               onChange$={(e, t: HTMLInputElement) => {
-                console.log("input:", t?.value);
+                console.log("input:", t.value);
                 appStore.settings.shuffleBoardAfterMismatches = Number(
-                  t?.value
+                  t.value
                 );
               }}
             />
@@ -179,7 +180,7 @@ export default component$(() => {
                   value={appStore.settings.deck.size}
                   onInput$={(e, t: HTMLInputElement) => {
                     console.log("input");
-                    appStore.settings.deck.size = Number(t?.value);
+                    appStore.settings.deck.size = Number(t.value);
                   }}
                   disabled={appStore.settings.deck.isLocked}
                 />

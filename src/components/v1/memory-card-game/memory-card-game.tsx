@@ -8,7 +8,7 @@ import {
   useTask$,
   useComputed$,
 } from "@builder.io/qwik";
-import { Card } from "~/utils/cardUtils";
+import type { Card } from "~/utils/cardUtils";
 import { AppContext, type CardPair } from "../context/context";
 import Jabber from "jabber";
 
@@ -241,7 +241,7 @@ export const Settings = component$(() => {
       <table>
         <tbody>
           {[].map((e) => (
-            <SettingsRow e={e} />
+            <SettingsRow key={e} e={e} />
           ))}
         </tbody>
       </table>
@@ -250,10 +250,11 @@ export const Settings = component$(() => {
 });
 
 export const SettingsRow = component$((props: { e: any }) => {
+console.log({props});
   return (
     <tr>
       {[].map((each) => (
-        <td>{each}</td>
+        <td key={each}>{each}</td>
       ))}
     </tr>
   );
