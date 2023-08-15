@@ -25,8 +25,8 @@ import type { Pair, V3Card as V3CardType } from "../v3-game/v3-game";
 const CARD_RATIO = 113 / 157; // w / h
 export const CORNERS_WIDTH_RATIO = 1 / 20;
 
-export const CARD_SHUFFLE_DELAYED_START = 100;
-export const CARD_SHUFFLE_DURATION = 400;
+export const CARD_SHUFFLE_DELAYED_START = 120;
+export const CARD_SHUFFLE_DURATION = 300;
 export const CARD_SHUFFLE_ROUNDS = 5;
 /*
  * card utils
@@ -278,11 +278,14 @@ export default component$(() => {
     appStore.shuffleCardPositions();
 
     // reset stats
-    appStore.game.selectedCardIds = [];
-    appStore.game.flippedCardId = -1;
-    appStore.game.mismatchPairs = [];
-    appStore.game.successfulPairs = [];
-    appStore.game.isLoading = false;
+    appStore.game = {
+      ...appStore.game,
+      selectedCardIds: [],
+      flippedCardId: -1,
+      mismatchPairs: [],
+      successfulPairs: [],
+      isLoading: false,
+    };
 
     if (appStore.boardLayout.isLocked) {
       return;
