@@ -34,6 +34,48 @@ const CARD_FLIP_ANIMATION_DURATION = 800;
 const CARD_FLIP_ANIMATION_DURATION_HALF = 400;
 const CARD_SHAKE_ANIMATION_DURATION = 600;
 
+const cardNumbers: {
+  [key: string]: string;
+} = {
+  j: "Jack",
+  q: "Queen",
+  k: "King",
+  a: "Ace",
+  "2": "Two",
+  "3": "Three",
+  "4": "Four",
+  "5": "Five",
+  "6": "Six",
+  "7": "Seven",
+  "8": "Eight",
+  "9": "Nine",
+  "10": "Ten",
+};
+
+const cardSuites: {
+  [key: string]: string;
+} = {
+  s: "Spades",
+  d: "Diamonds",
+  c: "Clubs",
+  h: "Hearts",
+};
+
+function getNumber(cardText: string) {
+  cardText = cardText.toLowerCase();
+  return cardNumbers[cardText[0]] ?? cardText[0];
+}
+
+function getSuite(cardText: string) {
+  cardText = cardText.toLowerCase();
+  return cardSuites[cardText[1]];
+}
+
+function isBlack(cardText: string) {
+  cardText = cardText.toLowerCase();
+  return cardText[1] === "c" || cardText[1] === "s" ? "Black" : "Red";
+}
+
 type V3CardProps = {
   card: V3Card;
   // flippedCardId: Signal<number>;
@@ -295,8 +337,8 @@ export default component$(({ card }: V3CardProps) => {
     <div
       class={`mx-auto aspect-[2.25/3.5] flex flex-col justify-center   ${
         appStore.game.isShufflingDelayed
-        // delayedTransitionSignal.value
-          ? `[transition-duration:${CARD_SHUFFLE_DURATION}ms] transition-[transform]`
+          ? // delayedTransitionSignal.value
+            `[transition-duration:${CARD_SHUFFLE_DURATION}ms] transition-[transform]`
           : ""
       }`}
       style={{
@@ -394,7 +436,20 @@ export default component$(({ card }: V3CardProps) => {
           >
             {isUnderSideShowing.value &&
               (card.image ? (
-                <img width="25" height="35" src={card.image} class="w-full h-full" />
+                <img
+                  width="113"
+                  height="157"
+                  src={card.image}
+                  alt={
+                    getNumber(card.text) +
+                    " of " +
+                    getSuite(card.text) +
+                    " (" +
+                    isBlack(card.text) +
+                    ")"
+                  }
+                  class="w-full h-full text-center"
+                />
               ) : (
                 <div
                   // class={`flex justify-center items-center w-full h-full`}

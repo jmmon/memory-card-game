@@ -1,5 +1,4 @@
-import type {
-  QRL} from "@builder.io/qwik";
+import type { QRL } from "@builder.io/qwik";
 import {
   $,
   component$,
@@ -57,7 +56,7 @@ export type AppStore = {
     mismatchPairs: Pair[];
     isLoading: boolean;
     isShuffling: boolean;
-isShufflingDelayed: boolean;
+    isShufflingDelayed: boolean;
   };
 
   settings: {
