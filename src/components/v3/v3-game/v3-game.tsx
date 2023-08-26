@@ -5,6 +5,7 @@ import {
   useContextProvider,
   useSignal,
   useStore,
+  useTask$,
 } from "@builder.io/qwik";
 import V3Board from "../v3-board/v3-board";
 import { AppContext } from "../v3-context/v3.context";
@@ -73,6 +74,7 @@ export type AppStore = {
 
     reorgnanizeBoardOnPair: boolean;
     reorgnanizeBoardOnMismatch: boolean;
+    resizeBoard: boolean;
 
     deck: {
       size: number;
@@ -83,9 +85,9 @@ export type AppStore = {
     modal: {
       isShowing: boolean;
     };
-interface: {
-showSelectedIds: boolean;
-};
+    interface: {
+      showSelectedIds: boolean;
+    };
   };
   shuffleCardPositions: QRL<() => void>;
   toggleSettingsModal: QRL<() => void>;
@@ -145,6 +147,8 @@ const INITIAL = {
     reorgnanizeBoardOnPair: false,
     reorgnanizeBoardOnMismatch: false,
 
+    resizeBoard: false,
+
     deck: {
       size: DEFAULT_CARD_COUNT,
       isLocked: false,
@@ -153,9 +157,9 @@ const INITIAL = {
     },
     modal: { isShowing: false },
 
-interface: {
-showSelectedIds: false,
-},
+    interface: {
+      showSelectedIds: false,
+    },
   },
 
   shuffleCardPositions: $(function (this: AppStore) {
@@ -175,50 +179,36 @@ showSelectedIds: false,
   toggleSettingsModal: $(function (this: AppStore) {
     this.settings.modal.isShowing = !this.settings.modal.isShowing;
   }),
-
-  // TODO:
-  // - Implement the below settings
-  // - implement shuffling with transitions:
-  //   - take old positions, get new positions, generate transition path for each card
-  //   - apply transition (each card)
-  //   - afterwards, swap the card positions to the new positions
-  // or inverse:
-  //   - swap card positions but transition back to previous positions;
-  //   - then revert over duration to slide into new position
-  // shuffleCardPositionsWithTransition: $(function (this: AppStore) {
-  //   console.log("shuffleCardPositionsWithTransition");
-  //
-  //   const cards = this.game.cards;
-  //   // const oldPositions = cards.map((each) => each.position);
-  //
-  //   // shuffle and set new positions, save old positions
-  //   const shuffled = shuffleCardPositions(cards);
-  //   // const newPositions = shuffled.map((each) => each.position);
-  //   // can then apply translations immediately and then revert back to the new positions
-  //   console.log({ cards, shuffled });
-  //   this.game.cards = shuffled;
-  //
-  //   // mark game as isShuffling so we can show the animation
-  //   this.game.isShuffling = true;
-  // }),
 };
 
 export default component$(() => {
   // set up context
   const appStore = useStore<AppStore>({ ...INITIAL }, { deep: true });
+  const containerRef = useSignal<HTMLElement>();
 
   useContextProvider(AppContext, appStore);
 
+  useTask$((taskCtx) => {
+    taskCtx.track(() => containerRef.value?.offsetHeight);
+    if (isServer) return;
+
+    console.log(
+      "detecting offsetHeight change:",
+      containerRef.value?.offsetHeight
+    );
+  });
+
   return (
     <>
-      {/* <InverseModal > */}
+      {/* <InverseModal > grid grid-rows-[2.5em_1fr]   */}
       <div
-        class={`w-full max-h-full h-full p-[1.5%] flex flex-col gap-1 ${
+        ref={containerRef}
+        class={`flex flex-col flex-grow w-full h-full p-[1.5%]   gap-1 ${
           appStore.boardLayout.isLocked ? "overflow-x-auto" : ""
         }`}
       >
         <GameHeader />
-        <V3Board />
+        <V3Board containerRef={containerRef} />
       </div>
       <SettingsModal />
       {/* <LoadingModal /> */}

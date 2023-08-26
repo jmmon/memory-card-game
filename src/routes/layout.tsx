@@ -24,7 +24,7 @@ export const useServerTimeLoader = routeLoader$(() => {
 export default component$(() => {
   useStyles$(styles);
   return (
-    <main class="h-screen">
+    <main class="h-screen h-[100svh]">
       <Slot /> 
     </main>
   );

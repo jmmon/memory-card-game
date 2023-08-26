@@ -12,36 +12,36 @@ export default component$(() => {
   });
 
   useStyles$(`
-  .tooltip {
-    position: relative;
-    cursor: pointer;
-  }
+    .tooltip {
+      position: relative;
+      cursor: pointer;
+    }
 
-  .tooltip label,
-  .tooltip input {
-    cursor: pointer;
-  }
+    .tooltip label,
+    .tooltip input {
+      cursor: pointer;
+    }
 
-  .tooltip .tooltiptext {
-    visibility: hidden;
-    width: 100%;
-    background-color: #222;
-    border: 1px solid #111;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px 5px;
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 100%;
+      background-color: #222;
+      border: 1px solid #111;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px 5px;
 
-    /* position the tooltip */
-    position: absolute;
-    z-index: 10;
-    top: 100%;
-  }
+      /* position the tooltip */
+      position: absolute;
+      z-index: 10;
+      top: 100%;
+    }
 
-  .tooltip:hover .tooltiptext {
-    visibility: visible;
-  }
-`);
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+    }
+  `);
 
   return (
     <Modal
@@ -59,21 +59,20 @@ export default component$(() => {
             />
             <span class="tooltiptext">Shuffle the card positions.</span>
           </div>
+          <div class="justify-center flex gap-2 lg:gap-4 items-center tooltip">
+            <Button
+              text="Resize"
+              onClick$={() => {
+                appStore.settings.resizeBoard = !appStore.settings.resizeBoard;
+console.log(appStore.settings.resizeBoard);
+              }}
+            />
+            <span class="tooltiptext">Force board size to recalculate.</span>
+          </div>
         </div>
 
         <div class="flex flex-col lg:flex-row gap-2 lg:gap-4">
           <div class="flex flex-col gap-2 lg:gap-4 items-center">
-            <SettingsRow>
-              <Lock
-                text="Lock Deck:"
-                tooltip="Prevent deck size from changing."
-                onChange$={(e) => {
-                  appStore.settings.deck.isLocked = (
-                    e.target as HTMLInputElement
-                  ).checked;
-                }}
-              />
-            </SettingsRow>
             <SettingsRow>
               <Lock
                 text="Lock Board:"
@@ -85,16 +84,27 @@ export default component$(() => {
                 }}
               />
             </SettingsRow>
+            <SettingsRow>
+              <Lock
+                text="Lock Deck:"
+                tooltip="Prevent deck size from changing."
+                onChange$={(e) => {
+                  appStore.settings.deck.isLocked = (
+                    e.target as HTMLInputElement
+                  ).checked;
+                }}
+              />
+            </SettingsRow>
 
             <SettingsRow>
-              <div class="flex gap-2 lg:gap-4 items-center tooltip">
-                <label class="w-full" for="deck-card-count text-left">
+              <div class="flex gap-2 md:gap-3 lg:gap-4 items-center tooltip w-full">
+                <label class="" for="deck-card-count text-left">
                   Deck Card Count:
                 </label>
                 <input
                   name="deck-card-count"
                   id="deck-card-count"
-                  class="w-full"
+                  class="flex-grow"
                   type="range"
                   min={appStore.settings.deck.minimumCards}
                   max={appStore.settings.deck.maximumCards}
@@ -256,17 +266,20 @@ const Lock = component$(
           classes ? classes : ""
         } flex gap-2 items-center justify-between w-full `}
       >
-        <label for={text} class="mr-2 mb-1 cursor-pointer text-left">
+        <label
+          for={text}
+          class="flex gap-2 items-center justify-between w-full mr-2 mb-1 cursor-pointer text-left"
+        >
           {text}
+          <input
+            disabled={disabled}
+            class="cursor-pointer w-6 h-6"
+            type="checkbox"
+            id={text}
+            name={text}
+            onChange$={(e) => onChange$(e)}
+          />
         </label>
-        <input
-          disabled={disabled}
-          class="cursor-pointer w-6 h-6"
-          type="checkbox"
-          id={text}
-          name={text}
-          onChange$={(e) => onChange$(e)}
-        />
         {tooltip && <span class="tooltiptext">{tooltip}</span>}
       </div>
     );

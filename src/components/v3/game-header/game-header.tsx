@@ -9,7 +9,7 @@ export default component$(() => {
 
   return (
     <header
-      class={`mx-auto text-center text-xs md:text-sm flex justify-around w-full`}
+      class={`mx-auto text-center text-xs md:text-sm flex justify-around w-full h-min`}
     >
       <HeaderSection classes="justify-start md:justify-around">
         {appStore.settings.interface.showSelectedIds && (
@@ -26,10 +26,12 @@ export default component$(() => {
       <HeaderSection>
         <code class={` bg-gray-800 text-gray-200 flex gap-1 ${CODE_PADDING}`}>
           <div class="flex flex-col">
-            <span class="text-right hidden lg:inline ">pairs:</span>
-            <span class="text-right inline lg:hidden ">p:</span>
-            <span class="text-right hidden lg:inline ">mismatches:</span>
-            <span class="text-right inline lg:hidden ">m:</span>
+            <span class="text-right ">pairs:</span>
+            <span class="text-right ">mismatches:</span>
+            {/* <span class="text-right hidden sm:inline ">pairs:</span> */}
+            {/* <span class="text-right inline sm:hidden ">p:</span> */}
+            {/* <span class="text-right hidden sm:inline ">mismatches:</span> */}
+            {/* <span class="text-right inline sm:hidden ">m:</span> */}
           </div>
           <div class="flex flex-col">
             <span class="">
