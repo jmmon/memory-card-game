@@ -1,5 +1,4 @@
-import type {
-  QRL} from "@builder.io/qwik";
+import type { QRL } from "@builder.io/qwik";
 import {
   $,
   component$,
@@ -14,6 +13,7 @@ import SettingsModal from "../settings-modal/settings-modal";
 // import LoadingModal from "../loading-modal/loading-modal";
 import GameHeader from "../game-header/game-header";
 import { isServer } from "@builder.io/qwik/build";
+import InverseModal from "../inverse-modal/inverse-modal";
 
 // const deckCardsApi = "https://deckofcardsapi.com/api/deck/new/";
 
@@ -57,7 +57,7 @@ export type AppStore = {
     mismatchPairs: Pair[];
     isLoading: boolean;
     isShuffling: boolean;
-isShufflingDelayed: boolean;
+    isShufflingDelayed: boolean;
   };
 
   settings: {
@@ -83,6 +83,9 @@ isShufflingDelayed: boolean;
     modal: {
       isShowing: boolean;
     };
+interface: {
+showSelectedIds: boolean;
+};
   };
   shuffleCardPositions: QRL<() => void>;
   toggleSettingsModal: QRL<() => void>;
@@ -149,6 +152,10 @@ const INITIAL = {
       maximumCards: 52,
     },
     modal: { isShowing: false },
+
+interface: {
+showSelectedIds: false,
+},
   },
 
   shuffleCardPositions: $(function (this: AppStore) {
@@ -204,8 +211,9 @@ export default component$(() => {
 
   return (
     <>
+      {/* <InverseModal > */}
       <div
-          class={`w-full max-h-full h-full p-[1.5%] flex flex-col gap-1 ${
+        class={`w-full max-h-full h-full p-[1.5%] flex flex-col gap-1 ${
           appStore.boardLayout.isLocked ? "overflow-x-auto" : ""
         }`}
       >
@@ -214,6 +222,7 @@ export default component$(() => {
       </div>
       <SettingsModal />
       {/* <LoadingModal /> */}
+      {/* </InverseModal > */}
     </>
   );
 });

@@ -2,39 +2,49 @@ import { Slot, component$, useContext } from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
 import Button from "../button/button";
 
+const CODE_PADDING = "px-1.5 md:px-3 lg:px-4";
+
 export default component$(() => {
   const appStore = useContext(AppContext);
 
   return (
     <header
-      class={`mx-auto text-center grid text-xs md:text-sm grid-cols-[1fr_5em_1fr] items-center w-full`}
+      class={`mx-auto text-center text-xs md:text-sm flex justify-around w-full`}
     >
-      <HeaderSection justify="left">
-        <SelectionHeaderComponent />
-        {appStore.boardLayout.isLocked && (
-          <code class="bg-gray-800 text-gray-200">board locked</code>
+      <HeaderSection classes="justify-start md:justify-around">
+        {appStore.settings.interface.showSelectedIds && (
+          <SelectionHeaderComponent />
         )}
-        {appStore.settings.deck.isLocked && (
-          <code class="bg-gray-800 text-gray-200">deck locked</code>
-        )}
+        {/* {appStore.boardLayout.isLocked && ( */}
+        {/*   <code class="bg-gray-800 text-gray-200">board locked</code> */}
+        {/* )} */}
+        {/* {appStore.settings.deck.isLocked && ( */}
+        {/*   <code class="bg-gray-800 text-gray-200">deck locked</code> */}
+        {/* )} */}
       </HeaderSection>
       <Button text="Settings" onClick$={() => appStore.toggleSettingsModal()} />
       <HeaderSection>
-        <div class="grid grid-cols-[1fr_0.5fr]">
-          <code class="bg-gray-800 text-gray-200 text-right">pairs:</code>
-          <code class="bg-gray-800 text-gray-200">
-            {appStore.game.successfulPairs.length}/
-            {appStore.settings.deck.size / 2}{" "}
-          </code>
+        <code class={` bg-gray-800 text-gray-200 flex gap-1 ${CODE_PADDING}`}>
+          <div class="flex flex-col">
+            <span class="text-right hidden lg:inline ">pairs:</span>
+            <span class="text-right inline lg:hidden ">p:</span>
+            <span class="text-right hidden lg:inline ">mismatches:</span>
+            <span class="text-right inline lg:hidden ">m:</span>
+          </div>
+          <div class="flex flex-col">
+            <span class="">
+              {appStore.game.successfulPairs.length}/
+              {appStore.settings.deck.size / 2}{" "}
+            </span>
 
-          <code class="bg-gray-800 text-gray-200 text-right">mismatches:</code>
-          <code class="bg-gray-800 text-gray-200">
-            {appStore.game.mismatchPairs.length}
-            {appStore.settings.maxAllowableMismatches === -1
-              ? ""
-              : `/${appStore.settings.maxAllowableMismatches}`}
-          </code>
-        </div>
+            <span class="">
+              {appStore.game.mismatchPairs.length}
+              {appStore.settings.maxAllowableMismatches === -1
+                ? ""
+                : `/${appStore.settings.maxAllowableMismatches}`}
+            </span>
+          </div>
+        </code>
       </HeaderSection>
     </header>
   );
@@ -43,8 +53,10 @@ export default component$(() => {
 const SelectionHeaderComponent = component$(() => {
   const appStore = useContext(AppContext);
   return (
-    <code class="bg-gray-800 flex flex-wrap text-center gap-x-4 text-gray-200">
-      <div class="w-min inline-block mx-auto">selected:</div>
+    <code
+      class={` bg-gray-800 flex flex-col text-center text-gray-200 ${CODE_PADDING}`}
+    >
+      <span class="w-min mx-auto">cards selected:</span>
       <div class="grid grid-cols-[3.6em_0.6em_3.6em] mx-auto">
         <span>{appStore.game.selectedCardIds[0] ?? "-"}</span>
         <span>:</span>
@@ -55,17 +67,9 @@ const SelectionHeaderComponent = component$(() => {
 });
 
 const HeaderSection = component$(
-  ({ justify = "center" }: { justify?: "left" | "right" | "center" }) => {
+  ({ classes = "justify-center" }: { classes?: string }) => {
     return (
-      <div
-        class={`w-full flex gap-3 ${
-          justify === "right"
-            ? "justify-end"
-            : justify === "left"
-            ? "justify-start"
-            : "justify-center"
-        } `}
-      >
+      <div class={`w-full flex gap-3 ${classes} `}>
         <Slot />
       </div>
     );

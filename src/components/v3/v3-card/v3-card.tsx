@@ -158,16 +158,24 @@ export default component$(({ card }: V3CardProps) => {
   // runs when a card is flipped
   useTask$((taskCtx) => {
     taskCtx.track(() => isThisCardFlipped.value);
-    const durationRatio = 50 / 100;
+    const hideUnderSideTimerRatio = 50 / 100;
 
     // when showing the back side, partway through we reveal the back side.
     // when going back to the board, partway through we hide the back side.
-    const revealDelayTimer = setTimeout(() => {
-      isUnderSideShowing.value = isThisCardFlipped.value;
-    }, CARD_FLIP_ANIMATION_DURATION_HALF + (isThisCardFlipped.value ? -1 : 1) * CARD_FLIP_ANIMATION_DURATION_HALF * durationRatio);
+
+    let revealDelayTimer: ReturnType<typeof setTimeout>;
+    if (isThisCardFlipped.value) {
+      // when showing card
+      isUnderSideShowing.value = isThisCardFlipped.value; // true
+    } else {
+      // when hiding card, keep the underside visible for a while
+      revealDelayTimer = setTimeout(() => {
+        isUnderSideShowing.value = isThisCardFlipped.value;
+      }, CARD_FLIP_ANIMATION_DURATION * hideUnderSideTimerRatio);
+    }
 
     taskCtx.cleanup(() => {
-      clearTimeout(revealDelayTimer);
+      revealDelayTimer && clearTimeout(revealDelayTimer);
     });
   });
 
@@ -275,28 +283,12 @@ export default component$(({ card }: V3CardProps) => {
 
   /* perspective: for 3D effect, adjust based on width, and card area compared to viewport */
 
-  // delayed transition signal
-  // const delayedTransitionSignal = useSignal(false);
-  // useTask$((taskCtx) => {
-  //   taskCtx.track(() => appStore.game.isShuffling);
-  //   const timer = setTimeout(() => {
-  //     delayedTransitionSignal.value = appStore.game.isShuffling;
-  //     console.log(
-  //       `delayedTransitionSignal, turning animation duration ${
-  //         delayedTransitionSignal.value ? "ON" : "OFF"
-  //       }`
-  //     );
-  //   }, CARD_SHUFFLE_DELAYED_START);
-  //
-  //   taskCtx.cleanup(() => clearTimeout(timer));
-  // });
-
   return (
     <div
       class={`mx-auto aspect-[2.25/3.5] flex flex-col justify-center   ${
         appStore.game.isShufflingDelayed
-        // delayedTransitionSignal.value
-          ? `[transition-duration:${CARD_SHUFFLE_DURATION}ms] transition-[transform]`
+          ? // delayedTransitionSignal.value
+            `[transition-duration:${CARD_SHUFFLE_DURATION}ms] transition-[transform]`
           : ""
       }`}
       style={{
@@ -394,7 +386,12 @@ export default component$(({ card }: V3CardProps) => {
           >
             {isUnderSideShowing.value &&
               (card.image ? (
-                <img width="25" height="35" src={card.image} class="w-full h-full" />
+                <img
+                  width="25"
+                  height="35"
+                  src={card.image}
+                  class="w-full h-full"
+                />
               ) : (
                 <div
                   // class={`flex justify-center items-center w-full h-full`}
