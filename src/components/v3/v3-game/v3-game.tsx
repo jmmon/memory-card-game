@@ -14,7 +14,7 @@ import SettingsModal from "../settings-modal/settings-modal";
 // import LoadingModal from "../loading-modal/loading-modal";
 import GameHeader from "../game-header/game-header";
 import { isServer } from "@builder.io/qwik/build";
-import InverseModal from "../inverse-modal/inverse-modal";
+// import InverseModal from "../inverse-modal/inverse-modal";
 
 // const deckCardsApi = "https://deckofcardsapi.com/api/deck/new/";
 

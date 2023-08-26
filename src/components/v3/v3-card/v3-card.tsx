@@ -31,7 +31,6 @@ import { CARD_SHUFFLE_DURATION } from "../v3-board/v3-board";
 // isBackTextShowing: controlled by timer to hide/show backside from the DOM
 
 const CARD_FLIP_ANIMATION_DURATION = 800;
-const CARD_FLIP_ANIMATION_DURATION_HALF = 400;
 const CARD_SHAKE_ANIMATION_DURATION = 600;
 
 type V3CardProps = {
@@ -175,7 +174,7 @@ export default component$(({ card }: V3CardProps) => {
     }
 
     taskCtx.cleanup(() => {
-      revealDelayTimer && clearTimeout(revealDelayTimer);
+      clearTimeout(revealDelayTimer);
     });
   });
 

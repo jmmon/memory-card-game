@@ -2,7 +2,6 @@ import {
   Slot,
   component$,
   useSignal,
-  useStyles$,
   useStylesScoped$,
   useVisibleTask$,
 } from "@builder.io/qwik";

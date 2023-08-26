@@ -15,7 +15,7 @@ export default component$(() => {
   });
 
   return (
-    <Modal isShowing={appStore.game.isLoading} hideModal={hideModal}>
+    <Modal title="Loading..." isShowing={appStore.game.isLoading} hideModal={hideModal}>
       <div class="flex gap-8 flex-col">Loading...</div>
     </Modal>
   );
