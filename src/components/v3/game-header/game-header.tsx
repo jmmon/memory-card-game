@@ -7,7 +7,7 @@ export default component$(() => {
 
   return (
     <header
-      class={`mx-auto text-center grid text-xs md:text-sm grid-cols-[1fr_5em_1fr] items-center w-full px-[5%]`}
+      class={`mx-auto text-center grid text-xs md:text-sm grid-cols-[1fr_5em_1fr] items-center w-full`}
     >
       <HeaderSection justify="left">
         <SelectionHeaderComponent />
@@ -20,17 +20,21 @@ export default component$(() => {
       </HeaderSection>
       <Button text="Settings" onClick$={() => appStore.toggleSettingsModal()} />
       <HeaderSection>
-        <code class="bg-gray-800 text-gray-200">
-          pairs: {appStore.game.successfulPairs.length}/
-          {appStore.settings.deck.size / 2}{" "}
-        </code>
+        <div class="grid grid-cols-[1fr_0.5fr]">
+          <code class="bg-gray-800 text-gray-200 text-right">pairs:</code>
+          <code class="bg-gray-800 text-gray-200">
+            {appStore.game.successfulPairs.length}/
+            {appStore.settings.deck.size / 2}{" "}
+          </code>
 
-        <code class="bg-gray-800 text-gray-200">
-          mismatches: {appStore.game.mismatchPairs.length}
-          {appStore.settings.maxAllowableMismatches === -1
-            ? ""
-            : `/${appStore.settings.maxAllowableMismatches}`}
-        </code>
+          <code class="bg-gray-800 text-gray-200 text-right">mismatches:</code>
+          <code class="bg-gray-800 text-gray-200">
+            {appStore.game.mismatchPairs.length}
+            {appStore.settings.maxAllowableMismatches === -1
+              ? ""
+              : `/${appStore.settings.maxAllowableMismatches}`}
+          </code>
+        </div>
       </HeaderSection>
     </header>
   );

@@ -199,18 +199,15 @@ const INITIAL = {
 export default component$(() => {
   // set up context
   const appStore = useStore<AppStore>({ ...INITIAL }, { deep: true });
-  const containerRef = useSignal<HTMLDivElement>();
 
   useContextProvider(AppContext, appStore);
 
   return (
     <>
       <div
-        class={`w-full max-h-full h-full p-4 grid ${
+          class={`w-full max-h-full h-full p-[1.5%] flex flex-col gap-1 ${
           appStore.boardLayout.isLocked ? "overflow-x-auto" : ""
         }`}
-        style="grid-template-rows: 12% 88%;"
-        ref={containerRef}
       >
         <GameHeader />
         <V3Board />

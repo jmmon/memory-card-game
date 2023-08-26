@@ -348,7 +348,7 @@ export default component$(() => {
   return (
     <>
       <div
-        class="grid max-w-full"
+        class="grid max-w-full flex-grow"
         style={{
           gridTemplateColumns: `repeat(${
             appStore.boardLayout.columns || 4
