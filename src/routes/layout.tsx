@@ -24,14 +24,8 @@ export const useServerTimeLoader = routeLoader$(() => {
 export default component$(() => {
   useStyles$(styles);
   return (
-    <>
-      {/* the header with the stack/pairs? */}
-      {/* fail count */}
-      <main class="h-screen">
-        {/* the board */}
-        <Slot /> 
-      </main>
-{/* the settings: */}
-    </>
+    <main class="h-screen">
+      <Slot /> 
+    </main>
   );
 });
