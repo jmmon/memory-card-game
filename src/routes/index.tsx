@@ -4,12 +4,12 @@ import { Link, type DocumentHead } from "@builder.io/qwik-city";
 export default component$(() => {
   return (
     <div class="flex flex-col w-full h-full items-center gap-8">
-      <h1 class="text-center text-4xl text-gray-500">Memory Card Game</h1>
+      <h1 class="text-center text-4xl text-slate-500">Memory Card Game</h1>
 
       <p>Intro</p>
 
       <div>
-        <h3 class="text-gray-500 mb-2 text-2xl text-center">Links:</h3>
+        <h3 class="text-slate-500 mb-2 text-2xl text-center">Links:</h3>
         <ul class="flex flex-col gap-2">
           <LinkLi href="/v3" pretext="v3" text="Third version" />
           <LinkLi href="/resize" pretext="v2.5" text="Better dynamic board resizing" />
@@ -31,7 +31,7 @@ export const LinkLi = component$(({ href, pretext, text }: LinkLiProps) => {
   return (
     <li>
       <Link href={href}>
-        <div class="w-8 text-gray-500 inline-block text-right mr-2">{pretext}:</div>
+        <div class="w-8 text-slate-500 inline-block text-right mr-2">{pretext}:</div>
         <span>{text}</span>
       </Link>
     </li>

@@ -209,7 +209,7 @@ const Card = component$(({ store }: any) => {
         height: store.cardLayout.height + "px",
       }}
     >
-      <div class="w-[90%] h-[90%] border rounded-xl border-gray-400 hover:bg-gray-200 hover:text-gray-800 transition-all p-4 mx-auto flex flex-col justify-center items-center">
+      <div class="w-[90%] h-[90%] border rounded-xl border-slate-400 hover:bg-slate-200 hover:text-slate-800 transition-all p-4 mx-auto flex flex-col justify-center items-center">
         some text
       </div>
     </div>
@@ -306,8 +306,8 @@ const Settings = component$(
           <button onClick$={() => handleAdjustHeight(-0.5)}>Up</button>
           <button onClick$={() => handleAdjustHeight(0.5)}>Down</button>
         </div>
-        <div class="text-gray-400">{heightAdjSignal.value.multiplier}x</div>
-        <div class="text-gray-400">
+        <div class="text-slate-400">{heightAdjSignal.value.multiplier}x</div>
+        <div class="text-slate-400">
           {newCalc?.value.board.width ?? "-"}x
           {newCalc?.value.board.height ?? "-"}
         </div>

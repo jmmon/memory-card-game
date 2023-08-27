@@ -64,7 +64,7 @@ export default component$(() => {
               text="Resize"
               onClick$={() => {
                 appStore.settings.resizeBoard = !appStore.settings.resizeBoard;
-console.log(appStore.settings.resizeBoard);
+                console.log(appStore.settings.resizeBoard);
               }}
             />
             <span class="tooltiptext">Force board size to recalculate.</span>
@@ -128,6 +128,18 @@ console.log(appStore.settings.resizeBoard);
                     e.target as HTMLInputElement
                   ).checked;
                 }}
+              />
+            </SettingsRow>
+            <SettingsRow>
+              <Lock
+                text="Show Dimensions"
+                tooltip="Show board layout and window dimensions."
+                onChange$={(e) => {
+                  appStore.settings.interface.showDimensions = (
+                    e.target as HTMLInputElement
+                  ).checked;
+                }}
+                value={appStore.settings.interface.showDimensions}
               />
             </SettingsRow>
           </div>
@@ -253,12 +265,14 @@ const Lock = component$(
     classes,
     tooltip,
     disabled = false,
+    value = false,
   }: {
     text: string;
     onChange$: PropFunction<(e: QwikChangeEvent) => void>;
     classes?: string;
     tooltip?: string;
     disabled?: boolean;
+    value?: boolean;
   }) => {
     return (
       <div
@@ -278,6 +292,7 @@ const Lock = component$(
             id={text}
             name={text}
             onChange$={(e) => onChange$(e)}
+            checked={value}
           />
         </label>
         {tooltip && <span class="tooltiptext">{tooltip}</span>}

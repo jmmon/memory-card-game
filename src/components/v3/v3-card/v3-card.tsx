@@ -327,7 +327,7 @@ export default component$(({ card }: V3CardProps) => {
       }}
     >
       <div
-        class={`w-[90%] h-[90%] mx-auto [perspective:1400px] bg-transparent border border-gray-50/20 flip-card transition-all [animation-timing-function:ease-in-out] ${
+        class={`w-[90%] h-[90%] mx-auto [perspective:1400px] bg-transparent border border-slate-50/20 flip-card transition-all [animation-timing-function:ease-in-out] ${
           isRemovedDelayedTrue.value &&
           appStore.game.flippedCardId !== card.id &&
           appStore.game.flippedCardId !== card.pairId
@@ -349,7 +349,7 @@ export default component$(({ card }: V3CardProps) => {
           }}
         >
           <div
-            class={`absolute w-full h-full border-2 border-gray-50 text-white bg-[dodgerblue] flex flex-col justify-center [backface-visibility:hidden]`}
+            class={`absolute w-full h-full border-2 border-slate-50 text-white bg-[dodgerblue] flex flex-col justify-center [backface-visibility:hidden]`}
             data-id={card.id}
             style={{
               borderRadius: appStore.cardLayout.roundedCornersPx + "px",
@@ -377,7 +377,7 @@ export default component$(({ card }: V3CardProps) => {
             </div>
           </div>
           <div
-            class={`absolute w-full border border-white h-full flex justify-center items-center text-black bg-gray-300 [transform:rotateY(180deg)] [backface-visibility:hidden] `}
+            class={`absolute w-full border border-white h-full flex justify-center items-center text-black bg-slate-300 [transform:rotateY(180deg)] [backface-visibility:hidden] `}
             data-id={card.id}
             style={{
               borderRadius: appStore.cardLayout.roundedCornersPx + "px",

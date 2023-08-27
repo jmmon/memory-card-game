@@ -5,10 +5,9 @@ import {
   useContextProvider,
   useSignal,
   useStore,
-  useTask$,
   useVisibleTask$,
 } from "@builder.io/qwik";
-import { routeLoader$, server$ } from "@builder.io/qwik-city";
+import { server$ } from "@builder.io/qwik-city";
 import V3Board from "../v3-board/v3-board";
 import { AppContext } from "../v3-context/v3.context";
 import {
@@ -22,7 +21,6 @@ import SettingsModal from "../settings-modal/settings-modal";
 // import LoadingModal from "../loading-modal/loading-modal";
 import GameHeader from "../game-header/game-header";
 import { isServer } from "@builder.io/qwik/build";
-import { useDeck } from "../../../routes/v3/index";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
 // const deckCardsApi = "https://deckofcardsapi.com/api/deck/new/";
@@ -97,6 +95,7 @@ export type AppStore = {
     };
     interface: {
       showSelectedIds: boolean;
+      showDimensions: boolean;
     };
   };
   generateDeck: QRL<() => void>;
@@ -171,12 +170,13 @@ const INITIAL = {
 
     interface: {
       showSelectedIds: false,
+      showDimensions: true,
     },
   },
 
   generateDeck: $(async function (this: AppStore) {
     console.log("fetching cards...");
-    let cards = await getCardsFromApi(FULL_DECK_COUNT);
+    const cards = await getCardsFromApi(FULL_DECK_COUNT);
     if (cards !== undefined && cards.length !== 0) {
       console.log(`fetched!\nformatting cards...`, { cards });
       const formatted = formatCards(cards);
@@ -215,7 +215,7 @@ const INITIAL = {
   }),
 };
 
-export const useDeckServer = server$(async () => {
+export const serverFetchDeck = server$(async () => {
   console.log("fetching cards...");
   const cards = await getCardsFromApi(FULL_DECK_COUNT);
   if (cards === undefined || cards.length === 0) {
@@ -249,17 +249,17 @@ export default component$(() => {
   // });
 
   useVisibleTask$(async () => {
-    const deck = await useDeckServer();
+    const deck = await serverFetchDeck();
     appStore.settings.deck.fullDeck = deck;
 
     const start = Math.floor(
-      Math.random() * (FULL_DECK_COUNT - appStore.settings.deck.size)
+      (Math.random() * (FULL_DECK_COUNT - appStore.settings.deck.size)) / 2
     );
     appStore.game.cards = deck.slice(
-      start,
-      start + appStore.settings.deck.size
+      start * 2,
+      start * 2 + appStore.settings.deck.size
     );
-appStore.game.isLoading = false;
+    appStore.game.isLoading = false;
   });
 
   return (
@@ -272,7 +272,7 @@ appStore.game.isLoading = false;
       ) : (
         <div
           ref={containerRef}
-          class={`flex flex-col flex-grow w-full h-full p-[1.5%]   gap-1 ${
+          class={`flex flex-col  flex-grow justify-between w-full h-full p-[1.5%]   gap-1 ${
             appStore.boardLayout.isLocked ? "overflow-x-auto" : ""
           }`}
         >
@@ -286,3 +286,16 @@ appStore.game.isLoading = false;
     </>
   );
 });
+
+/*
+ *
+ * TODO:
+ *
+ * Some way to initialize dummy cards and fill in with actual data later?
+ * That way I can do initial shuffle as the api is responding? then swap them out
+ * Will need to have a loading indicator in case the fetch takes a long time
+ *
+ * BETTER:
+ * "loading" animation is simply the cards shuffling repeatedly!
+ * after loaded from API, (shuffle the cards, or map them to the shuffled dummy ids, and then) swap the cards out
+ * */

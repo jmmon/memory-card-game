@@ -288,7 +288,7 @@ export default component$(
         start + appStore.settings.deck.size
       );
 
-      if (cards !== undefined && cards.length > 0) {
+      if (cards.length > 0) {
         appStore.game.cards = cards;
       } else {
         // backup, in case our api fails to fetch
