@@ -1,5 +1,6 @@
 import type { V3Card } from "../v3-game/v3-game";
 
+export const FULL_DECK_COUNT = 52;
 export const IMAGE_TYPE = "png";
 
 // generates 5 random numbers and concats them as a string
@@ -158,7 +159,7 @@ export const buildCardIdsArray = (cardCount: number) => {
   return cards;
 };
 
-export const deckOfCardsIds = buildCardIdsArray(52);
+export const deckOfCardsIds = buildCardIdsArray(FULL_DECK_COUNT);
 
 export const getCardsFromApi = async (cardCount: number) => {
   const cards = deckOfCardsIds.slice(0, cardCount);
@@ -181,7 +182,7 @@ export const getCardsFromApi = async (cardCount: number) => {
     console.log({ drawnCardsJson });
 
     // return them
-    return drawnCardsJson.cards;
+    return drawnCardsJson.cards as DeckOfCardsApi_Card[];
   } catch (err) {
     console.log({ err });
   }

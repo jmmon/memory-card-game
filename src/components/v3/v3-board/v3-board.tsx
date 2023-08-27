@@ -12,11 +12,9 @@ import { isServer } from "@builder.io/qwik/build";
 
 import V3Card from "../v3-card/v3-card";
 import { AppContext } from "../v3-context/v3.context";
-import type { DeckOfCardsApi_Card } from "../utils/v3CardUtils";
 import {
-  formatCards,
-  getCardsFromApi,
   v3GenerateCards,
+  FULL_DECK_COUNT,
 } from "../utils/v3CardUtils";
 import type { Pair, V3Card as V3CardType } from "../v3-game/v3-game";
 // const CARD_RATIO = 2.5 / 3.5; // w / h
@@ -91,18 +89,21 @@ export default component$(
     const boardRef = useSignal<HTMLDivElement>();
 
     const resizeBoard = $((width?: number, height?: number) => {
-        const PADDING_PERCENT = 1.5;
-        const boardRect = boardRef.value?.getBoundingClientRect() ?? {top: 0};
-        const boardTop = boardRect.top;
-        const boardBottomLimit =
-          (containerRef.value?.offsetHeight ?? 0 * (100 - PADDING_PERCENT)) / 100; // account for padding on bottom
-        const boardHeight2 = boardBottomLimit - boardTop;
+      const PADDING_PERCENT = 1.5;
+      const boardRect = boardRef.value?.getBoundingClientRect() ?? { top: 0 };
+      const boardTop = boardRect.top;
+      const boardBottomLimit =
+        (containerRef.value?.offsetHeight ?? 0 * (100 - PADDING_PERCENT)) / 100; // account for padding on bottom
+      const boardHeight2 = boardBottomLimit - boardTop;
 
-        const boardWidth2 =
-          (containerRef.value?.offsetWidth ?? 0 * (100 - PADDING_PERCENT * 2)) / 100; // account for padding on sides
+      const boardWidth2 =
+        (containerRef.value?.offsetWidth ?? 0 * (100 - PADDING_PERCENT * 2)) /
+        100; // account for padding on sides
 
-      const boardWidth = width || boardWidth2 || boardRef.value?.offsetWidth || 0;
-      const boardHeight = height || boardHeight2 || boardRef.value?.offsetHeight || 0;
+      const boardWidth =
+        width || boardWidth2 || boardRef.value?.offsetWidth || 0;
+      const boardHeight =
+        height || boardHeight2 || boardRef.value?.offsetHeight || 0;
       // const boardWidth = boardRef.value?.offsetWidth  || 0;
       // const boardHeight = boardRef.value?.offsetHeight || 0;
       const boardArea = boardWidth * boardHeight;
@@ -278,15 +279,17 @@ export default component$(
       }
       appStore.game.isLoading = true;
       // appStore.game.cards = v3GenerateCards(appStore.settings.deck.size);
-      let cards: DeckOfCardsApi_Card[] | undefined = [];
-      try {
-        cards = await getCardsFromApi(appStore.settings.deck.size);
-      } catch (err) {
-        console.log("card API error:", { err });
-      }
+      const start = Math.floor(
+        Math.random() * (FULL_DECK_COUNT - appStore.settings.deck.size)
+      );
+
+      const cards = appStore.settings.deck.fullDeck.slice(
+        start,
+        start + appStore.settings.deck.size
+      );
 
       if (cards !== undefined && cards.length > 0) {
-        appStore.game.cards = formatCards(cards);
+        appStore.game.cards = cards;
       } else {
         // backup, in case our api fails to fetch
         appStore.game.cards = v3GenerateCards(appStore.settings.deck.size);
@@ -307,20 +310,21 @@ export default component$(
       if (appStore.boardLayout.isLocked) {
         return;
       }
-        const container = containerRef.value as HTMLElement; // or use window instead of container/game?
-        const board = boardRef.value as HTMLElement;
 
-        const PADDING_PERCENT = 1.5;
-        const boardRect = board.getBoundingClientRect();
-        const boardTop = boardRect.top;
-        const boardBottomLimit =
-          (container.offsetHeight * (100 - PADDING_PERCENT)) / 100; // account for padding on bottom
-        const boardHeight = boardBottomLimit - boardTop;
+      const container = containerRef.value as HTMLElement; // or use window instead of container/game?
+      const board = boardRef.value as HTMLElement;
 
-        const boardWidth =
-          (container.offsetWidth * (100 - PADDING_PERCENT * 2)) / 100; // account for padding on sides
+      const PADDING_PERCENT = 1.5;
+      const boardRect = board.getBoundingClientRect();
+      const boardTop = boardRect.top;
+      const boardBottomLimit =
+        (container.offsetHeight * (100 - PADDING_PERCENT)) / 100; // account for padding on bottom
+      const boardHeight = boardBottomLimit - boardTop;
 
-        resizeBoard(boardWidth, boardHeight);
+      const boardWidth =
+        (container.offsetWidth * (100 - PADDING_PERCENT * 2)) / 100; // account for padding on sides
+
+      resizeBoard(boardWidth, boardHeight);
     });
 
     // calculate board on mount
@@ -328,21 +332,26 @@ export default component$(
       taskCtx.track(() => appStore.settings.resizeBoard);
       console.log("board useVisibleTask");
 
-        const container = containerRef.value as HTMLElement; // or use window instead of container/game?
-        const board = boardRef.value as HTMLElement;
+      const container = containerRef.value as HTMLElement; // or use window instead of container/game?
+      const board = boardRef.value as HTMLElement;
 
-        const PADDING_PERCENT = 1.5;
-        const boardRect = board.getBoundingClientRect();
-        const boardTop = boardRect.top;
-        const boardBottomLimit =
-          (container.offsetHeight * (100 - PADDING_PERCENT)) / 100; // account for padding on bottom
-        const boardHeight = boardBottomLimit - boardTop;
+      const PADDING_PERCENT = 1.5;
+      const boardRect = board.getBoundingClientRect();
+      const boardTop = boardRect.top;
+      const boardBottomLimit =
+        (container.offsetHeight * (100 - PADDING_PERCENT)) / 100; // account for padding on bottom
+      const boardHeight = boardBottomLimit - boardTop;
 
-        const boardWidth =
-          (container.offsetWidth * (100 - PADDING_PERCENT * 2)) / 100; // account for padding on sides
+      const boardWidth =
+        (container.offsetWidth * (100 - PADDING_PERCENT * 2)) / 100; // account for padding on sides
 
-console.log({boardWidth, boardHeight, windowWidth: window.innerWidth, windowHeight: window.innerHeight});
-        resizeBoard(boardWidth, boardHeight);
+      console.log({
+        boardWidth,
+        boardHeight,
+        windowWidth: window.innerWidth,
+        windowHeight: window.innerHeight,
+      });
+      resizeBoard(boardWidth, boardHeight);
     });
 
     const shuffleCounterSignal = useSignal(CARD_SHUFFLE_ROUNDS);
@@ -351,7 +360,6 @@ console.log({boardWidth, boardHeight, windowWidth: window.innerWidth, windowHeig
     useTask$((taskCtx) => {
       taskCtx.track(() => appStore.game.isShuffling);
       if (isServer) {
-        shuffleCounterSignal.value = CARD_SHUFFLE_ROUNDS;
         return;
       }
       let rerun: ReturnType<typeof setTimeout>;

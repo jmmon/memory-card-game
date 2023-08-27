@@ -6,14 +6,23 @@ import {
   useSignal,
   useStore,
   useTask$,
+  useVisibleTask$,
 } from "@builder.io/qwik";
+import { routeLoader$, server$ } from "@builder.io/qwik-city";
 import V3Board from "../v3-board/v3-board";
 import { AppContext } from "../v3-context/v3.context";
-import { shuffleCardPositions, v3GenerateCards } from "../utils/v3CardUtils";
+import {
+  shuffleCardPositions,
+  v3GenerateCards,
+  getCardsFromApi,
+  formatCards,
+  FULL_DECK_COUNT,
+} from "../utils/v3CardUtils";
 import SettingsModal from "../settings-modal/settings-modal";
 // import LoadingModal from "../loading-modal/loading-modal";
 import GameHeader from "../game-header/game-header";
 import { isServer } from "@builder.io/qwik/build";
+import { useDeck } from "../../../routes/v3/index";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
 // const deckCardsApi = "https://deckofcardsapi.com/api/deck/new/";
@@ -81,6 +90,7 @@ export type AppStore = {
       isLocked: boolean;
       minimumCards: number;
       maximumCards: number;
+      fullDeck: V3Card[];
     };
     modal: {
       isShowing: boolean;
@@ -89,6 +99,7 @@ export type AppStore = {
       showSelectedIds: boolean;
     };
   };
+  generateDeck: QRL<() => void>;
   shuffleCardPositions: QRL<() => void>;
   toggleSettingsModal: QRL<() => void>;
   // shuffleCardPositionsWithTransition: QRL<() => void>;
@@ -117,7 +128,7 @@ const INITIAL = {
     flippedCardId: -1,
     selectedCardIds: [],
     successfulPairs: [],
-    cards: v3GenerateCards(DEFAULT_CARD_COUNT),
+    cards: [],
     mismatchPairs: [],
     isLoading: true,
     isShuffling: false,
@@ -154,6 +165,7 @@ const INITIAL = {
       isLocked: false,
       minimumCards: 2,
       maximumCards: 52,
+      fullDeck: [],
     },
     modal: { isShowing: false },
 
@@ -161,6 +173,28 @@ const INITIAL = {
       showSelectedIds: false,
     },
   },
+
+  generateDeck: $(async function (this: AppStore) {
+    console.log("fetching cards...");
+    let cards = await getCardsFromApi(FULL_DECK_COUNT);
+    if (cards !== undefined && cards.length !== 0) {
+      console.log(`fetched!\nformatting cards...`, { cards });
+      const formatted = formatCards(cards);
+      console.log("done!", { formatted });
+      this.settings.deck.fullDeck = formatted;
+    } else {
+      this.settings.deck.fullDeck = v3GenerateCards(FULL_DECK_COUNT);
+    }
+
+    const start = Math.floor(
+      Math.random() * (FULL_DECK_COUNT - this.settings.deck.size)
+    );
+
+    this.game.cards = this.settings.deck.fullDeck.slice(
+      start,
+      start + this.settings.deck.size
+    );
+  }),
 
   shuffleCardPositions: $(function (this: AppStore) {
     console.log("shuffleCardPositionsWithTransition");
@@ -181,35 +215,71 @@ const INITIAL = {
   }),
 };
 
+export const useDeckServer = server$(async () => {
+  console.log("fetching cards...");
+  const cards = await getCardsFromApi(FULL_DECK_COUNT);
+  if (cards === undefined || cards.length === 0) {
+    return v3GenerateCards(FULL_DECK_COUNT);
+  }
+  console.log(`fetched!\nformatting cards...`, { cards });
+  const formatted = formatCards(cards);
+  console.log("done!", { formatted });
+
+  return formatted;
+});
+
 export default component$(() => {
   // set up context
   const appStore = useStore<AppStore>({ ...INITIAL }, { deep: true });
   const containerRef = useSignal<HTMLElement>();
+  // const deck = useDeck();
 
   useContextProvider(AppContext, appStore);
 
-  useTask$((taskCtx) => {
-    taskCtx.track(() => containerRef.value?.offsetHeight);
-    if (isServer) return;
+  // useTask$((taskCtx) => {
+  //   appStore.settings.deck.fullDeck = deck.value;
+  //
+  //   const start = Math.floor(
+  //     Math.random() * (FULL_DECK_COUNT - appStore.settings.deck.size)
+  //   );
+  //   appStore.game.cards = deck.value.slice(
+  //     start,
+  //     start + appStore.settings.deck.size
+  //   );
+  // });
 
-    console.log(
-      "detecting offsetHeight change:",
-      containerRef.value?.offsetHeight
+  useVisibleTask$(async () => {
+    const deck = await useDeckServer();
+    appStore.settings.deck.fullDeck = deck;
+
+    const start = Math.floor(
+      Math.random() * (FULL_DECK_COUNT - appStore.settings.deck.size)
     );
+    appStore.game.cards = deck.slice(
+      start,
+      start + appStore.settings.deck.size
+    );
+appStore.game.isLoading = false;
   });
 
   return (
     <>
       {/* <InverseModal > grid grid-rows-[2.5em_1fr]   */}
-      <div
-        ref={containerRef}
-        class={`flex flex-col flex-grow w-full h-full p-[1.5%]   gap-1 ${
-          appStore.boardLayout.isLocked ? "overflow-x-auto" : ""
-        }`}
-      >
-        <GameHeader />
-        <V3Board containerRef={containerRef} />
-      </div>
+      {appStore.game.isLoading ? (
+        <div class="text-4xl w-full h-full flex justify-center items-center">
+          Loading...
+        </div>
+      ) : (
+        <div
+          ref={containerRef}
+          class={`flex flex-col flex-grow w-full h-full p-[1.5%]   gap-1 ${
+            appStore.boardLayout.isLocked ? "overflow-x-auto" : ""
+          }`}
+        >
+          <GameHeader />
+          <V3Board containerRef={containerRef} />
+        </div>
+      )}
       <SettingsModal />
       {/* <LoadingModal /> */}
       {/* </InverseModal > */}
