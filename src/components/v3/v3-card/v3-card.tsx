@@ -80,14 +80,14 @@ const generateShuffleTransform = (
   const rowHeight = boardLayout.height / boardLayout.rows;
   const translateX = (prevCoords.x - newCoords.x) * colWidth;
   const translateY = (prevCoords.y - newCoords.y) * rowHeight;
-  console.log({
-    prevCoords,
-    newCoords,
-    translateX,
-    translateY,
-    colWidth,
-    rowHeight,
-  });
+  // console.log({
+  //   prevCoords,
+  //   newCoords,
+  //   translateX,
+  //   translateY,
+  //   colWidth,
+  //   rowHeight,
+  // });
 
   return `translateX(${translateX}px) 
       translateY(${translateY}px)`;

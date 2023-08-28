@@ -4,6 +4,8 @@ import { AppContext } from "../v3-context/v3.context";
 import Modal from "../modal/modal";
 import Button from "../button/button";
 
+const COLUMN_GAP = "gap-0.5 md:gap-1";
+
 export default component$(() => {
   const appStore = useContext(AppContext);
 
@@ -15,6 +17,7 @@ export default component$(() => {
     .tooltip {
       position: relative;
       cursor: pointer;
+font-size: clamp(0.7rem, 1vw, 1rem);
     }
 
     .tooltip label,
@@ -50,18 +53,18 @@ export default component$(() => {
       bgClasses=""
       title="Game Settings"
     >
-      <div class="flex gap-2 lg:gap-8 flex-col">
-        <div class="flex justify-center items-center">
-          <div class="justify-center flex gap-2 lg:gap-4 items-center tooltip">
+      <div class="flex gap-[2vw] flex-col py-[2%] px-[4%]">
+        <div class="flex-grow flex justify-evenly items-center">
+          <div class="justify-center flex gap-[2%] items-center tooltip">
             <Button
               text="Shuffle Deck"
               onClick$={() => appStore.shuffleCardPositions()}
             />
             <span class="tooltiptext">Shuffle the card positions.</span>
           </div>
-          <div class="justify-center flex gap-2 lg:gap-4 items-center tooltip">
+          <div class="justify-center flex  gap-[2%] items-center tooltip">
             <Button
-              text="Resize"
+              text="Refresh Board"
               onClick$={() => {
                 appStore.settings.resizeBoard = !appStore.settings.resizeBoard;
                 console.log(appStore.settings.resizeBoard);
@@ -71,8 +74,9 @@ export default component$(() => {
           </div>
         </div>
 
-        <div class="flex flex-col lg:flex-row gap-2 lg:gap-4">
-          <div class="flex flex-col gap-2 lg:gap-4 items-center">
+        <div class={` flex flex-col md:flex-row justify-center ${COLUMN_GAP} `}>
+          <div class={`flex-grow flex flex-col ${COLUMN_GAP}  items-center`}>
+            {/* left column */}
             <SettingsRow>
               <Lock
                 text="Lock Board:"
@@ -97,14 +101,14 @@ export default component$(() => {
             </SettingsRow>
 
             <SettingsRow>
-              <div class="flex gap-2 md:gap-3 lg:gap-4 items-center tooltip w-full">
-                <label class="" for="deck-card-count text-left">
+              <div class="flex gap-[2%] items-center tooltip w-full">
+                <label class="w-4/12" for="deck-card-count text-left">
                   Deck Card Count:
                 </label>
                 <input
                   name="deck-card-count"
                   id="deck-card-count"
-                  class="flex-grow"
+                  class="flex-grow w-8/12"
                   type="range"
                   min={appStore.settings.deck.minimumCards}
                   max={appStore.settings.deck.maximumCards}
@@ -119,6 +123,7 @@ export default component$(() => {
                 <span class="tooltiptext">Number of cards in the deck.</span>
               </div>
             </SettingsRow>
+
             <SettingsRow>
               <Lock
                 text="Show Selected Card Ids"
@@ -143,99 +148,100 @@ export default component$(() => {
               />
             </SettingsRow>
           </div>
-          {/* next column */}
-          <div class="flex flex-col gap-2 lg:gap-4 items-center">
-            <SettingsRow disabled={true}>
-              <div class="flex gap-1 lg:gap-4 items-center tooltip">
-                <label class="text-left">
-                  Shuffle Cards After N Mismatches:
-                </label>
-                <input
-                  disabled={true}
-                  name="deck-shuffle-mismatches"
-                  id="deck-shuffle-mismatches"
-                  class="bg-slate-700 border border-slate-800 p-2 rounded text-center"
-                  type="number"
-                  min="0"
-                  max="20"
-                  step="1"
-                  value={Number(appStore.settings.shuffleBoardAfterMismatches)}
-                  onChange$={(e, t: HTMLInputElement) => {
-                    console.log("input:", t.value);
-                    appStore.settings.shuffleBoardAfterMismatches = Number(
-                      t.value
-                    );
-                  }}
-                />
-                <span class="tooltiptext">
-                  COMING SOON: Count of how many mismatches before shuffling the
-                  board.
-                </span>
-              </div>
-            </SettingsRow>
-            <SettingsRow disabled={true}>
-              <Lock
-                disabled={true}
-                text="Shuffle Board After Pair:"
-                tooltip="COMING SOON: After each successful match, shuffle the board."
-                onChange$={(e) => {
-                  appStore.settings.shuffleBoardAfterPair = (
-                    e.target as HTMLInputElement
-                  ).checked;
-                }}
-              />
-            </SettingsRow>
 
-            <SettingsRow disabled={true}>
-              <Lock
-                disabled={true}
-                text="Shuffle Board After Round:"
-                tooltip="COMING SOON: After each round (success or mismatch), shuffle the board."
-                onChange$={(e) => {
-                  appStore.settings.shuffleBoardAfterRound = (
-                    e.target as HTMLInputElement
-                  ).checked;
-                }}
-              />
-            </SettingsRow>
-            <SettingsRow disabled={true}>
-              <Lock
-                disabled={true}
-                text="Shuffle Picked Cards After Mismatch:"
-                tooltip="COMING SOON: After mismatching a pair of cards, shuffle them with two other cards."
-                onChange$={(e) => {
-                  appStore.settings.shufflePickedAfterMismatch = (
-                    e.target as HTMLInputElement
-                  ).checked;
-                }}
-              />
-            </SettingsRow>
-
-            <SettingsRow disabled={true}>
-              <Lock
-                disabled={true}
-                text="Reorganize Board After Mismatch:"
-                tooltip="COMING SOON: After mismatching a pair, reorganize the board to fill in gaps and adjust to window size."
-                onChange$={(e) => {
-                  appStore.settings.reorgnanizeBoardOnMismatch = (
-                    e.target as HTMLInputElement
-                  ).checked;
-                }}
-              />
-            </SettingsRow>
-            <SettingsRow disabled={true}>
-              <Lock
-                disabled={true}
-                text="Reorganize Board After Pair:"
-                tooltip="COMING SOON: After a successful pair, reorganize the board to fill in gaps and adjust to window size."
-                onChange$={(e) => {
-                  appStore.settings.reorgnanizeBoardOnPair = (
-                    e.target as HTMLInputElement
-                  ).checked;
-                }}
-              />
-            </SettingsRow>
-          </div>
+          {/* right column */}
+          {/* <div class={`flex-grow flex flex-col ${COLUMN_GAP} items-center`}> */}
+          {/*   <SettingsRow disabled={true}> */}
+          {/*     <div class="flex gap-2 lg:gap-4 gap-[2%]items-center tooltip"> */}
+          {/*       <label class="text-left"> */}
+          {/*         Shuffle Cards After N Mismatches: */}
+          {/*       </label> */}
+          {/*       <input */}
+          {/*         disabled={true} */}
+          {/*         name="deck-shuffle-mismatches" */}
+          {/*         id="deck-shuffle-mismatches" */}
+          {/*         class="bg-slate-700 border border-slate-800 p-2 rounded text-center" */}
+          {/*         type="number" */}
+          {/*         min="0" */}
+          {/*         max="20" */}
+          {/*         step="1" */}
+          {/*         value={Number(appStore.settings.shuffleBoardAfterMismatches)} */}
+          {/*         onChange$={(e, t: HTMLInputElement) => { */}
+          {/*           console.log("input:", t.value); */}
+          {/*           appStore.settings.shuffleBoardAfterMismatches = Number( */}
+          {/*             t.value */}
+          {/*           ); */}
+          {/*         }} */}
+          {/*       /> */}
+          {/*       <span class="tooltiptext"> */}
+          {/*         COMING SOON: Count of how many mismatches before shuffling the */}
+          {/*         board. */}
+          {/*       </span> */}
+          {/*     </div> */}
+          {/*   </SettingsRow> */}
+          {/*   <SettingsRow disabled={true}> */}
+          {/*     <Lock */}
+          {/*       disabled={true} */}
+          {/*       text="Shuffle Board After Pair:" */}
+          {/*       tooltip="COMING SOON: After each successful match, shuffle the board." */}
+          {/*       onChange$={(e) => { */}
+          {/*         appStore.settings.shuffleBoardAfterPair = ( */}
+          {/*           e.target as HTMLInputElement */}
+          {/*         ).checked; */}
+          {/*       }} */}
+          {/*     /> */}
+          {/*   </SettingsRow> */}
+          {/**/}
+          {/*   <SettingsRow disabled={true}> */}
+          {/*     <Lock */}
+          {/*       disabled={true} */}
+          {/*       text="Shuffle Board After Round:" */}
+          {/*       tooltip="COMING SOON: After each round (success or mismatch), shuffle the board." */}
+          {/*       onChange$={(e) => { */}
+          {/*         appStore.settings.shuffleBoardAfterRound = ( */}
+          {/*           e.target as HTMLInputElement */}
+          {/*         ).checked; */}
+          {/*       }} */}
+          {/*     /> */}
+          {/*   </SettingsRow> */}
+          {/*   <SettingsRow disabled={true}> */}
+          {/*     <Lock */}
+          {/*       disabled={true} */}
+          {/*       text="Shuffle Picked Cards After Mismatch:" */}
+          {/*       tooltip="COMING SOON: After mismatching a pair of cards, shuffle them with two other cards." */}
+          {/*       onChange$={(e) => { */}
+          {/*         appStore.settings.shufflePickedAfterMismatch = ( */}
+          {/*           e.target as HTMLInputElement */}
+          {/*         ).checked; */}
+          {/*       }} */}
+          {/*     /> */}
+          {/*   </SettingsRow> */}
+          {/**/}
+          {/*   <SettingsRow disabled={true}> */}
+          {/*     <Lock */}
+          {/*       disabled={true} */}
+          {/*       text="Reorganize Board After Mismatch:" */}
+          {/*       tooltip="COMING SOON: After mismatching a pair, reorganize the board to fill in gaps and adjust to window size." */}
+          {/*       onChange$={(e) => { */}
+          {/*         appStore.settings.reorgnanizeBoardOnMismatch = ( */}
+          {/*           e.target as HTMLInputElement */}
+          {/*         ).checked; */}
+          {/*       }} */}
+          {/*     /> */}
+          {/*   </SettingsRow> */}
+          {/*   <SettingsRow disabled={true}> */}
+          {/*     <Lock */}
+          {/*       disabled={true} */}
+          {/*       text="Reorganize Board After Pair:" */}
+          {/*       tooltip="COMING SOON: After a successful pair, reorganize the board to fill in gaps and adjust to window size." */}
+          {/*       onChange$={(e) => { */}
+          {/*         appStore.settings.reorgnanizeBoardOnPair = ( */}
+          {/*           e.target as HTMLInputElement */}
+          {/*         ).checked; */}
+          {/*       }} */}
+          {/*     /> */}
+          {/*   </SettingsRow> */}
+          {/* </div> */}
         </div>
       </div>
     </Modal>
@@ -245,9 +251,9 @@ export default component$(() => {
 const SettingsRow = component$(
   ({ disabled = false }: { disabled?: boolean }) => {
     return (
-      <div class="flex justify-center w-full border border-slate-800 rounded-lg p-2 lg:p-6">
+      <div class="flex justify-center w-full border border-slate-800 rounded-lg py-[2%] px-[4%]">
         <div
-          class={`w-full flex justify-between gap-2 ${
+          class={`w-full flex justify-between gap-[2%] ${
             disabled ? "opacity-50" : ""
           }`}
         >

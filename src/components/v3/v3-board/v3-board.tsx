@@ -12,10 +12,7 @@ import { isServer } from "@builder.io/qwik/build";
 
 import V3Card from "../v3-card/v3-card";
 import { AppContext } from "../v3-context/v3.context";
-import {
-  v3GenerateCards,
-  FULL_DECK_COUNT,
-} from "../utils/v3CardUtils";
+import { v3GenerateCards, FULL_DECK_COUNT } from "../utils/v3CardUtils";
 import type { Pair, V3Card as V3CardType } from "../v3-game/v3-game";
 // const CARD_RATIO = 2.5 / 3.5; // w / h
 const CARD_RATIO = 113 / 157; // w / h
@@ -88,48 +85,32 @@ export default component$(
     const appStore = useContext(AppContext);
     const boardRef = useSignal<HTMLDivElement>();
 
-    const resizeBoard = $((width?: number, height?: number) => {
+    const calculateBoardSize = $(() => {
+      const container = containerRef.value as HTMLElement; // or use window instead of container/game?
+      const board = boardRef.value as HTMLElement;
+
       const PADDING_PERCENT = 1.5;
-      const boardRect = boardRef.value?.getBoundingClientRect() ?? { top: 0 };
+      const boardRect = board.getBoundingClientRect();
       const boardTop = boardRect.top;
       const boardBottomLimit =
-        (containerRef.value?.offsetHeight ?? 0 * (100 - PADDING_PERCENT)) / 100; // account for padding on bottom
-      const boardHeight2 = boardBottomLimit - boardTop;
-
-      const boardWidth2 =
-        (containerRef.value?.offsetWidth ?? 0 * (100 - PADDING_PERCENT * 2)) /
-        100; // account for padding on sides
+        (container.offsetHeight * (100 - PADDING_PERCENT)) / 100; // account for padding on bottom
+      const boardHeight = boardBottomLimit - boardTop;
 
       const boardWidth =
-        width || boardWidth2 || boardRef.value?.offsetWidth || 0;
-      const boardHeight =
-        height || boardHeight2 || boardRef.value?.offsetHeight || 0;
+        (container.offsetWidth * (100 - PADDING_PERCENT * 2)) / 100; // account for padding on sides
+      return { width: boardWidth, height: boardHeight };
+    });
+
+    const resizeBoard = $(async (width?: number, height?: number) => {
+      const boardWidth = width || boardRef.value?.offsetWidth || 0;
+      const boardHeight = height || boardRef.value?.offsetHeight || 0;
       // const boardWidth = boardRef.value?.offsetWidth  || 0;
       // const boardHeight = boardRef.value?.offsetHeight || 0;
       const boardArea = boardWidth * boardHeight;
 
       const maxAreaPerCard = boardArea / appStore.settings.deck.size; // to get approx cols/rows
 
-      //maxH =
-      /*
-       * width = height * CARD_RATIO
-       * area = height * (height * CARD_RATIO)
-       * area = h * h * ratio === h^2 * ratio
-       * area / ratio = h^2
-       * sqrt(area / ratio) = h
-       *
-       * */
-
-      // // height first approach
-      // const maxHeightPerCard = Math.sqrt(maxAreaPerCard / CARD_RATIO); // get height from area
-      // const rows = Math.ceil(boardHeight / maxHeightPerCard); // round up to add a row for the remainder cards
-      //
-      // const newCardHeight = boardHeight / rows;
-      // const newCardWidth = newCardHeight * CARD_RATIO;
-      //
-      // const columns = Math.ceil(appStore.settings.deck.size / rows);
-
-      // width first approach works better
+      // width first approach
       const maxWidthPerCard = Math.sqrt(maxAreaPerCard * CARD_RATIO);
       const columns = Math.floor(boardWidth / maxWidthPerCard);
       const rows = Math.ceil(appStore.settings.deck.size / columns);
@@ -271,32 +252,14 @@ export default component$(
       })
     );
 
-    // track deck size changes to adjust board
-    useVisibleTask$(async (taskCtx) => {
-      taskCtx.track(() => appStore.settings.deck.size);
-      if (appStore.settings.deck.isLocked) {
-        return;
-      }
-      appStore.game.isLoading = true;
-      // appStore.game.cards = v3GenerateCards(appStore.settings.deck.size);
-      const start = Math.floor(
-        Math.random() * (FULL_DECK_COUNT - appStore.settings.deck.size)
-      );
+    const calculateAndResizeBoard = $(async () => {
+      const newBoard = await calculateBoardSize();
 
-      const cards = appStore.settings.deck.fullDeck.slice(
-        start,
-        start + appStore.settings.deck.size
-      );
+      resizeBoard(newBoard.width, newBoard.height);
+    });
 
-      if (cards.length > 0) {
-        appStore.game.cards = cards;
-      } else {
-        // backup, in case our api fails to fetch
-        appStore.game.cards = v3GenerateCards(appStore.settings.deck.size);
-        console.log("-- defaulting to old cards:", {
-          cards: appStore.game.cards,
-        });
-      }
+    const adjustDeckSize = $(() => {
+      appStore.sliceDeck();
 
       appStore.shuffleCardPositions();
 
@@ -305,63 +268,80 @@ export default component$(
       appStore.game.flippedCardId = -1;
       appStore.game.mismatchPairs = [];
       appStore.game.successfulPairs = [];
-      appStore.game.isLoading = false;
+    });
+    // // track deck size changes to adjust board
+    // useVisibleTask$(async (taskCtx) => {
+    //   taskCtx.track(() => appStore.settings.deck.size);
+    //   console.log("deck size track task runs");
+    //   if (appStore.settings.deck.isLocked) {
+    //     return;
+    //   }
+    //   adjustDeckSize();
+    //
+    //   if (appStore.boardLayout.isLocked) {
+    //     return;
+    //   }
+    //
+    //   calculateAndResizeBoard();
+    // });
+    //
+    // // calculate board on mount, and when forcing resize
+    // useVisibleTask$(async (taskCtx) => {
+    //   taskCtx.track(() => appStore.settings.resizeBoard);
+    //   console.log("mount and resizeBoard task runs");
+    //   calculateAndResizeBoard();
+    // });
 
-      if (appStore.boardLayout.isLocked) {
+    const lastDeckSize = useSignal(appStore.settings.deck.size);
+    const lastRefresh = useSignal(appStore.settings.resizeBoard);
+    // track deck size changes to adjust board
+    useVisibleTask$(async (taskCtx) => {
+      const newDeckSize = taskCtx.track(() => appStore.settings.deck.size);
+      const newRefresh = taskCtx.track(() => appStore.settings.resizeBoard);
+      const isDeckChanged = lastDeckSize.value !== newDeckSize;
+      const isBoardRefreshed = lastRefresh.value !== newRefresh;
+      // detect if resize caused the task to run
+      if (isDeckChanged) {
+        console.log("~~ uvt$ deckSize changed:", {
+          last: lastDeckSize.value,
+          new: newDeckSize,
+        });
+        lastDeckSize.value = newDeckSize;
+
+        if (appStore.settings.deck.isLocked) {
+          return;
+        }
+        adjustDeckSize();
+
+        if (appStore.boardLayout.isLocked) {
+          return;
+        }
+        calculateAndResizeBoard();
         return;
       }
 
-      const container = containerRef.value as HTMLElement; // or use window instead of container/game?
-      const board = boardRef.value as HTMLElement;
+      if (isBoardRefreshed) {
+        console.log("~~ uvt$ refreshBoard", {
+          lastRefresh: lastRefresh.value,
+          newRefresh,
+        });
+        lastRefresh.value = newRefresh;
+        calculateAndResizeBoard();
+        return;
+      }
 
-      const PADDING_PERCENT = 1.5;
-      const boardRect = board.getBoundingClientRect();
-      const boardTop = boardRect.top;
-      const boardBottomLimit =
-        (container.offsetHeight * (100 - PADDING_PERCENT)) / 100; // account for padding on bottom
-      const boardHeight = boardBottomLimit - boardTop;
-
-      const boardWidth =
-        (container.offsetWidth * (100 - PADDING_PERCENT * 2)) / 100; // account for padding on sides
-
-      resizeBoard(boardWidth, boardHeight);
-    });
-
-    // calculate board on mount
-    useVisibleTask$((taskCtx) => {
-      taskCtx.track(() => appStore.settings.resizeBoard);
-      console.log("board useVisibleTask");
-
-      const container = containerRef.value as HTMLElement; // or use window instead of container/game?
-      const board = boardRef.value as HTMLElement;
-
-      const PADDING_PERCENT = 1.5;
-      const boardRect = board.getBoundingClientRect();
-      const boardTop = boardRect.top;
-      const boardBottomLimit =
-        (container.offsetHeight * (100 - PADDING_PERCENT)) / 100; // account for padding on bottom
-      const boardHeight = boardBottomLimit - boardTop;
-
-      const boardWidth =
-        (container.offsetWidth * (100 - PADDING_PERCENT * 2)) / 100; // account for padding on sides
-
-      console.log({
-        boardWidth,
-        boardHeight,
-        windowWidth: window.innerWidth,
-        windowHeight: window.innerHeight,
-      });
-      resizeBoard(boardWidth, boardHeight);
+      if (!isDeckChanged && !isBoardRefreshed) {
+        console.log("~~ uvt$ should be only on mount!");
+        calculateAndResizeBoard();
+      }
     });
 
     const shuffleCounterSignal = useSignal(CARD_SHUFFLE_ROUNDS);
 
     // when shuffling, start timer to turn off after duration
-    useTask$((taskCtx) => {
+    useVisibleTask$((taskCtx) => {
       taskCtx.track(() => appStore.game.isShuffling);
-      if (isServer) {
-        return;
-      }
+
       let rerun: ReturnType<typeof setTimeout>;
       if (shuffleCounterSignal.value > 0) {
         // run again
@@ -369,8 +349,10 @@ export default component$(
           appStore.shuffleCardPositions();
         }, 0);
       } else if (shuffleCounterSignal.value < CARD_SHUFFLE_ROUNDS) {
+        appStore.game.isLoading = false;
         shuffleCounterSignal.value = CARD_SHUFFLE_ROUNDS;
         return;
+      } else {
       }
 
       if (appStore.game.isShuffling === false) return;

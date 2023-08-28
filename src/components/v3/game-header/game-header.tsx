@@ -40,7 +40,7 @@ export default component$(() => {
         {appStore.settings.interface.showSelectedIds && (
           <SelectionHeaderComponent />
         )}
-        {/* <LockedIndicator name="board" isLocked={appStore.boardLayout.isLocked} /> */}
+        <LockedIndicator name="is loading" isLocked={appStore.game.isLoading} />
         {/* <LockedIndicator name="deck" isLocked={appStore.settings.deck.isLocked} /> */}
         {appStore.settings.interface.showDimensions && (
           <code
@@ -63,7 +63,11 @@ export default component$(() => {
                 <span>x</span>
               </div>
               <div class={` text-left flex flex-col `}>
-                <span>{roundToDecimals(window.innerHeight - appStore.boardLayout.height)}</span>
+                <span>
+                  {roundToDecimals(
+                    window.innerHeight - appStore.boardLayout.height
+                  )}
+                </span>
                 <span>{roundToDecimals(appStore.boardLayout.height)}</span>
                 <span>{roundToDecimals(window.innerHeight)}</span>
               </div>
@@ -71,7 +75,13 @@ export default component$(() => {
           </code>
         )}
       </HeaderSection>
-      <Button text="Settings" onClick$={() => appStore.toggleSettingsModal()} />
+      <Button
+        text="Settings"
+        onClick$={() => {
+          appStore.settings.modal.isShowing =
+            !appStore.settings.modal.isShowing;
+        }}
+      />
       <HeaderSection>
         <code
           class={` bg-slate-800 ${CODE_TEXT_LIGHT} flex gap-1 ${CODE_PADDING}`}
@@ -136,7 +146,9 @@ const LockedIndicator = ({
 }) => {
   return (
     <>
-      {isLocked && <code class="bg-slate-800 text-slate-200">{name} locked</code>}
+      {isLocked && (
+        <code class="bg-slate-800 text-slate-200">{name} locked</code>
+      )}
     </>
   );
 };
