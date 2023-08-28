@@ -278,7 +278,7 @@ export default component$(() => {
 
   useTask$(async () => {
     console.log("loading");
-    const origin = import.meta.env.DEV
+    const origin = import.meta.env.PROD
       ? "http://localhost:5173/"
       : "https://joemoulton.dev/";
     console.log({ origin });

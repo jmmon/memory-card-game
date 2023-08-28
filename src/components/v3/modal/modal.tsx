@@ -71,7 +71,7 @@ export default component$(
         >
           <header class="grid max-h-full grid-cols-[0.3fr_1fr_0.3fr] justify-center items-center">
             <div></div>
-            <h3 class="">{title}</h3>
+            <h3 class="text-lg">{title}</h3>
             <button
               class="ml-auto border-slate-400 border rounded-lg py-1.5 px-2 transition-all bg-slate-800/90 hover:bg-slate-600"
               onClick$={hideModal}

@@ -72,7 +72,7 @@ export const getXYFromPosition = (
 // set up cards
 const unshuffledCards = generateCards(TOTAL_CARDS);
 const cards = shuffle_FY_algo(unshuffledCards);
-console.log({ unshuffledCards, cards });
+// console.log({ unshuffledCards, cards });
 
 const windowDimensionsColor = "text-slate-400";
 
