@@ -18,7 +18,7 @@
     "fmt.check": "prettier --check .",
     "lint": "eslint \"src/**/*.ts*\"",
     "lint.fix": "eslint \"src/**/*.ts*\" --fix",
-    "preview": "qwik build preview && vite preview --open",
+    "preview": "qwik build preview && yarn vite preview --open",
     "serve": "node server/entry.node-server",
     "start": "vite --open --mode ssr",
     "qwik": "qwik"

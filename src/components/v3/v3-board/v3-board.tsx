@@ -112,6 +112,11 @@ export default component$(
       console.log({
         board: appStore.boardLayout,
         card: appStore.cardLayout,
+        container: {
+          width: containerRef.value?.offsetWidth,
+          height: containerRef.value?.offsetHeight,
+        },
+        window: { width: window.innerWidth, height: window.innerHeight },
         columns,
         rows,
       });
@@ -225,7 +230,10 @@ export default component$(
               cardId
             );
 
-            if (selected && selected.length !== appStore.game.selectedCardIds.length) {
+            if (
+              selected &&
+              selected.length !== appStore.game.selectedCardIds.length
+            ) {
               // save it if it's a new card
               appStore.game.selectedCardIds = selected;
             }

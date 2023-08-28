@@ -6,6 +6,7 @@ import {
   useSignal,
   useStore,
   useTask$,
+  useVisibleTask$,
 } from "@builder.io/qwik";
 import V3Board from "../v3-board/v3-board";
 import { AppContext } from "../v3-context/v3.context";
@@ -14,6 +15,7 @@ import SettingsModal from "../settings-modal/settings-modal";
 // import LoadingModal from "../loading-modal/loading-modal";
 import GameHeader from "../game-header/game-header";
 import { isServer } from "@builder.io/qwik/build";
+import { formattedDeck } from "../utils/cards";
 // import GameEndModal from "../game-end-modal/game-end-modal";
 // import { useDeck } from "~/routes/v3/index";
 // import InverseModal from "../inverse-modal/inverse-modal";
@@ -276,55 +278,60 @@ export default component$(() => {
   //   appStore.game.isLoading = false;
   // });
 
-  useTask$(async () => {
-    console.log("loading");
-    const origin = import.meta.env.PROD
-      ? "http://localhost:5173/"
-      : "https://joemoulton.dev/";
-    console.log({ origin });
-    try {
-      const response = await fetch(`${origin}api/deck`);
-      const { deck, type } = (await response.json()) as {
-        deck: V3Card[];
-        type: "v3" | "api";
-      };
+  // useTask$(async () => {
+  //   console.log("loading");
+  //   const origin = import.meta.env.DEV 
+  //     ? "http://localhost:5173/"
+  //     : "https://joemoulton.dev/";
+  //   console.log({ origin });
+  //
+  //   try {
+  //     const response = await fetch(`${origin}api/deck`);
+  //     const { deck, type } = (await response.json()) as {
+  //       deck: V3Card[];
+  //       type: "v3" | "api";
+  //     };
+  //
+  //     console.log("visibleTask fetched deck:", {
+  //       // deck: deck,
+  //       type: type,
+  //     });
+  //     appStore.settings.deck.fullDeck = deck;
+  //
+  //     // get a random start, make sure to halve so we count pairs
+  //     appStore.sliceDeck();
+  //
+  //   } catch (err) {
+  //     console.log({ err });
+  //   } finally {
+  //     console.log("done loading");
+  //     appStore.game.isLoading = false;
+  //   }
+  // });
+//
 
-      console.log("visibleTask fetched deck:", {
-        // deck: deck,
-        type: type,
-      });
-      appStore.settings.deck.fullDeck = deck;
-
-      // get a random start, make sure to halve so we count pairs
-      appStore.sliceDeck();
-    } catch (err) {
-      console.log({ err });
-    } finally {
-      console.log("done loading");
-    }
-  });
+useTask$(() => {
+appStore.settings.deck.fullDeck = formattedDeck;
+appStore.sliceDeck();
+});
 
   return (
     <>
-      {/* <InverseModal > grid grid-rows-[2.5em_1fr]   */}
       <div
         ref={containerRef}
-        class={`flex flex-col  flex-grow justify-between w-full h-full p-[1.5%]   gap-1 ${
+        class={`flex flex-col  flex-grow justify-between w-full h-full p-[1.5%] gap-1 ${
           appStore.boardLayout.isLocked ? "overflow-x-auto" : ""
         }`}
       >
         <GameHeader />
         <V3Board containerRef={containerRef} />
       </div>
-      {/* <LoadingModal /> */}
       {appStore.game.isLoading && (
         <div class="text-slate-200 backdrop-blur-[3px] bg-black bg-opacity-20 z-50  absolute top-0 left-0 text-4xl w-full flex-grow h-full flex justify-center items-center">
           Loading...
         </div>
       )}
       <SettingsModal />
-      {/* <LoadingModal /> */}
-      {/* </InverseModal > */}
     </>
   );
 });

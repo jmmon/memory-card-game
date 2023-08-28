@@ -233,7 +233,7 @@ export const fetchAndFormatDeck = async () => {
 
   console.log(`fetched!\nformatting cards...`);
   const formatted = formatCards(cards);
-  console.log("done!", { formatted: formatted.length });
+  console.log("done!", { formatted: formatted });
 
   return { deck: formatted, type: 'api' };
 }

@@ -30,6 +30,8 @@ import { CARD_SHUFFLE_DURATION } from "../v3-board/v3-board";
 // isThisCardFlipped: computed value, card.id === flippedCardId
 // isBackTextShowing: controlled by timer to hide/show backside from the DOM
 
+const SCALED_CARD_TO_BOARD_RATIO = 0.8;
+
 const CARD_FLIP_ANIMATION_DURATION = 800;
 const CARD_SHAKE_ANIMATION_DURATION = 700;
 
@@ -101,7 +103,6 @@ const generateShuffleTransform = (
       translateY(${translateY}px)`;
 };
 
-const SCALED_CARD_TO_BOARD_RATIO = 0.8;
 
 // calculates the transform required to flip this card to the center of the screen
 const generateFlipTransform = (
