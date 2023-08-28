@@ -15,7 +15,7 @@ import { DEFAULT_CARD_COUNT } from "../v3-game/v3-game";
 
 const COLUMN_GAP = "gap-0.5 md:gap-1";
 
-export function useDebounce <T>(
+export function useDebounce<T>(
   action: QRL<(newValue: T) => void>,
   delay: number = 500
 ) {
@@ -38,7 +38,7 @@ export function useDebounce <T>(
   });
 
   return setValue;
-};
+}
 
 export default component$(() => {
   const appStore = useContext(AppContext);
@@ -285,12 +285,24 @@ font-size: clamp(0.7rem, 1vw, 1rem);
           {/*   </SettingsRow> */}
           {/* </div> */}
         </div>
+
+        <div class="flex-grow flex justify-evenly items-center">
+          <div class="justify-center flex  gap-[2%] items-center tooltip">
+            <Button
+              text="Reset Game"
+              onClick$={() => {
+                appStore.resetGame();
+              }}
+            />
+            <span class="tooltiptext">Force board size to recalculate.</span>
+          </div>
+        </div>
       </div>
     </Modal>
   );
 });
 
-const SettingsRow = component$(
+export const SettingsRow = component$(
   ({ disabled = false }: { disabled?: boolean }) => {
     return (
       <div class="flex flex-grow justify-center w-full border border-slate-800 rounded-lg py-[2%] px-[4%]">

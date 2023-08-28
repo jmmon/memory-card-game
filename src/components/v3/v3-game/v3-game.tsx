@@ -14,6 +14,7 @@ import SettingsModal from "../settings-modal/settings-modal";
 // import LoadingModal from "../loading-modal/loading-modal";
 import GameHeader from "../game-header/game-header";
 import { isServer } from "@builder.io/qwik/build";
+import GameEndModal from "../game-end-modal/game-end-modal";
 // import { useDeck } from "~/routes/v3/index";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
@@ -60,6 +61,9 @@ export type AppStore = {
     isLoading: boolean;
     isShuffling: boolean;
     isShufflingDelayed: boolean;
+    winModal: {
+      isShowing: boolean;
+    };
   };
 
   settings: {
@@ -98,6 +102,7 @@ export type AppStore = {
   // shuffleCardPositionsWithTransition: QRL<() => void>;
   //
   sliceDeck: QRL<() => V3Card[]>;
+  resetGame: QRL<() => void>;
 };
 
 const INITIAL = {
@@ -128,6 +133,9 @@ const INITIAL = {
     isLoading: true,
     isShuffling: false,
     isShufflingDelayed: false,
+    winModal: {
+      isShowing: false,
+    },
   },
 
   settings: {
@@ -203,6 +211,8 @@ const INITIAL = {
 
     // to activate animation - only when running on client
     if (isServer) return;
+    this.settings.modal.isShowing = false;
+    this.game.isLoading = true;
     this.game.isShuffling = true;
   }),
 
@@ -223,6 +233,25 @@ const INITIAL = {
 
     this.game.cards = cards;
     return cards;
+  }),
+
+  resetGame: $(function (this: AppStore) {
+    // get a new slice? reset the game variables
+
+    this.game = {
+      ...this.game,
+      flippedCardId: -1,
+      selectedCardIds: [],
+      successfulPairs: [],
+      cards: [],
+      mismatchPairs: [],
+      isLoading: true,
+      isShuffling: false,
+      isShufflingDelayed: false,
+    };
+this.sliceDeck();
+
+this.settings.modal.isShowing = false;
   }),
 };
 
@@ -279,17 +308,17 @@ export default component$(() => {
   return (
     <>
       {/* <InverseModal > grid grid-rows-[2.5em_1fr]   */}
-        <div
-          ref={containerRef}
-          class={`flex flex-col  flex-grow justify-between w-full h-full p-[1.5%]   gap-1 ${
-            appStore.boardLayout.isLocked ? "overflow-x-auto" : ""
-          }`}
-        >
-          <GameHeader />
-          <V3Board containerRef={containerRef} />
-        </div>
+      <div
+        ref={containerRef}
+        class={`flex flex-col  flex-grow justify-between w-full h-full p-[1.5%]   gap-1 ${
+          appStore.boardLayout.isLocked ? "overflow-x-auto" : ""
+        }`}
+      >
+        <GameHeader />
+        <V3Board containerRef={containerRef} />
+      </div>
       {appStore.game.isLoading && (
-        <div class="z-50 absolute top-0 left-0 text-4xl w-full flex-grow h-full flex justify-center items-center">
+        <div class="backdrop-blur-[3px] bg-black bg-opacity-20 z-50  absolute top-0 left-0 text-4xl w-full flex-grow h-full flex justify-center items-center">
           Loading...
         </div>
       )}
