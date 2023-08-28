@@ -9,20 +9,32 @@ import {
 import { AppContext } from "../v3-context/v3.context";
 import type { BoardLayout, CardLayout, V3Card } from "../v3-game/v3-game";
 import { CARD_SHUFFLE_DURATION } from "../v3-board/v3-board";
-import { getCardsArrayFromPairs } from "../utils/v3CardUtils";
+import { buildCardsArrayFromPairsArray } from "../utils/v3CardUtils";
 
 const ENLARGED_CARD_SCALE_VS_BOARD = 0.8;
 
-const CARD_FLIP_ANIMATION_DURATION = 800;
+const CARD_FLIP_ANIMATION_DURATION = 600;
 const CARD_SHAKE_ANIMATION_DURATION = 700;
 
 // underside shows immediately, but hides after this duration
-const HIDE_UNDERSIDE_TIMER_RATIO = 75 / 10;
-// if matching, delay return animation by this amount0;
-const FLIPPED_DELAYED_OFF_DURATION_MS = 250;
-// higher means shake starts sooner
-const CARD_SHAKE_ANIMATION_START_LESS_DURATION_MS = 350;
+const HIDE_UNDERSIDE_AFTER_PERCENT = 75 / 100;
 
+// if matching, delay return animation by this amount
+// e.g. time allowed for card to vanish (before it would return to board)
+const FLIPPED_DELAYED_OFF_DURATION_MS = 250;
+
+// higher means shake starts sooner
+const START_SHAKE_ANIMATION_EAGER_MS = 100;
+const START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE = 0.9;
+const SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD = (() => {
+  // before: 600 - 350 = 250
+  // now: (600 * 0.8) - 100 380ms delay until starting the shake
+  return (
+    CARD_FLIP_ANIMATION_DURATION *
+      START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE -
+    START_SHAKE_ANIMATION_EAGER_MS
+  );
+})();
 type Coords = { x: number; y: number };
 
 /*
@@ -46,26 +58,12 @@ export const getXYFromPosition = (position: number, columnCount: number) => ({
  * -3 columns * columnWidth = px
  * */
 const generateShuffleTransform = (
-  boardLayout: BoardLayout,
+  colWidth: number,
+  rowHeight: number,
   prevCoords: Coords,
   newCoords: Coords
-) => {
-  const colWidth = boardLayout.width / boardLayout.columns;
-  const rowHeight = boardLayout.height / boardLayout.rows;
-  const translateX = (prevCoords.x - newCoords.x) * colWidth;
-  const translateY = (prevCoords.y - newCoords.y) * rowHeight;
-  // console.log({
-  //   prevCoords,
-  //   newCoords,
-  //   translateX,
-  //   translateY,
-  //   colWidth,
-  //   rowHeight,
-  // });
-
-  return `translateX(${translateX}px) 
-      translateY(${translateY}px)`;
-};
+) => `translateX(${(prevCoords.x - newCoords.x) * colWidth}px) 
+translateY(${(prevCoords.y - newCoords.y) * rowHeight}px)`;
 
 const buildTransformToCenter = (
   totalSlots: number,
@@ -78,6 +76,19 @@ const buildTransformToCenter = (
   return translatePx;
 };
 
+const buildScaleToCenter = (
+  boardLayout: BoardLayout,
+  cardLayout: CardLayout
+) => {
+  // calculate scale
+  const maxPxW = boardLayout.width * ENLARGED_CARD_SCALE_VS_BOARD;
+  const maxPxH = boardLayout.height * ENLARGED_CARD_SCALE_VS_BOARD;
+  // get ratio of card to board
+  const ratioW = maxPxW / cardLayout.width;
+  const ratioH = maxPxH / cardLayout.height;
+  return Math.min(ratioW, ratioH);
+};
+
 /*
  * generateFlipTransform
  * uses positioning and layouts to calculate transform required to flip card over and land in the center, scaled up.
@@ -86,38 +97,25 @@ const buildTransformToCenter = (
 const generateFlipTransform = (
   boardLayout: BoardLayout,
   cardLayout: CardLayout,
-  newCoords: Coords
+  newCoords: Coords,
+  colWidth: number,
+  rowHeight: number
 ) => {
-  const rowHeight = boardLayout.height / boardLayout.rows;
-  const colWidth = boardLayout.width / boardLayout.columns;
-
   const isOnLeftSide = newCoords.x < boardLayout.columns / 2;
 
-  // const numOfColsToTransverse_max = (boardLayout.columns - 1) / 2;
-  // const colsToTransverse = numOfColsToTransverse_max - newCoords.x;
-  // const translateXPx = colWidth * colsToTransverse;
   const translateXPx = buildTransformToCenter(
     boardLayout.columns,
     newCoords.x,
     colWidth
   );
 
-  // const numOfRowsToTransverse_max = (boardLayout.rows - 1) / 2;
-  // const rowsToTransverse = numOfRowsToTransverse_max - newCoords.y;
-  // const translateYPx = rowHeight * rowsToTransverse;
   const translateYPx = buildTransformToCenter(
     boardLayout.rows,
     newCoords.y,
     rowHeight
   );
 
-  // calculate scale
-  const maxPxW = boardLayout.width * ENLARGED_CARD_SCALE_VS_BOARD;
-  const maxPxH = boardLayout.height * ENLARGED_CARD_SCALE_VS_BOARD;
-  // get ratio of card to board
-  const ratioW = maxPxW / cardLayout.width;
-  const ratioH = maxPxH / cardLayout.height;
-  const scale = Math.min(ratioW, ratioH);
+  const scale = buildScaleToCenter(boardLayout, cardLayout);
 
   return `translateX(${translateXPx}px) 
       translateY(${translateYPx}px) 
@@ -128,12 +126,11 @@ const generateFlipTransform = (
 export default component$(({ card }: { card: V3Card }) => {
   const appStore = useContext(AppContext);
 
-  // break matches into cards, and see if our card is included
-  const isRemoved = useComputed$(() => {
-    return getCardsArrayFromPairs(appStore.game.successfulPairs).includes(
+  const isRemoved = useComputed$(() =>
+    buildCardsArrayFromPairsArray(appStore.game.successfulPairs).includes(
       card.id
-    );
-  });
+    )
+  );
 
   // delayed indicator, turns true once the flipped card returns to the board
   const isRemovedDelayedTrue = useSignal(false);
@@ -166,7 +163,7 @@ export default component$(({ card }: { card: V3Card }) => {
   const isUnderSideShowing = useSignal(false);
   const isCardFlippedDelayedOff = useSignal(false);
 
-  // runs when a card is flipped
+  // when card is flipped, control timers for isUnderSideShowing and isCardFlippedDelayedOff
   useTask$((taskCtx) => {
     taskCtx.track(() => isCardFlipped.value);
 
@@ -183,7 +180,7 @@ export default component$(({ card }: { card: V3Card }) => {
       // when hiding card, keep the underside visible for a while
       revealDelayTimer = setTimeout(() => {
         isUnderSideShowing.value = isCardFlipped.value;
-      }, CARD_FLIP_ANIMATION_DURATION * HIDE_UNDERSIDE_TIMER_RATIO);
+      }, CARD_FLIP_ANIMATION_DURATION * HIDE_UNDERSIDE_AFTER_PERCENT);
 
       flippedDelayTimer = setTimeout(() => {
         isCardFlippedDelayedOff.value = isCardFlipped.value;
@@ -218,15 +215,22 @@ export default component$(({ card }: { card: V3Card }) => {
       appStore.boardLayout.columns
     );
 
+    const rowHeight = appStore.boardLayout.height / appStore.boardLayout.rows;
+    const colWidth = appStore.boardLayout.width / appStore.boardLayout.columns;
+
     shuffleTransform.value = generateShuffleTransform(
-      appStore.boardLayout,
+      colWidth,
+      rowHeight,
       prevCoords,
       newCoords
     );
+
     flipTransform.value = generateFlipTransform(
       appStore.boardLayout,
       appStore.cardLayout,
-      newCoords
+      newCoords,
+      colWidth,
+      rowHeight
     );
     return newCoords;
   });
@@ -265,18 +269,18 @@ export default component$(({ card }: { card: V3Card }) => {
 
   const shakeSignal = useSignal(false);
 
-  // handle turn on shake animation (after card is set back down animation)
+  // turn on shake signal after delay (when mismatching a card)
   useTask$((taskCtx) => {
     taskCtx.track(() => card.isMismatched);
     // continue only if card is mismatched
-    if (card.isMismatched === false) return;
+    if (!card.isMismatched) return;
 
     // delay until the animation is over, then start the shake
     // turn on shake after duration (once card returns to its spaces)
     const timeout = setTimeout(() => {
       card.isMismatched = false;
       shakeSignal.value = true;
-    }, CARD_FLIP_ANIMATION_DURATION - CARD_SHAKE_ANIMATION_START_LESS_DURATION_MS);
+    }, SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD);
 
     taskCtx.cleanup(() => {
       clearTimeout(timeout);
@@ -305,8 +309,7 @@ export default component$(({ card }: { card: V3Card }) => {
     <div
       class={`mx-auto aspect-[2.25/3.5] flex flex-col justify-center   ${
         appStore.game.isShufflingDelayed
-          ? // delayedTransitionSignal.value
-            `[transition-duration:${CARD_SHUFFLE_DURATION}ms] transition-[transform]`
+          ? `[transition-duration:${CARD_SHUFFLE_DURATION}ms] transition-[transform]`
           : ""
       }`}
       style={{
@@ -329,25 +332,15 @@ export default component$(({ card }: { card: V3Card }) => {
             ? ""
             : shuffleTransform.value,
 
+        // only applied when shuffle is transforming back to  new position
         transitionDuration: appStore.game.isShufflingDelayed
           ? CARD_SHUFFLE_DURATION + "ms"
           : "0ms",
 
-        // transform:
-        //   (delayedTransitionSignal.value && appStore.game.isShuffling) ||
-        //   !appStore.game.isShuffling
-        //     ? ""
-        //     : shuffleTransform.value,
-        //
-        // // apply duration AFTER the initial transform is complete
-        // transitionDuration: delayedTransitionSignal.value
-        //   ? CARD_SHUFFLE_DURATION + "ms"
-        //   : "0ms",
       }}
     >
       <div
-        class={`w-[90%] h-[90%] mx-auto [perspective:1800px] bg-transparent border border-slate-50/20 flip-card transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
-          // isRemovedDelayedTrue.value &&
+        class={`w-[90%] h-[90%] mx-auto [perspective:100vw] bg-transparent border border-slate-50/20 flip-card transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
           isRemoved.value &&
           appStore.game.flippedCardId !== card.id &&
           appStore.game.flippedCardId !== card.pairId
@@ -369,7 +362,14 @@ export default component$(({ card }: { card: V3Card }) => {
                 ? flipTransform.value
                 : "",
             transitionDuration: CARD_FLIP_ANIMATION_DURATION + "ms",
-            transitionTimingFunction: "cubic-bezier(0.2, 1.285, 0.32, 1.075)",
+            // understanding cubic bezier: we control the two middle points
+            // [ t:0, p:0 ], (t:0.2, p:1.285), (t:0.32, p:1.075), [t:1, p:1]
+            // t == time, p == animationProgress
+            // e.g.:
+            // - so at 20%, our animation will be 128.5% complete,
+            // - then at 32% ouranimation will be 107.5% complete,
+            // - then finally at 100% our animation will complete
+            transitionTimingFunction: "cubic-bezier(0.40, 1.3, 0.62, 1.045)",
             borderRadius: appStore.cardLayout.roundedCornersPx + "px",
           }}
         >
@@ -385,20 +385,6 @@ export default component$(({ card }: { card: V3Card }) => {
               data-name="circle"
               class="w-1/2 h-auto aspect-square rounded-[50%] bg-white/40 mx-auto flex flex-col justify-center items-center"
             >
-              {/* <span data-id={card.id} class="block text-amber-200"> */}
-              {/*   {card.id} */}
-              {/* </span> */}
-
-              {/* <small */}
-              {/*   data-id={card.id} */}
-              {/*   class={`text-red block ${ */}
-              {/*     card.isMismatched || shakeSignal.value */}
-              {/*       ? "opacity-100" */}
-              {/*       : "opacity-0" */}
-              {/*   }`} */}
-              {/* > */}
-              {/*   MISMATCH */}
-              {/* </small> */}
             </div>
           </div>
           <div
@@ -418,7 +404,6 @@ export default component$(({ card }: { card: V3Card }) => {
                 />
               ) : (
                 <div
-                  // class={`flex justify-center items-center w-full h-full`}
                   data-id={card.id}
                 >
                   {card.text}

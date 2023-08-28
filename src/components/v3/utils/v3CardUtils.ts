@@ -101,7 +101,7 @@ export function shuffleByPairs(deck: V3Card[]) {
  * getCardsArrayFromPairs
  * destructure arrayOfPairs into arrayOfCards
  * */
-export const getCardsArrayFromPairs = (arr: Pair[]) => {
+export const buildCardsArrayFromPairsArray = (arr: Pair[]) => {
   return arr.reduce((accum: number[], cur: Pair) => {
     const [c1, c2] = cur.split(":");
     accum.push(Number(c1), Number(c2));
