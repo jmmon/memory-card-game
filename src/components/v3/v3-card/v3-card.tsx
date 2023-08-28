@@ -31,7 +31,11 @@ import { CARD_SHUFFLE_DURATION } from "../v3-board/v3-board";
 // isBackTextShowing: controlled by timer to hide/show backside from the DOM
 
 const CARD_FLIP_ANIMATION_DURATION = 800;
-const CARD_SHAKE_ANIMATION_DURATION = 600;
+const CARD_SHAKE_ANIMATION_DURATION = 700;
+
+const HIDE_UNDERSIDE_TIMER_RATIO = 75 / 100; // underside shows immediately, but hides after this duration
+const FLIPPED_DELAYED_OFF_DURATION = 250; // if matching, delay return animation by this amount
+const CARD_SHAKE_ANIMATION_START_LESS_DURATION = 350; // higher means shake starts sooner
 
 type V3CardProps = {
   card: V3Card;
@@ -47,6 +51,10 @@ type BoardLayout = {
   height: number;
   columns: number;
   rows: number;
+};
+type CardLayout = {
+  width: number;
+  height: number;
 };
 
 export const getXYFromPosition = (position: number, columnCount: number) => ({
@@ -93,8 +101,14 @@ const generateShuffleTransform = (
       translateY(${translateY}px)`;
 };
 
+const SCALED_CARD_TO_BOARD_RATIO = 0.8;
+
 // calculates the transform required to flip this card to the center of the screen
-const generateFlipTransform = (boardLayout: BoardLayout, newCoords: Coords) => {
+const generateFlipTransform = (
+  boardLayout: BoardLayout,
+  cardLayout: CardLayout,
+  newCoords: Coords
+) => {
   const colsOffsetMax = (boardLayout.columns - 1) / 2; // 6 => 2.5, 8 => 3.5, 7 => 3
   const rowsOffsetMax = (boardLayout.rows - 1) / 2;
   const rowHeight = boardLayout.height / boardLayout.rows;
@@ -108,10 +122,21 @@ const generateFlipTransform = (boardLayout: BoardLayout, newCoords: Coords) => {
 
   const isOnLeftSide = newCoords.x < boardLayout.columns / 2;
 
+  const maxPx = {
+    width: boardLayout.width * SCALED_CARD_TO_BOARD_RATIO,
+    height: boardLayout.height * SCALED_CARD_TO_BOARD_RATIO,
+  };
+  // get ratio of card to board
+  const ratio = {
+    width: maxPx.width / cardLayout.width,
+    height: maxPx.height / cardLayout.height,
+  };
+  let scale = Math.min(ratio.width, ratio.height);
+
   return `translateX(${translateX}px) 
       translateY(${translateY}px) 
       rotateY(${isOnLeftSide ? "" : "-"}180deg) 
-      scale(2)`; // maybe should be dynamic depending on screen size??
+      scale(${scale})`;
 };
 
 export default component$(({ card }: V3CardProps) => {
@@ -147,34 +172,41 @@ export default component$(({ card }: V3CardProps) => {
   });
 
   // is our card the flipped card?
-  const isThisCardFlipped = useComputed$(() => {
+  const isCardFlipped = useComputed$(() => {
     return appStore.game.flippedCardId === card.id;
   });
 
   // show and hide the back face, so the backs of cards can't be inspected when face-down
   const isUnderSideShowing = useSignal(false);
+  const isCardFlippedDelayedOff = useSignal(false);
 
   // runs when a card is flipped
   useTask$((taskCtx) => {
-    taskCtx.track(() => isThisCardFlipped.value);
-    const hideUnderSideTimerRatio = 50 / 100;
+    taskCtx.track(() => isCardFlipped.value);
 
     // when showing the back side, partway through we reveal the back side.
     // when going back to the board, partway through we hide the back side.
 
     let revealDelayTimer: ReturnType<typeof setTimeout>;
-    if (isThisCardFlipped.value) {
+    let flippedDelayTimer: ReturnType<typeof setTimeout>;
+    if (isCardFlipped.value) {
       // when showing card
-      isUnderSideShowing.value = isThisCardFlipped.value; // true
+      isUnderSideShowing.value = isCardFlipped.value;
+      isCardFlippedDelayedOff.value = isCardFlipped.value;
     } else {
       // when hiding card, keep the underside visible for a while
       revealDelayTimer = setTimeout(() => {
-        isUnderSideShowing.value = isThisCardFlipped.value;
-      }, CARD_FLIP_ANIMATION_DURATION * hideUnderSideTimerRatio);
+        isUnderSideShowing.value = isCardFlipped.value;
+      }, CARD_FLIP_ANIMATION_DURATION * HIDE_UNDERSIDE_TIMER_RATIO);
+
+      flippedDelayTimer = setTimeout(() => {
+        isCardFlippedDelayedOff.value = isCardFlipped.value;
+      }, FLIPPED_DELAYED_OFF_DURATION);
     }
 
     taskCtx.cleanup(() => {
       clearTimeout(revealDelayTimer);
+      clearTimeout(flippedDelayTimer);
     });
   });
 
@@ -207,6 +239,7 @@ export default component$(({ card }: V3CardProps) => {
     );
     flipTransform.value = generateFlipTransform(
       appStore.boardLayout,
+      appStore.cardLayout,
       newCoords
     );
     return newCoords;
@@ -257,7 +290,7 @@ export default component$(({ card }: V3CardProps) => {
     const timeout = setTimeout(() => {
       card.isMismatched = false;
       shakeSignal.value = true;
-    }, CARD_FLIP_ANIMATION_DURATION - 200);
+    }, CARD_FLIP_ANIMATION_DURATION - CARD_SHAKE_ANIMATION_START_LESS_DURATION);
 
     taskCtx.cleanup(() => {
       clearTimeout(timeout);
@@ -295,7 +328,7 @@ export default component$(({ card }: V3CardProps) => {
         height: appStore.cardLayout.height + "px",
         gridColumn: `${coords.value.x + 1} / ${coords.value.x + 2}`,
         gridRow: `${coords.value.y + 1} / ${coords.value.y + 2}`,
-        zIndex: isThisCardFlipped.value
+        zIndex: isCardFlipped.value
           ? 20 // applies while card is being flipped up but not while being flipped down
           : isUnderSideShowing.value
           ? 10 // applies starting halfway in flip up, and ending halfway in flip down
@@ -327,12 +360,13 @@ export default component$(({ card }: V3CardProps) => {
       }}
     >
       <div
-        class={`w-[90%] h-[90%] mx-auto [perspective:1400px] bg-transparent border border-slate-50/20 flip-card transition-all [animation-timing-function:ease-in-out] ${
-          isRemovedDelayedTrue.value &&
+        class={`w-[90%] h-[90%] mx-auto [perspective:1800px] bg-transparent border border-slate-50/20 flip-card transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
+          // isRemovedDelayedTrue.value &&
+          isRemoved.value &&
           appStore.game.flippedCardId !== card.id &&
           appStore.game.flippedCardId !== card.pairId
-            ? "opacity-0 scale-105"
-            : "opacity-100 scale-100 cursor-pointer"
+            ? "opacity-0 scale-[107%]"
+            : "opacity-100 cursor-pointer"
         } ${shakeSignal.value === true ? "shake-card" : ""}`}
         style={{
           borderRadius: appStore.cardLayout.roundedCornersPx + "px",
@@ -343,8 +377,13 @@ export default component$(({ card }: V3CardProps) => {
           class={`w-full h-full relative text-center [transform-style:preserve-3d] [transition-property:transform]`}
           data-id={card.id}
           style={{
-            transform: isThisCardFlipped.value ? flipTransform.value : "",
+            transform:
+              isCardFlipped.value ||
+              (isRemoved.value && isCardFlippedDelayedOff.value)
+                ? flipTransform.value
+                : "",
             transitionDuration: CARD_FLIP_ANIMATION_DURATION + "ms",
+            transitionTimingFunction: "cubic-bezier(0.2, 1.285, 0.32, 1.075)",
             borderRadius: appStore.cardLayout.roundedCornersPx + "px",
           }}
         >

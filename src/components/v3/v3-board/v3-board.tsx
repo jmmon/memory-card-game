@@ -14,6 +14,7 @@ import V3Card from "../v3-card/v3-card";
 import { AppContext } from "../v3-context/v3.context";
 import { v3GenerateCards, FULL_DECK_COUNT } from "../utils/v3CardUtils";
 import type { Pair, V3Card as V3CardType } from "../v3-game/v3-game";
+import { useDebounce } from "../utils/useDebounce";
 // const CARD_RATIO = 2.5 / 3.5; // w / h
 const CARD_RATIO = 113 / 157; // w / h
 export const CORNERS_WIDTH_RATIO = 1 / 20;
@@ -54,31 +55,6 @@ export const checkMatch = (
 
 export const findCardById = (cards: V3CardType[], id: number) =>
   cards.find((card) => card.id === id);
-
-const handleSelectCard = (selected: number[], id: number): number[] | false => {
-  // if no cards are selected, push the card id
-  if (selected.length === 0) {
-    selected = [id];
-    console.log("no cards yet, adding to our array:", selected);
-    return selected;
-  }
-
-  // if one card is selected: {
-  //   if it's the same card, do nothing
-  //   else: push the card id
-  // }
-  if (selected.length === 1) {
-    if (id === selected[0]) {
-      console.log("same one clicked.. doing nothing", selected);
-      return selected;
-    } else {
-      selected = [...selected, id];
-      console.log("adding second card:", selected);
-      return selected;
-    }
-  }
-  return false;
-};
 
 export default component$(
   ({ containerRef }: { containerRef: Signal<HTMLElement | undefined> }) => {
@@ -186,7 +162,38 @@ export default component$(
       appStore.game.selectedCardIds = [];
     });
 
-    const handleClickBoard = $((e: QwikMouseEvent) => {
+    const MINIMUM_VIEW_TIME = 500;
+    const { setValue: debounceUnflipCard, setDelay } = useDebounce<number>(
+      $((newVal) => {
+        if (appStore.game.selectedCardIds.length === 2) {
+          handleAddToSuccessfulPairsIfMatching();
+        }
+        appStore.game.flippedCardId = newVal;
+      }),
+      MINIMUM_VIEW_TIME
+    );
+
+    const flippedTime = useSignal(-1);
+
+    const handleSelectCard = $(
+      (selected: number[], id: number): number[] | false => {
+        if (selected.length === 1 && id === selected[0]) {
+          console.log("same one clicked.. doing nothing", selected);
+          return selected;
+        } else {
+          selected = [...selected, id];
+          console.log(
+            selected.length === 1
+              ? "no cards yet, adding to our array:"
+              : "adding second card:",
+            selected
+          );
+          return selected;
+        }
+      }
+    );
+
+    const handleClickBoard = $(async (e: QwikMouseEvent) => {
       // console.log("clicked board:", { event: e, target: e.target });
       const isCardFlipped = appStore.game.flippedCardId !== -1;
       // attempt to get the card id if click is on a card
@@ -196,10 +203,8 @@ export default component$(
       switch (true) {
         case isCardFlipped:
           {
-            if (appStore.game.selectedCardIds.length === 2) {
-              handleAddToSuccessfulPairsIfMatching();
-            } // else ?
-            appStore.game.flippedCardId = -1;
+            setDelay(MINIMUM_VIEW_TIME - (Date.now() - flippedTime.value));
+            debounceUnflipCard(-1);
           }
           break;
 
@@ -216,19 +221,36 @@ export default component$(
               return;
             }
 
-            const selected = handleSelectCard(
+            flippedTime.value = Date.now();
+
+            const selected = await handleSelectCard(
               [...appStore.game.selectedCardIds],
               cardId
             );
-            if (selected) {
-              // flip our card
+
+            if (selected && selected?.length !== appStore.game.selectedCardIds.length) {
+              // save it if it's a new card
               appStore.game.selectedCardIds = selected;
-              appStore.game.flippedCardId = cardId;
             }
+            // flip it either way
+            appStore.game.flippedCardId = cardId;
           }
           break;
       }
     });
+
+    const handleUnflipCard = $(() => {
+      appStore.game.flippedCardId = -1;
+    });
+
+    useOnWindow(
+      "keydown",
+      $((e) => {
+        if ((e as KeyboardEvent).key === "Escape") {
+          handleUnflipCard();
+        }
+      })
+    );
 
     useOnWindow(
       "resize",
