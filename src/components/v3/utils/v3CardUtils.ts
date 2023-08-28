@@ -1,4 +1,4 @@
-import type { V3Card } from "../v3-game/v3-game";
+import type { Pair, V3Card } from "../v3-game/v3-game";
 
 export const FULL_DECK_COUNT = 52;
 export const IMAGE_TYPE = "png";
@@ -67,7 +67,49 @@ export function v3Shuffle_FY_algo<T>(_array: T[]): T[] {
   return array;
 }
 
-/* 
+// const buildPairType = (c1: V3Card, c2: V3Card) => `${c1.id}:${c2.id}`
+
+function buildArrOfPairs(deck: V3Card[]) {
+  const pairs = [];
+  for (let i = 0; i < deck.length ; i+=2) {
+    const thisPair = [deck[i], deck[i + 1]];
+    pairs.push(thisPair);
+  }
+  return pairs;
+}
+
+function unbuildArrOfPairs(arrOfPairs: Array<V3Card[]>) {
+  const deck = [];
+  for (let i = 0; i < arrOfPairs.length; i++) {
+    const thisPair = arrOfPairs[i];
+    deck.push(thisPair[0], thisPair[1]);
+  }
+  return deck;
+}
+
+export function shuffleByPairs(deck: V3Card[]) {
+  const pairs = buildArrOfPairs(deck);
+  console.log("fn shuffleByPairs:", { deck, pairs });
+  const shuffledDeckOfPairs = v3Shuffle_FY_algo(pairs);
+  const shuffledPairs = unbuildArrOfPairs(shuffledDeckOfPairs);
+  console.log({ shuffledDeckOfPairs, shuffledPairs });
+
+  return shuffledPairs;
+}
+
+/*
+ * getCardsArrayFromPairs
+ * destructure arrayOfPairs into arrayOfCards
+ * */
+export const getCardsArrayFromPairs = (arr: Pair[]) => {
+  return arr.reduce((accum: number[], cur: Pair) => {
+    const [c1, c2] = cur.split(":");
+    accum.push(Number(c1), Number(c2));
+    return accum;
+  }, []);
+};
+
+/*
  * assign new random positions to deck of cards, and sort  by position
  * */
 export const shuffleCardPositions = (cards: V3Card[]) => {
@@ -159,10 +201,10 @@ export const buildCardIdsArray = (cardCount: number) => {
 export const deckOfCardsIds = buildCardIdsArray(FULL_DECK_COUNT);
 
 export const getCardsFromApi = async (cardCount: number) => {
-  console.log('fn getCardsFromApi');
+  console.log("fn getCardsFromApi");
   const cards = deckOfCardsIds.slice(0, cardCount);
-    const uri = PARTIAL_DECK_API + cards.join(",");
-  console.log(`~~ ${uri}`,);
+  const uri = PARTIAL_DECK_API + cards.join(",");
+  console.log(`~~ ${uri}`);
 
   try {
     // get new partial deck
@@ -220,23 +262,22 @@ export const formatCards = (cards: DeckOfCardsApi_Card[]) => {
   return outputCards;
 };
 
-
 export const fetchAndFormatDeck = async () => {
   console.log("fetching cards...");
   const cards = await getCardsFromApi(FULL_DECK_COUNT);
 
   if (cards === undefined || cards.length === 0) {
     const deck = v3GenerateCards(FULL_DECK_COUNT);
-  console.log("...failed, returning v3 cards");
-    return { deck, type: 'v3' };
+    console.log("...failed, returning v3 cards");
+    return { deck, type: "v3" };
   }
 
   console.log(`fetched!\nformatting cards...`);
   const formatted = formatCards(cards);
   console.log("done!", { formatted: formatted });
 
-  return { deck: formatted, type: 'api' };
-}
+  return { deck: formatted, type: "api" };
+};
 
 export const cardUtils = {
   formatCards,

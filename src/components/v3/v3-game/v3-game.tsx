@@ -10,7 +10,11 @@ import {
 } from "@builder.io/qwik";
 import V3Board from "../v3-board/v3-board";
 import { AppContext } from "../v3-context/v3.context";
-import { shuffleCardPositions, FULL_DECK_COUNT } from "../utils/v3CardUtils";
+import {
+  shuffleCardPositions,
+  FULL_DECK_COUNT,
+  shuffleByPairs,
+} from "../utils/v3CardUtils";
 import SettingsModal from "../settings-modal/settings-modal";
 // import LoadingModal from "../loading-modal/loading-modal";
 import GameHeader from "../game-header/game-header";
@@ -20,40 +24,45 @@ import { formattedDeck } from "../utils/cards";
 // import { useDeck } from "~/routes/v3/index";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
-// const deckCardsApi = "https://deckofcardsapi.com/api/deck/new/";
-
 export const DEFAULT_CARD_COUNT = 18;
 
 export type Pair = `${number}:${number}`;
 //
-// MIN_MAX_COLUMNS_OFFSET == computed, MIN_MAX_ROWS_OFFSET == computed, getXYFromPosition, isCardRemoved
 export type V3Card = {
-  id: number; // unique id
-  text: string; // content of the card
-  position: number; // where it lands in the order of slots on the board
-  prevPosition: number | null; // null normally; number when shuffling to new position
-  pairId: number;
+  id: number;
+  text: string; // alternate content of the card (if no img)
+  position: number; // board slot index
+  prevPosition: number | null; // used for shuffle transition calculations
+  pairId: number; // id of paired card
+  /* isMismatched:  might not need ??
+   * could move this logic to the board:
+   *   - could move shake timer into board as well, instead of one timer per card
+   * 1. after mismatch, save game.mismatchedPair
+   *   - then the cards know which ones to shake.
+   * 3. After shake is done it should be cleared
+   * */
   isMismatched: boolean;
   image?: string;
 };
 
+export type BoardLayout = {
+  width: number;
+  height: number;
+  columns: number;
+  rows: number;
+  area: number;
+  isLocked: boolean;
+};
+export type CardLayout = {
+  width: number;
+  height: number;
+  area: number;
+  roundedCornersPx: number;
+};
+
 export type AppStore = {
-  boardLayout: {
-    width: number;
-    height: number;
-    area: number;
-    rows: number;
-    columns: number;
-    isLocked: boolean;
-  };
-
-  cardLayout: {
-    width: number;
-    height: number;
-    roundedCornersPx: number;
-    area: number;
-  };
-
+  boardLayout: BoardLayout;
+  cardLayout: CardLayout;
   game: {
     flippedCardId: number;
     selectedCardIds: number[];
@@ -63,9 +72,6 @@ export type AppStore = {
     isLoading: boolean;
     isShuffling: boolean;
     isShufflingDelayed: boolean;
-    winModal: {
-      isShowing: boolean;
-    };
   };
 
   settings: {
@@ -102,8 +108,9 @@ export type AppStore = {
     settingsModal: {
       isShowing: boolean;
     };
-    gameEndModal: {
+    endOfGameModal: {
       isShowing: boolean;
+      isWin: boolean;
     };
   };
   // generateDeck: QRL<() => void>;
@@ -139,9 +146,6 @@ const INITIAL = {
     isLoading: true,
     isShuffling: false,
     isShufflingDelayed: false,
-    winModal: {
-      isShowing: false,
-    },
   },
 
   settings: {
@@ -193,12 +197,13 @@ const INITIAL = {
     settingsModal: {
       isShowing: false,
     },
-    gameEndModal: {
+    endOfGameModal: {
       isShowing: false,
+      isWin: false,
     },
   },
 
-  shuffleCardPositions: $(function (this: AppStore) {
+  shuffleCardPositions: $(function(this: AppStore) {
     console.log("shuffleCardPositionsWithTransition");
     const cards = this.game.cards;
     // shuffle and set new positions, save old positions
@@ -214,26 +219,43 @@ const INITIAL = {
     this.game.isShuffling = true;
   }),
 
-  toggleSettingsModal: $(function (this: AppStore) {
+  toggleSettingsModal: $(function(this: AppStore) {
     this.settings.modal.isShowing = !this.settings.modal.isShowing;
   }),
 
-  sliceDeck: $(function (this: AppStore) {
-    const start =
-      Math.floor(
-        (Math.random() * (FULL_DECK_COUNT - this.settings.deck.size)) / 2
-      ) * 2;
+  /*
+   * TODO:
+   * get array of pairs, shuffle the pairs, then slice to get correct pair count
+   * then can eventually shuffle the deck later
+   * */
 
-    const cards = this.settings.deck.fullDeck.slice(
-      start,
-      start + this.settings.deck.size
-    );
+  sliceDeck: $(function(this: AppStore) {
+    const deckShuffledByPairs = shuffleByPairs([
+      ...this.settings.deck.fullDeck,
+    ]);
+
+    const cards = deckShuffledByPairs.slice(0, this.settings.deck.size);
 
     this.game.cards = cards;
+    console.log("playing deck:", { cards });
     return cards;
   }),
+  // sliceDeck: $(function (this: AppStore) {
+  //   const start =
+  //     Math.floor(
+  //       (Math.random() * (FULL_DECK_COUNT - this.settings.deck.size)) / 2
+  //     ) * 2;
+  //
+  //   const cards = this.settings.deck.fullDeck.slice(
+  //     start,
+  //     start + this.settings.deck.size
+  //   );
+  //
+  //   this.game.cards = cards;
+  //   return cards;
+  // }),
 
-  resetGame: $(function (this: AppStore) {
+  resetGame: $(function(this: AppStore) {
     this.game = {
       ...this.game,
       flippedCardId: -1,
@@ -317,9 +339,8 @@ export default component$(() => {
   return (
     <>
       <div
-        class={`flex flex-col flex-grow justify-between w-full h-full p-[1.5%] gap-1 ${
-          appStore.boardLayout.isLocked ? "overflow-x-auto" : ""
-        }`}
+        class={`flex flex-col flex-grow justify-between w-full h-full p-[1.5%] gap-1 ${appStore.boardLayout.isLocked ? "overflow-x-auto" : ""
+          }`}
         ref={containerRef}
       >
         <GameHeader />

@@ -8,11 +8,11 @@ export default component$(
   (props: { headline: string; type: "win" | "lose" }) => {
     const appStore = useContext(AppContext);
     const hideModal = $(() => {
-      appStore.game.winModal.isShowing = false;
+      appStore.interface.endOfGameModal.isShowing = false;
     });
     return (
       <Modal
-        isShowing={appStore.game.winModal.isShowing}
+        isShowing={appStore.interface.endOfGameModal.isShowing}
         hideModal={hideModal}
         bgClasses=""
         title="Game Settings"

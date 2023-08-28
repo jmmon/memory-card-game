@@ -7,85 +7,49 @@ import {
   useTask$,
 } from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
-import type { Pair, V3Card } from "../v3-game/v3-game";
+import type { BoardLayout, CardLayout, V3Card } from "../v3-game/v3-game";
 import { CARD_SHUFFLE_DURATION } from "../v3-board/v3-board";
+import { getCardsArrayFromPairs } from "../utils/v3CardUtils";
 
-/*
- * Card has id, text, flip state
- * parent controls position, width,
- *
- * Should adjust board to fit as many cards as possible/needed
- *
- * "zoom in" effect should scale the card to fill the entire height of the board or of the game (responsive)
- *
- * */
-
-// States:
-// external:
-// coords: computed depending on grid and position, could come from parent
-// flipTransform: depends on the grid; this could be from parent or computed here
-//
-// internal:
-// isRemoved: a computed value, successfulPairs.includes(card.id)
-// isThisCardFlipped: computed value, card.id === flippedCardId
-// isBackTextShowing: controlled by timer to hide/show backside from the DOM
-
-const SCALED_CARD_TO_BOARD_RATIO = 0.8;
+const ENLARGED_CARD_SCALE_VS_BOARD = 0.8;
 
 const CARD_FLIP_ANIMATION_DURATION = 800;
 const CARD_SHAKE_ANIMATION_DURATION = 700;
 
-const HIDE_UNDERSIDE_TIMER_RATIO = 75 / 100; // underside shows immediately, but hides after this duration
-const FLIPPED_DELAYED_OFF_DURATION = 250; // if matching, delay return animation by this amount
-const CARD_SHAKE_ANIMATION_START_LESS_DURATION = 350; // higher means shake starts sooner
-
-type V3CardProps = {
-  card: V3Card;
-  // flippedCardId: Signal<number>;
-  // pairs: Signal<`${number}:${number}`[]>;
-  // slotDimensions: Signal<{ width: number; height: number }>;
-  // gap: number;
-};
+// underside shows immediately, but hides after this duration
+const HIDE_UNDERSIDE_TIMER_RATIO = 75 / 10;
+// if matching, delay return animation by this amount0;
+const FLIPPED_DELAYED_OFF_DURATION_MS = 250;
+// higher means shake starts sooner
+const CARD_SHAKE_ANIMATION_START_LESS_DURATION_MS = 350;
 
 type Coords = { x: number; y: number };
-type BoardLayout = {
-  width: number;
-  height: number;
-  columns: number;
-  rows: number;
-};
-type CardLayout = {
-  width: number;
-  height: number;
-};
 
+/*
+ * getXYFromPosition
+ * takes position (card slot index) and calculates board coordinates x and y coords
+ * // e.g. 23 % 6 = 5; 16 % 6 = 4;
+ * // e.g. 23 / 6 = 3.; 16 / 6 = 2.;
+ * */
 export const getXYFromPosition = (position: number, columnCount: number) => ({
-  // 23 % 6 = 5; 16 % 6 = 4;
   x: position % columnCount,
-  // 23 / 6 = 3.; 16 / 6 = 2.;
   y: Math.floor(position / columnCount),
 });
 
-const getCardsArrayFromPairsReduce = (accum: number[], cur: Pair) => {
-  const [c1, c2] = cur.split(":");
-  accum.push(Number(c1), Number(c2));
-  return accum;
-};
-
-const getCardsArrayFromPairs = (arr: Pair[]) => {
-  return arr.reduce(getCardsArrayFromPairsReduce, []);
-};
-
-// calculates transform from position to prevPosition;
-// applied instantly on shuffle; transition undone over time to commence shuffle animation
+/*
+ * generateShuffleTransform
+ * using old and new coords, create transform to make the move
+ * applied instantly when shuffling, then transition is reverted over time to end up in the new position
+ *
+ * e.g. 0, 1, 2, 3 columns, new = 3; prev = 0
+ * prev - new = -3 columns from new position back to old position
+ * -3 columns * columnWidth = px
+ * */
 const generateShuffleTransform = (
   boardLayout: BoardLayout,
   prevCoords: Coords,
   newCoords: Coords
 ) => {
-  //e.g. 0, 1, 2, 3 columns, new = 3; prev = 0
-  // prev - new = -3 columns from new position back to old position
-  // 3 columns * columnWidth = px
   const colWidth = boardLayout.width / boardLayout.columns;
   const rowHeight = boardLayout.height / boardLayout.rows;
   const translateX = (prevCoords.x - newCoords.x) * colWidth;
@@ -103,44 +67,65 @@ const generateShuffleTransform = (
       translateY(${translateY}px)`;
 };
 
+const buildTransformToCenter = (
+  totalSlots: number,
+  currentPosition: number,
+  slotWidthPx: number
+) => {
+  const maximumSlotsToTransverse = (totalSlots - 1) / 2;
+  const slotsToTransverse = maximumSlotsToTransverse - currentPosition;
+  const translatePx = slotWidthPx * slotsToTransverse;
+  return translatePx;
+};
 
-// calculates the transform required to flip this card to the center of the screen
+/*
+ * generateFlipTransform
+ * uses positioning and layouts to calculate transform required to flip card over and land in the center, scaled up.
+ * numOfColsToTransverseMax e.g. 6cols => 2.5, 8cols => 3.5, 7cols => 3
+ * */
 const generateFlipTransform = (
   boardLayout: BoardLayout,
   cardLayout: CardLayout,
   newCoords: Coords
 ) => {
-  const colsOffsetMax = (boardLayout.columns - 1) / 2; // 6 => 2.5, 8 => 3.5, 7 => 3
-  const rowsOffsetMax = (boardLayout.rows - 1) / 2;
   const rowHeight = boardLayout.height / boardLayout.rows;
   const colWidth = boardLayout.width / boardLayout.columns;
 
-  const colRatio = colsOffsetMax - newCoords.x; // depends on COLUMN_COUNT
-  const translateX = colWidth * colRatio;
-
-  const rowRatio = rowsOffsetMax - newCoords.y; // depends on ROW_COUNT
-  const translateY = rowHeight * rowRatio;
-
   const isOnLeftSide = newCoords.x < boardLayout.columns / 2;
 
-  const maxPx = {
-    width: boardLayout.width * SCALED_CARD_TO_BOARD_RATIO,
-    height: boardLayout.height * SCALED_CARD_TO_BOARD_RATIO,
-  };
-  // get ratio of card to board
-  const ratio = {
-    width: maxPx.width / cardLayout.width,
-    height: maxPx.height / cardLayout.height,
-  };
-  const scale = Math.min(ratio.width, ratio.height);
+  // const numOfColsToTransverse_max = (boardLayout.columns - 1) / 2;
+  // const colsToTransverse = numOfColsToTransverse_max - newCoords.x;
+  // const translateXPx = colWidth * colsToTransverse;
+  const translateXPx = buildTransformToCenter(
+    boardLayout.columns,
+    newCoords.x,
+    colWidth
+  );
 
-  return `translateX(${translateX}px) 
-      translateY(${translateY}px) 
+  // const numOfRowsToTransverse_max = (boardLayout.rows - 1) / 2;
+  // const rowsToTransverse = numOfRowsToTransverse_max - newCoords.y;
+  // const translateYPx = rowHeight * rowsToTransverse;
+  const translateYPx = buildTransformToCenter(
+    boardLayout.rows,
+    newCoords.y,
+    rowHeight
+  );
+
+  // calculate scale
+  const maxPxW = boardLayout.width * ENLARGED_CARD_SCALE_VS_BOARD;
+  const maxPxH = boardLayout.height * ENLARGED_CARD_SCALE_VS_BOARD;
+  // get ratio of card to board
+  const ratioW = maxPxW / cardLayout.width;
+  const ratioH = maxPxH / cardLayout.height;
+  const scale = Math.min(ratioW, ratioH);
+
+  return `translateX(${translateXPx}px) 
+      translateY(${translateYPx}px) 
       rotateY(${isOnLeftSide ? "" : "-"}180deg) 
       scale(${scale})`;
 };
 
-export default component$(({ card }: V3CardProps) => {
+export default component$(({ card }: { card: V3Card }) => {
   const appStore = useContext(AppContext);
 
   // break matches into cards, and see if our card is included
@@ -202,7 +187,7 @@ export default component$(({ card }: V3CardProps) => {
 
       flippedDelayTimer = setTimeout(() => {
         isCardFlippedDelayedOff.value = isCardFlipped.value;
-      }, FLIPPED_DELAYED_OFF_DURATION);
+      }, FLIPPED_DELAYED_OFF_DURATION_MS);
     }
 
     taskCtx.cleanup(() => {
@@ -291,7 +276,7 @@ export default component$(({ card }: V3CardProps) => {
     const timeout = setTimeout(() => {
       card.isMismatched = false;
       shakeSignal.value = true;
-    }, CARD_FLIP_ANIMATION_DURATION - CARD_SHAKE_ANIMATION_START_LESS_DURATION);
+    }, CARD_FLIP_ANIMATION_DURATION - CARD_SHAKE_ANIMATION_START_LESS_DURATION_MS);
 
     taskCtx.cleanup(() => {
       clearTimeout(timeout);
