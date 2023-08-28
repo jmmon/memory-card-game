@@ -1,6 +1,8 @@
 import type { QwikMouseEvent, PropFunction } from "@builder.io/qwik";
-import { component$, $, Slot } from "@builder.io/qwik";
+import { component$, $, Slot, useTask$, useSignal } from "@builder.io/qwik";
 
+const DURATION = "duration-[300ms]";
+const IS_SHOWING_DELAY = 50;
 const DEFAULT_CONTAINER_BG = "bg-slate-600";
 export default component$(
   ({
@@ -16,7 +18,7 @@ export default component$(
     bgClasses?: string;
     title: string;
   }) => {
-    const containerClasses = DEFAULT_CONTAINER_BG + " " + (classes ?? '');
+    const containerClasses = DEFAULT_CONTAINER_BG + " " + (classes ?? "");
     const closeModal = $((e: QwikMouseEvent) => {
       // console.log((e.target as HTMLElement).dataset.name);
       if (
@@ -27,19 +29,43 @@ export default component$(
       }
     });
 
+    const isShowingDelay = useSignal(isShowing);
+
+    useTask$((taskCtx) => {
+      taskCtx.track(() => isShowing);
+
+      const timer = setTimeout(() => {
+        isShowingDelay.value = isShowing;
+      }, IS_SHOWING_DELAY);
+
+      taskCtx.cleanup(() => {
+        clearTimeout(timer);
+      });
+    });
+
     return (
       <div
-        class={` ${bgClasses} top-0 left-0 absolute w-full h-full bg-black flex justify-center items-center transition-all duration-300 ${
-          isShowing ? "z-[100] bg-opacity-30" : "z-[-10] bg-opacity-0"
+        class={` ${bgClasses} top-0 left-0 absolute w-full h-full bg-black flex justify-center items-center transition-all ${DURATION} ${
+          isShowing && isShowingDelay.value
+            ? "z-[100] bg-opacity-30"
+            : "z-[-10] bg-opacity-0"
         }`}
         data-name="background"
         onClick$={closeModal}
       >
         <div
-          class={`min-w-[16rem] w-[40vw] relative mx-auto text-center ${containerClasses} rounded-lg lg:rounded-3xl flex flex-col gap-1 p-[1.5%] transition-all duration-300 ${
+          class={`min-w-[16rem] w-[40vw] relative mx-auto text-center ${containerClasses} rounded-lg lg:rounded-3xl flex flex-col gap-1 p-[1.5%] transition-all ${DURATION} ${
             isShowing
-              ? "pointer-events-auto opacity-100 scale-100 z-[100]"
-              : "pointer-events-none opacity-0 scale-150 z-[-1]"
+              ? "pointer-events-auto z-[100]"
+              : "pointer-events-none z-[-1]"
+          } ${
+            isShowing && !isShowingDelay.value
+              ? "scale-100"
+              : isShowing && isShowingDelay.value
+              ? "opacity-100 scale-100 "
+              : !isShowing && isShowingDelay.value
+              ? "opacity-0"
+              : "opacity-0 scale-[120%]"
           }`}
           data-name="modal"
         >

@@ -9,6 +9,7 @@ import {
 export default component$(() => {
   useStylesScoped$(`
 .game {
+  /*transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); */
   transition: all 0.3s ease-in-out;
   perspective: 1000px;
 }
