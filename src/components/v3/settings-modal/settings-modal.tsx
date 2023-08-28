@@ -1,44 +1,19 @@
-import type { PropFunction, QRL, QwikChangeEvent } from "@builder.io/qwik";
+import type { PropFunction, QwikChangeEvent } from "@builder.io/qwik";
 import {
   component$,
   $,
   useStyles$,
   useContext,
   Slot,
-  useTask$,
-  useSignal,
 } from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
 import Modal from "../modal/modal";
 import Button from "../button/button";
 import { DEFAULT_CARD_COUNT } from "../v3-game/v3-game";
+import { useDebounce } from "../utils/useDebounce";
 
 const COLUMN_GAP = "gap-0.5 md:gap-1";
 
-export function useDebounce<T>(
-  action: QRL<(newValue: T) => void>,
-  delay: number = 500
-) {
-  const signal = useSignal<T>();
-  const setValue = $((newValue: T) => {
-    signal.value = newValue;
-  });
-
-  // track value changes to restart the timer
-  useTask$((taskCtx) => {
-    taskCtx.track(() => signal.value);
-
-    if (signal.value === undefined) return;
-
-    const timer = setTimeout(() => {
-      action(signal.value as T);
-    }, delay);
-
-    taskCtx.cleanup(() => clearTimeout(timer));
-  });
-
-  return setValue;
-}
 
 export default component$(() => {
   const appStore = useContext(AppContext);
@@ -47,7 +22,7 @@ export default component$(() => {
     appStore.settings.modal.isShowing = false;
   });
 
-  const debounceUpdateDeckSize = useDebounce<number>(
+  const { setValue: debounceUpdateDeckSize } = useDebounce<number>(
     $((value) => {
       appStore.settings.deck.size = value;
     }),
