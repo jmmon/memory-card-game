@@ -280,7 +280,7 @@ export default component$(() => {
 
   // useTask$(async () => {
   //   console.log("loading");
-  //   const origin = import.meta.env.DEV 
+  //   const origin = import.meta.env.DEV
   //     ? "http://localhost:5173/"
   //     : "https://joemoulton.dev/";
   //   console.log({ origin });
@@ -308,12 +308,12 @@ export default component$(() => {
   //     appStore.game.isLoading = false;
   //   }
   // });
-//
+  //
 
-useTask$(() => {
-appStore.settings.deck.fullDeck = formattedDeck;
-appStore.sliceDeck();
-});
+  useTask$(() => {
+    appStore.settings.deck.fullDeck = formattedDeck;
+    appStore.sliceDeck();
+  });
 
   return (
     <>
