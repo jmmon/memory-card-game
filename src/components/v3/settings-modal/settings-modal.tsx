@@ -1,10 +1,44 @@
-import type { PropFunction, QwikChangeEvent } from "@builder.io/qwik";
-import { component$, $, useStyles$, useContext, Slot } from "@builder.io/qwik";
+import type { PropFunction, QRL, QwikChangeEvent } from "@builder.io/qwik";
+import {
+  component$,
+  $,
+  useStyles$,
+  useContext,
+  Slot,
+  useTask$,
+  useSignal,
+} from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
 import Modal from "../modal/modal";
 import Button from "../button/button";
+import { DEFAULT_CARD_COUNT } from "../v3-game/v3-game";
 
 const COLUMN_GAP = "gap-0.5 md:gap-1";
+
+export function useDebounce <T>(
+  action: QRL<(newValue: T) => void>,
+  delay: number = 500
+) {
+  const signal = useSignal<T>();
+  const setValue = $((newValue: T) => {
+    signal.value = newValue;
+  });
+
+  // track value changes to restart the timer
+  useTask$((taskCtx) => {
+    taskCtx.track(() => signal.value);
+
+    if (signal.value === undefined) return;
+
+    const timer = setTimeout(() => {
+      action(signal.value as T);
+    }, delay);
+
+    taskCtx.cleanup(() => clearTimeout(timer));
+  });
+
+  return setValue;
+};
 
 export default component$(() => {
   const appStore = useContext(AppContext);
@@ -12,6 +46,13 @@ export default component$(() => {
   const hideModal = $(() => {
     appStore.settings.modal.isShowing = false;
   });
+
+  const debounceUpdateDeckSize = useDebounce<number>(
+    $((value) => {
+      appStore.settings.deck.size = value;
+    }),
+    500
+  );
 
   useStyles$(`
     .tooltip {
@@ -53,7 +94,7 @@ font-size: clamp(0.7rem, 1vw, 1rem);
       bgClasses=""
       title="Game Settings"
     >
-      <div class="flex gap-[2vw] flex-col py-[2%] px-[4%]">
+      <div class="flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%]">
         <div class="flex-grow flex justify-evenly items-center">
           <div class="justify-center flex gap-[2%] items-center tooltip">
             <Button
@@ -101,7 +142,7 @@ font-size: clamp(0.7rem, 1vw, 1rem);
             </SettingsRow>
 
             <SettingsRow>
-              <div class="flex gap-[2%] items-center tooltip w-full">
+              <div class="flex flex-grow gap-[2%] items-center tooltip w-full">
                 <label class="w-4/12" for="deck-card-count text-left">
                   Deck Card Count:
                 </label>
@@ -113,10 +154,11 @@ font-size: clamp(0.7rem, 1vw, 1rem);
                   min={appStore.settings.deck.minimumCards}
                   max={appStore.settings.deck.maximumCards}
                   step="2"
-                  value={appStore.settings.deck.size}
-                  onInput$={(e, t: HTMLInputElement) => {
-                    console.log("input");
-                    appStore.settings.deck.size = Number(t.value);
+                  value={DEFAULT_CARD_COUNT}
+                  onInput$={(e: Event) => {
+                    debounceUpdateDeckSize(
+                      Number((e.target as HTMLInputElement).value)
+                    );
                   }}
                   disabled={appStore.settings.deck.isLocked}
                 />
@@ -251,9 +293,9 @@ font-size: clamp(0.7rem, 1vw, 1rem);
 const SettingsRow = component$(
   ({ disabled = false }: { disabled?: boolean }) => {
     return (
-      <div class="flex justify-center w-full border border-slate-800 rounded-lg py-[2%] px-[4%]">
+      <div class="flex flex-grow justify-center w-full border border-slate-800 rounded-lg py-[2%] px-[4%]">
         <div
-          class={`w-full flex justify-between gap-[2%] ${
+          class={`w-full flex flex-grow justify-between gap-1 md:gap-2 ${
             disabled ? "opacity-50" : ""
           }`}
         >

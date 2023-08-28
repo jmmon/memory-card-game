@@ -70,7 +70,7 @@ const handleSelectCard = (selected: number[], id: number): number[] | false => {
   if (selected.length === 1) {
     if (id === selected[0]) {
       console.log("same one clicked.. doing nothing", selected);
-      return false;
+      return selected;
     } else {
       selected = [...selected, id];
       console.log("adding second card:", selected);

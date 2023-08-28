@@ -19,7 +19,7 @@ import { isServer } from "@builder.io/qwik/build";
 
 // const deckCardsApi = "https://deckofcardsapi.com/api/deck/new/";
 
-const DEFAULT_CARD_COUNT = 18;
+export const DEFAULT_CARD_COUNT = 18;
 
 export type Pair = `${number}:${number}`;
 //

@@ -36,7 +36,7 @@ export default component$(
         onClick$={closeModal}
       >
         <div
-          class={` relative mx-auto text-center ${containerClasses} rounded-lg lg:rounded-3xl flex flex-col gap-1 p-[1.5%] transition-all duration-300 ${
+          class={`min-w-[16rem] w-[40vw] relative mx-auto text-center ${containerClasses} rounded-lg lg:rounded-3xl flex flex-col gap-1 p-[1.5%] transition-all duration-300 ${
             isShowing
               ? "pointer-events-auto opacity-100 scale-100 z-[100]"
               : "pointer-events-none opacity-0 scale-150 z-[-1]"
