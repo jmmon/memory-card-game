@@ -89,7 +89,7 @@ export const shuffleCardPositions = (cards: V3Card[]) => {
  *
  * */
 
-const PARTIAL_DECK_API = "https://deckofcardsapi.com/api/deck/new";
+const PARTIAL_DECK_API = "https://deckofcardsapi.com/api/deck/new/?cards=";
 
 export const deckCardsDrawApi = {
   base: "https://deckofcardsapi.com/api/deck/",
@@ -160,8 +160,8 @@ export const deckOfCardsIds = buildCardIdsArray(FULL_DECK_COUNT);
 
 export const getCardsFromApi = async (cardCount: number) => {
   console.log('fn getCardsFromApi');
-  // const cards = deckOfCardsIds.slice(0, cardCount);
-  const uri = PARTIAL_DECK_API
+  const cards = deckOfCardsIds.slice(0, cardCount);
+    const uri = PARTIAL_DECK_API + cards.join(",");
   console.log(`~~ ${uri}`,);
 
   try {

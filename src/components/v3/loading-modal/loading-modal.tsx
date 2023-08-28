@@ -1,4 +1,4 @@
-import { component$, $, useContext, useTask$ } from "@builder.io/qwik";
+import { component$, $, useContext} from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
 import Modal from "../modal/modal";
 
@@ -9,14 +9,9 @@ export default component$(() => {
     appStore.game.isLoading = false;
   });
 
-  useTask$((taskCtx) => {
-    taskCtx.track(() => appStore.game.isLoading);
-    console.log({ isLoading: appStore.game.isLoading });
-  });
-
   return (
-    <Modal title="Loading..." isShowing={appStore.game.isLoading} hideModal={hideModal}>
-      <div class="flex gap-8 flex-col">Loading...</div>
+    <Modal title="Loading..." bgClasses="bg-opacity-0" isShowing={appStore.game.isLoading} hideModal={hideModal}>
+      <div class="text-4xl text-center">Loading...</div>
     </Modal>
   );
 });

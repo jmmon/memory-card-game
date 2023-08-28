@@ -11,7 +11,7 @@ import V3Board from "../v3-board/v3-board";
 import { AppContext } from "../v3-context/v3.context";
 import { shuffleCardPositions, FULL_DECK_COUNT } from "../utils/v3CardUtils";
 import SettingsModal from "../settings-modal/settings-modal";
-// import LoadingModal from "../loading-modal/loading-modal";
+import LoadingModal from "../loading-modal/loading-modal";
 import GameHeader from "../game-header/game-header";
 import { isServer } from "@builder.io/qwik/build";
 import GameEndModal from "../game-end-modal/game-end-modal";
@@ -68,7 +68,6 @@ export type AppStore = {
 
   settings: {
     cardFlipAnimationDuration: number;
-    columnCount: number; // default 6, should dynamically adjust
     maxAllowableMismatches: number;
 
     shuffleBoardAfterMismatches: number;
@@ -96,6 +95,15 @@ export type AppStore = {
       showDimensions: boolean;
     };
   };
+
+  interface: {
+    settingsModal: {
+      isShowing: boolean;
+    };
+    gameEndModal: {
+      isShowing: boolean;
+    };
+  };
   // generateDeck: QRL<() => void>;
   shuffleCardPositions: QRL<() => void>;
   toggleSettingsModal: QRL<() => void>;
@@ -106,24 +114,20 @@ export type AppStore = {
 };
 
 const INITIAL = {
-  // TODO (after settings is DONE):
-  // - get settings for ~1280px * 720px window for use as default
   boardLayout: {
     width: 992,
     height: 559,
-    area: 554528,
+    area: 992 * 559,
     rows: 3,
     columns: 7,
     isLocked: false, // prevent recalculation of board layout
   },
-
   cardLayout: {
     width: 119.7857142857143,
     height: 186.33333333333334,
     roundedCornersPx: 12,
     area: 22320.071428571435,
   },
-
   game: {
     flippedCardId: -1,
     selectedCardIds: [],
@@ -140,7 +144,10 @@ const INITIAL = {
 
   settings: {
     cardFlipAnimationDuration: 800,
-    columnCount: 6,
+
+    /* ===================
+     * NOT IMPLEMENTED
+     * =================== */
     maxAllowableMismatches: -1,
 
     /* shuffle board after x mismatches
@@ -160,13 +167,16 @@ const INITIAL = {
      * */
     reorgnanizeBoardOnPair: false,
     reorgnanizeBoardOnMismatch: false,
+    /* ===================
+     * end NOT IMPLEMENTED
+     * =================== */
 
     resizeBoard: false,
 
     deck: {
       size: DEFAULT_CARD_COUNT,
       isLocked: false,
-      minimumCards: 2,
+      minimumCards: 6,
       maximumCards: 52,
       fullDeck: [],
     },
@@ -177,28 +187,14 @@ const INITIAL = {
       showDimensions: false,
     },
   },
-
-  // generateDeck: $(async function (this: AppStore) {
-  //   console.log("fetching cards...");
-  //   const cards = await getCardsFromApi(FULL_DECK_COUNT);
-  //   if (cards !== undefined && cards.length !== 0) {
-  //     console.log(`fetched!\nformatting cards...`, { cards });
-  //     const formatted = formatCards(cards);
-  //     console.log("done!", { formatted });
-  //     this.settings.deck.fullDeck = formatted;
-  //   } else {
-  //     this.settings.deck.fullDeck = v3GenerateCards(FULL_DECK_COUNT);
-  //   }
-  //
-  //   const start = Math.floor(
-  //     Math.random() * (FULL_DECK_COUNT - this.settings.deck.size)
-  //   );
-  //
-  //   this.game.cards = this.settings.deck.fullDeck.slice(
-  //     start,
-  //     start + this.settings.deck.size
-  //   );
-  // }),
+  interface: {
+    settingsModal: {
+      isShowing: false,
+    },
+    gameEndModal: {
+      isShowing: false,
+    },
+  },
 
   shuffleCardPositions: $(function (this: AppStore) {
     console.log("shuffleCardPositionsWithTransition");
@@ -236,8 +232,6 @@ const INITIAL = {
   }),
 
   resetGame: $(function (this: AppStore) {
-    // get a new slice? reset the game variables
-
     this.game = {
       ...this.game,
       flippedCardId: -1,
@@ -249,9 +243,7 @@ const INITIAL = {
       isShuffling: false,
       isShufflingDelayed: false,
     };
-this.sliceDeck();
-
-this.settings.modal.isShowing = false;
+    this.sliceDeck();
   }),
 };
 
@@ -317,11 +309,7 @@ export default component$(() => {
         <GameHeader />
         <V3Board containerRef={containerRef} />
       </div>
-      {appStore.game.isLoading && (
-        <div class="backdrop-blur-[3px] bg-black bg-opacity-20 z-50  absolute top-0 left-0 text-4xl w-full flex-grow h-full flex justify-center items-center">
-          Loading...
-        </div>
-      )}
+<LoadingModal />
       <SettingsModal />
       {/* <LoadingModal /> */}
       {/* </InverseModal > */}
