@@ -358,6 +358,7 @@ export default component$(
       }
 
       console.log("~~ uvt$ should be only on mount!");
+      appStore.sliceDeck();
       calculateAndResizeBoard();
     });
 

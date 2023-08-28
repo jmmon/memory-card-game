@@ -180,7 +180,7 @@ const INITIAL = {
       isLocked: false,
       minimumCards: 6,
       maximumCards: 52,
-      fullDeck: [],
+      fullDeck: formattedDeck,
     },
     modal: { isShowing: false },
 
@@ -310,18 +310,17 @@ export default component$(() => {
   // });
   //
 
-  useTask$(() => {
-    appStore.settings.deck.fullDeck = formattedDeck;
-    appStore.sliceDeck();
-  });
+  // useTask$(() => {
+  //   appStore.sliceDeck();
+  // });
 
   return (
     <>
       <div
-        ref={containerRef}
-        class={`flex flex-col  flex-grow justify-between w-full h-full p-[1.5%] gap-1 ${
+        class={`flex flex-col flex-grow justify-between w-full h-full p-[1.5%] gap-1 ${
           appStore.boardLayout.isLocked ? "overflow-x-auto" : ""
         }`}
+        ref={containerRef}
       >
         <GameHeader />
         <V3Board containerRef={containerRef} />
