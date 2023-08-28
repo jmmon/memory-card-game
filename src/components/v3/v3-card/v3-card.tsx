@@ -16,8 +16,8 @@ const ENLARGED_CARD_SCALE_VS_BOARD = 0.8;
 const CARD_FLIP_ANIMATION_DURATION = 600;
 const CARD_SHAKE_ANIMATION_DURATION = 700;
 
-// underside shows immediately, but hides after this duration
-const HIDE_UNDERSIDE_AFTER_PERCENT = 75 / 100;
+// underside shows immediately, but hides after this far during return transition
+const HIDE_UNDERSIDE_AFTER_PERCENT = 0.9;
 
 // if matching, delay return animation by this amount
 // e.g. time allowed for card to vanish (before it would return to board)
@@ -170,7 +170,7 @@ export default component$(({ card }: { card: V3Card }) => {
     // when showing the back side, partway through we reveal the back side.
     // when going back to the board, partway through we hide the back side.
 
-    let revealDelayTimer: ReturnType<typeof setTimeout>;
+    let undersideRevealDelayTimer: ReturnType<typeof setTimeout>;
     let flippedDelayTimer: ReturnType<typeof setTimeout>;
     if (isCardFlipped.value) {
       // when showing card
@@ -178,7 +178,7 @@ export default component$(({ card }: { card: V3Card }) => {
       isCardFlippedDelayedOff.value = isCardFlipped.value;
     } else {
       // when hiding card, keep the underside visible for a while
-      revealDelayTimer = setTimeout(() => {
+      undersideRevealDelayTimer = setTimeout(() => {
         isUnderSideShowing.value = isCardFlipped.value;
       }, CARD_FLIP_ANIMATION_DURATION * HIDE_UNDERSIDE_AFTER_PERCENT);
 
@@ -188,7 +188,7 @@ export default component$(({ card }: { card: V3Card }) => {
     }
 
     taskCtx.cleanup(() => {
-      clearTimeout(revealDelayTimer);
+      clearTimeout(undersideRevealDelayTimer);
       clearTimeout(flippedDelayTimer);
     });
   });
@@ -320,7 +320,7 @@ export default component$(({ card }: { card: V3Card }) => {
         zIndex: isCardFlipped.value
           ? 20 // applies while card is being flipped up but not while being flipped down
           : isUnderSideShowing.value
-          ? 10 // applies starting halfway in flip up, and ending halfway in flip down
+          ? 20 // applies starting halfway in flip up, and ending halfway in flip down
           : 0, // applies otherwise (when face down);
         borderRadius: appStore.cardLayout.roundedCornersPx + "px",
 
@@ -336,79 +336,78 @@ export default component$(({ card }: { card: V3Card }) => {
         transitionDuration: appStore.game.isShufflingDelayed
           ? CARD_SHUFFLE_DURATION + "ms"
           : "0ms",
-
       }}
     >
       <div
-        class={`w-[90%] h-[90%] mx-auto [perspective:100vw] bg-transparent border border-slate-50/20 flip-card transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
-          isRemoved.value &&
-          appStore.game.flippedCardId !== card.id &&
-          appStore.game.flippedCardId !== card.pairId
-            ? "opacity-0 scale-[107%]"
-            : "opacity-100 cursor-pointer"
-        } ${shakeSignal.value === true ? "shake-card" : ""}`}
-        style={{
-          borderRadius: appStore.cardLayout.roundedCornersPx + "px",
-        }}
-        data-id={card.id}
+        class="border border-slate-50/10 w-[90%] h-[90%] mx-auto bg-transparent"
+        style={{ borderRadius: appStore.cardLayout.roundedCornersPx + "px" }}
       >
         <div
-          class={`w-full h-full relative text-center [transform-style:preserve-3d] [transition-property:transform]`}
-          data-id={card.id}
+          class={`w-full h-full [perspective:100vw] border border-slate-50/25 bg-transparent transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
+            isRemoved.value &&
+            appStore.game.flippedCardId !== card.id &&
+            appStore.game.flippedCardId !== card.pairId
+              ? "opacity-0 scale-[107%]"
+              : "opacity-100 cursor-pointer"
+          } ${shakeSignal.value === true ? "shake-card" : ""}`}
           style={{
-            transform:
-              isCardFlipped.value ||
-              (isRemoved.value && isCardFlippedDelayedOff.value)
-                ? flipTransform.value
-                : "",
-            transitionDuration: CARD_FLIP_ANIMATION_DURATION + "ms",
-            // understanding cubic bezier: we control the two middle points
-            // [ t:0, p:0 ], (t:0.2, p:1.285), (t:0.32, p:1.075), [t:1, p:1]
-            // t == time, p == animationProgress
-            // e.g.:
-            // - so at 20%, our animation will be 128.5% complete,
-            // - then at 32% ouranimation will be 107.5% complete,
-            // - then finally at 100% our animation will complete
-            transitionTimingFunction: "cubic-bezier(0.40, 1.3, 0.62, 1.045)",
             borderRadius: appStore.cardLayout.roundedCornersPx + "px",
           }}
+          data-id={card.id}
         >
           <div
-            class={`absolute w-full h-full border-2 border-slate-50 text-white bg-[dodgerblue] flex flex-col justify-center [backface-visibility:hidden]`}
+            class={`w-full h-full relative text-center [transform-style:preserve-3d] [transition-property:transform]`}
             data-id={card.id}
             style={{
+              transform:
+                isCardFlipped.value ||
+                (isRemoved.value && isCardFlippedDelayedOff.value)
+                  ? flipTransform.value
+                  : "",
+              transitionDuration: CARD_FLIP_ANIMATION_DURATION + "ms",
+              // understanding cubic bezier: we control the two middle points
+              // [ t:0, p:0 ], (t:0.2, p:1.285), (t:0.32, p:1.075), [t:1, p:1]
+              // t == time, p == animationProgress
+              // e.g.:
+              // - so at 20%, our animation will be 128.5% complete,
+              // - then at 32% ouranimation will be 107.5% complete,
+              // - then finally at 100% our animation will complete
+              transitionTimingFunction: "cubic-bezier(0.40, 1.3, 0.62, 1.045)",
               borderRadius: appStore.cardLayout.roundedCornersPx + "px",
             }}
           >
             <div
+              class={`absolute w-full h-full border-2 border-slate-50 text-white bg-[dodgerblue] flex flex-col justify-center [backface-visibility:hidden]`}
               data-id={card.id}
-              data-name="circle"
-              class="w-1/2 h-auto aspect-square rounded-[50%] bg-white/40 mx-auto flex flex-col justify-center items-center"
+              style={{
+                borderRadius: appStore.cardLayout.roundedCornersPx + "px",
+              }}
             >
+              <div
+                data-id={card.id}
+                data-name="circle"
+                class="w-1/2 h-auto aspect-square rounded-[50%] bg-white/40 mx-auto flex flex-col justify-center items-center"
+              ></div>
             </div>
-          </div>
-          <div
-            class={`absolute w-full border border-white h-full flex justify-center items-center text-black bg-slate-300 [transform:rotateY(180deg)] [backface-visibility:hidden] `}
-            data-id={card.id}
-            style={{
-              borderRadius: appStore.cardLayout.roundedCornersPx + "px",
-            }}
-          >
-            {isUnderSideShowing.value &&
-              (card.image ? (
-                <img
-                  width="25"
-                  height="35"
-                  src={card.image}
-                  class="w-full h-full"
-                />
-              ) : (
-                <div
-                  data-id={card.id}
-                >
-                  {card.text}
-                </div>
-              ))}
+            <div
+              class={`absolute w-full border border-white h-full flex justify-center items-center text-black bg-slate-300 [transform:rotateY(180deg)] [backface-visibility:hidden] `}
+              data-id={card.id}
+              style={{
+                borderRadius: appStore.cardLayout.roundedCornersPx + "px",
+              }}
+            >
+              {isUnderSideShowing.value &&
+                (card.image ? (
+                  <img
+                    width="25"
+                    height="35"
+                    src={card.image}
+                    class="w-full h-full"
+                  />
+                ) : (
+                  <div data-id={card.id}>{card.text}</div>
+                ))}
+            </div>
           </div>
         </div>
       </div>
