@@ -11,7 +11,7 @@ import V3Board from "../v3-board/v3-board";
 import { AppContext } from "../v3-context/v3.context";
 import { shuffleCardPositions, FULL_DECK_COUNT } from "../utils/v3CardUtils";
 import SettingsModal from "../settings-modal/settings-modal";
-import LoadingModal from "../loading-modal/loading-modal";
+// import LoadingModal from "../loading-modal/loading-modal";
 import GameHeader from "../game-header/game-header";
 import { isServer } from "@builder.io/qwik/build";
 import GameEndModal from "../game-end-modal/game-end-modal";
@@ -309,7 +309,12 @@ export default component$(() => {
         <GameHeader />
         <V3Board containerRef={containerRef} />
       </div>
-<LoadingModal />
+      {/* <LoadingModal /> */}
+      {appStore.game.isLoading && (
+        <div class="text-slate-200 backdrop-blur-[3px] bg-black bg-opacity-20 z-50  absolute top-0 left-0 text-4xl w-full flex-grow h-full flex justify-center items-center">
+          Loading...
+        </div>
+      )}
       <SettingsModal />
       {/* <LoadingModal /> */}
       {/* </InverseModal > */}
@@ -328,4 +333,20 @@ export default component$(() => {
  * BETTER:
  * "loading" animation is simply the cards shuffling repeatedly!
  * after loaded from API, (shuffle the cards, or map them to the shuffled dummy ids, and then) swap the cards out
+ *
+ *
+ *
+ * Settings:
+ * - "Apply/Save" button and "Cancel" button??
+ *
+ * Game End Modal:
+ * - shows when appStore.game.isOver (or getter function to check status)
+ *   - Message
+ *   - Successful Pairs: n/maxN
+ *   - Mismatched Pairs: m[/maxM]
+ *   - Total Points?: 10 * n - (maxM ? m * 10 * (maxM / maxN) : 0) // if counting maxM, can factor that in to the points
+ *
+ * Eventually: score board??? Enter your initials or something
+ *
+ * Some advanced prefetch guarantee for the images? proxy the images so I can cache them??? possible??
  * */
