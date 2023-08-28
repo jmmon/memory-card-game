@@ -203,7 +203,7 @@ const INITIAL = {
     },
   },
 
-  shuffleCardPositions: $(function(this: AppStore) {
+  shuffleCardPositions: $(function (this: AppStore) {
     console.log("shuffleCardPositionsWithTransition");
     const cards = this.game.cards;
     // shuffle and set new positions, save old positions
@@ -219,7 +219,7 @@ const INITIAL = {
     this.game.isShuffling = true;
   }),
 
-  toggleSettingsModal: $(function(this: AppStore) {
+  toggleSettingsModal: $(function (this: AppStore) {
     this.settings.modal.isShowing = !this.settings.modal.isShowing;
   }),
 
@@ -229,7 +229,7 @@ const INITIAL = {
    * then can eventually shuffle the deck later
    * */
 
-  sliceDeck: $(function(this: AppStore) {
+  sliceDeck: $(function (this: AppStore) {
     const deckShuffledByPairs = shuffleByPairs([
       ...this.settings.deck.fullDeck,
     ]);
@@ -255,7 +255,7 @@ const INITIAL = {
   //   return cards;
   // }),
 
-  resetGame: $(function(this: AppStore) {
+  resetGame: $(function (this: AppStore) {
     this.game = {
       ...this.game,
       flippedCardId: -1,
@@ -339,22 +339,29 @@ export default component$(() => {
   return (
     <>
       <div
-        class={`flex flex-col flex-grow justify-between w-full h-full p-[1.5%] gap-1 ${appStore.boardLayout.isLocked ? "overflow-x-auto" : ""
-          }`}
+        class={`flex flex-col flex-grow justify-between w-full h-full p-[1.5%] gap-1 ${
+          appStore.boardLayout.isLocked ? "overflow-x-auto" : ""
+        }`}
         ref={containerRef}
       >
         <GameHeader />
         <V3Board containerRef={containerRef} />
       </div>
-      {appStore.game.isLoading && (
-        <div class="text-slate-200 backdrop-blur-[3px] bg-black bg-opacity-20 z-50  absolute top-0 left-0 text-4xl w-full flex-grow h-full flex justify-center items-center">
-          Loading...
-        </div>
-      )}
+      {appStore.game.isLoading && <LoadingPage />}
       <SettingsModal />
     </>
   );
 });
+
+const LoadingPage = ({ blur = true }: { blur?: boolean }) => (
+  <div
+    class={` text-slate-200 ${
+      blur ? "backdrop-blur-[2px]" : ""
+    } bg-black bg-opacity-20 z-50  absolute top-0 left-0 text-4xl w-full flex-grow h-full flex justify-center items-center `}
+  >
+    Loading...
+  </div>
+);
 
 /*
  *
@@ -367,6 +374,9 @@ export default component$(() => {
  * BETTER:
  * "loading" animation is simply the cards shuffling repeatedly!
  * after loaded from API, (shuffle the cards, or map them to the shuffled dummy ids, and then) swap the cards out
+ *
+ *  BEST:
+ *  use hardcoded cards!!! then only need to load while shuffling
  *
  *
  *
