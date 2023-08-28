@@ -14,7 +14,7 @@ import SettingsModal from "../settings-modal/settings-modal";
 // import LoadingModal from "../loading-modal/loading-modal";
 import GameHeader from "../game-header/game-header";
 import { isServer } from "@builder.io/qwik/build";
-import GameEndModal from "../game-end-modal/game-end-modal";
+// import GameEndModal from "../game-end-modal/game-end-modal";
 // import { useDeck } from "~/routes/v3/index";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
@@ -278,23 +278,30 @@ export default component$(() => {
 
   useTask$(async () => {
     console.log("loading");
-    const response = await fetch("http://localhost:5173/api/deck");
-    const { deck, type } = (await response.json()) as {
-      deck: V3Card[];
-      type: "v3" | "api";
-    };
+    const origin = import.meta.env.DEV
+      ? "http://localhost:5173/"
+      : "https://joemoulton.dev/";
+    console.log({ origin });
+    try {
+      const response = await fetch(`${origin}api/deck`);
+      const { deck, type } = (await response.json()) as {
+        deck: V3Card[];
+        type: "v3" | "api";
+      };
 
-    console.log("visibleTask fetched deck:", {
-      // deck: deck,
-      type: type,
-    });
-    appStore.settings.deck.fullDeck = deck;
+      console.log("visibleTask fetched deck:", {
+        // deck: deck,
+        type: type,
+      });
+      appStore.settings.deck.fullDeck = deck;
 
-    // get a random start, make sure to halve so we count pairs
-    appStore.sliceDeck();
-
-    // appStore.game.isLoading = false;
-    console.log("done loading");
+      // get a random start, make sure to halve so we count pairs
+      appStore.sliceDeck();
+    } catch (err) {
+      console.log({ err });
+    } finally {
+      console.log("done loading");
+    }
   });
 
   return (

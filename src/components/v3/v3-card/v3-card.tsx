@@ -131,7 +131,7 @@ const generateFlipTransform = (
     width: maxPx.width / cardLayout.width,
     height: maxPx.height / cardLayout.height,
   };
-  let scale = Math.min(ratio.width, ratio.height);
+  const scale = Math.min(ratio.width, ratio.height);
 
   return `translateX(${translateX}px) 
       translateY(${translateY}px) 

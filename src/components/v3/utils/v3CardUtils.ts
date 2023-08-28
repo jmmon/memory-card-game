@@ -220,6 +220,7 @@ export const formatCards = (cards: DeckOfCardsApi_Card[]) => {
   return outputCards;
 };
 
+
 export const fetchAndFormatDeck = async () => {
   console.log("fetching cards...");
   const cards = await getCardsFromApi(FULL_DECK_COUNT);

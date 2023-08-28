@@ -1,7 +1,7 @@
 import { component$ } from "@builder.io/qwik";
-import { routeLoader$ } from "@builder.io/qwik-city";
+// import { routeLoader$ } from "@builder.io/qwik-city";
 import V3Game from "~/components/v3/v3-game/v3-game";
-import { fetchAndFormatDeck } from "~/components/v3/utils/v3CardUtils";
+// import { fetchAndFormatDeck } from "~/components/v3/utils/v3CardUtils";
 
 // export const useDeck = routeLoader$(fetchAndFormatDeck);
 

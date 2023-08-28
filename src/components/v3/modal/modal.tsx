@@ -18,7 +18,7 @@ export default component$(
     bgClasses?: string;
     title: string;
   }) => {
-    const containerClasses = DEFAULT_CONTAINER_BG + " " + (classes ?? "");
+    const containerClasses = DEFAULT_CONTAINER_BG + " " + classes;
     const closeModal = $((e: QwikMouseEvent) => {
       // console.log((e.target as HTMLElement).dataset.name);
       if (

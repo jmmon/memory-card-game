@@ -5,14 +5,11 @@ import {
   useContext,
   useOnWindow,
   useSignal,
-  useTask$,
   useVisibleTask$,
 } from "@builder.io/qwik";
-import { isServer } from "@builder.io/qwik/build";
 
 import V3Card from "../v3-card/v3-card";
 import { AppContext } from "../v3-context/v3.context";
-import { v3GenerateCards, FULL_DECK_COUNT } from "../utils/v3CardUtils";
 import type { Pair, V3Card as V3CardType } from "../v3-game/v3-game";
 import { useDebounce } from "../utils/useDebounce";
 // const CARD_RATIO = 2.5 / 3.5; // w / h
@@ -228,7 +225,7 @@ export default component$(
               cardId
             );
 
-            if (selected && selected?.length !== appStore.game.selectedCardIds.length) {
+            if (selected && selected.length !== appStore.game.selectedCardIds.length) {
               // save it if it's a new card
               appStore.game.selectedCardIds = selected;
             }
@@ -352,10 +349,8 @@ export default component$(
         return;
       }
 
-      if (!isDeckChanged && !isBoardRefreshed) {
-        console.log("~~ uvt$ should be only on mount!");
-        calculateAndResizeBoard();
-      }
+      console.log("~~ uvt$ should be only on mount!");
+      calculateAndResizeBoard();
     });
 
     const shuffleCounterSignal = useSignal(CARD_SHUFFLE_ROUNDS);
@@ -374,7 +369,6 @@ export default component$(
         appStore.game.isLoading = false;
         shuffleCounterSignal.value = CARD_SHUFFLE_ROUNDS;
         return;
-      } else {
       }
 
       if (appStore.game.isShuffling === false) return;
