@@ -279,6 +279,47 @@ export const fetchAndFormatDeck = async () => {
   return { deck: formatted, type: "api" };
 };
 
+
+
+
+/*
+ * card utils
+ *
+ * */
+// export const buildSetFromPairs = (pairs: Pair[]) =>
+//   pairs.reduce((accum, cur) => {
+//     const [c1, c2] = cur.split(":");
+//     accum.add(Number(c1));
+//     accum.add(Number(c2));
+//     return accum;
+//   }, new Set<number>());
+
+// find cardId inside pairs
+export const isCardRemoved = (
+  pairs: `${number}:${number}`[],
+  cardId: number
+) => {
+const removedPairs = pairs.join(',');
+return removedPairs.includes(String(cardId));
+  // const removedCards = buildSetFromPairs(pairs);
+  // return removedCards.has(cardId);
+};
+
+export const checkMatch = (
+  cardA: V3Card | undefined,
+  cardB: V3Card | undefined
+): boolean => {
+  if (cardA === undefined || cardB === undefined) {
+    return false;
+  }
+  return cardA.pairId === cardB.id && cardB.pairId === cardA.id;
+};
+
+export const findCardById = (cards: V3Card[], id: number) =>
+  cards.find((card) => card.id === id);
+
+
+
 export const cardUtils = {
   formatCards,
   getCardsFromApi,
@@ -286,3 +327,4 @@ export const cardUtils = {
   v3Shuffle_FY_algo,
   v3GenerateCards,
 };
+

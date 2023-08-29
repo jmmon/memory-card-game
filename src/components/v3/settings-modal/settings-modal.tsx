@@ -114,7 +114,7 @@ export default component$(() => {
             </SettingsRow>
 
             <SettingsRow>
-              <DeckSizeSlider newSettings={newSettings} />
+              <DeckSizeSlider newSettings={newSettings} isLocked={appStore.settings.deck.isLocked}/>
             </SettingsRow>
 
             <SettingsRow>
@@ -323,18 +323,17 @@ const Lock = component$(
   }
 );
 
-export const DeckSizeSlider = component$<{ newSettings: Signal<AppSettings> }>(
+export const DeckSizeSlider = component$<{ newSettings: Signal<AppSettings>, isLocked?: boolean }>(
   (props) => {
-    const appStore = useContext(AppContext);
 
     return (
-      <div class="flex flex-grow gap-[2%] items-center tooltip w-full">
-        <label class="w-4/12" for="deck-card-count text-left">
+      <div class="flex flex-grow gap-[2%] items-center tooltip w-full py-1.5">
+        <label class="w-4/12 text-left" for="deck-card-count-settings">
           Deck Card Count:
         </label>
         <input
-          name="deck-card-count"
-          id="deck-card-count"
+          name="deck-card-count-settings"
+          id="deck-card-count-settings"
           class="flex-grow w-8/12"
           type="range"
           min={props.newSettings.value.deck.MINIMUM_CARDS}
@@ -350,7 +349,7 @@ export const DeckSizeSlider = component$<{ newSettings: Signal<AppSettings> }>(
               },
             };
           }}
-          disabled={appStore.settings.deck.isLocked}
+          disabled={props.isLocked}
         />
         <span class="tooltiptext">
           {props.newSettings.value.deck.size} - Number of cards in the deck.

@@ -40,15 +40,23 @@ export default component$(() => {
             </span>
           </div>
         </SettingsRow>
+        <SettingsRow>
+          <div class="flex flex-grow justify-between">
+            <span>Time:</span>
+            <span>
+              {(appStore.game.time.end - appStore.game.time.start) / 1000}s
+            </span>
+          </div>
+        </SettingsRow>
 
         <SettingsRow>
           <div class="flex flex-grow gap-[2%] items-center tooltip w-full">
-            <label class="w-4/12" for="deck-card-count text-left">
+            <label class="w-4/12 text-left" for="deck-card-count-end-game">
               Deck Card Count:
             </label>
             <input
-              name="deck-card-count"
-              id="deck-card-count"
+              name="deck-card-count-end-game"
+              id="deck-card-count-end-game"
               class="flex-grow w-8/12"
               type="range"
               min={appStore.settings.deck.MINIMUM_CARDS}

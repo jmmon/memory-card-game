@@ -7,7 +7,7 @@ export const formattedDeck = [
     pairId: 940761,
     position: 0,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/aceDiamonds.png",
     localSVG: "/cards/AD.svg",
   },
@@ -17,7 +17,7 @@ export const formattedDeck = [
     pairId: 940760,
     position: 1,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/AH.png",
     localSVG: "/cards/AH.svg",
   },
@@ -27,7 +27,7 @@ export const formattedDeck = [
     pairId: 309811,
     position: 2,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/AC.png",
     localSVG: "/cards/AC.svg",
   },
@@ -37,7 +37,7 @@ export const formattedDeck = [
     pairId: 309810,
     position: 3,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/AS.png",
     localSVG: "/cards/AS.svg",
   },
@@ -47,7 +47,7 @@ export const formattedDeck = [
     pairId: 145491,
     position: 4,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/2D.png",
     localSVG: "/cards/2D.svg",
   },
@@ -57,7 +57,7 @@ export const formattedDeck = [
     pairId: 145490,
     position: 5,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/2H.png",
     localSVG: "/cards/2H.svg",
   },
@@ -67,7 +67,7 @@ export const formattedDeck = [
     pairId: 190271,
     position: 6,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/2C.png",
     localSVG: "/cards/2C.svg",
   },
@@ -77,7 +77,7 @@ export const formattedDeck = [
     pairId: 190270,
     position: 7,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/2S.png",
     localSVG: "/cards/2S.svg",
   },
@@ -87,7 +87,7 @@ export const formattedDeck = [
     pairId: 735021,
     position: 8,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/3D.png",
     localSVG: "/cards/3D.svg",
   },
@@ -97,7 +97,7 @@ export const formattedDeck = [
     pairId: 735020,
     position: 9,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/3H.png",
     localSVG: "/cards/3H.svg",
   },
@@ -107,7 +107,7 @@ export const formattedDeck = [
     pairId: 890611,
     position: 10,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/3C.png",
     localSVG: "/cards/3C.svg",
   },
@@ -117,7 +117,7 @@ export const formattedDeck = [
     pairId: 890610,
     position: 11,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/3S.png",
     localSVG: "/cards/3S.svg",
   },
@@ -127,7 +127,7 @@ export const formattedDeck = [
     pairId: 712321,
     position: 12,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/4D.png",
     localSVG: "/cards/4D.svg",
   },
@@ -137,7 +137,7 @@ export const formattedDeck = [
     pairId: 712320,
     position: 13,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/4H.png",
     localSVG: "/cards/4H.svg",
   },
@@ -147,7 +147,7 @@ export const formattedDeck = [
     pairId: 979861,
     position: 14,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/4C.png",
     localSVG: "/cards/4C.svg",
   },
@@ -157,7 +157,7 @@ export const formattedDeck = [
     pairId: 979860,
     position: 15,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/4S.png",
     localSVG: "/cards/4S.svg",
   },
@@ -167,7 +167,7 @@ export const formattedDeck = [
     pairId: 774671,
     position: 16,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/5D.png",
     localSVG: "/cards/5D.svg",
   },
@@ -177,7 +177,7 @@ export const formattedDeck = [
     pairId: 774670,
     position: 17,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/5H.png",
     localSVG: "/cards/5H.svg",
   },
@@ -187,7 +187,7 @@ export const formattedDeck = [
     pairId: 991981,
     position: 18,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/5C.png",
     localSVG: "/cards/5C.svg",
   },
@@ -197,7 +197,7 @@ export const formattedDeck = [
     pairId: 991980,
     position: 19,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/5S.png",
     localSVG: "/cards/5S.svg",
   },
@@ -207,7 +207,7 @@ export const formattedDeck = [
     pairId: 325891,
     position: 20,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/6D.png",
     localSVG: "/cards/6D.svg",
   },
@@ -217,7 +217,7 @@ export const formattedDeck = [
     pairId: 325890,
     position: 21,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/6H.png",
     localSVG: "/cards/6H.svg",
   },
@@ -227,7 +227,7 @@ export const formattedDeck = [
     pairId: 590611,
     position: 22,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/6C.png",
     localSVG: "/cards/6C.svg",
   },
@@ -237,7 +237,7 @@ export const formattedDeck = [
     pairId: 590610,
     position: 23,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/6S.png",
     localSVG: "/cards/6S.svg",
   },
@@ -247,7 +247,7 @@ export const formattedDeck = [
     pairId: 215991,
     position: 24,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/7D.png",
     localSVG: "/cards/7D.svg",
   },
@@ -257,7 +257,7 @@ export const formattedDeck = [
     pairId: 215990,
     position: 25,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/7H.png",
     localSVG: "/cards/7H.svg",
   },
@@ -267,7 +267,7 @@ export const formattedDeck = [
     pairId: 615531,
     position: 26,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/7C.png",
     localSVG: "/cards/7C.svg",
   },
@@ -277,7 +277,7 @@ export const formattedDeck = [
     pairId: 615530,
     position: 27,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/7S.png",
     localSVG: "/cards/7S.svg",
   },
@@ -287,7 +287,7 @@ export const formattedDeck = [
     pairId: 173731,
     position: 28,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/8D.png",
     localSVG: "/cards/8D.svg",
   },
@@ -297,7 +297,7 @@ export const formattedDeck = [
     pairId: 173730,
     position: 29,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/8H.png",
     localSVG: "/cards/8H.svg",
   },
@@ -307,7 +307,7 @@ export const formattedDeck = [
     pairId: 476301,
     position: 30,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/8C.png",
     localSVG: "/cards/8C.svg",
   },
@@ -317,7 +317,7 @@ export const formattedDeck = [
     pairId: 476300,
     position: 31,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/8S.png",
     localSVG: "/cards/8S.svg",
   },
@@ -327,7 +327,7 @@ export const formattedDeck = [
     pairId: 118261,
     position: 32,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/9D.png",
     localSVG: "/cards/9D.svg",
   },
@@ -337,7 +337,7 @@ export const formattedDeck = [
     pairId: 118260,
     position: 33,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/9H.png",
     localSVG: "/cards/9H.svg",
   },
@@ -347,7 +347,7 @@ export const formattedDeck = [
     pairId: 339381,
     position: 34,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/9C.png",
     localSVG: "/cards/9C.svg",
   },
@@ -357,7 +357,7 @@ export const formattedDeck = [
     pairId: 339380,
     position: 35,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/9S.png",
     localSVG: "/cards/9S.svg",
   },
@@ -367,7 +367,7 @@ export const formattedDeck = [
     pairId: 603561,
     position: 36,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/0D.png",
     localSVG: "/cards/0D.svg",
   },
@@ -377,7 +377,7 @@ export const formattedDeck = [
     pairId: 603560,
     position: 37,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/0H.png",
     localSVG: "/cards/0H.svg",
   },
@@ -387,7 +387,7 @@ export const formattedDeck = [
     pairId: 860981,
     position: 38,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/0C.png",
     localSVG: "/cards/0C.svg",
   },
@@ -397,7 +397,7 @@ export const formattedDeck = [
     pairId: 860980,
     position: 39,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/0S.png",
     localSVG: "/cards/0S.svg",
   },
@@ -407,7 +407,7 @@ export const formattedDeck = [
     pairId: 741821,
     position: 40,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/JD.png",
     localSVG: "/cards/JD.svg",
   },
@@ -417,7 +417,7 @@ export const formattedDeck = [
     pairId: 741820,
     position: 41,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/JH.png",
     localSVG: "/cards/JH.svg",
   },
@@ -427,7 +427,7 @@ export const formattedDeck = [
     pairId: 622611,
     position: 42,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/JC.png",
     localSVG: "/cards/JC.svg",
   },
@@ -437,7 +437,7 @@ export const formattedDeck = [
     pairId: 622610,
     position: 43,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/JS.png",
     localSVG: "/cards/JS.svg",
   },
@@ -447,7 +447,7 @@ export const formattedDeck = [
     pairId: 116661,
     position: 44,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/QD.png",
     localSVG: "/cards/QD.svg",
   },
@@ -457,7 +457,7 @@ export const formattedDeck = [
     pairId: 116660,
     position: 45,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/QH.png",
     localSVG: "/cards/QH.svg",
   },
@@ -467,7 +467,7 @@ export const formattedDeck = [
     pairId: 987381,
     position: 46,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/QC.png",
     localSVG: "/cards/QC.svg",
   },
@@ -477,7 +477,7 @@ export const formattedDeck = [
     pairId: 987380,
     position: 47,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/QS.png",
     localSVG: "/cards/QS.svg",
   },
@@ -487,7 +487,7 @@ export const formattedDeck = [
     pairId: 649981,
     position: 48,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/KD.png",
     localSVG: "/cards/KD.svg",
   },
@@ -497,7 +497,7 @@ export const formattedDeck = [
     pairId: 649980,
     position: 49,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/KH.png",
     localSVG: "/cards/KH.svg",
   },
@@ -507,7 +507,7 @@ export const formattedDeck = [
     pairId: 668401,
     position: 50,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/KC.png",
     localSVG: "/cards/KC.svg",
   },
@@ -517,7 +517,7 @@ export const formattedDeck = [
     pairId: 668400,
     position: 51,
     prevPosition: null,
-    isMismatched: false,
+
     image: "https://deckofcardsapi.com/static/img/KS.png",
     localSVG: "/cards/KS.svg",
   },

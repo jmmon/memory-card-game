@@ -11,8 +11,9 @@ import {
 
 import V3Card, { CARD_FLIP_ANIMATION_DURATION } from "../v3-card/v3-card";
 import { AppContext } from "../v3-context/v3.context";
-import type { Pair, V3Card as V3CardType } from "../v3-game/v3-game";
+import { CONTAINER_PADDING_PERCENT, Pair } from "../v3-game/v3-game";
 import { useDebounce } from "../utils/useDebounce";
+import { checkMatch, findCardById, isCardRemoved } from "../utils/v3CardUtils";
 // const CARD_RATIO = 2.5 / 3.5; // w / h
 export const CARD_RATIO = 113 / 157; // w / h
 export const CORNERS_WIDTH_RATIO = 1 / 20;
@@ -20,7 +21,6 @@ export const CORNERS_WIDTH_RATIO = 1 / 20;
 export const CARD_SHUFFLE_DELAYED_START = 100;
 export const CARD_SHUFFLE_DURATION = 400;
 export const CARD_SHUFFLE_ROUNDS = 5;
-
 
 const CARD_SHAKE_ANIMATION_DURATION = 700;
 
@@ -32,66 +32,33 @@ const SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD =
     START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE -
   START_SHAKE_ANIMATION_EAGER_MS;
 
-/*
- * card utils
- *
- * */
-export const buildSetFromPairs = (pairs: `${number}:${number}`[]) =>
-  pairs.reduce((accum, cur) => {
-    const [c1, c2] = cur.split(":");
-    accum.add(Number(c1));
-    accum.add(Number(c2));
-    return accum;
-  }, new Set<number>());
-
-// find cardId inside pairs
-export const isCardRemoved = (
-  pairs: `${number}:${number}`[],
-  cardId: number
+const calculateBoardDimensions = (
+  container: HTMLElement,
+  board: HTMLElement
 ) => {
-  const removedCards = buildSetFromPairs(pairs);
-  return removedCards.has(cardId);
-};
+  // const container = containerRef.value as HTMLElement; // or use window instead of container/game?
+  // const board = boardRef.value as HTMLElement;
 
-export const checkMatch = (
-  cardA: V3CardType | undefined,
-  cardB: V3CardType | undefined
-): boolean => {
-  if (cardA === undefined || cardB === undefined) {
-    return false;
-  }
-  return cardA.pairId === cardB.id && cardB.pairId === cardA.id;
-};
+  const boardRect = board.getBoundingClientRect();
+  const boardTop = boardRect.top;
+  const boardBottomLimit =
+    (container.offsetHeight * (100 - CONTAINER_PADDING_PERCENT)) / 100; // account for padding on bottom
+  const boardHeight = boardBottomLimit - boardTop;
 
-export const findCardById = (cards: V3CardType[], id: number) =>
-  cards.find((card) => card.id === id);
+  const boardWidth =
+    (container.offsetWidth * (100 - CONTAINER_PADDING_PERCENT * 2)) / 100; // account for padding on sides
+
+  return { width: boardWidth, height: boardHeight };
+};
 
 export default component$(
   ({ containerRef }: { containerRef: Signal<HTMLElement | undefined> }) => {
     const appStore = useContext(AppContext);
     const boardRef = useSignal<HTMLDivElement>();
 
-    const calculateBoardSize = $(() => {
-      const container = containerRef.value as HTMLElement; // or use window instead of container/game?
-      const board = boardRef.value as HTMLElement;
-
-      const PADDING_PERCENT = 1.5;
-      const boardRect = board.getBoundingClientRect();
-      const boardTop = boardRect.top;
-      const boardBottomLimit =
-        (container.offsetHeight * (100 - PADDING_PERCENT)) / 100; // account for padding on bottom
-      const boardHeight = boardBottomLimit - boardTop;
-
-      const boardWidth =
-        (container.offsetWidth * (100 - PADDING_PERCENT * 2)) / 100; // account for padding on sides
-      return { width: boardWidth, height: boardHeight };
-    });
-
     const resizeBoard = $(async (width?: number, height?: number) => {
       const boardWidth = width || boardRef.value?.offsetWidth || 0;
       const boardHeight = height || boardRef.value?.offsetHeight || 0;
-      // const boardWidth = boardRef.value?.offsetWidth  || 0;
-      // const boardHeight = boardRef.value?.offsetHeight || 0;
       const boardArea = boardWidth * boardHeight;
 
       const maxAreaPerCard = boardArea / appStore.settings.deck.size; // to get approx cols/rows
@@ -100,11 +67,12 @@ export default component$(
       const maxWidthPerCard = Math.sqrt(maxAreaPerCard * CARD_RATIO);
       const columns = Math.floor(boardWidth / maxWidthPerCard);
       const rows = Math.ceil(appStore.settings.deck.size / columns);
+
       // max height per card is restricted by number of rows:
       const newCardHeight = boardHeight / rows;
       const newCardWidth = newCardHeight * CARD_RATIO;
-
       const cardArea = newCardWidth * newCardHeight;
+
       appStore.cardLayout = {
         width: newCardWidth,
         height: newCardHeight,
@@ -148,15 +116,6 @@ export default component$(
       if (!isMatch) {
         appStore.game.mismatchPairs = [...appStore.game.mismatchPairs, pair];
         appStore.game.mismatchPair = pair;
-        // TODO:
-        // use game.mismatchPair and run shake timer in board instead of card
-
-        if (card1) {
-          card1.isMismatched = true;
-        }
-        if (card2) {
-          card2.isMismatched = true;
-        }
       } else {
         // add to our pairs
         appStore.game.successfulPairs = [
@@ -174,6 +133,7 @@ export default component$(
       // finally finally, check for end conditions
       const res = await appStore.isGameEnded();
       if (res.isEnded) {
+        appStore.endGame();
         appStore.interface.endOfGameModal.isWin = res.isWin ?? false;
         appStore.interface.endOfGameModal.isShowing = true;
       }
@@ -194,19 +154,21 @@ export default component$(
 
     const handleSelectCard = $(
       (selected: number[], id: number): number[] | false => {
-        if (selected.length === 1 && id === selected[0]) {
+        const isSameCardClicked = selected.length === 1 && id === selected[0];
+
+        if (isSameCardClicked) {
           console.log("same one clicked.. doing nothing", selected);
           return selected;
-        } else {
-          selected = [...selected, id];
-          console.log(
-            selected.length === 1
-              ? "no cards yet, adding to our array:"
-              : "adding second card:",
-            selected
-          );
-          return selected;
         }
+
+        selected = [...selected, id];
+        console.log(
+          selected.length === 1
+            ? "no cards yet, adding to our array:"
+            : "adding second card:",
+          selected
+        );
+        return selected;
       }
     );
 
@@ -228,6 +190,11 @@ export default component$(
         // card is not flipped
         case isClickedOnCard:
           {
+            // initialize game timer
+            if (appStore.game.time.start === -1) {
+              appStore.startGame();
+            }
+
             // check if it's already out of the game, if so we do nothing
             const cardId = clickedId as number;
             const isRemoved = isCardRemoved(
@@ -238,6 +205,7 @@ export default component$(
               return;
             }
 
+            // to prevent card from returning super quick
             flippedTime.value = Date.now();
 
             const selected = await handleSelectCard(
@@ -259,6 +227,9 @@ export default component$(
       }
     });
 
+    /*
+     * niceity: esc will unflip a flipped card
+     * */
     const handleUnflipCard = $(() => {
       appStore.game.flippedCardId = -1;
     });
@@ -272,30 +243,35 @@ export default component$(
       })
     );
 
+    /*
+     * track window resizes to recalculate board
+     * */
     useOnWindow(
       "resize",
-      $((e) => {
+      $(() => {
         if (appStore.boardLayout.isLocked) return;
 
         const container = containerRef.value as HTMLElement; // or use window instead of container/game?
         const board = boardRef.value as HTMLElement;
 
-        const PADDING_PERCENT = 1.5;
         const boardRect = board.getBoundingClientRect();
         const boardTop = boardRect.top;
         const boardBottomLimit =
-          (container.offsetHeight * (100 - PADDING_PERCENT)) / 100; // account for padding on bottom
+          (container.offsetHeight * (100 - CONTAINER_PADDING_PERCENT)) / 100; // account for padding on bottom
         const boardHeight = boardBottomLimit - boardTop;
 
         const boardWidth =
-          (container.offsetWidth * (100 - PADDING_PERCENT * 2)) / 100; // account for padding on sides
+          (container.offsetWidth * (100 - CONTAINER_PADDING_PERCENT * 2)) / 100; // account for padding on sides
 
         resizeBoard(boardWidth, boardHeight);
       })
     );
 
-    const calculateAndResizeBoard = $(async () => {
-      const newBoard = await calculateBoardSize();
+    const calculateAndResizeBoard = $(() => {
+      const newBoard = calculateBoardDimensions(
+        containerRef.value as HTMLElement,
+        boardRef.value as HTMLElement
+      );
       resizeBoard(newBoard.width, newBoard.height);
     });
 
@@ -309,11 +285,19 @@ export default component$(
       appStore.game.flippedCardId = -1;
       appStore.game.mismatchPairs = [];
       appStore.game.successfulPairs = [];
+
+      // TODO:
+      // instead, do:
+      // appStore.resetGame({deck: {size: appStore.settings.deck.size}});
     });
 
+    /* ================================
+     * Handle Adjusting Board
+     * - when "resize" flips or deck.size changes, recalculate
+     * ================================ */
     const lastDeckSize = useSignal(appStore.settings.deck.size);
     const lastRefresh = useSignal(appStore.settings.resizeBoard);
-    // track deck size changes to adjust board
+
     useVisibleTask$(async (taskCtx) => {
       const newDeckSize = taskCtx.track(() => appStore.settings.deck.size);
       const newRefresh = taskCtx.track(() => appStore.settings.resizeBoard);
@@ -354,6 +338,14 @@ export default component$(
       calculateAndResizeBoard();
     });
 
+    /* ================================
+     * Handle Shuffling card animation timers
+     * TODO:
+     * integrate shuffleCounter better into the shuffle function
+     * e.g. appStore.shuffleCards(count: <0-5>);
+     * 0 === shuffle once without animation
+     * 1-5 === shuffle n times with animation
+     * ================================ */
     const shuffleCounterSignal = useSignal(CARD_SHUFFLE_ROUNDS);
 
     // when shuffling, start timer to turn off after duration
@@ -392,9 +384,6 @@ export default component$(
         shuffleCounterSignal.value--;
       }, CARD_SHUFFLE_DURATION);
 
-      // const delayedEnd = setTimeout(() => {
-      // }, SHUFFLE_CARD_DURATION + CARD_SHUFFLE_DELAYED_START);
-
       taskCtx.cleanup(() => {
         clearTimeout(shuffleTimeout);
         clearTimeout(delayedStart);
@@ -402,49 +391,45 @@ export default component$(
       });
     });
 
+    /* ================================
+     * Handle Shake Animation Timers
+     * - when mismatching a pair, shake the cards
+     *   - wait until card is returned before starting
+     * ================================ */
+    useTask$((taskCtx) => {
+      taskCtx.track(() => appStore.game.mismatchPair);
+      // continue only if card is mismatched
+      if (appStore.game.mismatchPair === "") return;
 
+      // delay until the animation is over, then start the shake
+      // turn on shake after duration (once card returns to its spaces)
+      const timeout = setTimeout(() => {
+        // shakeSignal.value = true;
+        appStore.game.isShaking = true;
+      }, SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD);
 
-// TODO: shake here instead of per-card
-
-  // const shakeSignal = useSignal(false);
-
-  // turn on shake signal after delay (when mismatching a card
-  useTask$((taskCtx) => {
-    taskCtx.track(() => appStore.game.mismatchPair);
-    // continue only if card is mismatched
-    if (appStore.game.mismatchPair === '') return;
-
-    // delay until the animation is over, then start the shake
-    // turn on shake after duration (once card returns to its spaces)
-    const timeout = setTimeout(() => {
-      // shakeSignal.value = true;
-      appStore.game.isShaking = true;
-    }, SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD);
-
-    taskCtx.cleanup(() => {
-      clearTimeout(timeout);
+      taskCtx.cleanup(() => {
+        clearTimeout(timeout);
+      });
     });
-  });
 
-  // handle turn off shake animation
-  useTask$((taskCtx) => {
-    taskCtx.track(() => appStore.game.isShaking);
-    if (appStore.game.isShaking === false) return;
+    // handle turn off shake animation
+    useTask$((taskCtx) => {
+      taskCtx.track(() => appStore.game.isShaking);
+      if (appStore.game.isShaking === false) return;
 
-    // delay until the animation is over, then start the shake
-    // turn off shake after duration
-    const timeout = setTimeout(() => {
-      // shakeSignal.value = false;
-      appStore.game.isShaking = false;
-      appStore.game.mismatchPair = '';
-    }, CARD_SHAKE_ANIMATION_DURATION);
+      // delay until the animation is over, then start the shake
+      // turn off shake after duration
+      const timeout = setTimeout(() => {
+        // shakeSignal.value = false;
+        appStore.game.isShaking = false;
+        appStore.game.mismatchPair = "";
+      }, CARD_SHAKE_ANIMATION_DURATION);
 
-    taskCtx.cleanup(() => {
-      clearTimeout(timeout);
+      taskCtx.cleanup(() => {
+        clearTimeout(timeout);
+      });
     });
-  });
-
-// now we can watch isShaking + mismatchPair to tell if a particular card should be shaking
 
     return (
       <>

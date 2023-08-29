@@ -128,18 +128,16 @@ export default component$(({ card }: { card: V3Card }) => {
   const appStore = useContext(AppContext);
 
   const isRemoved = useComputed$(() =>
-    buildCardsArrayFromPairsArray(appStore.game.successfulPairs).includes(
-      card.id
-    )
+    appStore.game.successfulPairs.join(",").includes(String(card.id))
   );
-  const isMismatched = useComputed$(() => {
-    return appStore.game.mismatchPair.includes(String(card.id));
-  });
+  const isMismatched = useComputed$(() =>
+    appStore.game.mismatchPair.includes(String(card.id))
+  );
 
   // is our card the flipped card?
-  const isCardFlipped = useComputed$(() => {
-    return appStore.game.flippedCardId === card.id;
-  });
+  const isCardFlipped = useComputed$(
+    () => appStore.game.flippedCardId === card.id
+  );
 
   // delayed indicator, turns true once the flipped card returns to the board
   const isRemovedDelayedTrue = useSignal(false);

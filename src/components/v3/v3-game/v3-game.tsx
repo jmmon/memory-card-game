@@ -19,6 +19,8 @@ import GameEndModal from "../game-end-modal/game-end-modal";
 
 export const DEFAULT_CARD_COUNT = 18;
 
+export const CONTAINER_PADDING_PERCENT = 1.5;
+
 export type Pair = `${number}:${number}`;
 
 export type V3Card = {
@@ -34,7 +36,6 @@ export type V3Card = {
    *   - then the cards know which ones to shake.
    * 3. After shake is done it should be cleared
    * */
-  isMismatched: boolean;
   image?: string;
   localSVG?: string;
 };
@@ -99,6 +100,10 @@ export type AppStore = {
     isLoading: boolean;
     isShuffling: boolean;
     isShufflingDelayed: boolean;
+    time: {
+      start: number;
+      end: number;
+    };
   };
 
   settings: AppSettings;
@@ -113,7 +118,6 @@ export type AppStore = {
     };
   };
   shuffleCardPositions: QRL<() => void>;
-  toggleSettingsModal: QRL<() => void>;
   sliceDeck: QRL<() => void>;
   resetGame: QRL<(settings?: Partial<AppSettings>) => void>;
   isGameEnded: QRL<
@@ -122,6 +126,8 @@ export type AppStore = {
       isWin?: boolean;
     }
   >;
+  startGame: QRL<() => void>;
+  endGame: QRL<() => void>;
 };
 
 const INITIAL_STATE = {
@@ -152,6 +158,10 @@ const INITIAL_STATE = {
     isLoading: true,
     isShuffling: false,
     isShufflingDelayed: false,
+    time: {
+      start: -1,
+      end: -1,
+    },
   },
 
   settings: {
@@ -210,6 +220,13 @@ const INITIAL_STATE = {
     },
   },
 
+  /* ================================
+   * TODO:
+   * integrate shuffleCounter better into the shuffle function
+   * e.g. appStore.shuffleCards(count: <0-5>);
+   * 0 === shuffle once without animation
+   * 1-5 === shuffle n times with animation
+   * ================================ */
   shuffleCardPositions: $(function (this: AppStore) {
     console.log("shuffleCardPositionsWithTransition");
     const cards = this.game.cards;
@@ -224,10 +241,6 @@ const INITIAL_STATE = {
     this.settings.modal.isShowing = false;
     this.game.isLoading = true;
     this.game.isShuffling = true;
-  }),
-
-  toggleSettingsModal: $(function (this: AppStore) {
-    this.settings.modal.isShowing = !this.settings.modal.isShowing;
   }),
 
   sliceDeck: $(function (this: AppStore) {
@@ -260,12 +273,25 @@ const INITIAL_STATE = {
     };
     this.sliceDeck();
   }),
+
   isGameEnded: $(function (this: AppStore) {
     // TODO:
     // implement other modes, like max mismatches
     const isEnded =
       this.game.successfulPairs.length === this.settings.deck.size / 2;
-    return { isEnded, isWin: isEnded };
+    const isWin =
+      this.game.successfulPairs.length === this.settings.deck.size / 2;
+    return { isEnded, isWin };
+  }),
+
+  startGame: $(function (this: AppStore) {
+    this.game.time.start = Date.now();
+  }),
+
+  endGame: $(function (this: AppStore) {
+    const now = Date.now();
+    this.game.time.end = now;
+    return now - this.game.time.start;
   }),
 };
 
@@ -281,7 +307,7 @@ export default component$(() => {
   return (
     <>
       <div
-        class={`flex flex-col flex-grow justify-between w-full h-full p-[1.5%] gap-1 ${
+        class={`flex flex-col flex-grow justify-between w-full h-full p-[${CONTAINER_PADDING_PERCENT}%] gap-1 ${
           appStore.boardLayout.isLocked ? "overflow-x-auto" : ""
         }`}
         ref={containerRef}
