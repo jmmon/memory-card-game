@@ -1,5 +1,6 @@
-import type { V3Card } from "../v3-game/v3-game";
+import type { Pair, V3Card } from "../v3-game/v3-game";
 
+export const FULL_DECK_COUNT = 52;
 export const IMAGE_TYPE = "png";
 
 // generates 5 random numbers and concats them as a string
@@ -14,6 +15,7 @@ export const genId = (length = 5) => {
     .join("");
 };
 
+//backup generator
 export const v3GenerateCards = (total: number) => {
   const unshuffledCards: V3Card[] = [];
   // build cards, pair by pair
@@ -65,24 +67,61 @@ export function v3Shuffle_FY_algo<T>(_array: T[]): T[] {
   return array;
 }
 
-/* TODO:
- * some sort of shufflePosition algorithm,
- * so I can shuffle the deck with a cool animation!
- *
- * opt 1: take the previous array, shuffle it, then map through and select new positions
- * hope transition all will cover it
- *
- * */
+// const buildPairType = (c1: V3Card, c2: V3Card) => `${c1.id}:${c2.id}`
 
+function buildArrOfPairs(deck: V3Card[]) {
+  const pairs = [];
+  for (let i = 0; i < deck.length ; i+=2) {
+    const thisPair = [deck[i], deck[i + 1]];
+    pairs.push(thisPair);
+  }
+  return pairs;
+}
+
+function unbuildArrOfPairs(arrOfPairs: Array<V3Card[]>) {
+  const deck = [];
+  for (let i = 0; i < arrOfPairs.length; i++) {
+    const thisPair = arrOfPairs[i];
+    deck.push(thisPair[0], thisPair[1]);
+  }
+  return deck;
+}
+
+export function shuffleByPairs(deck: V3Card[]) {
+  const pairs = buildArrOfPairs(deck);
+  console.log("fn shuffleByPairs:", { deck, pairs });
+  const shuffledDeckOfPairs = v3Shuffle_FY_algo(pairs);
+  const shuffledPairs = unbuildArrOfPairs(shuffledDeckOfPairs);
+  console.log({ shuffledDeckOfPairs, shuffledPairs });
+
+  return shuffledPairs;
+}
+
+/*
+ * getCardsArrayFromPairs
+ * destructure arrayOfPairs into arrayOfCards
+ * */
+export const buildCardsArrayFromPairsArray = (arr: Pair[]) => {
+  return arr.reduce((accum: number[], cur: Pair) => {
+    const [c1, c2] = cur.split(":");
+    accum.push(Number(c1), Number(c2));
+    return accum;
+  }, []);
+};
+
+/*
+ * assign new random positions to deck of cards, and sort  by position
+ * */
 export const shuffleCardPositions = (cards: V3Card[]) => {
-  const newOrder = v3Shuffle_FY_algo<number>(
+  const randomOrder = v3Shuffle_FY_algo(
     new Array(cards.length).fill(0).map((_, i) => i)
   );
+
   return cards
     .map((card, i) => ({
       ...card,
       prevPosition: card.position,
-      position: newOrder[i],
+      position: randomOrder[i],
     }))
     .sort((a, b) => a.position - b.position);
 };
@@ -92,7 +131,7 @@ export const shuffleCardPositions = (cards: V3Card[]) => {
  *
  * */
 
-const partialDeckApi = "https://deckofcardsapi.com/api/deck/new/?cards=";
+const PARTIAL_DECK_API = "https://deckofcardsapi.com/api/deck/new/?cards=";
 
 export const deckCardsDrawApi = {
   base: "https://deckofcardsapi.com/api/deck/",
@@ -105,6 +144,7 @@ export const deckCardsDrawApi = {
     return this.base + deckId + this.remainder + cardCount;
   },
 };
+
 export type DeckOfCardsApi_Deck_Base = {
   deck_id: string;
   success: boolean;
@@ -158,19 +198,19 @@ export const buildCardIdsArray = (cardCount: number) => {
   return cards;
 };
 
-export const deckOfCardsIds = buildCardIdsArray(52);
+export const deckOfCardsIds = buildCardIdsArray(FULL_DECK_COUNT);
 
 export const getCardsFromApi = async (cardCount: number) => {
+  console.log("fn getCardsFromApi");
   const cards = deckOfCardsIds.slice(0, cardCount);
-  console.log({ cards });
+  const uri = PARTIAL_DECK_API + cards.join(",");
+  console.log(`~~ ${uri}`);
 
   try {
     // get new partial deck
-    const uri = partialDeckApi + cards.join(",");
-    console.log({ uri });
     const response = await fetch(uri);
     const deckJson = (await response.json()) as DeckOfCardsApi_Deck;
-    console.log({ deckJson });
+    // console.log({ deckJson });
 
     // draw cardCount cards
     const cardsResponse = await fetch(
@@ -178,10 +218,10 @@ export const getCardsFromApi = async (cardCount: number) => {
     );
     const drawnCardsJson =
       (await cardsResponse.json()) as DeckOfCardsApi_DeckWithCards;
-    console.log({ drawnCardsJson });
+    // console.log({ drawnCardsJson });
 
     // return them
-    return drawnCardsJson.cards;
+    return drawnCardsJson.cards as DeckOfCardsApi_Card[];
   } catch (err) {
     console.log({ err });
   }
@@ -222,6 +262,64 @@ export const formatCards = (cards: DeckOfCardsApi_Card[]) => {
   return outputCards;
 };
 
+export const fetchAndFormatDeck = async () => {
+  console.log("fetching cards...");
+  const cards = await getCardsFromApi(FULL_DECK_COUNT);
+
+  if (cards === undefined || cards.length === 0) {
+    const deck = v3GenerateCards(FULL_DECK_COUNT);
+    console.log("...failed, returning v3 cards");
+    return { deck, type: "v3" };
+  }
+
+  console.log(`fetched!\nformatting cards...`);
+  const formatted = formatCards(cards);
+  console.log("done!", { formatted: formatted });
+
+  return { deck: formatted, type: "api" };
+};
+
+
+
+
+/*
+ * card utils
+ *
+ * */
+// export const buildSetFromPairs = (pairs: Pair[]) =>
+//   pairs.reduce((accum, cur) => {
+//     const [c1, c2] = cur.split(":");
+//     accum.add(Number(c1));
+//     accum.add(Number(c2));
+//     return accum;
+//   }, new Set<number>());
+
+// find cardId inside pairs
+export const isCardRemoved = (
+  pairs: `${number}:${number}`[],
+  cardId: number
+) => {
+const removedPairs = pairs.join(',');
+return removedPairs.includes(String(cardId));
+  // const removedCards = buildSetFromPairs(pairs);
+  // return removedCards.has(cardId);
+};
+
+export const checkMatch = (
+  cardA: V3Card | undefined,
+  cardB: V3Card | undefined
+): boolean => {
+  if (cardA === undefined || cardB === undefined) {
+    return false;
+  }
+  return cardA.pairId === cardB.id && cardB.pairId === cardA.id;
+};
+
+export const findCardById = (cards: V3Card[], id: number) =>
+  cards.find((card) => card.id === id);
+
+
+
 export const cardUtils = {
   formatCards,
   getCardsFromApi,
@@ -229,3 +327,4 @@ export const cardUtils = {
   v3Shuffle_FY_algo,
   v3GenerateCards,
 };
+

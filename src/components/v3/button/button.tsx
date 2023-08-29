@@ -12,7 +12,7 @@ export default component$(
     return (
       <button
         onClick$={onClick$}
-        class="p-2 border border-gray-200 bg-slate-700 rounded hover:bg-slate-500"
+        class="p-2 border border-slate-200 bg-slate-700 rounded hover:bg-slate-500"
       >
         {text}
       </button>

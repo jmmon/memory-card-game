@@ -1,35 +1,66 @@
-import { Slot, component$, useContext } from "@builder.io/qwik";
+import {
+  Slot,
+  component$,
+  useContext,
+} from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
 import Button from "../button/button";
 
+const CODE_PADDING = "px-1.5 md:px-3 lg:px-4";
+const CODE_TEXT_LIGHT = "text-slate-200";
+const CODE_TEXT_DARK = "text-slate-400";
+
+const DECIMALS = 1;
+
+const roundToDecimals = (number: number, decimals: number = DECIMALS) =>
+  Math.round(number * 10 ** decimals) / 10 ** decimals;
+
 export default component$(() => {
   const appStore = useContext(AppContext);
-
   return (
     <header
-      class={`mx-auto text-center grid text-xs md:text-sm grid-cols-[1fr_5em_1fr] items-center w-full px-[5%]`}
+      class={`mx-auto text-center text-xs md:text-sm flex justify-around w-full h-min`}
     >
-      <HeaderSection justify="left">
-        <SelectionHeaderComponent />
-        {appStore.boardLayout.isLocked && (
-          <code class="bg-gray-800 text-gray-200">board locked</code>
+      <HeaderSection classes="justify-start md:justify-around">
+        {appStore.settings.interface.showSelectedIds && (
+          <SelectionHeaderComponent />
         )}
-        {appStore.settings.deck.isLocked && (
-          <code class="bg-gray-800 text-gray-200">deck locked</code>
+        <LockedIndicator name="is loading" isLocked={appStore.game.isLoading} />
+        {/* <LockedIndicator name="deck" isLocked={appStore.settings.deck.isLocked} /> */}
+        {appStore.settings.interface.showDimensions && (
+          <ShowDimensionsHeaderComponent />
         )}
       </HeaderSection>
-      <Button text="Settings" onClick$={() => appStore.toggleSettingsModal()} />
+      <Button
+        text="Settings"
+        onClick$={() => {
+          appStore.settings.modal.isShowing =
+            !appStore.settings.modal.isShowing;
+        }}
+      />
       <HeaderSection>
-        <code class="bg-gray-800 text-gray-200">
-          pairs: {appStore.game.successfulPairs.length}/
-          {appStore.settings.deck.size / 2}{" "}
-        </code>
+        <code
+          class={` bg-slate-800 ${CODE_TEXT_LIGHT} flex gap-1 ${CODE_PADDING}`}
+        >
+          <div
+            class={` flex flex-col flex-grow justify-evenly text-right ${CODE_TEXT_DARK}`}
+          >
+            <span>pairs:</span>
+            <span>mismatches:</span>
+          </div>
+          <div class="flex flex-col flex-grow justify-evenly">
+            <span>
+              {appStore.game.successfulPairs.length}/
+              {appStore.settings.deck.size / 2}{" "}
+            </span>
 
-        <code class="bg-gray-800 text-gray-200">
-          mismatches: {appStore.game.mismatchPairs.length}
-          {appStore.settings.maxAllowableMismatches === -1
-            ? ""
-            : `/${appStore.settings.maxAllowableMismatches}`}
+            <span>
+              {appStore.game.mismatchPairs.length}
+              {appStore.settings.maxAllowableMismatches === -1
+                ? ""
+                : `/${appStore.settings.maxAllowableMismatches}`}
+            </span>
+          </div>
         </code>
       </HeaderSection>
     </header>
@@ -39,8 +70,10 @@ export default component$(() => {
 const SelectionHeaderComponent = component$(() => {
   const appStore = useContext(AppContext);
   return (
-    <code class="bg-gray-800 flex flex-wrap text-center gap-x-4 text-gray-200">
-      <div class="w-min inline-block mx-auto">selected:</div>
+    <code
+      class={` bg-slate-800 flex flex-col text-center text-slate-200 ${CODE_PADDING}`}
+    >
+      <span class="w-min mx-auto">cards selected:</span>
       <div class="grid grid-cols-[3.6em_0.6em_3.6em] mx-auto">
         <span>{appStore.game.selectedCardIds[0] ?? "-"}</span>
         <span>:</span>
@@ -51,19 +84,61 @@ const SelectionHeaderComponent = component$(() => {
 });
 
 const HeaderSection = component$(
-  ({ justify = "center" }: { justify?: "left" | "right" | "center" }) => {
+  ({ classes = "justify-center" }: { classes?: string }) => {
     return (
-      <div
-        class={`w-full flex gap-3 ${
-          justify === "right"
-            ? "justify-end"
-            : justify === "left"
-            ? "justify-start"
-            : "justify-center"
-        } `}
-      >
+      <div class={`w-full flex gap-3 ${classes} `}>
         <Slot />
       </div>
     );
   }
 );
+
+const LockedIndicator = ({
+  name,
+  isLocked,
+}: {
+  name: string;
+  isLocked: boolean;
+}) => {
+  return (
+    <>
+      {isLocked && (
+        <code class="bg-slate-800 text-slate-200">{name} locked</code>
+      )}
+    </>
+  );
+};
+
+const ShowDimensionsHeaderComponent = component$(() => {
+  const appStore = useContext(AppContext);
+  return (
+    <code
+      class={` bg-slate-800 flex gap-1.5 text-center ${CODE_TEXT_LIGHT} ${CODE_PADDING}`}
+    >
+      <div class={` flex flex-col ${CODE_TEXT_DARK} items-end `}>
+        <span>header~</span>
+        <span>board:</span>
+        <span>window:</span>
+      </div>
+      <div class="flex gap-0.5">
+        <div class="flex flex-col text-right">
+          <span>{roundToDecimals(appStore.boardLayout.width)}</span>
+          <span>{roundToDecimals(appStore.boardLayout.width)}</span>
+          <span>{roundToDecimals(window.innerWidth)}</span>
+        </div>
+        <div class={` flex flex-col ${CODE_TEXT_DARK}`}>
+          <span>x</span>
+          <span>x</span>
+          <span>x</span>
+        </div>
+        <div class={` text-left flex flex-col `}>
+          <span>
+            {roundToDecimals(window.innerHeight - appStore.boardLayout.height)}
+          </span>
+          <span>{roundToDecimals(appStore.boardLayout.height)}</span>
+          <span>{roundToDecimals(window.innerHeight)}</span>
+        </div>
+      </div>
+    </code>
+  );
+});

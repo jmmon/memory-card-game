@@ -4,10 +4,10 @@ import type { RequestHandler } from "@builder.io/qwik-city";
 
 import styles from "./styles.css?inline";
 
-export const onGet: RequestHandler = async ({ cacheControl }) => {
+export const onGet: RequestHandler = async (requestEvent) => {
   // Control caching for this request for best performance and to reduce hosting costs:
   // https://qwik.builder.io/docs/caching/
-  cacheControl({
+  requestEvent.cacheControl({
     // Always serve a cached response by default, up to a week stale
     staleWhileRevalidate: 60 * 60 * 24 * 7,
     // Max once every 5 seconds, revalidate on the server to get a fresh version of this page
@@ -24,14 +24,8 @@ export const useServerTimeLoader = routeLoader$(() => {
 export default component$(() => {
   useStyles$(styles);
   return (
-    <>
-      {/* the header with the stack/pairs? */}
-      {/* fail count */}
-      <main class="h-screen">
-        {/* the board */}
-        <Slot /> 
-      </main>
-{/* the settings: */}
-    </>
+    <main class="full">
+      <Slot />
+    </main>
   );
 });

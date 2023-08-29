@@ -12,6 +12,10 @@ body {
   color: var(--qwik-dark-text);
   overflow-x: hidden;
 }
+.full {
+  height: 100vh;
+  height: 100svh;
+}
 
 /* HEADINGS ------------------------------------- */
 h1,

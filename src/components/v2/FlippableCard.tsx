@@ -89,7 +89,7 @@ export const FlippableCard = component$(
     /* perspective: for 3D effect, adjust based on width, and card area compared to viewport */
     return (
       <div
-        class={`[perspective:1400px] aspect-[2.25/3.5] m-auto w-full max-w-full h-auto max-h-full bg-transparent border ${rounded} border-gray-50/20 flip-card transition-all ${
+        class={`[perspective:1400px] aspect-[2.25/3.5] m-auto w-full max-w-full h-auto max-h-full bg-transparent border ${rounded} border-slate-50/20 flip-card transition-all ${
           isRemoved.value &&
           String(flippedCardId.value) !== card.id &&
           String(flippedCardId.value) !== card.pairId
@@ -104,18 +104,15 @@ export const FlippableCard = component$(
         }}
       >
         <div
-          class={`w-full h-full relative text-center [transform-style:preserve-3d]   [transition-property:transform]  duration-[${CARD_FLIP_ANIMATION_DURATION}ms] ${rounded}`}
+          class={`w-full h-full relative text-center [transform-style:preserve-3d] [transition-property:transform] ${rounded}`}
           data-id={card.id}
-          style={
-            isThisCardFlipped.value
-              ? {
-                  transform: flipTransform.value,
-                }
-              : ""
-          }
+          style={{
+            transitionDuration: CARD_FLIP_ANIMATION_DURATION + "ms",
+            transform: isThisCardFlipped.value ? flipTransform.value : "",
+          }}
         >
           <div
-            class={`absolute w-full h-full border-2 border-gray-50 text-white bg-[dodgerblue] flex flex-col justify-center [backface-visibility:hidden] ${rounded}`}
+            class={`absolute w-full h-full border-2 border-slate-50 text-white bg-[dodgerblue] flex flex-col justify-center [backface-visibility:hidden] ${rounded}`}
             data-id={card.id}
           >
             <div
@@ -124,7 +121,7 @@ export const FlippableCard = component$(
             ></div>
           </div>
           <div
-            class={`absolute w-full h-full border-2 border-gray-50 text-black bg-gray-300 [transform:rotateY(180deg)] [backface-visibility:hidden] ${rounded}`}
+            class={`absolute w-full h-full border-2 border-slate-50 text-black bg-slate-300 [transform:rotateY(180deg)] [backface-visibility:hidden] ${rounded}`}
             data-id={card.id}
           >
             <div

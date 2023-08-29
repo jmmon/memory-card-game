@@ -48,7 +48,7 @@ export default component$(() => {
 
   return (
     <div class="flex flex-col gap-2 w-full h-full">
-      <h2 class="text-center text-4xl text-gray-500">Memory Card Game</h2>
+      <h2 class="text-center text-4xl text-slate-500">Memory Card Game</h2>
       {/* <Settings /> */}
       <Board />
     </div>
@@ -208,7 +208,7 @@ export const CardUnit = component$(({ card }: { card: Card }) => {
   return (
     <>
       <div
-        class={`flex flex-col h-full box-border p-2 cursor-pointer border rounded-xl border-gray-900 bg-gray-800 hover:border-gray-700 hover:bg-white hover:bg-opacity-25 transition-all ${
+        class={`flex flex-col h-full box-border p-2 cursor-pointer border rounded-xl border-slate-900 bg-slate-800 hover:border-slate-700 hover:bg-white hover:bg-opacity-25 transition-all ${
           isRemoved.value ? "opacity-0 pointer-events-none" : "opacity-100"
         } `}
         style={{
@@ -217,13 +217,13 @@ export const CardUnit = component$(({ card }: { card: Card }) => {
         }}
         onClick$={() => (isRemoved.value ? "" : handleClickCard())}
       >
-        <div class="mb-2 text-gray-500 text-center">{card.id}</div>
+        <div class="mb-2 text-slate-500 text-center">{card.id}</div>
         <p class="flex-1 text-sm">{card.text}</p>
 
-        <div class="bg-gray-950 justify-self-end">
+        <div class="bg-slate-950 justify-self-end">
           <small class="flex justify-between">
             <b>Pair ID: {card.pairId}</b>
-            <b class={isSelected.value ? "" : "line-through text-gray-500"}>
+            <b class={isSelected.value ? "" : "line-through text-slate-500"}>
               SELECTED
             </b>
           </small>
