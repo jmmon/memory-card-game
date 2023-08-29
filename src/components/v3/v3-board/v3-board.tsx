@@ -13,7 +13,7 @@ import { AppContext } from "../v3-context/v3.context";
 import type { Pair, V3Card as V3CardType } from "../v3-game/v3-game";
 import { useDebounce } from "../utils/useDebounce";
 // const CARD_RATIO = 2.5 / 3.5; // w / h
-const CARD_RATIO = 113 / 157; // w / h
+export const CARD_RATIO = 113 / 157; // w / h
 export const CORNERS_WIDTH_RATIO = 1 / 20;
 
 export const CARD_SHUFFLE_DELAYED_START = 100;

@@ -8,10 +8,15 @@ import {
 } from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
 import type { BoardLayout, CardLayout, V3Card } from "../v3-game/v3-game";
-import { CARD_SHUFFLE_DURATION } from "../v3-board/v3-board";
+import { CARD_RATIO, CARD_SHUFFLE_DURATION } from "../v3-board/v3-board";
 import { buildCardsArrayFromPairsArray } from "../utils/v3CardUtils";
 
-const ENLARGED_CARD_SCALE_VS_BOARD = 0.8;
+const CARD_RATIO_VS_CONTAINER = 0.9;
+/*
+ * compared to board, how big will the enlarged card (flipped card) be?
+ * range: 0-1
+ * */
+const ENLARGED_CARD_SCALE__RATIO_FOR_LIMITING_DIMENSION = 0.8;
 
 const CARD_FLIP_ANIMATION_DURATION = 600;
 const CARD_SHAKE_ANIMATION_DURATION = 700;
@@ -26,15 +31,11 @@ const FLIPPED_DELAYED_OFF_DURATION_MS = 250;
 // higher means shake starts sooner
 const START_SHAKE_ANIMATION_EAGER_MS = 100;
 const START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE = 0.9;
-const SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD = (() => {
-  // before: 600 - 350 = 250
-  // now: (600 * 0.8) - 100 380ms delay until starting the shake
-  return (
-    CARD_FLIP_ANIMATION_DURATION *
-      START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE -
-    START_SHAKE_ANIMATION_EAGER_MS
-  );
-})();
+const SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD =
+  CARD_FLIP_ANIMATION_DURATION *
+    START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE -
+  START_SHAKE_ANIMATION_EAGER_MS;
+
 type Coords = { x: number; y: number };
 
 /*
@@ -81,12 +82,20 @@ const buildScaleToCenter = (
   cardLayout: CardLayout
 ) => {
   // calculate scale
-  const maxPxW = boardLayout.width * ENLARGED_CARD_SCALE_VS_BOARD;
-  const maxPxH = boardLayout.height * ENLARGED_CARD_SCALE_VS_BOARD;
-  // get ratio of card to board
-  const ratioW = maxPxW / cardLayout.width;
-  const ratioH = maxPxH / cardLayout.height;
-  return Math.min(ratioW, ratioH);
+  const boardRatio = boardLayout.width / boardLayout.height;
+
+  const isWidthTheLimitingDimension = boardRatio < CARD_RATIO;
+  console.log({ boardRatio, isWidthTheLimitingDimension, CARD_RATIO });
+
+  if (isWidthTheLimitingDimension) {
+    const targetWidthPx =
+      boardLayout.width * ENLARGED_CARD_SCALE__RATIO_FOR_LIMITING_DIMENSION;
+    return targetWidthPx / (cardLayout.width * CARD_RATIO_VS_CONTAINER);
+  } else {
+    const targetHeightPx =
+      boardLayout.height * ENLARGED_CARD_SCALE__RATIO_FOR_LIMITING_DIMENSION;
+    return targetHeightPx / (cardLayout.height * CARD_RATIO_VS_CONTAINER);
+  }
 };
 
 /*
@@ -320,7 +329,7 @@ export default component$(({ card }: { card: V3Card }) => {
         zIndex: isCardFlipped.value
           ? 20 // applies while card is being flipped up but not while being flipped down
           : isUnderSideShowing.value
-          ? 20 // applies starting halfway in flip up, and ending halfway in flip down
+          ? 18 // applies starting halfway in flip up, and ending halfway in flip down
           : 0, // applies otherwise (when face down);
         borderRadius: appStore.cardLayout.roundedCornersPx + "px",
 
@@ -339,8 +348,12 @@ export default component$(({ card }: { card: V3Card }) => {
       }}
     >
       <div
-        class="border border-slate-50/10 w-[90%] h-[90%] mx-auto bg-transparent"
-        style={{ borderRadius: appStore.cardLayout.roundedCornersPx + "px" }}
+        class="border border-slate-50/10 mx-auto bg-transparent"
+        style={{
+          borderRadius: appStore.cardLayout.roundedCornersPx + "px",
+          width: CARD_RATIO_VS_CONTAINER * 100 + "%",
+          height: CARD_RATIO_VS_CONTAINER * 100 + "%",
+        }}
       >
         <div
           class={`w-full h-full [perspective:100vw] border border-slate-50/25 bg-transparent transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
@@ -353,6 +366,7 @@ export default component$(({ card }: { card: V3Card }) => {
           style={{
             borderRadius: appStore.cardLayout.roundedCornersPx + "px",
           }}
+          data-label="card"
           data-id={card.id}
         >
           <div
@@ -379,6 +393,7 @@ export default component$(({ card }: { card: V3Card }) => {
             <div
               class={`absolute w-full h-full border-2 border-slate-50 text-white bg-[dodgerblue] flex flex-col justify-center [backface-visibility:hidden]`}
               data-id={card.id}
+              data-label="card-back"
               style={{
                 borderRadius: appStore.cardLayout.roundedCornersPx + "px",
               }}
@@ -392,16 +407,17 @@ export default component$(({ card }: { card: V3Card }) => {
             <div
               class={`absolute w-full border border-white h-full flex justify-center items-center text-black bg-slate-300 [transform:rotateY(180deg)] [backface-visibility:hidden] `}
               data-id={card.id}
+              data-label="card-front"
               style={{
                 borderRadius: appStore.cardLayout.roundedCornersPx + "px",
               }}
             >
               {isUnderSideShowing.value &&
-                (card.image ? (
+                (card.localSVG ? (
                   <img
                     width="25"
                     height="35"
-                    src={card.image}
+                    src={card.localSVG}
                     class="w-full h-full"
                   />
                 ) : (

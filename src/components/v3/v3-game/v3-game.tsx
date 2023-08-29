@@ -43,6 +43,7 @@ export type V3Card = {
    * */
   isMismatched: boolean;
   image?: string;
+localSVG?: string;
 };
 
 export type BoardLayout = {

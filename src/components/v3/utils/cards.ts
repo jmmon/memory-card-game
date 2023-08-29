@@ -1,3 +1,5 @@
+// https://www.me.uk/cards/makeadeck.cgi
+
 export const formattedDeck = [
   {
     id: 940760,
@@ -7,6 +9,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/aceDiamonds.png",
+    localSVG: "/cards/AD.svg",
   },
   {
     id: 940761,
@@ -16,6 +19,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/AH.png",
+    localSVG: "/cards/AH.svg",
   },
   {
     id: 309810,
@@ -25,6 +29,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/AC.png",
+    localSVG: "/cards/AC.svg",
   },
   {
     id: 309811,
@@ -34,6 +39,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/AS.png",
+    localSVG: "/cards/AS.svg",
   },
   {
     id: 145490,
@@ -43,6 +49,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/2D.png",
+    localSVG: "/cards/2D.svg",
   },
   {
     id: 145491,
@@ -52,6 +59,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/2H.png",
+    localSVG: "/cards/2H.svg",
   },
   {
     id: 190270,
@@ -61,6 +69,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/2C.png",
+    localSVG: "/cards/2C.svg",
   },
   {
     id: 190271,
@@ -70,6 +79,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/2S.png",
+    localSVG: "/cards/2S.svg",
   },
   {
     id: 735020,
@@ -79,6 +89,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/3D.png",
+    localSVG: "/cards/3D.svg",
   },
   {
     id: 735021,
@@ -88,6 +99,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/3H.png",
+    localSVG: "/cards/3H.svg",
   },
   {
     id: 890610,
@@ -97,6 +109,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/3C.png",
+    localSVG: "/cards/3C.svg",
   },
   {
     id: 890611,
@@ -106,6 +119,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/3S.png",
+    localSVG: "/cards/3S.svg",
   },
   {
     id: 712320,
@@ -115,6 +129,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/4D.png",
+    localSVG: "/cards/4D.svg",
   },
   {
     id: 712321,
@@ -124,6 +139,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/4H.png",
+    localSVG: "/cards/4H.svg",
   },
   {
     id: 979860,
@@ -133,6 +149,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/4C.png",
+    localSVG: "/cards/4C.svg",
   },
   {
     id: 979861,
@@ -142,6 +159,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/4S.png",
+    localSVG: "/cards/4S.svg",
   },
   {
     id: 774670,
@@ -151,6 +169,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/5D.png",
+    localSVG: "/cards/5D.svg",
   },
   {
     id: 774671,
@@ -160,6 +179,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/5H.png",
+    localSVG: "/cards/5H.svg",
   },
   {
     id: 991980,
@@ -169,6 +189,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/5C.png",
+    localSVG: "/cards/5C.svg",
   },
   {
     id: 991981,
@@ -178,6 +199,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/5S.png",
+    localSVG: "/cards/5S.svg",
   },
   {
     id: 325890,
@@ -187,6 +209,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/6D.png",
+    localSVG: "/cards/6D.svg",
   },
   {
     id: 325891,
@@ -196,6 +219,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/6H.png",
+    localSVG: "/cards/6H.svg",
   },
   {
     id: 590610,
@@ -205,6 +229,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/6C.png",
+    localSVG: "/cards/6C.svg",
   },
   {
     id: 590611,
@@ -214,6 +239,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/6S.png",
+    localSVG: "/cards/6S.svg",
   },
   {
     id: 215990,
@@ -223,6 +249,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/7D.png",
+    localSVG: "/cards/7D.svg",
   },
   {
     id: 215991,
@@ -232,6 +259,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/7H.png",
+    localSVG: "/cards/7H.svg",
   },
   {
     id: 615530,
@@ -241,6 +269,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/7C.png",
+    localSVG: "/cards/7C.svg",
   },
   {
     id: 615531,
@@ -250,6 +279,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/7S.png",
+    localSVG: "/cards/7S.svg",
   },
   {
     id: 173730,
@@ -259,6 +289,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/8D.png",
+    localSVG: "/cards/8D.svg",
   },
   {
     id: 173731,
@@ -268,6 +299,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/8H.png",
+    localSVG: "/cards/8H.svg",
   },
   {
     id: 476300,
@@ -277,6 +309,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/8C.png",
+    localSVG: "/cards/8C.svg",
   },
   {
     id: 476301,
@@ -286,6 +319,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/8S.png",
+    localSVG: "/cards/8S.svg",
   },
   {
     id: 118260,
@@ -295,6 +329,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/9D.png",
+    localSVG: "/cards/9D.svg",
   },
   {
     id: 118261,
@@ -304,6 +339,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/9H.png",
+    localSVG: "/cards/9H.svg",
   },
   {
     id: 339380,
@@ -313,6 +349,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/9C.png",
+    localSVG: "/cards/9C.svg",
   },
   {
     id: 339381,
@@ -322,6 +359,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/9S.png",
+    localSVG: "/cards/9S.svg",
   },
   {
     id: 603560,
@@ -331,6 +369,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/0D.png",
+    localSVG: "/cards/0D.svg",
   },
   {
     id: 603561,
@@ -340,6 +379,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/0H.png",
+    localSVG: "/cards/0H.svg",
   },
   {
     id: 860980,
@@ -349,6 +389,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/0C.png",
+    localSVG: "/cards/0C.svg",
   },
   {
     id: 860981,
@@ -358,6 +399,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/0S.png",
+    localSVG: "/cards/0S.svg",
   },
   {
     id: 741820,
@@ -367,6 +409,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/JD.png",
+    localSVG: "/cards/JD.svg",
   },
   {
     id: 741821,
@@ -376,6 +419,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/JH.png",
+    localSVG: "/cards/JH.svg",
   },
   {
     id: 622610,
@@ -385,6 +429,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/JC.png",
+    localSVG: "/cards/JC.svg",
   },
   {
     id: 622611,
@@ -394,6 +439,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/JS.png",
+    localSVG: "/cards/JS.svg",
   },
   {
     id: 116660,
@@ -403,6 +449,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/QD.png",
+    localSVG: "/cards/QD.svg",
   },
   {
     id: 116661,
@@ -412,6 +459,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/QH.png",
+    localSVG: "/cards/QH.svg",
   },
   {
     id: 987380,
@@ -421,6 +469,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/QC.png",
+    localSVG: "/cards/QC.svg",
   },
   {
     id: 987381,
@@ -430,6 +479,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/QS.png",
+    localSVG: "/cards/QS.svg",
   },
   {
     id: 649980,
@@ -439,6 +489,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/KD.png",
+    localSVG: "/cards/KD.svg",
   },
   {
     id: 649981,
@@ -448,6 +499,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/KH.png",
+    localSVG: "/cards/KH.svg",
   },
   {
     id: 668400,
@@ -457,6 +509,7 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/KC.png",
+    localSVG: "/cards/KC.svg",
   },
   {
     id: 668401,
@@ -466,5 +519,14 @@ export const formattedDeck = [
     prevPosition: null,
     isMismatched: false,
     image: "https://deckofcardsapi.com/static/img/KS.png",
+    localSVG: "/cards/KS.svg",
   },
 ];
+
+// const modified = formattedDeck.map((each) => {
+//   return {
+//     ...each,
+//     localSVG: `/cards/${each.text}.svg`,
+//   };
+// });
+// console.log({ modified });
