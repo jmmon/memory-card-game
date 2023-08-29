@@ -104,15 +104,12 @@ export const FlippableCard = component$(
         }}
       >
         <div
-          class={`w-full h-full relative text-center [transform-style:preserve-3d]   [transition-property:transform]  duration-[${CARD_FLIP_ANIMATION_DURATION}ms] ${rounded}`}
+          class={`w-full h-full relative text-center [transform-style:preserve-3d] [transition-property:transform] ${rounded}`}
           data-id={card.id}
-          style={
-            isThisCardFlipped.value
-              ? {
-                  transform: flipTransform.value,
-                }
-              : ""
-          }
+          style={{
+            transitionDuration: CARD_FLIP_ANIMATION_DURATION + "ms",
+            transform: isThisCardFlipped.value ? flipTransform.value : "",
+          }}
         >
           <div
             class={`absolute w-full h-full border-2 border-slate-50 text-white bg-[dodgerblue] flex flex-col justify-center [backface-visibility:hidden] ${rounded}`}
