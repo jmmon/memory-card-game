@@ -4,8 +4,30 @@ import { AppContext } from "../v3-context/v3.context";
 import { SettingsRow } from "../settings-modal/settings-modal";
 import Button from "../button/button";
 
-const formatTime = (time: number) => {
-  return Math.floor(time / 60) + ":" + (time % 60).toString().padStart(2, "0");
+const GreyedAtZero = ({ val, text }: { val: number; text: string }) => {
+  return (
+    <span class={val === 0 ? "text-slate-400" : ""}>
+      {val}
+      {text}
+    </span>
+  );
+};
+
+const FormattedTime = ({ timeMs }: { timeMs: number }) => {
+  const minutes = Math.floor(timeMs / 1000 / 60);
+  const seconds = Math.floor((timeMs / 1000) % 60)
+    .toString()
+    .padStart(2, "0");
+  const ms = Math.floor(timeMs % 1000)
+    .toString()
+    .padStart(3, "0");
+
+  return (
+    <>
+      <GreyedAtZero val={minutes} text="m" /> {seconds}
+      <span class="text-xs text-slate-400">.{ms}s</span>
+    </>
+  );
 };
 
 export default component$(() => {
@@ -48,7 +70,9 @@ export default component$(() => {
           <div class="flex flex-grow justify-between">
             <span>Time:</span>
             <span>
-              {formatTime(appStore.game.time.end - appStore.game.time.start)}
+              <FormattedTime
+                timeMs={appStore.game.time.end - appStore.game.time.start}
+              />
             </span>
           </div>
         </SettingsRow>
