@@ -122,7 +122,7 @@ export default component$(
       });
     });
 
-    const handleAddToSuccessfulPairsIfMatching = $(() => {
+    const handleAddToSuccessfulPairsIfMatching = $(async () => {
       const [cardId1, cardId2] = appStore.game.selectedCardIds;
       const pair: Pair = `${cardId1}:${cardId2}`;
       // run checkMatch
@@ -134,8 +134,10 @@ export default component$(
 
       if (!isMatch) {
         appStore.game.mismatchPairs = [...appStore.game.mismatchPairs, pair];
+        appStore.game.mismatchPair = pair;
         // TODO:
-        // modify cards to mark them as incorrect
+        // use game.mismatchPair and run shake timer in board instead of card
+
         if (card1) {
           card1.isMismatched = true;
         }
@@ -149,19 +151,19 @@ export default component$(
           pair,
         ];
 
-        // pop out the modal
-        // MatchModalStore.modal = {
-        //   isShowing: true,
-        //   text: `MATCH! ${JSON.stringify(card1, null, 2)} and ${JSON.stringify(
-        //     card2,
-        //     null,
-        //     2
-        //   )}`,
-        // };
+        // some success animation to indicate a pair,
+        // like a sparkle or a background blur around the pairs count
       }
 
       // finally clear our selectedCards
       appStore.game.selectedCardIds = [];
+
+      // finally finally, check for end conditions
+      const res = await appStore.isGameEnded();
+      if (res.isEnded) {
+        appStore.interface.endOfGameModal.isWin = res.isWin ?? false;
+        appStore.interface.endOfGameModal.isShowing = true;
+      }
     });
 
     const MINIMUM_VIEW_TIME = 500;
@@ -409,6 +411,46 @@ export default component$(
         clearTimeout(rerun);
       });
     });
+
+
+
+// TODO: shake here instead of per-card
+
+  // const shakeSignal = useSignal(false);
+
+  // // turn on shake signal after delay (when mismatching a card)
+  // useTask$((taskCtx) => {
+  //   taskCtx.track(() => card.isMismatched);
+  //   // continue only if card is mismatched
+  //   if (!card.isMismatched) return;
+  //
+  //   // delay until the animation is over, then start the shake
+  //   // turn on shake after duration (once card returns to its spaces)
+  //   const timeout = setTimeout(() => {
+  //     card.isMismatched = false;
+  //     shakeSignal.value = true;
+  //   }, SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD);
+  //
+  //   taskCtx.cleanup(() => {
+  //     clearTimeout(timeout);
+  //   });
+  // });
+  //
+  // // handle turn off shake animation
+  // useTask$((taskCtx) => {
+  //   taskCtx.track(() => shakeSignal.value);
+  //   if (shakeSignal.value === false) return;
+  //
+  //   // delay until the animation is over, then start the shake
+  //   // turn off shake after duration
+  //   const timeout = setTimeout(() => {
+  //     shakeSignal.value = false;
+  //   }, CARD_SHAKE_ANIMATION_DURATION);
+  //
+  //   taskCtx.cleanup(() => {
+  //     clearTimeout(timeout);
+  //   });
+  // });
 
     return (
       <>

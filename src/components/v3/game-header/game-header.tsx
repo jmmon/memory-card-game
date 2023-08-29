@@ -1,10 +1,7 @@
 import {
   Slot,
-  $,
   component$,
   useContext,
-  useOnWindow,
-  useSignal,
 } from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
 import Button from "../button/button";
@@ -20,18 +17,6 @@ const roundToDecimals = (number: number, decimals: number = DECIMALS) =>
 
 export default component$(() => {
   const appStore = useContext(AppContext);
-
-  const windowSignal = useSignal<{ width: number; height: number }>();
-
-  useOnWindow(
-    "resize",
-    $((ev) => {
-      windowSignal.value = {
-        width: window.innerWidth,
-        height: window.innerHeight,
-      };
-    })
-  );
   return (
     <header
       class={`mx-auto text-center text-xs md:text-sm flex justify-around w-full h-min`}
@@ -43,36 +28,7 @@ export default component$(() => {
         <LockedIndicator name="is loading" isLocked={appStore.game.isLoading} />
         {/* <LockedIndicator name="deck" isLocked={appStore.settings.deck.isLocked} /> */}
         {appStore.settings.interface.showDimensions && (
-          <code
-            class={` bg-slate-800 flex gap-1.5 text-center ${CODE_TEXT_LIGHT} ${CODE_PADDING}`}
-          >
-            <div class={` flex flex-col ${CODE_TEXT_DARK} items-end `}>
-              <span>header~</span>
-              <span>board:</span>
-              <span>window:</span>
-            </div>
-            <div class="flex gap-0.5">
-              <div class="flex flex-col text-right">
-                <span>{roundToDecimals(appStore.boardLayout.width)}</span>
-                <span>{roundToDecimals(appStore.boardLayout.width)}</span>
-                <span>{roundToDecimals(window.innerWidth)}</span>
-              </div>
-              <div class={` flex flex-col ${CODE_TEXT_DARK}`}>
-                <span>x</span>
-                <span>x</span>
-                <span>x</span>
-              </div>
-              <div class={` text-left flex flex-col `}>
-                <span>
-                  {roundToDecimals(
-                    window.innerHeight - appStore.boardLayout.height
-                  )}
-                </span>
-                <span>{roundToDecimals(appStore.boardLayout.height)}</span>
-                <span>{roundToDecimals(window.innerHeight)}</span>
-              </div>
-            </div>
-          </code>
+          <ShowDimensionsHeaderComponent />
         )}
       </HeaderSection>
       <Button
@@ -152,3 +108,37 @@ const LockedIndicator = ({
     </>
   );
 };
+
+const ShowDimensionsHeaderComponent = component$(() => {
+  const appStore = useContext(AppContext);
+  return (
+    <code
+      class={` bg-slate-800 flex gap-1.5 text-center ${CODE_TEXT_LIGHT} ${CODE_PADDING}`}
+    >
+      <div class={` flex flex-col ${CODE_TEXT_DARK} items-end `}>
+        <span>header~</span>
+        <span>board:</span>
+        <span>window:</span>
+      </div>
+      <div class="flex gap-0.5">
+        <div class="flex flex-col text-right">
+          <span>{roundToDecimals(appStore.boardLayout.width)}</span>
+          <span>{roundToDecimals(appStore.boardLayout.width)}</span>
+          <span>{roundToDecimals(window.innerWidth)}</span>
+        </div>
+        <div class={` flex flex-col ${CODE_TEXT_DARK}`}>
+          <span>x</span>
+          <span>x</span>
+          <span>x</span>
+        </div>
+        <div class={` text-left flex flex-col `}>
+          <span>
+            {roundToDecimals(window.innerHeight - appStore.boardLayout.height)}
+          </span>
+          <span>{roundToDecimals(appStore.boardLayout.height)}</span>
+          <span>{roundToDecimals(window.innerHeight)}</span>
+        </div>
+      </div>
+    </code>
+  );
+});

@@ -7,15 +7,17 @@ const DEFAULT_CONTAINER_BG = "bg-slate-600";
 export default component$(
   ({
     isShowing,
-    hideModal,
+    hideModal$,
     classes = "",
     bgClasses = "backdrop-blur-sm",
     title,
+    bgStyles,
   }: {
     isShowing: boolean;
-    hideModal: PropFunction<() => void>;
+    hideModal$: PropFunction<() => void>;
     classes?: string;
     bgClasses?: string;
+    bgStyles?: any;
     title: string;
   }) => {
     const containerClasses = DEFAULT_CONTAINER_BG + " " + classes;
@@ -25,7 +27,7 @@ export default component$(
         (e.target as HTMLElement).dataset.name === "background" &&
         isShowing
       ) {
-        hideModal(); // fn to turn off boolean
+        hideModal$(); // fn to turn off boolean
       }
     });
 
@@ -45,13 +47,14 @@ export default component$(
 
     return (
       <div
-        class={` ${bgClasses} top-0 left-0 absolute w-full h-full bg-black flex justify-center items-center transition-all ${DURATION} ${
+        class={`top-0 left-0 absolute w-full h-full bg-black flex justify-center items-center transition-all ${DURATION} ${
           isShowing && isShowingDelay.value
             ? "z-[100] bg-opacity-30"
             : "z-[-10] bg-opacity-0"
-        }`}
+        } ${bgClasses}`}
         data-name="background"
         onClick$={closeModal}
+        style={bgStyles}
       >
         <div
           class={`min-w-[16rem] w-[40vw] relative mx-auto text-center ${containerClasses} rounded-lg lg:rounded-3xl flex flex-col gap-1 p-[1.5%] transition-all ${DURATION} ${
@@ -74,7 +77,7 @@ export default component$(
             <h3 class="text-lg">{title}</h3>
             <button
               class="ml-auto border-slate-400 border rounded-lg py-1.5 px-2 transition-all bg-slate-800/90 hover:bg-slate-600"
-              onClick$={hideModal}
+              onClick$={hideModal$}
             >
               X
             </button>

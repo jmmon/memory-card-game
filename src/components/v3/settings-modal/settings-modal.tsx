@@ -1,39 +1,30 @@
-import type { PropFunction, QwikChangeEvent } from "@builder.io/qwik";
+import type {Signal, PropFunction, QwikChangeEvent } from "@builder.io/qwik";
 import {
   component$,
-  $,
   useStyles$,
   useContext,
   Slot,
+  useSignal,
 } from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
 import Modal from "../modal/modal";
 import Button from "../button/button";
-import { DEFAULT_CARD_COUNT } from "../v3-game/v3-game";
-import { useDebounce } from "../utils/useDebounce";
+import { AppSettings } from "../v3-game/v3-game";
 
 const COLUMN_GAP = "gap-0.5 md:gap-1";
-
 
 export default component$(() => {
   const appStore = useContext(AppContext);
 
-  const hideModal = $(() => {
-    appStore.settings.modal.isShowing = false;
+  const newSettings = useSignal<AppSettings>({
+    ...appStore.settings,
   });
-
-  const { setValue: debounceUpdateDeckSize } = useDebounce<number>(
-    $((value) => {
-      appStore.settings.deck.size = value;
-    }),
-    500
-  );
 
   useStyles$(`
     .tooltip {
       position: relative;
       cursor: pointer;
-font-size: clamp(0.7rem, 1vw, 1rem);
+      font-size: clamp(0.7rem, 1vw, 1rem);
     }
 
     .tooltip label,
@@ -65,7 +56,9 @@ font-size: clamp(0.7rem, 1vw, 1rem);
   return (
     <Modal
       isShowing={appStore.settings.modal.isShowing}
-      hideModal={hideModal}
+      hideModal$={() => {
+        appStore.settings.modal.isShowing = false;
+      }}
       bgClasses=""
       title="Game Settings"
     >
@@ -109,36 +102,19 @@ font-size: clamp(0.7rem, 1vw, 1rem);
                 text="Lock Deck:"
                 tooltip="Prevent deck size from changing."
                 onChange$={(e) => {
-                  appStore.settings.deck.isLocked = (
-                    e.target as HTMLInputElement
-                  ).checked;
+                  newSettings.value = {
+                    ...newSettings.value,
+                    deck: {
+                      ...newSettings.value.deck,
+                      isLocked: (e.target as HTMLInputElement).checked,
+                    },
+                  };
                 }}
               />
             </SettingsRow>
 
             <SettingsRow>
-              <div class="flex flex-grow gap-[2%] items-center tooltip w-full">
-                <label class="w-4/12" for="deck-card-count text-left">
-                  Deck Card Count:
-                </label>
-                <input
-                  name="deck-card-count"
-                  id="deck-card-count"
-                  class="flex-grow w-8/12"
-                  type="range"
-                  min={appStore.settings.deck.minimumCards}
-                  max={appStore.settings.deck.maximumCards}
-                  step="2"
-                  value={DEFAULT_CARD_COUNT}
-                  onInput$={(e: Event) => {
-                    debounceUpdateDeckSize(
-                      Number((e.target as HTMLInputElement).value)
-                    );
-                  }}
-                  disabled={appStore.settings.deck.isLocked}
-                />
-                <span class="tooltiptext">Number of cards in the deck.</span>
-              </div>
+              <DeckSizeSlider newSettings={newSettings} />
             </SettingsRow>
 
             <SettingsRow>
@@ -272,6 +248,17 @@ font-size: clamp(0.7rem, 1vw, 1rem);
             <span class="tooltiptext">Force board size to recalculate.</span>
           </div>
         </div>
+        <div class="flex-grow flex justify-evenly items-center">
+          <div class="justify-center flex  gap-[2%] items-center tooltip">
+            <Button
+              text="Save Settings"
+              onClick$={() => {
+                appStore.resetGame(newSettings.value);
+              }}
+            />
+            <span class="tooltiptext">Force board size to recalculate.</span>
+          </div>
+        </div>
       </div>
     </Modal>
   );
@@ -326,11 +313,48 @@ const Lock = component$(
             type="checkbox"
             id={text}
             name={text}
-            onChange$={(e) => onChange$(e)}
+            onChange$={onChange$}
             checked={value}
           />
         </label>
         {tooltip && <span class="tooltiptext">{tooltip}</span>}
+      </div>
+    );
+  }
+);
+
+export const DeckSizeSlider = component$<{ newSettings: Signal<AppSettings> }>(
+  (props) => {
+    const appStore = useContext(AppContext);
+
+    return (
+      <div class="flex flex-grow gap-[2%] items-center tooltip w-full">
+        <label class="w-4/12" for="deck-card-count text-left">
+          Deck Card Count:
+        </label>
+        <input
+          name="deck-card-count"
+          id="deck-card-count"
+          class="flex-grow w-8/12"
+          type="range"
+          min={props.newSettings.value.deck.MINIMUM_CARDS}
+          max={props.newSettings.value.deck.MAXIMUM_CARDS}
+          step="2"
+          value={props.newSettings.value.deck.size}
+          onInput$={(e: Event) => {
+            props.newSettings.value = {
+              ...props.newSettings.value,
+              deck: {
+                ...props.newSettings.value.deck,
+                size: Number((e.target as HTMLInputElement).value),
+              },
+            };
+          }}
+          disabled={appStore.settings.deck.isLocked}
+        />
+        <span class="tooltiptext">
+          {props.newSettings.value.deck.size} - Number of cards in the deck.
+        </span>
       </div>
     );
   }

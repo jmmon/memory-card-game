@@ -10,7 +10,7 @@ export default component$(() => {
   });
 
   return (
-    <Modal title="Loading..." bgClasses="bg-opacity-0" isShowing={appStore.game.isLoading} hideModal={hideModal}>
+    <Modal title="Loading..." bgClasses="bg-opacity-0" isShowing={appStore.game.isLoading} hideModal$={hideModal}>
       <div class="text-4xl text-center">Loading...</div>
     </Modal>
   );

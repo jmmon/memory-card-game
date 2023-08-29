@@ -5,29 +5,22 @@ import {
   useContextProvider,
   useSignal,
   useStore,
-  useTask$,
-  useVisibleTask$,
 } from "@builder.io/qwik";
 import V3Board from "../v3-board/v3-board";
 import { AppContext } from "../v3-context/v3.context";
-import {
-  shuffleCardPositions,
-  FULL_DECK_COUNT,
-  shuffleByPairs,
-} from "../utils/v3CardUtils";
+import { shuffleCardPositions, shuffleByPairs } from "../utils/v3CardUtils";
 import SettingsModal from "../settings-modal/settings-modal";
 // import LoadingModal from "../loading-modal/loading-modal";
 import GameHeader from "../game-header/game-header";
 import { isServer } from "@builder.io/qwik/build";
 import { formattedDeck } from "../utils/cards";
-// import GameEndModal from "../game-end-modal/game-end-modal";
-// import { useDeck } from "~/routes/v3/index";
+import GameEndModal from "../game-end-modal/game-end-modal";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
 export const DEFAULT_CARD_COUNT = 18;
 
 export type Pair = `${number}:${number}`;
-//
+
 export type V3Card = {
   id: number;
   text: string; // alternate content of the card (if no img)
@@ -43,7 +36,37 @@ export type V3Card = {
    * */
   isMismatched: boolean;
   image?: string;
-localSVG?: string;
+  localSVG?: string;
+};
+
+export type AppSettings = {
+  cardFlipAnimationDuration: number;
+  maxAllowableMismatches: number;
+
+  shuffleBoardAfterMismatches: number;
+  shuffleBoardAfterPair: boolean;
+  shuffleBoardAfterRound: boolean;
+
+  shufflePickedAfterMismatch: boolean;
+
+  reorgnanizeBoardOnPair: boolean;
+  reorgnanizeBoardOnMismatch: boolean;
+  resizeBoard: boolean;
+
+  deck: {
+    size: number;
+    isLocked: boolean;
+    MINIMUM_CARDS: number;
+    MAXIMUM_CARDS: number;
+    fullDeck: V3Card[];
+  };
+  modal: {
+    isShowing: boolean;
+  };
+  interface: {
+    showSelectedIds: boolean;
+    showDimensions: boolean;
+  };
 };
 
 export type BoardLayout = {
@@ -64,46 +87,20 @@ export type CardLayout = {
 export type AppStore = {
   boardLayout: BoardLayout;
   cardLayout: CardLayout;
+
   game: {
     flippedCardId: number;
     selectedCardIds: number[];
     successfulPairs: Pair[];
     cards: V3Card[];
     mismatchPairs: Pair[];
+    mismatchPair: Pair | string;
     isLoading: boolean;
     isShuffling: boolean;
     isShufflingDelayed: boolean;
   };
 
-  settings: {
-    cardFlipAnimationDuration: number;
-    maxAllowableMismatches: number;
-
-    shuffleBoardAfterMismatches: number;
-    shuffleBoardAfterPair: boolean;
-    shuffleBoardAfterRound: boolean;
-
-    shufflePickedAfterMismatch: boolean;
-
-    reorgnanizeBoardOnPair: boolean;
-    reorgnanizeBoardOnMismatch: boolean;
-    resizeBoard: boolean;
-
-    deck: {
-      size: number;
-      isLocked: boolean;
-      minimumCards: number;
-      maximumCards: number;
-      fullDeck: V3Card[];
-    };
-    modal: {
-      isShowing: boolean;
-    };
-    interface: {
-      showSelectedIds: boolean;
-      showDimensions: boolean;
-    };
-  };
+  settings: AppSettings;
 
   interface: {
     settingsModal: {
@@ -117,7 +114,13 @@ export type AppStore = {
   shuffleCardPositions: QRL<() => void>;
   toggleSettingsModal: QRL<() => void>;
   sliceDeck: QRL<() => void>;
-  resetGame: QRL<() => void>;
+  resetGame: QRL<(settings?: Partial<AppSettings>) => void>;
+  isGameEnded: QRL<
+    () => {
+      isEnded: boolean;
+      isWin?: boolean;
+    }
+  >;
 };
 
 const INITIAL_STATE = {
@@ -143,6 +146,7 @@ const INITIAL_STATE = {
     successfulPairs: [],
     cards: [],
     mismatchPairs: [],
+    mismatchPair: "",
     isLoading: true,
     isShuffling: false,
     isShufflingDelayed: false,
@@ -181,9 +185,9 @@ const INITIAL_STATE = {
 
     deck: {
       size: DEFAULT_CARD_COUNT,
-      isLocked: true,
-      minimumCards: 6,
-      maximumCards: 52,
+      isLocked: false,
+      MINIMUM_CARDS: 6,
+      MAXIMUM_CARDS: 52,
       fullDeck: formattedDeck,
     },
 
@@ -235,19 +239,31 @@ const INITIAL_STATE = {
     console.log("playing deck:", { cards });
   }),
 
-  resetGame: $(function (this: AppStore) {
+  resetGame: $(function (this: AppStore, settings?: Partial<AppSettings>) {
+    if (settings) {
+      this.settings = {
+        ...this.settings,
+        ...settings,
+      };
+    }
     this.game = {
       ...this.game,
       flippedCardId: -1,
       selectedCardIds: [],
       successfulPairs: [],
-      cards: [],
       mismatchPairs: [],
       isLoading: true,
       isShuffling: false,
       isShufflingDelayed: false,
     };
     this.sliceDeck();
+  }),
+  isGameEnded: $(function (this: AppStore) {
+    // TODO:
+    // implement other modes, like max mismatches
+    const isEnded =
+      this.game.successfulPairs.length === this.settings.deck.size / 2;
+    return { isEnded, isWin: isEnded };
   }),
 };
 
@@ -273,6 +289,7 @@ export default component$(() => {
       </div>
       {appStore.game.isLoading && <LoadingPage />}
       <SettingsModal />
+      <GameEndModal />
     </>
   );
 });
@@ -307,8 +324,8 @@ const LoadingPage = ({ blur = true }: { blur?: boolean }) => (
  * Settings:
  * - "Apply/Save" button and "Cancel" button??
  *
-*
-*
+ *
+ *
  * Game End Modal:
  * - shows when appStore.game.isOver (or getter function to check status)
  *   - Message
@@ -316,21 +333,24 @@ const LoadingPage = ({ blur = true }: { blur?: boolean }) => (
  *   - Mismatched Pairs: m[/maxM]
  *   - Total Points?: 10 * n - (maxM ? m * 10 * (maxM / maxN) : 0) // if counting maxM, can factor that in to the points
  *
-*
-*
- * Eventually: score board??? Enter your initials or something
-*
  *
-*
-*
+ *
+ * Eventually: score board??? Enter your initials or something
+ *
+ *
+ *
+ *
  * Some advanced prefetch guarantee for the images? proxy the images so I can cache them??? possible??
-*
-*
-*
-* Query params to initialize game with certain settings? would be epic!
-*
-* 
-* timed missions?
-* "par" ratings depending on pairs count? e.g. fibb sequence or something to ramp up
-* Or better yet, scores per pairs count, and can rate games by time and by mismatches
+ *
+ *
+ *
+ * Query params to initialize game with certain settings? would be epic!
+ *
+ *
+ * timed missions?
+ * - time starts on first click and ends on gameEndModal popup
+ *   (- can rate against other players, top percentile rankings eventually)
+ * "par" ratings depending on pairs count? e.g. fibb sequence or something to ramp up
+ * Or better yet, scores per pairs count, and can rate games by time and by mismatches
  * */
+
