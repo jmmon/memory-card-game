@@ -4,6 +4,10 @@ import { AppContext } from "../v3-context/v3.context";
 import { SettingsRow } from "../settings-modal/settings-modal";
 import Button from "../button/button";
 
+const formatTime = (time: number) => {
+  return Math.floor(time / 60) + ":" + (time % 60).toString().padStart(2, "0");
+};
+
 export default component$(() => {
   const appStore = useContext(AppContext);
 
@@ -44,7 +48,7 @@ export default component$(() => {
           <div class="flex flex-grow justify-between">
             <span>Time:</span>
             <span>
-              {(appStore.game.time.end - appStore.game.time.start) / 1000}s
+              {formatTime(appStore.game.time.end - appStore.game.time.start)}
             </span>
           </div>
         </SettingsRow>

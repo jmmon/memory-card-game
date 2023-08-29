@@ -10,7 +10,6 @@ import V3Board from "../v3-board/v3-board";
 import { AppContext } from "../v3-context/v3.context";
 import { shuffleCardPositions, shuffleByPairs } from "../utils/v3CardUtils";
 import SettingsModal from "../settings-modal/settings-modal";
-// import LoadingModal from "../loading-modal/loading-modal";
 import GameHeader from "../game-header/game-header";
 import { isServer } from "@builder.io/qwik/build";
 import { formattedDeck } from "../utils/cards";
@@ -29,13 +28,6 @@ export type V3Card = {
   position: number; // board slot index
   prevPosition: number | null; // used for shuffle transition calculations
   pairId: number; // id of paired card
-  /* isMismatched:  might not need ??
-   * could move this logic to the board:
-   *   - could move shake timer into board as well, instead of one timer per card
-   * 1. after mismatch, save game.mismatchedPair
-   *   - then the cards know which ones to shake.
-   * 3. After shake is done it should be cleared
-   * */
   image?: string;
   localSVG?: string;
 };
@@ -350,15 +342,11 @@ const LoadingPage = ({ blur = true }: { blur?: boolean }) => (
  *
  *
  * Settings:
- * - "Apply/Save" button and "Cancel" button??
+ * - "Cancel" button??
  *
  *
  *
- * Game End Modal:
- * - shows when appStore.game.isOver (or getter function to check status)
- *   - Message
- *   - Successful Pairs: n/maxN
- *   - Mismatched Pairs: m[/maxM]
+ * Points system
  *   - Total Points?: 10 * n - (maxM ? m * 10 * (maxM / maxN) : 0) // if counting maxM, can factor that in to the points
  *
  *
@@ -378,6 +366,5 @@ const LoadingPage = ({ blur = true }: { blur?: boolean }) => (
  * timed missions?
  * - time starts on first click and ends on gameEndModal popup
  *   (- can rate against other players, top percentile rankings eventually)
- * "par" ratings depending on pairs count? e.g. fibb sequence or something to ramp up
- * Or better yet, scores per pairs count, and can rate games by time and by mismatches
+ * - separate scoreboard per pairs count, and can rate games by time and by mismatches
  * */
