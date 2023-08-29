@@ -370,7 +370,7 @@ export default component$(({ card }: { card: V3Card }) => {
           data-id={card.id}
         >
           <div
-            class={`w-full h-full relative text-center [transform-style:preserve-3d] [transition-property:transform]`}
+            class={`w-full h-full relative text-center [transform-style:preserve-3d] [transition-property:all]`}
             data-id={card.id}
             style={{
               transform:

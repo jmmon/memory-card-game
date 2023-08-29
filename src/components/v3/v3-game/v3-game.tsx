@@ -114,30 +114,29 @@ export type AppStore = {
       isWin: boolean;
     };
   };
-  // generateDeck: QRL<() => void>;
   shuffleCardPositions: QRL<() => void>;
   toggleSettingsModal: QRL<() => void>;
-  // shuffleCardPositionsWithTransition: QRL<() => void>;
-  //
-  sliceDeck: QRL<() => V3Card[]>;
+  sliceDeck: QRL<() => void>;
   resetGame: QRL<() => void>;
 };
 
-const INITIAL = {
+const INITIAL_STATE = {
   boardLayout: {
-    width: 992,
-    height: 559,
-    area: 992 * 559,
-    rows: 3,
-    columns: 7,
+    width: 291.07,
+    height: 281.81,
+    area: 291.07 * 281.81,
+    columns: 5,
+    rows: 4,
     isLocked: false, // prevent recalculation of board layout
   },
+
   cardLayout: {
-    width: 119.7857142857143,
-    height: 186.33333333333334,
-    roundedCornersPx: 12,
-    area: 22320.071428571435,
+    width: 50.668,
+    height: 70.3955,
+    roundedCornersPx: 2.533,
+    area: 50.668 * 70.3955,
   },
+
   game: {
     flippedCardId: -1,
     selectedCardIds: [],
@@ -182,11 +181,12 @@ const INITIAL = {
 
     deck: {
       size: DEFAULT_CARD_COUNT,
-      isLocked: false,
+      isLocked: true,
       minimumCards: 6,
       maximumCards: 52,
       fullDeck: formattedDeck,
     },
+
     modal: { isShowing: false },
 
     interface: {
@@ -224,12 +224,6 @@ const INITIAL = {
     this.settings.modal.isShowing = !this.settings.modal.isShowing;
   }),
 
-  /*
-   * TODO:
-   * get array of pairs, shuffle the pairs, then slice to get correct pair count
-   * then can eventually shuffle the deck later
-   * */
-
   sliceDeck: $(function (this: AppStore) {
     const deckShuffledByPairs = shuffleByPairs([
       ...this.settings.deck.fullDeck,
@@ -239,22 +233,7 @@ const INITIAL = {
 
     this.game.cards = cards;
     console.log("playing deck:", { cards });
-    return cards;
   }),
-  // sliceDeck: $(function (this: AppStore) {
-  //   const start =
-  //     Math.floor(
-  //       (Math.random() * (FULL_DECK_COUNT - this.settings.deck.size)) / 2
-  //     ) * 2;
-  //
-  //   const cards = this.settings.deck.fullDeck.slice(
-  //     start,
-  //     start + this.settings.deck.size
-  //   );
-  //
-  //   this.game.cards = cards;
-  //   return cards;
-  // }),
 
   resetGame: $(function (this: AppStore) {
     this.game = {
@@ -277,65 +256,9 @@ const INITIAL = {
 export default component$(() => {
   console.log("game render count");
   // set up context
-  const appStore = useStore<AppStore>({ ...INITIAL }, { deep: true });
+  const appStore = useStore<AppStore>({ ...INITIAL_STATE }, { deep: true });
   useContextProvider(AppContext, appStore);
   const containerRef = useSignal<HTMLElement>();
-
-  // const deck = useDeck();
-  //
-  // useTask$(async () => {
-  //   console.log("visibleTask fetched deck:", {
-  //     deck: deck.value.deck,
-  //     type: deck.value.type,
-  //   });
-  //   appStore.settings.deck.fullDeck = deck.value.deck;
-  //
-  //   // get a random start, make sure to halve so we count pairs
-  //   const start = Math.floor(
-  //     (Math.random() * (FULL_DECK_COUNT - appStore.settings.deck.size)) / 2
-  //   );
-  //   appStore.game.cards = deck.value.deck.slice(
-  //     start * 2,
-  //     start * 2 + appStore.settings.deck.size
-  //   );
-  //   appStore.game.isLoading = false;
-  // });
-
-  // useTask$(async () => {
-  //   console.log("loading");
-  //   const origin = import.meta.env.DEV
-  //     ? "http://localhost:5173/"
-  //     : "https://joemoulton.dev/";
-  //   console.log({ origin });
-  //
-  //   try {
-  //     const response = await fetch(`${origin}api/deck`);
-  //     const { deck, type } = (await response.json()) as {
-  //       deck: V3Card[];
-  //       type: "v3" | "api";
-  //     };
-  //
-  //     console.log("visibleTask fetched deck:", {
-  //       // deck: deck,
-  //       type: type,
-  //     });
-  //     appStore.settings.deck.fullDeck = deck;
-  //
-  //     // get a random start, make sure to halve so we count pairs
-  //     appStore.sliceDeck();
-  //
-  //   } catch (err) {
-  //     console.log({ err });
-  //   } finally {
-  //     console.log("done loading");
-  //     appStore.game.isLoading = false;
-  //   }
-  // });
-  //
-
-  // useTask$(() => {
-  //   appStore.sliceDeck();
-  // });
 
   return (
     <>
@@ -384,6 +307,8 @@ const LoadingPage = ({ blur = true }: { blur?: boolean }) => (
  * Settings:
  * - "Apply/Save" button and "Cancel" button??
  *
+*
+*
  * Game End Modal:
  * - shows when appStore.game.isOver (or getter function to check status)
  *   - Message
@@ -391,7 +316,21 @@ const LoadingPage = ({ blur = true }: { blur?: boolean }) => (
  *   - Mismatched Pairs: m[/maxM]
  *   - Total Points?: 10 * n - (maxM ? m * 10 * (maxM / maxN) : 0) // if counting maxM, can factor that in to the points
  *
+*
+*
  * Eventually: score board??? Enter your initials or something
+*
  *
+*
+*
  * Some advanced prefetch guarantee for the images? proxy the images so I can cache them??? possible??
+*
+*
+*
+* Query params to initialize game with certain settings? would be epic!
+*
+* 
+* timed missions?
+* "par" ratings depending on pairs count? e.g. fibb sequence or something to ramp up
+* Or better yet, scores per pairs count, and can rate games by time and by mismatches
  * */
