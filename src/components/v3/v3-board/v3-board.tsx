@@ -18,8 +18,10 @@ import { checkMatch, findCardById, isCardRemoved } from "../utils/v3CardUtils";
 export const CARD_RATIO = 113 / 157; // w / h
 export const CORNERS_WIDTH_RATIO = 1 / 20;
 
-export const CARD_SHUFFLE_DELAYED_START = 120;
-export const CARD_SHUFFLE_DURATION = 300;
+// after initial instant transform, wait this long before starting animation
+export const CARD_SHUFFLE_DELAYED_START = 200;
+// animation duration
+export const CARD_SHUFFLE_ACTIVE_DURATION = 400;
 export const CARD_SHUFFLE_ROUNDS = 5;
 
 const CARD_SHAKE_ANIMATION_DURATION = 700;
@@ -379,10 +381,10 @@ export default component$(
         appStore.game.isShuffling = false;
         appStore.game.isShufflingDelayed = false;
         console.log(
-          `END shuffling: ${CARD_SHUFFLE_DURATION}ms #${shuffleCounterSignal.value}`
+          `END shuffling: ${CARD_SHUFFLE_ACTIVE_DURATION}ms #${shuffleCounterSignal.value}`
         );
         shuffleCounterSignal.value--;
-      }, CARD_SHUFFLE_DURATION);
+      }, CARD_SHUFFLE_DELAYED_START + CARD_SHUFFLE_ACTIVE_DURATION);
 
       taskCtx.cleanup(() => {
         clearTimeout(shuffleTimeout);

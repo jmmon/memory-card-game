@@ -367,4 +367,19 @@ const LoadingPage = ({ blur = true }: { blur?: boolean }) => (
  * - time starts on first click and ends on gameEndModal popup
  *   (- can rate against other players, top percentile rankings eventually)
  * - separate scoreboard per pairs count, and can rate games by time and by mismatches
+*
+*
+*
+*
+*
+*
+*   ALTERNATE CARD POSITIONING:
+* - use positions (top, left) and be relative to the Board component
+* - set the top left corners
+* - Then, when shuffling, simply adjust the top and left of each card
+* - the transtions on top & left will handle the rest!!!
+*
+* - Should be able to reuse coordinates
+* - just need to set top & left instead of setting gridRow & gridCol
+* - then can simplify the shuffling method
  * */
