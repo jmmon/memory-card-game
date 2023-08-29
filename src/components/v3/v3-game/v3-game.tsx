@@ -95,6 +95,7 @@ export type AppStore = {
     cards: V3Card[];
     mismatchPairs: Pair[];
     mismatchPair: Pair | string;
+    isShaking: boolean;
     isLoading: boolean;
     isShuffling: boolean;
     isShufflingDelayed: boolean;
@@ -147,6 +148,7 @@ const INITIAL_STATE = {
     cards: [],
     mismatchPairs: [],
     mismatchPair: "",
+    isShaking: false,
     isLoading: true,
     isShuffling: false,
     isShufflingDelayed: false,
@@ -353,4 +355,3 @@ const LoadingPage = ({ blur = true }: { blur?: boolean }) => (
  * "par" ratings depending on pairs count? e.g. fibb sequence or something to ramp up
  * Or better yet, scores per pairs count, and can rate games by time and by mismatches
  * */
-

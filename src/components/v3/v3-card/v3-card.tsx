@@ -18,7 +18,7 @@ const CARD_RATIO_VS_CONTAINER = 0.9;
  * */
 const ENLARGED_CARD_SCALE__RATIO_FOR_LIMITING_DIMENSION = 0.8;
 
-const CARD_FLIP_ANIMATION_DURATION = 600;
+export const CARD_FLIP_ANIMATION_DURATION = 600;
 const CARD_SHAKE_ANIMATION_DURATION = 700;
 
 // underside shows immediately, but hides after this far during return transition
@@ -27,14 +27,6 @@ const HIDE_UNDERSIDE_AFTER_PERCENT = 0.9;
 // if matching, delay return animation by this amount
 // e.g. time allowed for card to vanish (before it would return to board)
 const FLIPPED_DELAYED_OFF_DURATION_MS = 250;
-
-// higher means shake starts sooner
-const START_SHAKE_ANIMATION_EAGER_MS = 100;
-const START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE = 0.9;
-const SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD =
-  CARD_FLIP_ANIMATION_DURATION *
-    START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE -
-  START_SHAKE_ANIMATION_EAGER_MS;
 
 type Coords = { x: number; y: number };
 
@@ -85,7 +77,7 @@ const buildScaleToCenter = (
   const boardRatio = boardLayout.width / boardLayout.height;
 
   const isWidthTheLimitingDimension = boardRatio < CARD_RATIO;
-  console.log({ boardRatio, isWidthTheLimitingDimension, CARD_RATIO });
+  // console.log({ boardRatio, isWidthTheLimitingDimension, CARD_RATIO });
 
   if (isWidthTheLimitingDimension) {
     const targetWidthPx =
@@ -140,6 +132,14 @@ export default component$(({ card }: { card: V3Card }) => {
       card.id
     )
   );
+  const isMismatched = useComputed$(() => {
+    return appStore.game.mismatchPair.includes(String(card.id));
+  });
+
+  // is our card the flipped card?
+  const isCardFlipped = useComputed$(() => {
+    return appStore.game.flippedCardId === card.id;
+  });
 
   // delayed indicator, turns true once the flipped card returns to the board
   const isRemovedDelayedTrue = useSignal(false);
@@ -163,37 +163,40 @@ export default component$(({ card }: { card: V3Card }) => {
     });
   });
 
-  // is our card the flipped card?
-  const isCardFlipped = useComputed$(() => {
-    return appStore.game.flippedCardId === card.id;
-  });
-
   // show and hide the back face, so the backs of cards can't be inspected when face-down
   const isUnderSideShowing = useSignal(false);
   const isCardFlippedDelayedOff = useSignal(false);
 
   // when card is flipped, control timers for isUnderSideShowing and isCardFlippedDelayedOff
+  // when showing the back side, partway through we reveal the back side.
+  // when going back to the board, partway through we hide the back side.
   useTask$((taskCtx) => {
     taskCtx.track(() => isCardFlipped.value);
 
-    // when showing the back side, partway through we reveal the back side.
-    // when going back to the board, partway through we hide the back side.
-
     let undersideRevealDelayTimer: ReturnType<typeof setTimeout>;
     let flippedDelayTimer: ReturnType<typeof setTimeout>;
-    if (isCardFlipped.value) {
-      // when showing card
-      isUnderSideShowing.value = isCardFlipped.value;
-      isCardFlippedDelayedOff.value = isCardFlipped.value;
-    } else {
-      // when hiding card, keep the underside visible for a while
-      undersideRevealDelayTimer = setTimeout(() => {
-        isUnderSideShowing.value = isCardFlipped.value;
-      }, CARD_FLIP_ANIMATION_DURATION * HIDE_UNDERSIDE_AFTER_PERCENT);
 
-      flippedDelayTimer = setTimeout(() => {
-        isCardFlippedDelayedOff.value = isCardFlipped.value;
-      }, FLIPPED_DELAYED_OFF_DURATION_MS);
+    switch (isCardFlipped.value) {
+      // when showing card
+      case true:
+        {
+          isUnderSideShowing.value = isCardFlipped.value;
+          isCardFlippedDelayedOff.value = isCardFlipped.value;
+        }
+        break;
+
+      // when hiding card, keep the underside visible for a while
+      case false:
+        {
+          undersideRevealDelayTimer = setTimeout(() => {
+            isUnderSideShowing.value = isCardFlipped.value;
+          }, CARD_FLIP_ANIMATION_DURATION * HIDE_UNDERSIDE_AFTER_PERCENT);
+
+          flippedDelayTimer = setTimeout(() => {
+            isCardFlippedDelayedOff.value = isCardFlipped.value;
+          }, FLIPPED_DELAYED_OFF_DURATION_MS);
+        }
+        break;
     }
 
     taskCtx.cleanup(() => {
@@ -202,12 +205,15 @@ export default component$(({ card }: { card: V3Card }) => {
     });
   });
 
-  // so when shuffling, position is updated so card is moved immediately.
-  // We should calculate the transition from prevPosition => position as the position is updated.
-  // NOW I have the transition.
-  // - INVERSE the transition immediately so to move the card backward to prevPosition.
-  // - apply transition-duration
-  // - turn off transition so it moves forward (remove the class/props)
+  /* SHUFFLE CARDS TRANSFORM
+*
+  so when shuffling, position is updated so card is moved immediately.
+  We should calculate the transition from prevPosition => position as the position is updated.
+  NOW I have the transition.
+  - INVERSE the transition immediately so to move the card backward to prevPosition.
+  - apply transition-duration
+  - turn off transition so it moves forward (remove the class/props)
+* */
 
   const shuffleTransform = useSignal("");
   const flipTransform = useSignal("");
@@ -276,42 +282,6 @@ export default component$(({ card }: { card: V3Card }) => {
     }
   `);
 
-  const shakeSignal = useSignal(false);
-
-  // turn on shake signal after delay (when mismatching a card)
-  useTask$((taskCtx) => {
-    taskCtx.track(() => card.isMismatched);
-    // continue only if card is mismatched
-    if (!card.isMismatched) return;
-
-    // delay until the animation is over, then start the shake
-    // turn on shake after duration (once card returns to its spaces)
-    const timeout = setTimeout(() => {
-      card.isMismatched = false;
-      shakeSignal.value = true;
-    }, SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD);
-
-    taskCtx.cleanup(() => {
-      clearTimeout(timeout);
-    });
-  });
-
-  // handle turn off shake animation
-  useTask$((taskCtx) => {
-    taskCtx.track(() => shakeSignal.value);
-    if (shakeSignal.value === false) return;
-
-    // delay until the animation is over, then start the shake
-    // turn off shake after duration
-    const timeout = setTimeout(() => {
-      shakeSignal.value = false;
-    }, CARD_SHAKE_ANIMATION_DURATION);
-
-    taskCtx.cleanup(() => {
-      clearTimeout(timeout);
-    });
-  });
-
   /* perspective: for 3D effect, adjust based on width, and card area compared to viewport */
 
   return (
@@ -356,13 +326,17 @@ export default component$(({ card }: { card: V3Card }) => {
         }}
       >
         <div
-          class={`w-full h-full [perspective:100vw] border border-slate-50/25 bg-transparent transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
+          class={`w-full h-full [perspective:${
+            CARD_RATIO_VS_CONTAINER * 100
+          }vw] border border-slate-50/25 bg-transparent transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
             isRemoved.value &&
             appStore.game.flippedCardId !== card.id &&
             appStore.game.flippedCardId !== card.pairId
               ? "opacity-0 scale-[107%]"
               : "opacity-100 cursor-pointer"
-          } ${shakeSignal.value === true ? "shake-card" : ""}`}
+          } ${
+            isMismatched.value && appStore.game.isShaking ? "shake-card" : ""
+          }`}
           style={{
             borderRadius: appStore.cardLayout.roundedCornersPx + "px",
           }}

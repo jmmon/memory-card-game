@@ -5,10 +5,11 @@ import {
   useContext,
   useOnWindow,
   useSignal,
+  useTask$,
   useVisibleTask$,
 } from "@builder.io/qwik";
 
-import V3Card from "../v3-card/v3-card";
+import V3Card, { CARD_FLIP_ANIMATION_DURATION } from "../v3-card/v3-card";
 import { AppContext } from "../v3-context/v3.context";
 import type { Pair, V3Card as V3CardType } from "../v3-game/v3-game";
 import { useDebounce } from "../utils/useDebounce";
@@ -19,6 +20,18 @@ export const CORNERS_WIDTH_RATIO = 1 / 20;
 export const CARD_SHUFFLE_DELAYED_START = 100;
 export const CARD_SHUFFLE_DURATION = 400;
 export const CARD_SHUFFLE_ROUNDS = 5;
+
+
+const CARD_SHAKE_ANIMATION_DURATION = 700;
+
+// higher means shake starts sooner
+const START_SHAKE_ANIMATION_EAGER_MS = 100;
+const START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE = 0.9;
+const SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD =
+  CARD_FLIP_ANIMATION_DURATION *
+    START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE -
+  START_SHAKE_ANIMATION_EAGER_MS;
+
 /*
  * card utils
  *
@@ -283,7 +296,6 @@ export default component$(
 
     const calculateAndResizeBoard = $(async () => {
       const newBoard = await calculateBoardSize();
-
       resizeBoard(newBoard.width, newBoard.height);
     });
 
@@ -298,28 +310,6 @@ export default component$(
       appStore.game.mismatchPairs = [];
       appStore.game.successfulPairs = [];
     });
-    // // track deck size changes to adjust board
-    // useVisibleTask$(async (taskCtx) => {
-    //   taskCtx.track(() => appStore.settings.deck.size);
-    //   console.log("deck size track task runs");
-    //   if (appStore.settings.deck.isLocked) {
-    //     return;
-    //   }
-    //   adjustDeckSize();
-    //
-    //   if (appStore.boardLayout.isLocked) {
-    //     return;
-    //   }
-    //
-    //   calculateAndResizeBoard();
-    // });
-    //
-    // // calculate board on mount, and when forcing resize
-    // useVisibleTask$(async (taskCtx) => {
-    //   taskCtx.track(() => appStore.settings.resizeBoard);
-    //   console.log("mount and resizeBoard task runs");
-    //   calculateAndResizeBoard();
-    // });
 
     const lastDeckSize = useSignal(appStore.settings.deck.size);
     const lastRefresh = useSignal(appStore.settings.resizeBoard);
@@ -418,39 +408,43 @@ export default component$(
 
   // const shakeSignal = useSignal(false);
 
-  // // turn on shake signal after delay (when mismatching a card)
-  // useTask$((taskCtx) => {
-  //   taskCtx.track(() => card.isMismatched);
-  //   // continue only if card is mismatched
-  //   if (!card.isMismatched) return;
-  //
-  //   // delay until the animation is over, then start the shake
-  //   // turn on shake after duration (once card returns to its spaces)
-  //   const timeout = setTimeout(() => {
-  //     card.isMismatched = false;
-  //     shakeSignal.value = true;
-  //   }, SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD);
-  //
-  //   taskCtx.cleanup(() => {
-  //     clearTimeout(timeout);
-  //   });
-  // });
-  //
-  // // handle turn off shake animation
-  // useTask$((taskCtx) => {
-  //   taskCtx.track(() => shakeSignal.value);
-  //   if (shakeSignal.value === false) return;
-  //
-  //   // delay until the animation is over, then start the shake
-  //   // turn off shake after duration
-  //   const timeout = setTimeout(() => {
-  //     shakeSignal.value = false;
-  //   }, CARD_SHAKE_ANIMATION_DURATION);
-  //
-  //   taskCtx.cleanup(() => {
-  //     clearTimeout(timeout);
-  //   });
-  // });
+  // turn on shake signal after delay (when mismatching a card
+  useTask$((taskCtx) => {
+    taskCtx.track(() => appStore.game.mismatchPair);
+    // continue only if card is mismatched
+    if (appStore.game.mismatchPair === '') return;
+
+    // delay until the animation is over, then start the shake
+    // turn on shake after duration (once card returns to its spaces)
+    const timeout = setTimeout(() => {
+      // shakeSignal.value = true;
+      appStore.game.isShaking = true;
+    }, SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD);
+
+    taskCtx.cleanup(() => {
+      clearTimeout(timeout);
+    });
+  });
+
+  // handle turn off shake animation
+  useTask$((taskCtx) => {
+    taskCtx.track(() => appStore.game.isShaking);
+    if (appStore.game.isShaking === false) return;
+
+    // delay until the animation is over, then start the shake
+    // turn off shake after duration
+    const timeout = setTimeout(() => {
+      // shakeSignal.value = false;
+      appStore.game.isShaking = false;
+      appStore.game.mismatchPair = '';
+    }, CARD_SHAKE_ANIMATION_DURATION);
+
+    taskCtx.cleanup(() => {
+      clearTimeout(timeout);
+    });
+  });
+
+// now we can watch isShaking + mismatchPair to tell if a particular card should be shaking
 
     return (
       <>
