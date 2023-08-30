@@ -1,4 +1,4 @@
-import { component$, useContext, useSignal } from "@builder.io/qwik";
+import { component$, $, useContext, useSignal } from "@builder.io/qwik";
 import Modal from "../modal/modal";
 import { AppContext } from "../v3-context/v3.context";
 import { SettingsRow } from "../settings-modal/settings-modal";
@@ -13,7 +13,7 @@ const GreyedAtZero = ({ val, text }: { val: number; text: string }) => {
   );
 };
 
-const FormattedTime = ({ timeMs }: { timeMs: number }) => {
+export const formatTime = (timeMs: number) => {
   const minutes = Math.floor(timeMs / 1000 / 60);
   const seconds = Math.floor((timeMs / 1000) % 60)
     .toString()
@@ -21,6 +21,11 @@ const FormattedTime = ({ timeMs }: { timeMs: number }) => {
   const ms = Math.floor(timeMs % 1000)
     .toString()
     .padStart(3, "0");
+  return { minutes, seconds, ms };
+};
+
+export const FormattedTime = ({ timeMs }: { timeMs: number }) => {
+  const { minutes, seconds, ms } = formatTime(timeMs);
 
   return (
     <>
@@ -34,16 +39,20 @@ export default component$(() => {
   const appStore = useContext(AppContext);
 
   // for adjusting deck size before restarting
-  const cardCount = useSignal<number>(appStore.settings.deck.size);
+  const cardCount = useSignal<string>(String(appStore.settings.deck.size));
 
+  const hideModal$ = $(() => {
+    appStore.interface.endOfGameModal.isShowing = false;
+  });
   return (
     <Modal
       isShowing={appStore.interface.endOfGameModal.isShowing}
-      hideModal$={() => {
-        appStore.interface.endOfGameModal.isShowing = false;
-      }}
+      hideModal$={hideModal$}
       title={appStore.interface.endOfGameModal.isWin ? "You Win!" : "Game Over"}
       bgStyles={{ backgroundColor: "rgba(0,0,0,0.1)" }}
+      options={{
+        detectClickOutside: false,
+      }}
     >
       <div class="flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%]">
         <SettingsRow>
@@ -70,9 +79,7 @@ export default component$(() => {
           <div class="flex flex-grow justify-between">
             <span>Time:</span>
             <span>
-              <FormattedTime
-                timeMs={appStore.game.time.end - appStore.game.time.start}
-              />
+              <FormattedTime timeMs={appStore.game.time.accum} />
             </span>
           </div>
         </SettingsRow>
@@ -91,9 +98,7 @@ export default component$(() => {
               max={appStore.settings.deck.MAXIMUM_CARDS}
               step="2"
               value={appStore.settings.deck.size}
-              onInput$={(e: Event) => {
-                cardCount.value = Number((e.target as HTMLInputElement).value);
-              }}
+              bind:value={cardCount}
             />
             <span class="tooltiptext">
               {cardCount.value} - Number of cards in the deck.
@@ -103,12 +108,17 @@ export default component$(() => {
         <Button
           onClick$={() => {
             appStore.resetGame({
-              deck: { ...appStore.settings.deck, size: cardCount.value },
+              deck: {
+                ...appStore.settings.deck,
+                size: Number(cardCount.value),
+              },
             });
+
             appStore.interface.endOfGameModal.isShowing = false;
           }}
           text="Play Again"
         />
+        <Button onClick$={hideModal$} text="Close" />
       </div>
     </Modal>
   );

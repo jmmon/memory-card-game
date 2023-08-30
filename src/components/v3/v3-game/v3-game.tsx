@@ -98,7 +98,7 @@ export type AppStore = {
     time: {
       start: number;
       end: number;
-      pausedCount: number;
+      accum: number;
     };
   };
 
@@ -125,8 +125,8 @@ export type AppStore = {
       isWin?: boolean;
     }
   >;
-  startGameTimer: QRL<() => void>;
-  endGameTimer: QRL<() => void>;
+  startTimer: QRL<() => void>;
+  stopTimer: QRL<() => void>;
 };
 
 const INITIAL_STATE = {
@@ -160,7 +160,7 @@ const INITIAL_STATE = {
     time: {
       start: -1,
       end: -1,
-      pausedCount: -1,
+      accum: 0,
     },
   },
 
@@ -287,14 +287,17 @@ const INITIAL_STATE = {
     return { isEnded, isWin };
   }),
 
-  startGameTimer: $(function (this: AppStore) {
+  startTimer: $(function (this: AppStore) {
     this.game.time.start = Date.now();
   }),
 
-  endGameTimer: $(function (this: AppStore) {
+  stopTimer: $(function (this: AppStore) {
     const now = Date.now();
     this.game.time.end = now;
-    return now - this.game.time.start;
+    const thisSessionAccum = now - this.game.time.start;
+    this.game.time.accum += thisSessionAccum;
+    this.game.time.start = -1;
+    return thisSessionAccum;
   }),
 };
 
@@ -335,7 +338,7 @@ export default component$(() => {
       {/* </InverseModal> */}
 
       <div
-        class={`flex flex-col flex-grow justify-between w-full h-full p-[${CONTAINER_PADDING_PERCENT}%] gap-1 z-[-1] ${
+        class={`flex flex-col flex-grow justify-between w-full h-full p-[${CONTAINER_PADDING_PERCENT}%] gap-1 ${
           appStore.boardLayout.isLocked ? "overflow-x-auto" : ""
         }`}
         ref={containerRef}
@@ -349,21 +352,29 @@ export default component$(() => {
         <V3Board containerRef={containerRef} />
       </div>
 
-      {appStore.game.isLoading && <LoadingPage />}
-      <GameEndModal />
+      <LoadingPage isShowing={appStore.game.isLoading} />
       <SettingsModal />
+      <GameEndModal />
     </>
   );
 });
 
-const LoadingPage = ({ blur = true }: { blur?: boolean }) => (
-  <div
-    class={` text-slate-200 ${
-      blur ? "backdrop-blur-[2px]" : ""
-    } bg-black bg-opacity-20 z-50  absolute top-0 left-0 text-4xl w-full flex-grow h-full flex justify-center items-center `}
-  >
-    Loading...
-  </div>
+const LoadingPage = component$(
+  ({ isShowing, blur = true }: { isShowing: boolean; blur?: boolean }) => (
+    <>
+      <div
+        class={`${
+          isShowing
+            ? `${
+                blur ? "backdrop-blur-[2px]" : ""
+              } opacity-100 z-50 pointer-events-auto`
+            : "z-[-1] pointer-events-none opacity-0"
+        } text-slate-200 transition-all bg-black bg-opacity-20 absolute top-0 left-0 text-4xl w-full flex-grow h-full flex justify-center items-center `}
+      >
+        Loading...
+      </div>
+    </>
+  )
 );
 
 /*
@@ -373,7 +384,6 @@ const LoadingPage = ({ blur = true }: { blur?: boolean }) => (
  * Some way to initialize dummy cards and fill in with actual data later?
  * That way I can do initial shuffle as the api is responding? then swap them out
  * Will need to have a loading indicator in case the fetch takes a long time
- *
  * BETTER:
  * "loading" animation is simply the cards shuffling repeatedly!
  * after loaded from API, (shuffle the cards, or map them to the shuffled dummy ids, and then) swap the cards out

@@ -137,7 +137,7 @@ export default component$(
       // finally finally, check for end conditions
       const res = await appStore.isGameEnded();
       if (res.isEnded) {
-        appStore.endGameTimer();
+        appStore.stopTimer();
         appStore.interface.endOfGameModal.isWin = res.isWin ?? false;
         appStore.interface.endOfGameModal.isShowing = true;
       }
@@ -196,8 +196,10 @@ export default component$(
         case isClickedOnCard:
           {
             // initialize game timer
-            if (appStore.game.time.start === -1) {
-              appStore.startGameTimer();
+            const isFirstClick =
+              appStore.game.time.start === -1 && appStore.game.time.end === -1;
+            if (isFirstClick) {
+              appStore.startTimer();
             }
 
             // check if it's already out of the game, if so we do nothing

@@ -4,6 +4,7 @@ import { component$, $, Slot, useTask$, useSignal } from "@builder.io/qwik";
 const DURATION = "duration-[300ms]";
 const IS_SHOWING_DELAY = 50;
 const DEFAULT_CONTAINER_BG = "bg-slate-600";
+
 export default component$(
   ({
     isShowing,
@@ -12,6 +13,7 @@ export default component$(
     bgClasses = "backdrop-blur-sm",
     title,
     bgStyles,
+    options = { detectClickOutside: false },
   }: {
     isShowing: boolean;
     hideModal$: PropFunction<() => void>;
@@ -19,6 +21,7 @@ export default component$(
     bgClasses?: string;
     bgStyles?: any;
     title: string;
+    options?: Partial<{ detectClickOutside: boolean }>;
   }) => {
     const containerClasses = DEFAULT_CONTAINER_BG + " " + classes;
     const closeModal = $((e: QwikMouseEvent) => {
@@ -31,29 +34,19 @@ export default component$(
       }
     });
 
-    const isShowingDelay = useSignal(isShowing);
-
-    useTask$((taskCtx) => {
-      taskCtx.track(() => isShowing);
-
-      const timer = setTimeout(() => {
-        isShowingDelay.value = isShowing;
-      }, IS_SHOWING_DELAY);
-
-      taskCtx.cleanup(() => {
-        clearTimeout(timer);
-      });
-    });
-
     return (
       <div
         class={`top-0 left-0 absolute w-full h-full bg-black flex justify-center items-center transition-all ${DURATION} ${
-          isShowing && isShowingDelay.value
-            ? "z-[100] bg-opacity-30"
-            : "z-[-10] bg-opacity-0"
-        } ${bgClasses}`}
+          isShowing ? `${bgClasses} z-[100] bg-opacity-30 ` : "z-[-1] bg-opacity-0"
+        }`}
         data-name="background"
-        onClick$={closeModal}
+        onClick$={(e) => {
+          if (options?.detectClickOutside) {
+            void 0;
+          } else {
+            closeModal(e);
+          }
+        }}
         style={bgStyles}
       >
         <div
@@ -61,30 +54,52 @@ export default component$(
             isShowing
               ? "pointer-events-auto z-[100]"
               : "pointer-events-none z-[-1]"
-          } ${
-            isShowing && !isShowingDelay.value
-              ? "scale-100"
-              : isShowing && isShowingDelay.value
-              ? "opacity-100 scale-100 "
-              : !isShowing && isShowingDelay.value
-              ? "opacity-0"
-              : "opacity-0 scale-[120%]"
-          }`}
+          } ${isShowing ? "opacity-100 scale-100" : "opacity-0 scale-[120%]"}`}
           data-name="modal"
         >
-          <header class="grid max-h-full grid-cols-[0.3fr_1fr_0.3fr] justify-center items-center">
-            <div></div>
-            <h3 class="text-lg">{title}</h3>
-            <button
-              class="ml-auto border-slate-400 border rounded-lg py-1.5 px-2 transition-all bg-slate-800/90 hover:bg-slate-600"
-              onClick$={hideModal$}
-            >
-              X
-            </button>
-          </header>
+          <ModalHeader hideModal$={hideModal$} title={title} />
           <Slot />
         </div>
       </div>
     );
   }
 );
+
+export const CloseButton = ({
+  hideModal$,
+  text = "X",
+}: {
+  text?: string;
+  hideModal$: PropFunction<() => void>;
+}) => {
+  return (
+    <button
+      class="ml-auto border-slate-400 border rounded-lg py-1.5 px-2 transition-all bg-slate-800/90 hover:bg-slate-600"
+      onClick$={hideModal$}
+    >
+      {text}
+    </button>
+  );
+};
+
+export const ModalHeader = ({
+  hideModal$,
+  title,
+  buttonOpts = { onLeft: false, text: "x" },
+}: {
+  hideModal$: PropFunction<() => void>;
+  title: string;
+  buttonOpts?: Partial<{ onLeft?: boolean; text?: string }>;
+}) => {
+  const button = (
+    <CloseButton hideModal$={hideModal$} text={buttonOpts?.text} />
+  );
+
+  return (
+    <header class="grid max-h-full grid-cols-[0.3fr_1fr_0.3fr] justify-center items-center">
+      {buttonOpts.onLeft ? button : <div></div>}
+      <h3 class="text-lg">{title}</h3>
+      {!buttonOpts.onLeft ? button : <div></div>}
+    </header>
+  );
+};
