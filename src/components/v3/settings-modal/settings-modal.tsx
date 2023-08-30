@@ -5,6 +5,7 @@ import {
   useContext,
   Slot,
   useSignal,
+  useTask$,
 } from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
 import Modal from "../modal/modal";
@@ -54,6 +55,18 @@ export default component$(() => {
     }
   `);
 
+  // TODO:
+  // pause timer when settings is open
+  // - store total game time
+  // when starting game, or when resuming from settings, save the time.start
+  // when ending game, or when opening settings, note the time
+  // - then calculate that session's game time, and add it on to time.total
+  // (then resume again, resets time.start to Date.now() for next session)
+
+  // useTask$((taskCtx) => {
+  // taskCtx.track(() => appStore.settings.modal.isShowing);
+  //   const prevTime = appStore.game.time.pausedCount;
+  // });
   return (
     <Modal
       isShowing={appStore.settings.modal.isShowing}
@@ -266,17 +279,18 @@ export default component$(() => {
           </div>
         </div>
         <details class="w-full mt-2 flex flex-col gap-2 items-center">
-          <summary class="p-2 border border-slate-200 bg-slate-700 rounded hover:bg-slate-500 cursor-pointer w-max mx-auto">Help</summary>
+          <summary class="p-2 border border-slate-200 bg-slate-700 rounded hover:bg-slate-500 cursor-pointer w-max mx-auto">
+            Help
+          </summary>
           <ul class="text-left list-disc grid gap-2 w-full">
             <li>Select cards by clicking on them.</li>
             <li>
-              Cards are matched when the two selected cards have the same
-              number and the color matches (i.e. red with red, black with
-              black).
+              Cards are matched when the two selected cards have the same number
+              and the color matches (i.e. red with red, black with black).
             </li>
             <li>
-              Game time starts when you select your first card, and stops
-              when the last pair of cards disappears.
+              Game time starts when you select your first card, and stops when
+              the last pair of cards disappears.
             </li>
           </ul>
         </details>

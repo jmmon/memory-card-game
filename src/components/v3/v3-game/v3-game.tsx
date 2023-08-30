@@ -95,6 +95,7 @@ export type AppStore = {
     time: {
       start: number;
       end: number;
+      pausedCount: number;
     };
   };
 
@@ -153,6 +154,7 @@ const INITIAL_STATE = {
     time: {
       start: -1,
       end: -1,
+      pausedCount: -1,
     },
   },
 
@@ -382,4 +384,10 @@ const LoadingPage = ({ blur = true }: { blur?: boolean }) => (
 * - Should be able to reuse coordinates
 * - just need to set top & left instead of setting gridRow & gridCol
 * - then can simplify the shuffling method
+*
+*
+* - other ideas for card positioning??
+*   - run shuffle over time, card after card, so animation is one at a time
+*   - e.g. chain them: c[5] => c[1], c[1] => c[7], c[7] => c[n]
+*
  * */
