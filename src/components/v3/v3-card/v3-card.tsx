@@ -3,13 +3,16 @@ import {
   useComputed$,
   useContext,
   useSignal,
-  useStylesScoped$,
   useTask$,
 } from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
 import type { BoardLayout, CardLayout, V3Card } from "../v3-game/v3-game";
-import { CARD_RATIO, CARD_SHUFFLE_ACTIVE_DURATION, CARD_SHUFFLE_DELAYED_START } from "../v3-board/v3-board";
-import { buildCardsArrayFromPairsArray } from "../utils/v3CardUtils";
+import {
+  CARD_RATIO,
+  CARD_SHUFFLE_ACTIVE_DURATION,
+  CARD_SHUFFLE_DELAYED_START,
+} from "../v3-board/v3-board";
+import Back from "../cards/back/back";
 
 const CARD_RATIO_VS_CONTAINER = 0.9;
 /*
@@ -19,7 +22,7 @@ const CARD_RATIO_VS_CONTAINER = 0.9;
 const ENLARGED_CARD_SCALE__RATIO_FOR_LIMITING_DIMENSION = 0.8;
 
 export const CARD_FLIP_ANIMATION_DURATION = 600;
-const CARD_SHAKE_ANIMATION_DURATION = 700;
+export const CARD_SHAKE_ANIMATION_DURATION = 700;
 
 // underside shows immediately, but hides after this far during return transition
 const HIDE_UNDERSIDE_AFTER_PERCENT = 0.9;
@@ -247,38 +250,6 @@ export default component$(({ card }: { card: V3Card }) => {
     return newCoords;
   });
 
-  useStylesScoped$(`
-    .shake-card {
-      animation: shake-card ${CARD_SHAKE_ANIMATION_DURATION}ms;
-    }
-
-    @keyframes shake-card {
-      0% {
-        transform: translateX(0%);
-      }
-      10% {
-        transform: translateX(-7%);  
-        box-shadow: 5px 0px 5px 5px rgba(255, 63, 63, 0.5);
-      }
-      23% {
-        transform: translateX(5%);  
-        box-shadow: -4px 0px 4px 4px rgba(255, 63, 63, 0.4);
-      }
-      56% {
-        transform: translateX(-3%);  
-        box-shadow: 3px 0px 3px 3px rgba(255, 63, 63, 0.3);
-      }
-      84% {
-        transform: translateX(1%);  
-        box-shadow: -2px 0px 2px 2px rgba(255, 63, 63, 0.2);
-      }
-      100% {
-        transform: translateX(0%);  
-        box-shadow: 1px 0px 1px 1px rgba(255, 63, 63, 0.1);
-      }
-    }
-  `);
-
   /* perspective: for 3D effect, adjust based on width, and card area compared to viewport */
 
   return (
@@ -299,8 +270,8 @@ export default component$(({ card }: { card: V3Card }) => {
 
         // do transform immediately when starting shuffling
         transitionProperty: "transform",
-        // transitionTimingFunction: "cubic-bezier(0.40, 1.3, 0.62, 1.045)",
-        transitionTimingFunction: "ease-in-out",
+        transitionTimingFunction: "cubic-bezier(0.40, 1.3, 0.62, 1.045)",
+        // transitionTimingFunction: "ease-in-out",
         transform:
           (appStore.game.isShuffling && appStore.game.isShufflingDelayed) ||
           !appStore.game.isShuffling
@@ -312,6 +283,7 @@ export default component$(({ card }: { card: V3Card }) => {
           ? CARD_SHUFFLE_DELAYED_START + CARD_SHUFFLE_ACTIVE_DURATION + "ms"
           : "0ms",
       }}
+      data-label="card-slot-container"
     >
       <div
         class="border border-slate-50/10 mx-auto bg-transparent"
@@ -320,8 +292,11 @@ export default component$(({ card }: { card: V3Card }) => {
           width: CARD_RATIO_VS_CONTAINER * 100 + "%",
           height: CARD_RATIO_VS_CONTAINER * 100 + "%",
         }}
+        data-label="card-outline"
       >
         <div
+          data-id={card.id}
+          data-label="card"
           class={`w-full h-full [perspective:${
             CARD_RATIO_VS_CONTAINER * 100
           }vw] border border-slate-50/25 bg-transparent transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
@@ -336,12 +311,10 @@ export default component$(({ card }: { card: V3Card }) => {
           style={{
             borderRadius: appStore.cardLayout.roundedCornersPx + "px",
           }}
-          data-label="card"
-          data-id={card.id}
         >
           <div
-            class={`w-full h-full relative text-center [transform-style:preserve-3d] [transition-property:all]`}
             data-id={card.id}
+            class={`w-full h-full relative text-center [transform-style:preserve-3d] [transition-property:all]`}
             style={{
               transform:
                 isCardFlipped.value ||
@@ -361,22 +334,37 @@ export default component$(({ card }: { card: V3Card }) => {
             }}
           >
             <div
-              class={`absolute w-full h-full border-2 border-slate-50 text-white bg-[dodgerblue] flex flex-col justify-center [backface-visibility:hidden]`}
               data-id={card.id}
               data-label="card-back"
+              class={`absolute w-full h-full border-2 border-slate-50 text-white bg-[dodgerblue] flex flex-col justify-center [backface-visibility:hidden]`}
               style={{
                 borderRadius: appStore.cardLayout.roundedCornersPx + "px",
               }}
             >
-              <div
+              {/* <Back  */}
+              {/* color="dodgerblue" */}
+              {/* width="25" */}
+              {/* height="35" */}
+              {/* classes="w-full h-full" */}
+              {/* id={card.id} */}
+              {/* /> */}
+              <img
                 data-id={card.id}
-                data-name="circle"
-                class="w-1/2 h-auto aspect-square rounded-[50%] bg-white/40 mx-auto flex flex-col justify-center items-center"
-              ></div>
+                width="25"
+                height="35"
+                src="/cards/_backWhite.svg"
+                class="w-full h-full"
+              />
+              {/* <div */}
+              {/*   data-id={card.id} */}
+              {/*   data-label="circle" */}
+              {/*   class="w-1/2 h-auto aspect-square rounded-[50%] bg-white/40 mx-auto flex flex-col justify-center items-center" */}
+              {/* ></div> */}
             </div>
+
             <div
-              class={`absolute w-full border border-white h-full flex justify-center items-center text-black bg-slate-300 [transform:rotateY(180deg)] [backface-visibility:hidden] `}
               data-id={card.id}
+              class={`absolute w-full border border-white h-full flex justify-center items-center text-black bg-slate-300 [transform:rotateY(180deg)] [backface-visibility:hidden] `}
               data-label="card-front"
               style={{
                 borderRadius: appStore.cardLayout.roundedCornersPx + "px",
@@ -385,6 +373,7 @@ export default component$(({ card }: { card: V3Card }) => {
               {isUnderSideShowing.value &&
                 (card.localSVG ? (
                   <img
+                    data-id={card.id}
                     width="25"
                     height="35"
                     src={card.localSVG}

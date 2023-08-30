@@ -5,11 +5,15 @@ import {
   useContext,
   useOnWindow,
   useSignal,
+  useStyles$,
   useTask$,
   useVisibleTask$,
 } from "@builder.io/qwik";
 
-import V3Card, { CARD_FLIP_ANIMATION_DURATION } from "../v3-card/v3-card";
+import V3Card, {
+  CARD_FLIP_ANIMATION_DURATION,
+  CARD_SHAKE_ANIMATION_DURATION,
+} from "../v3-card/v3-card";
 import { AppContext } from "../v3-context/v3.context";
 import { CONTAINER_PADDING_PERCENT, Pair } from "../v3-game/v3-game";
 import { useDebounce } from "../utils/useDebounce";
@@ -23,8 +27,6 @@ export const CARD_SHUFFLE_DELAYED_START = 200;
 // animation duration
 export const CARD_SHUFFLE_ACTIVE_DURATION = 400;
 export const CARD_SHUFFLE_ROUNDS = 5;
-
-const CARD_SHAKE_ANIMATION_DURATION = 700;
 
 // higher means shake starts sooner
 const START_SHAKE_ANIMATION_EAGER_MS = 100;
@@ -135,7 +137,7 @@ export default component$(
       // finally finally, check for end conditions
       const res = await appStore.isGameEnded();
       if (res.isEnded) {
-        appStore.endGame();
+        appStore.endGameTimer();
         appStore.interface.endOfGameModal.isWin = res.isWin ?? false;
         appStore.interface.endOfGameModal.isShowing = true;
       }
@@ -179,6 +181,7 @@ export default component$(
       const isCardFlipped = appStore.game.flippedCardId !== -1;
       // attempt to get the card id if click is on a card
       const clickedId = Number((e.target as HTMLElement).dataset.id) || false;
+
       const isClickedOnCard = !!clickedId;
 
       switch (true) {
@@ -194,7 +197,7 @@ export default component$(
           {
             // initialize game timer
             if (appStore.game.time.start === -1) {
-              appStore.startGame();
+              appStore.startGameTimer();
             }
 
             // check if it's already out of the game, if so we do nothing
@@ -400,13 +403,10 @@ export default component$(
      * ================================ */
     useTask$((taskCtx) => {
       taskCtx.track(() => appStore.game.mismatchPair);
-      // continue only if card is mismatched
       if (appStore.game.mismatchPair === "") return;
 
-      // delay until the animation is over, then start the shake
-      // turn on shake after duration (once card returns to its spaces)
+      // turn on shake after card returns to its space
       const timeout = setTimeout(() => {
-        // shakeSignal.value = true;
         appStore.game.isShaking = true;
       }, SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD);
 
@@ -420,10 +420,7 @@ export default component$(
       taskCtx.track(() => appStore.game.isShaking);
       if (appStore.game.isShaking === false) return;
 
-      // delay until the animation is over, then start the shake
-      // turn off shake after duration
       const timeout = setTimeout(() => {
-        // shakeSignal.value = false;
         appStore.game.isShaking = false;
         appStore.game.mismatchPair = "";
       }, CARD_SHAKE_ANIMATION_DURATION);
@@ -432,6 +429,38 @@ export default component$(
         clearTimeout(timeout);
       });
     });
+
+    useStyles$(`
+    .shake-card {
+      animation: shake-card ${CARD_SHAKE_ANIMATION_DURATION}ms;
+    }
+
+    @keyframes shake-card {
+      0% {
+        transform: translateX(0%);
+      }
+      10% {
+        transform: translateX(-7%);  
+        box-shadow: 5px 0px 5px 5px rgba(255, 63, 63, 0.5);
+      }
+      23% {
+        transform: translateX(5%);  
+        box-shadow: -4px 0px 4px 4px rgba(255, 63, 63, 0.4);
+      }
+      56% {
+        transform: translateX(-3%);  
+        box-shadow: 3px 0px 3px 3px rgba(255, 63, 63, 0.3);
+      }
+      84% {
+        transform: translateX(1%);  
+        box-shadow: -2px 0px 2px 2px rgba(255, 63, 63, 0.2);
+      }
+      100% {
+        transform: translateX(0%);  
+        box-shadow: 1px 0px 1px 1px rgba(255, 63, 63, 0.1);
+      }
+    }
+  `);
 
     return (
       <>
@@ -445,6 +474,7 @@ export default component$(
           }}
           ref={boardRef}
           onClick$={(e: QwikMouseEvent) => handleClickBoard(e)}
+          data-label="board"
         >
           {appStore.game.cards.map((card) => (
             <V3Card card={card} key={card.id} />

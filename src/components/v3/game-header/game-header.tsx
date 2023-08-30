@@ -1,8 +1,4 @@
-import {
-  Slot,
-  component$,
-  useContext,
-} from "@builder.io/qwik";
+import { PropFunction, Slot, component$, useContext } from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
 import Button from "../button/button";
 
@@ -15,57 +11,56 @@ const DECIMALS = 1;
 const roundToDecimals = (number: number, decimals: number = DECIMALS) =>
   Math.round(number * 10 ** decimals) / 10 ** decimals;
 
-export default component$(() => {
-  const appStore = useContext(AppContext);
-  return (
-    <header
-      class={`mx-auto text-center text-xs md:text-sm flex justify-around w-full h-min`}
-    >
-      <HeaderSection classes="justify-start md:justify-around">
-        {appStore.settings.interface.showSelectedIds && (
-          <SelectionHeaderComponent />
-        )}
-        <LockedIndicator name="is loading" isLocked={appStore.game.isLoading} />
-        {/* <LockedIndicator name="deck" isLocked={appStore.settings.deck.isLocked} /> */}
-        {appStore.settings.interface.showDimensions && (
-          <ShowDimensionsHeaderComponent />
-        )}
-      </HeaderSection>
-      <Button
-        text="Settings"
-        onClick$={() => {
-          appStore.settings.modal.isShowing =
-            !appStore.settings.modal.isShowing;
-        }}
-      />
-      <HeaderSection>
-        <code
-          class={` bg-slate-800 ${CODE_TEXT_LIGHT} flex gap-1 ${CODE_PADDING}`}
-        >
-          <div
-            class={` flex flex-col flex-grow justify-evenly text-right ${CODE_TEXT_DARK}`}
+export default component$(
+  ({ showSettings$ }: { showSettings$: PropFunction<() => void> }) => {
+    const appStore = useContext(AppContext);
+    return (
+      <header
+        class={`mx-auto text-center text-xs md:text-sm flex justify-around w-full h-min`}
+      >
+        <HeaderSection classes="justify-start md:justify-around">
+          {appStore.settings.interface.showSelectedIds && (
+            <SelectionHeaderComponent />
+          )}
+          <LockedIndicator
+            name="is loading"
+            isLocked={appStore.game.isLoading}
+          />
+          {/* <LockedIndicator name="deck" isLocked={appStore.settings.deck.isLocked} /> */}
+          {appStore.settings.interface.showDimensions && (
+            <DimensionsHeaderComponent />
+          )}
+        </HeaderSection>
+        <Button text="Settings" onClick$={showSettings$} />
+        <HeaderSection>
+          <code
+            class={` bg-slate-800 ${CODE_TEXT_LIGHT} flex gap-1 ${CODE_PADDING}`}
           >
-            <span>pairs:</span>
-            <span>mismatches:</span>
-          </div>
-          <div class="flex flex-col flex-grow justify-evenly">
-            <span>
-              {appStore.game.successfulPairs.length}/
-              {appStore.settings.deck.size / 2}{" "}
-            </span>
+            <div
+              class={` flex flex-col flex-grow justify-evenly text-right ${CODE_TEXT_DARK}`}
+            >
+              <span>pairs:</span>
+              <span>mismatches:</span>
+            </div>
+            <div class="flex flex-col flex-grow justify-evenly">
+              <span>
+                {appStore.game.successfulPairs.length}/
+                {appStore.settings.deck.size / 2}{" "}
+              </span>
 
-            <span>
-              {appStore.game.mismatchPairs.length}
-              {appStore.settings.maxAllowableMismatches === -1
-                ? ""
-                : `/${appStore.settings.maxAllowableMismatches}`}
-            </span>
-          </div>
-        </code>
-      </HeaderSection>
-    </header>
-  );
-});
+              <span>
+                {appStore.game.mismatchPairs.length}
+                {appStore.settings.maxAllowableMismatches === -1
+                  ? ""
+                  : `/${appStore.settings.maxAllowableMismatches}`}
+              </span>
+            </div>
+          </code>
+        </HeaderSection>
+      </header>
+    );
+  }
+);
 
 const SelectionHeaderComponent = component$(() => {
   const appStore = useContext(AppContext);
@@ -83,6 +78,7 @@ const SelectionHeaderComponent = component$(() => {
   );
 });
 
+// slot requires "component$", can't do inliner
 const HeaderSection = component$(
   ({ classes = "justify-center" }: { classes?: string }) => {
     return (
@@ -109,7 +105,7 @@ const LockedIndicator = ({
   );
 };
 
-const ShowDimensionsHeaderComponent = component$(() => {
+const DimensionsHeaderComponent = component$(() => {
   const appStore = useContext(AppContext);
   return (
     <code

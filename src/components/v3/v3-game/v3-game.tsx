@@ -9,11 +9,14 @@ import {
 import V3Board from "../v3-board/v3-board";
 import { AppContext } from "../v3-context/v3.context";
 import { shuffleCardPositions, shuffleByPairs } from "../utils/v3CardUtils";
-import SettingsModal from "../settings-modal/settings-modal";
+import SettingsModal, {
+  SettingsContent,
+} from "../settings-modal/settings-modal";
 import GameHeader from "../game-header/game-header";
 import { isServer } from "@builder.io/qwik/build";
 import { formattedDeck } from "../utils/cards";
 import GameEndModal from "../game-end-modal/game-end-modal";
+import InverseModal from "../inverse-modal/inverse-modal";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
 export const DEFAULT_CARD_COUNT = 18;
@@ -102,6 +105,9 @@ export type AppStore = {
   settings: AppSettings;
 
   interface: {
+    inverseSettingsModal: {
+      isShowing: boolean;
+    };
     settingsModal: {
       isShowing: boolean;
     };
@@ -119,8 +125,8 @@ export type AppStore = {
       isWin?: boolean;
     }
   >;
-  startGame: QRL<() => void>;
-  endGame: QRL<() => void>;
+  startGameTimer: QRL<() => void>;
+  endGameTimer: QRL<() => void>;
 };
 
 const INITIAL_STATE = {
@@ -205,6 +211,9 @@ const INITIAL_STATE = {
     },
   },
   interface: {
+    inverseSettingsModal: {
+      isShowing: false,
+    },
     settingsModal: {
       isShowing: false,
     },
@@ -278,11 +287,11 @@ const INITIAL_STATE = {
     return { isEnded, isWin };
   }),
 
-  startGame: $(function (this: AppStore) {
+  startGameTimer: $(function (this: AppStore) {
     this.game.time.start = Date.now();
   }),
 
-  endGame: $(function (this: AppStore) {
+  endGameTimer: $(function (this: AppStore) {
     const now = Date.now();
     this.game.time.end = now;
     return now - this.game.time.start;
@@ -300,18 +309,49 @@ export default component$(() => {
 
   return (
     <>
+      {/* <InverseModal */}
+      {/*   isShowing={appStore.interface.inverseSettingsModal.isShowing} */}
+      {/*   hideModal$={() => { */}
+      {/*     appStore.interface.inverseSettingsModal.isShowing = false; */}
+      {/*   }} */}
+      {/*   title="Settings" */}
+      {/* > */}
+      {/*   <div */}
+      {/*     q:slot="mainContent" */}
+      {/*     class={`flex flex-col flex-grow justify-between w-full h-full p-[${CONTAINER_PADDING_PERCENT}%] gap-1 ${ */}
+      {/*       appStore.boardLayout.isLocked ? "overflow-x-auto" : "" */}
+      {/*     }`} */}
+      {/*     ref={containerRef} */}
+      {/*   > */}
+      {/*     <GameHeader */}
+      {/*       showSettings$={() => { */}
+      {/*         appStore.interface.inverseSettingsModal.isShowing = true; */}
+      {/*       }} */}
+      {/*     /> */}
+      {/**/}
+      {/*     <V3Board containerRef={containerRef} /> */}
+      {/*   </div> */}
+      {/*   <SettingsContent q:slot="revealedContent" /> */}
+      {/* </InverseModal> */}
+
       <div
-        class={`flex flex-col flex-grow justify-between w-full h-full p-[${CONTAINER_PADDING_PERCENT}%] gap-1 ${
+        class={`flex flex-col flex-grow justify-between w-full h-full p-[${CONTAINER_PADDING_PERCENT}%] gap-1 z-[-1] ${
           appStore.boardLayout.isLocked ? "overflow-x-auto" : ""
         }`}
         ref={containerRef}
       >
-        <GameHeader />
+        <GameHeader
+          showSettings$={() => {
+            appStore.interface.settingsModal.isShowing = true;
+            console.log("header - showing settings");
+          }}
+        />
         <V3Board containerRef={containerRef} />
       </div>
+
       {appStore.game.isLoading && <LoadingPage />}
-      <SettingsModal />
       <GameEndModal />
+      <SettingsModal />
     </>
   );
 });
@@ -369,25 +409,30 @@ const LoadingPage = ({ blur = true }: { blur?: boolean }) => (
  * - time starts on first click and ends on gameEndModal popup
  *   (- can rate against other players, top percentile rankings eventually)
  * - separate scoreboard per pairs count, and can rate games by time and by mismatches
-*
-*
-*
-*
-*
-*
-*   ALTERNATE CARD POSITIONING:
-* - use positions (top, left) and be relative to the Board component
-* - set the top left corners
-* - Then, when shuffling, simply adjust the top and left of each card
-* - the transtions on top & left will handle the rest!!!
-*
-* - Should be able to reuse coordinates
-* - just need to set top & left instead of setting gridRow & gridCol
-* - then can simplify the shuffling method
-*
-*
-* - other ideas for card positioning??
-*   - run shuffle over time, card after card, so animation is one at a time
-*   - e.g. chain them: c[5] => c[1], c[1] => c[7], c[7] => c[n]
-*
+ *
+ *
+ *
+ *
+ *
+ *
+ *   ALTERNATE CARD POSITIONING:
+ * - use positions (top, left) and be relative to the Board component
+ * - set the top left corners
+ * - Then, when shuffling, simply adjust the top and left of each card
+ * - the transtions on top & left will handle the rest!!!
+ *
+ * - Should be able to reuse coordinates
+ * - just need to set top & left instead of setting gridRow & gridCol
+ * - then can simplify the shuffling method
+ *
+ *
+ * - other ideas for card positioning??
+ *   - run shuffle over time, card after card, so animation is one at a time
+ *   - e.g. chain them: c[5] => c[1], c[1] => c[7], c[7] => c[n]
+ *
+ * - Transform-translate EVERYTHING:
+ *   - no need for grid
+ *   - each card would be absolute top left
+ *   - translate into each spot (based on coords/position)
+ *   - When a card needs to move to a new position, just find the difference between the old and the new and apply it!
  * */
