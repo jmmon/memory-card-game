@@ -9,7 +9,7 @@ import {
 import { AppContext } from "../v3-context/v3.context";
 import Modal from "../modal/modal";
 import Button from "../button/button";
-import { AppSettings } from "../v3-game/v3-game";
+import type { AppSettings } from "../v3-game/v3-game";
 import { FormattedTime } from "../game-end-modal/game-end-modal";
 
 const COLUMN_GAP = "gap-0.5 md:gap-1";

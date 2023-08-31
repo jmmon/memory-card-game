@@ -1,5 +1,6 @@
+import type {
+  PropFunction} from "@builder.io/qwik";
 import {
-  PropFunction,
   Slot,
   component$,
   useContext,

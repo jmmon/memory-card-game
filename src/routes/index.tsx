@@ -71,16 +71,16 @@ export const head: DocumentHead = {
   ],
 };
 
-function fib(n: number): number {
-  if (n === 1) {
-    return 1;
-  }
-  if (n === 2) {
-    return 2;
-  }
-  // console.log("fib", n);
-  return fib(n - 1) + fib(n - 2);
-}
+// function fib(n: number): number {
+//   if (n === 1) {
+//     return 1;
+//   }
+//   if (n === 2) {
+//     return 2;
+//   }
+//   // console.log("fib", n);
+//   return fib(n - 1) + fib(n - 2);
+// }
 
 // function deriveDifficulty(count: number): number {
 // return fib(count);
@@ -99,25 +99,25 @@ function fib(n: number): number {
 //   // }
 //   // return total;
 // }
-console.log("guaging difficulty", {
-  pairs3: fib(3),
-  // pairs6: fib(6),
-  // pairs9: fib(9),
-  // pairs12: fib(12),
-  // pairs52: fib(52),
-});
+// console.log("guaging difficulty", {
+//   pairs3: fib(3),
+//   // pairs6: fib(6),
+//   // pairs9: fib(9),
+//   // pairs12: fib(12),
+//   // pairs52: fib(52),
+// });
 
-const result = {
-  pairs3: 2.8333333333333335,
-  pairs6: 3.45,
-  pairs9: 3.828968253968254,
-  pairs12: 4.1032106782106785,
-  pairs52: 5.538043950697446,
-};
-const result2 = {
-  pairs3: 3.45,
-  pairs6: 4.1032106782106785,
-  pairs9: 4.495108078196313,
-  pairs12: 4.775958177753506,
-  pairs52: 6.22640655178672,
-};
+// const result = {
+//   pairs3: 2.8333333333333335,
+//   pairs6: 3.45,
+//   pairs9: 3.828968253968254,
+//   pairs12: 4.1032106782106785,
+//   pairs52: 5.538043950697446,
+// };
+// const result2 = {
+//   pairs3: 3.45,
+//   pairs6: 4.1032106782106785,
+//   pairs9: 4.495108078196313,
+//   pairs12: 4.775958177753506,
+//   pairs52: 6.22640655178672,
+// };

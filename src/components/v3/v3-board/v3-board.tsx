@@ -15,7 +15,8 @@ import V3Card, {
   CARD_SHAKE_ANIMATION_DURATION,
 } from "../v3-card/v3-card";
 import { AppContext } from "../v3-context/v3.context";
-import { CONTAINER_PADDING_PERCENT, Pair } from "../v3-game/v3-game";
+import type { Pair } from "../v3-game/v3-game";
+import { CONTAINER_PADDING_PERCENT } from "../v3-game/v3-game";
 import { useDebounce } from "../utils/useDebounce";
 import {
   checkIfCardIsRemoved,

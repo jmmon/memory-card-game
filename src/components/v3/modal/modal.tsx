@@ -1,5 +1,5 @@
 import type { QwikMouseEvent, PropFunction } from "@builder.io/qwik";
-import { component$, $, Slot, useTask$, useSignal } from "@builder.io/qwik";
+import { component$, $, Slot, } from "@builder.io/qwik";
 
 const DURATION = "duration-[300ms]";
 // const IS_SHOWING_DELAY = 50;
@@ -25,7 +25,7 @@ export default component$(
   }) => {
     const containerClasses = DEFAULT_CONTAINER_BG + " " + classes;
     const closeModal$ = $((e: QwikMouseEvent) => {
-      if (options?.detectClickOutside) return;
+      if (options.detectClickOutside) return;
 
       if (
         (e.target as HTMLElement).dataset.name === "background" &&
@@ -87,7 +87,7 @@ export const ModalHeader = ({
   buttonOpts?: Partial<{ onLeft?: boolean; text?: string }>;
 }) => {
   const button = (
-    <CloseButton hideModal$={hideModal$} text={buttonOpts?.text} />
+    <CloseButton hideModal$={hideModal$} text={buttonOpts.text} />
   );
 
   return (
