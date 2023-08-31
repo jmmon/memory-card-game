@@ -1,14 +1,6 @@
 import { component$ } from "@builder.io/qwik";
 import { useDocumentHead, useLocation } from "@builder.io/qwik-city";
-import { IMAGE_TYPE, deckOfCardsIds } from "../v3/utils/v3CardUtils";
 import {formattedDeck} from "../v3/utils/cards";
-
-// preload the images for the deck of cards
-// const imageBaseUrl = (id: string) =>
-//   `https://deckofcardsapi.com/static/img/${id}.${IMAGE_TYPE}`;
-//
-// const cardImageUrls = deckOfCardsIds.map((id) => imageBaseUrl(id));
-const cardImageUrls = formattedDeck.map((card) => card.localSVG);
 
 /**
  * The RouterHead component is placed inside of the document `<head>` element.
@@ -37,7 +29,7 @@ export const RouterHead = component$(() => {
         <style key={s.key} {...s.props} dangerouslySetInnerHTML={s.style} />
       ))}
 
-      {cardImageUrls.map((url) => (
+      {formattedDeck.map(({localSVG: url}) => (
         <link key={url} rel="preload" as="image" href={url} />
       ))}
     </>

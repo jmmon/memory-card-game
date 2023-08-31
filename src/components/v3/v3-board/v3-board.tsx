@@ -66,7 +66,7 @@ export default component$(
     const appStore = useContext(AppContext);
     const boardRef = useSignal<HTMLDivElement>();
 
-    const resizeBoard = $(async (width?: number, height?: number) => {
+    const resizeBoard = $((width?: number, height?: number) => {
       const boardWidth = width || boardRef.value?.offsetWidth || 0;
       const boardHeight = height || boardRef.value?.offsetHeight || 0;
       const boardArea = boardWidth * boardHeight;
@@ -133,6 +133,7 @@ export default component$(
           pair,
         ];
 
+        // TODO:
         // some success animation to indicate a pair,
         // like a sparkle or a background blur around the pairs count
       }
@@ -161,7 +162,7 @@ export default component$(
 
     const flippedTime = useSignal(-1);
 
-    const handleClickCard = $(async (cardId: number) => {
+    const handleClickCard = $((cardId: number) => {
       // to prevent card from returning super quick
       flippedTime.value = Date.now();
 
@@ -170,11 +171,7 @@ export default component$(
         cardId
       );
 
-      const wasCardSelected =
-        newSelected &&
-        newSelected.length !== appStore.game.selectedCardIds.length;
-
-      if (wasCardSelected) {
+      if (newSelected.length !== appStore.game.selectedCardIds.length) {
         appStore.game.selectedCardIds = newSelected;
 
         const isFinalPair =
@@ -196,7 +193,7 @@ export default component$(
       appStore.game.flippedCardId = cardId;
     });
 
-    const handleClickBoard$ = $(async (e: QwikMouseEvent) => {
+    const handleClickBoard$ = $((e: QwikMouseEvent) => {
       // console.log("clicked board:", { event: e, target: e.target });
       const isCardFlipped = appStore.game.flippedCardId !== -1;
       // attempt to get the card id if click is on a card
@@ -287,29 +284,33 @@ export default component$(
     });
 
     const adjustDeckSize = $(() => {
-      appStore.sliceDeck();
-
-      appStore.shuffleCardPositions();
-
-      // reset stats
-      appStore.game.selectedCardIds = [];
-      appStore.game.flippedCardId = -1;
-      appStore.game.mismatchPairs = [];
-      appStore.game.successfulPairs = [];
-
+      // appStore.sliceDeck();
+      //
+      // appStore.shuffleCardPositions();
+      //
+      // // reset stats
+      // appStore.game.selectedCardIds = [];
+      // appStore.game.flippedCardId = -1;
+      // appStore.game.mismatchPairs = [];
+      // appStore.game.successfulPairs = [];
+      //
       // TODO:
       // instead, do:
-      // appStore.resetGame({deck: {size: appStore.settings.deck.size}});
+      appStore.resetGame({
+        ...appStore.settings,
+        deck: { ...appStore.settings.deck, size: appStore.settings.deck.size },
+      });
     });
 
     /* ================================
      * Handle Adjusting Board
-     * - when "resize" flips or deck.size changes, recalculate
+     * - RUNS ON MOUNT
+     * - also when "resize" flip-flops, or when deck.size changes
      * ================================ */
     const lastDeckSize = useSignal(appStore.settings.deck.size);
     const lastRefresh = useSignal(appStore.settings.resizeBoard);
 
-    useVisibleTask$(async (taskCtx) => {
+    useVisibleTask$((taskCtx) => {
       const newDeckSize = taskCtx.track(() => appStore.settings.deck.size);
       const newRefresh = taskCtx.track(() => appStore.settings.resizeBoard);
       const isDeckChanged = lastDeckSize.value !== newDeckSize;
@@ -412,27 +413,18 @@ export default component$(
       if (appStore.game.mismatchPair === "") return;
 
       // turn on shake after card returns to its space
-      const timeout = setTimeout(() => {
+      const startAnimationTimeout = setTimeout(() => {
         appStore.game.isShaking = true;
       }, SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD);
 
-      taskCtx.cleanup(() => {
-        clearTimeout(timeout);
-      });
-    });
-
-    // handle turn off shake animation
-    useTask$((taskCtx) => {
-      taskCtx.track(() => appStore.game.isShaking);
-      if (appStore.game.isShaking === false) return;
-
-      const timeout = setTimeout(() => {
+      const endAnimationTimeout = setTimeout(() => {
         appStore.game.isShaking = false;
         appStore.game.mismatchPair = "";
-      }, CARD_SHAKE_ANIMATION_DURATION);
+      }, SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD + CARD_SHAKE_ANIMATION_DURATION);
 
       taskCtx.cleanup(() => {
-        clearTimeout(timeout);
+        clearTimeout(startAnimationTimeout);
+        clearTimeout(endAnimationTimeout);
       });
     });
 

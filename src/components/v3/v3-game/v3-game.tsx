@@ -504,3 +504,16 @@ const LoadingPage = component$(
  *
  *
  * */
+
+
+
+
+/* 
+*
+*  TODO: attempt to find edge case in qwik build? heh...
+*
+*  board component fetches and initializes cards, then jsx is able to render them
+*  board component is using a variable exported by card component
+*  the order of imports in the build ends up out of order for some reason
+*
+*  */
