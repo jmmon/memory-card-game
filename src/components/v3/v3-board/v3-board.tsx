@@ -21,6 +21,7 @@ import {
   findCardById,
   handleSelectCard,
 } from "../utils/v3CardUtils";
+import { calculateLayouts } from "../utils/boardUtils";
 
 export const CARD_FLIP_ANIMATION_DURATION = 600;
 export const CARD_SHAKE_ANIMATION_DURATION = 700;
@@ -42,76 +43,14 @@ const SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD =
     START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE -
   START_SHAKE_ANIMATION_EAGER_MS;
 
-const calculateBoardDimensions = (
-  container: HTMLElement,
-  board: HTMLElement
-) => {
-  // const container = containerRef.value as HTMLElement; // or use window instead of container/game?
-  // const board = boardRef.value as HTMLElement;
-
-  const boardRect = board.getBoundingClientRect();
-  const boardTop = boardRect.top;
-  const boardBottomLimit =
-    (container.offsetHeight * (100 - CONTAINER_PADDING_PERCENT)) / 100; // account for padding on bottom
-  const boardHeight = boardBottomLimit - boardTop;
-
-  const boardWidth =
-    (container.offsetWidth * (100 - CONTAINER_PADDING_PERCENT * 2)) / 100; // account for padding on sides
-
-  return { width: boardWidth, height: boardHeight };
-};
 
 export default component$(
   ({ containerRef }: { containerRef: Signal<HTMLElement | undefined> }) => {
     const appStore = useContext(AppContext);
     const boardRef = useSignal<HTMLDivElement>();
 
-    const resizeBoard = $((width?: number, height?: number) => {
-      const boardWidth = width || boardRef.value?.offsetWidth || 0;
-      const boardHeight = height || boardRef.value?.offsetHeight || 0;
-      const boardArea = boardWidth * boardHeight;
-
-      const maxAreaPerCard = boardArea / appStore.settings.deck.size; // to get approx cols/rows
-
-      // width first approach
-      const maxWidthPerCard = Math.sqrt(maxAreaPerCard * CARD_RATIO);
-      const columns = Math.floor(boardWidth / maxWidthPerCard);
-      const rows = Math.ceil(appStore.settings.deck.size / columns);
-
-      // max height per card is restricted by number of rows:
-      const newCardHeight = boardHeight / rows;
-      const newCardWidth = newCardHeight * CARD_RATIO;
-      const cardArea = newCardWidth * newCardHeight;
-
-      appStore.cardLayout = {
-        width: newCardWidth,
-        height: newCardHeight,
-        roundedCornersPx: CORNERS_WIDTH_RATIO * newCardWidth,
-        area: cardArea,
-      };
-
-      // save board width/height
-      appStore.boardLayout = {
-        ...appStore.boardLayout,
-        width: boardWidth,
-        height: boardHeight,
-        area: boardArea,
-        rows,
-        columns,
-      };
-
-      console.log({
-        board: appStore.boardLayout,
-        card: appStore.cardLayout,
-        container: {
-          width: containerRef.value?.offsetWidth,
-          height: containerRef.value?.offsetHeight,
-        },
-        window: { width: window.innerWidth, height: window.innerHeight },
-        columns,
-        rows,
-      });
-    });
+    const lastDeckSize = useSignal(appStore.settings.deck.size);
+    const lastRefresh = useSignal(appStore.settings.resizeBoard);
 
     const handleAddToSuccessfulPairsIfMatching = $(async () => {
       const [cardId1, cardId2] = appStore.game.selectedCardIds;
@@ -271,35 +210,37 @@ export default component$(
         const boardWidth =
           (container.offsetWidth * (100 - CONTAINER_PADDING_PERCENT * 2)) / 100; // account for padding on sides
 
-        resizeBoard(boardWidth, boardHeight);
+        const { cardLayout, boardLayout } = calculateLayouts(
+          boardWidth,
+          boardHeight,
+          appStore.settings.deck.size
+        );
+
+        appStore.cardLayout = cardLayout;
+        appStore.boardLayout = {
+          ...appStore.boardLayout,
+          ...boardLayout,
+        };
       })
     );
 
-    const calculateAndResizeBoard = $(() => {
-      const newBoard = calculateBoardDimensions(
-        containerRef.value as HTMLElement,
-        boardRef.value as HTMLElement
-      );
-      resizeBoard(newBoard.width, newBoard.height);
-    });
-
     const adjustDeckSize = $(() => {
-      // appStore.sliceDeck();
-      //
-      // appStore.shuffleCardPositions();
-      //
-      // // reset stats
-      // appStore.game.selectedCardIds = [];
-      // appStore.game.flippedCardId = -1;
-      // appStore.game.mismatchPairs = [];
-      // appStore.game.successfulPairs = [];
+      appStore.sliceDeck();
+
+      appStore.startShuffle();
+
+      // reset stats
+      appStore.game.selectedCardIds = [];
+      appStore.game.flippedCardId = -1;
+      appStore.game.mismatchPairs = [];
+      appStore.game.successfulPairs = [];
       //
       // TODO:
       // instead, do:
-      appStore.resetGame({
-        ...appStore.settings,
-        deck: { ...appStore.settings.deck, size: appStore.settings.deck.size },
-      });
+      // appStore.resetGame({
+      //   ...appStore.settings,
+      //   deck: { ...appStore.settings.deck, size: appStore.settings.deck.size },
+      // });
     });
 
     /* ================================
@@ -307,10 +248,8 @@ export default component$(
      * - RUNS ON MOUNT
      * - also when "resize" flip-flops, or when deck.size changes
      * ================================ */
-    const lastDeckSize = useSignal(appStore.settings.deck.size);
-    const lastRefresh = useSignal(appStore.settings.resizeBoard);
 
-    useVisibleTask$((taskCtx) => {
+    useVisibleTask$(async (taskCtx) => {
       const newDeckSize = taskCtx.track(() => appStore.settings.deck.size);
       const newRefresh = taskCtx.track(() => appStore.settings.resizeBoard);
       const isDeckChanged = lastDeckSize.value !== newDeckSize;
@@ -331,7 +270,7 @@ export default component$(
         if (appStore.boardLayout.isLocked) {
           return;
         }
-        calculateAndResizeBoard();
+        appStore.calculateAndResizeBoard((boardRef.value as HTMLDivElement), (containerRef.value as HTMLDivElement));
         return;
       }
 
@@ -341,65 +280,40 @@ export default component$(
           newRefresh,
         });
         lastRefresh.value = newRefresh;
-        calculateAndResizeBoard();
+        appStore.calculateAndResizeBoard((boardRef.value as HTMLDivElement), (containerRef.value as HTMLDivElement));
         return;
       }
 
       console.log("~~ uvt$ should be only on mount!");
-      appStore.sliceDeck();
-      calculateAndResizeBoard();
+      appStore.initializeBoard(boardRef.value as HTMLDivElement, containerRef.value as HTMLDivElement);
+      // await appStore.sliceDeck();
+      // await appStore.calculateAndResizeBoard((boardRef.value as HTMLDivElement), (containerRef.value as HTMLDivElement));
+      // appStore.game.shufflingState = 5;
     });
 
+
     /* ================================
-     * Handle Shuffling card animation timers
-     * TODO:
-     * integrate shuffleCounter better into the shuffle function
-     * e.g. appStore.shuffleCards(count: <0-5>);
-     * 0 === shuffle once without animation
-     * 1-5 === shuffle n times with animation
+     * Handles shuffling
+     * - when shuffling state > 0, we shuffle a round and then decrement
      * ================================ */
-    const shuffleCounterSignal = useSignal(CARD_SHUFFLE_ROUNDS);
-
-    // when shuffling, start timer to turn off after duration
     useVisibleTask$((taskCtx) => {
-      taskCtx.track(() => appStore.game.isShufflingAnimation);
-
-      let rerun: ReturnType<typeof setTimeout>;
-      if (shuffleCounterSignal.value > 0) {
-        // run again
-        rerun = setTimeout(() => {
-          appStore.shuffleCardPositions();
-        }, 0);
-      } else if (shuffleCounterSignal.value < CARD_SHUFFLE_ROUNDS) {
+      const newState = taskCtx.track(() => appStore.game.shufflingState);
+      if (newState === 0) return;
+      if (newState === 1) {
+        // cleanup? / reset
+        appStore.game.shufflingState = 0;
         appStore.game.isLoading = false;
-        shuffleCounterSignal.value = CARD_SHUFFLE_ROUNDS;
-        return;
       }
+      console.log(`shuffling ${newState} times`);
 
-      if (appStore.game.isShufflingAnimation === false) return;
+      appStore.shuffleCardPositions();
 
-      console.log("start shuffling");
-
-      // for activating animation (after initial instant transform)
-      const delayedStart = setTimeout(() => {
-        appStore.game.isShufflingDelayed = true;
-        console.log("start animation");
-      }, CARD_SHUFFLE_DELAYED_START);
-
-      // deactivate shuffling & animation
-      const shuffleTimeout = setTimeout(() => {
-        appStore.game.isShufflingAnimation = false;
-        appStore.game.isShufflingDelayed = false;
-        console.log(
-          `END shuffling: ${CARD_SHUFFLE_ACTIVE_DURATION}ms #${shuffleCounterSignal.value}`
-        );
-        shuffleCounterSignal.value--;
+      const nextStart = setTimeout(() => {
+        appStore.game.shufflingState -= 1;
       }, CARD_SHUFFLE_DELAYED_START + CARD_SHUFFLE_ACTIVE_DURATION);
 
       taskCtx.cleanup(() => {
-        clearTimeout(shuffleTimeout);
-        clearTimeout(delayedStart);
-        clearTimeout(rerun);
+        clearTimeout(nextStart);
       });
     });
 

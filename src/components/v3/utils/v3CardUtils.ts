@@ -87,7 +87,7 @@ function unbuildArrOfPairs(arrOfPairs: Array<V3Card[]>) {
   return deck;
 }
 
-export function shuffleByPairs(deck: V3Card[]) {
+export function sliceRandomPairsFromDeck(deck: V3Card[]) {
   const pairs = buildArrOfPairs(deck);
   console.log("fn shuffleByPairs:", { deck, pairs });
   const shuffledDeckOfPairs = v3Shuffle_FY_algo(pairs);

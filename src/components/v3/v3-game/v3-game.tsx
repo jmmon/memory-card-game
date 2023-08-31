@@ -9,12 +9,13 @@ import {
 } from "@builder.io/qwik";
 import V3Board from "../v3-board/v3-board";
 import { AppContext } from "../v3-context/v3.context";
-import { shuffleCardPositions, shuffleByPairs } from "../utils/v3CardUtils";
+import { shuffleCardPositions, sliceRandomPairsFromDeck } from "../utils/v3CardUtils";
 import SettingsModal from "../settings-modal/settings-modal";
 import GameHeader from "../game-header/game-header";
 import { isServer } from "@builder.io/qwik/build";
 import { formattedDeck } from "../utils/cards";
 import GameEndModal from "../game-end-modal/game-end-modal";
+import { calculateBoardDimensions, calculateLayouts } from "../utils/boardUtils";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
 export const DEFAULT_CARD_COUNT = 18;
@@ -92,6 +93,7 @@ type GameContext = {
     timestamps: number[];
     total: number;
   };
+  shufflingState: number;
 };
 export type AppStore = {
   boardLayout: BoardLayout;
@@ -125,6 +127,9 @@ export type AppStore = {
   createTimestamp: QRL<
     (opts?: Partial<{ paused?: boolean }>) => number | undefined
   >;
+  startShuffle: QRL<(count?: number) => void>;
+  initializeBoard: QRL<(boardRef: HTMLDivElement, containerRef: HTMLDivElement) => void>;
+calculateAndResizeBoard: QRL<(boardRef: HTMLDivElement, containerRef: HTMLDivElement) => void>;
 };
 
 const INITIAL_GAME_STATE: GameContext = {
@@ -144,6 +149,7 @@ const INITIAL_GAME_STATE: GameContext = {
     timestamps: [],
     total: 0,
   },
+  shufflingState: 0,
 };
 
 const INITIAL_STATE: AppStore = {
@@ -232,8 +238,12 @@ const INITIAL_STATE: AppStore = {
     // shuffle and set new positions, save old positions
     let newCards = shuffleCardPositions(this.game.cards);
     console.log("shuffleCardPositions:", { newCards });
-      // newCards = newCards.map((card) => ({ ...card, prevPosition: 0 }));
+    // newCards = newCards.map((card) => ({ ...card, prevPosition: 0 }));
     this.game.cards = newCards;
+  }),
+
+  startShuffle: $(function (this: AppStore, count: number = 5) {
+    this.game.shufflingState = count;
 
     this.game.isLoading = true;
     this.interface.settingsModal.isShowing = false;
@@ -241,7 +251,7 @@ const INITIAL_STATE: AppStore = {
   }),
 
   sliceDeck: $(function (this: AppStore) {
-    const deckShuffledByPairs = shuffleByPairs([
+    const deckShuffledByPairs = sliceRandomPairsFromDeck([
       ...this.settings.deck.fullDeck,
     ]);
     const cards = deckShuffledByPairs.slice(0, this.settings.deck.size);
@@ -304,6 +314,28 @@ const INITIAL_STATE: AppStore = {
     this.game.time.isPaused = this.game.time.timestamps.length % 2 === 0;
     return now;
   }),
+initializeBoard: $(async function(this: AppStore, boardRef: HTMLDivElement, containerRef: HTMLDivElement){
+      await this.sliceDeck();
+      await this.calculateAndResizeBoard(boardRef, containerRef);
+      this.game.shufflingState = 5;
+}),
+
+calculateAndResizeBoard : $(function (this: AppStore, boardRef: HTMLDivElement, containerRef: HTMLDivElement) {
+      const newBoard = calculateBoardDimensions(
+        containerRef,
+        boardRef
+      );
+      const { cardLayout, boardLayout } = calculateLayouts(
+        newBoard.width,
+        newBoard.height,
+        this.settings.deck.size
+      );
+      this.cardLayout = cardLayout;
+      this.boardLayout = {
+        ...this.boardLayout,
+        ...boardLayout,
+      };
+    }),
 };
 
 const calculateAccumTimeFromTimestampsArr = (timestamps: number[]) => {

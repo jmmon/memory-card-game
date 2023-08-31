@@ -78,7 +78,8 @@ export const SettingsContent = component$(() => {
         <div class="justify-center flex gap-[2%] items-center tooltip">
           <Button
             text="Shuffle Deck"
-            onClick$={() => appStore.shuffleCardPositions()}
+            // onClick$={() => appStore.shuffleCardPositions()}
+            onClick$={() => appStore.startShuffle(5)}
           />
           <span class="tooltiptext">Shuffle the card positions.</span>
         </div>

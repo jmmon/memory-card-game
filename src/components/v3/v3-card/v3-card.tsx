@@ -313,17 +313,6 @@ export default component$(({ card }: { card: V3Card }) => {
         transform: `translateX(${shuffleTransform.value.x}px) translateY(${shuffleTransform.value.y}px)`,
         transitionDuration:
           CARD_SHUFFLE_DELAYED_START + CARD_SHUFFLE_ACTIVE_DURATION + "ms",
-        // transform:
-        //   (appStore.game.isShufflingAnimation &&
-        //     appStore.game.isShufflingDelayed) ||
-        //   !appStore.game.isShufflingAnimation
-        //     ? ""
-        //     : `translateX(${shuffleTransform.value.x}px) translateY(${shuffleTransform.value.y}px)`,
-
-        // only applied when shuffle is transforming back to  new position
-        // transitionDuration: appStore.game.isShufflingDelayed
-        //   ? CARD_SHUFFLE_DELAYED_START + CARD_SHUFFLE_ACTIVE_DURATION + "ms"
-        //   : "0ms",
       }}
       data-label="card-slot-container"
     >
