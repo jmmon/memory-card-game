@@ -12,7 +12,6 @@ import { AppContext } from "../v3-context/v3.context";
 import { shuffleCardPositions, sliceRandomPairsFromDeck } from "../utils/v3CardUtils";
 import SettingsModal from "../settings-modal/settings-modal";
 import GameHeader from "../game-header/game-header";
-import { isServer } from "@builder.io/qwik/build";
 import { formattedDeck } from "../utils/cards";
 import GameEndModal from "../game-end-modal/game-end-modal";
 import { calculateBoardDimensions, calculateLayouts } from "../utils/boardUtils";
@@ -255,7 +254,7 @@ const INITIAL_STATE: AppStore = {
       ...this.settings.deck.fullDeck,
     ]);
     const cards = deckShuffledByPairs.slice(0, this.settings.deck.size);
-    const withResetPositions = cards.map((card, i) => ({
+    const withResetPositions = cards.map((card) => ({
       ...card,
       position: 0,
       prevPosition: null,
