@@ -12,7 +12,7 @@ import {
   CARD_SHUFFLE_ACTIVE_DURATION,
   CARD_SHUFFLE_DELAYED_START,
 } from "../v3-board/v3-board";
-import Back from "../cards/back/back";
+// import Back from "../cards/back/back";
 
 const CARD_RATIO_VS_CONTAINER = 0.9;
 /*
@@ -273,8 +273,8 @@ export default component$(({ card }: { card: V3Card }) => {
         transitionTimingFunction: "cubic-bezier(0.40, 1.3, 0.62, 1.045)",
         // transitionTimingFunction: "ease-in-out",
         transform:
-          (appStore.game.isShuffling && appStore.game.isShufflingDelayed) ||
-          !appStore.game.isShuffling
+          (appStore.game.isShufflingAnimation && appStore.game.isShufflingDelayed) ||
+          !appStore.game.isShufflingAnimation
             ? ""
             : shuffleTransform.value,
 

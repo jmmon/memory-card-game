@@ -17,7 +17,13 @@ import V3Card, {
 import { AppContext } from "../v3-context/v3.context";
 import { CONTAINER_PADDING_PERCENT, Pair } from "../v3-game/v3-game";
 import { useDebounce } from "../utils/useDebounce";
-import { checkMatch, findCardById, isCardRemoved } from "../utils/v3CardUtils";
+import {
+  checkIfCardIsRemoved,
+  checkMatch,
+  findCardById,
+  handleSelectCard,
+  isCardInPairs,
+} from "../utils/v3CardUtils";
 // const CARD_RATIO = 2.5 / 3.5; // w / h
 export const CARD_RATIO = 113 / 157; // w / h
 export const CORNERS_WIDTH_RATIO = 1 / 20;
@@ -131,50 +137,64 @@ export default component$(
         // like a sparkle or a background blur around the pairs count
       }
 
-      // finally clear our selectedCards
+      // clear our selectedCards
       appStore.game.selectedCardIds = [];
 
       // finally finally, check for end conditions
       const res = await appStore.isGameEnded();
       if (res.isEnded) {
-        appStore.stopTimer();
         appStore.interface.endOfGameModal.isWin = res.isWin ?? false;
         appStore.interface.endOfGameModal.isShowing = true;
       }
     });
 
+    const unflipCard$ = $(() => {
+      if (appStore.game.selectedCardIds.length === 2) {
+        handleAddToSuccessfulPairsIfMatching();
+      }
+      appStore.game.flippedCardId = -1;
+    });
+
     const MINIMUM_VIEW_TIME = 500;
-    const { setValue: debounceUnflipCard, setDelay } = useDebounce<number>(
-      $((newVal) => {
-        if (appStore.game.selectedCardIds.length === 2) {
-          handleAddToSuccessfulPairsIfMatching();
-        }
-        appStore.game.flippedCardId = newVal;
-      }),
-      MINIMUM_VIEW_TIME
-    );
+    const { setValue: debounceUnflipCard, setDelay: setDebounceDelay } =
+      useDebounce<number>(unflipCard$, MINIMUM_VIEW_TIME);
 
     const flippedTime = useSignal(-1);
 
-    const handleSelectCard = $(
-      (selected: number[], id: number): number[] | false => {
-        const isSameCardClicked = selected.length === 1 && id === selected[0];
+    const handleClickCard = $(async (cardId: number) => {
+      // to prevent card from returning super quick
+      flippedTime.value = Date.now();
 
-        if (isSameCardClicked) {
-          console.log("same one clicked.. doing nothing", selected);
-          return selected;
+      const newSelected = handleSelectCard(
+        [...appStore.game.selectedCardIds],
+        cardId
+      );
+
+      const wasCardSelected =
+        newSelected &&
+        newSelected.length !== appStore.game.selectedCardIds.length;
+
+      if (wasCardSelected) {
+        appStore.game.selectedCardIds = newSelected;
+
+        const isFinalPair =
+          newSelected.length === 2 &&
+          appStore.game.successfulPairs.length + 1 ===
+            appStore.settings.deck.size / 2;
+
+        // check immediately for the final pair
+        if (isFinalPair) {
+          appStore.createTimestamp({ paused: true });
+          appStore.game.flippedCardId = cardId;
+          setDebounceDelay(MINIMUM_VIEW_TIME * 1.5);
+          debounceUnflipCard(-1);
+          return;
         }
-
-        selected = [...selected, id];
-        console.log(
-          selected.length === 1
-            ? "no cards yet, adding to our array:"
-            : "adding second card:",
-          selected
-        );
-        return selected;
       }
-    );
+
+      // flip it either way
+      appStore.game.flippedCardId = cardId;
+    });
 
     const handleClickBoard = $(async (e: QwikMouseEvent) => {
       // console.log("clicked board:", { event: e, target: e.target });
@@ -187,7 +207,9 @@ export default component$(
       switch (true) {
         case isCardFlipped:
           {
-            setDelay(MINIMUM_VIEW_TIME - (Date.now() - flippedTime.value));
+            setDebounceDelay(
+              MINIMUM_VIEW_TIME - (Date.now() - flippedTime.value)
+            );
             debounceUnflipCard(-1);
           }
           break;
@@ -196,39 +218,21 @@ export default component$(
         case isClickedOnCard:
           {
             // initialize game timer
-            const isFirstClick =
-              appStore.game.time.start === -1 && appStore.game.time.end === -1;
+            const isFirstClick = appStore.game.time.timestamps.length === 0;
+
             if (isFirstClick) {
-              appStore.startTimer();
+              await appStore.startGame(); // must finish before createTimestamp
+              appStore.createTimestamp({ paused: false });
             }
 
-            // check if it's already out of the game, if so we do nothing
-            const cardId = clickedId as number;
-            const isRemoved = isCardRemoved(
+            const cardId = checkIfCardIsRemoved(
               appStore.game.successfulPairs,
-              cardId
-            );
-            if (isRemoved) {
-              return;
-            }
-
-            // to prevent card from returning super quick
-            flippedTime.value = Date.now();
-
-            const selected = await handleSelectCard(
-              [...appStore.game.selectedCardIds],
-              cardId
+              Number(clickedId)
             );
 
-            if (
-              selected &&
-              selected.length !== appStore.game.selectedCardIds.length
-            ) {
-              // save it if it's a new card
-              appStore.game.selectedCardIds = selected;
+            if (cardId !== -1) {
+              handleClickCard(cardId);
             }
-            // flip it either way
-            appStore.game.flippedCardId = cardId;
           }
           break;
       }
@@ -357,7 +361,7 @@ export default component$(
 
     // when shuffling, start timer to turn off after duration
     useVisibleTask$((taskCtx) => {
-      taskCtx.track(() => appStore.game.isShuffling);
+      taskCtx.track(() => appStore.game.isShufflingAnimation);
 
       let rerun: ReturnType<typeof setTimeout>;
       if (shuffleCounterSignal.value > 0) {
@@ -371,7 +375,7 @@ export default component$(
         return;
       }
 
-      if (appStore.game.isShuffling === false) return;
+      if (appStore.game.isShufflingAnimation === false) return;
 
       console.log("start shuffling");
 
@@ -383,7 +387,7 @@ export default component$(
 
       // deactivate shuffling & animation
       const shuffleTimeout = setTimeout(() => {
-        appStore.game.isShuffling = false;
+        appStore.game.isShufflingAnimation = false;
         appStore.game.isShufflingDelayed = false;
         console.log(
           `END shuffling: ${CARD_SHUFFLE_ACTIVE_DURATION}ms #${shuffleCounterSignal.value}`

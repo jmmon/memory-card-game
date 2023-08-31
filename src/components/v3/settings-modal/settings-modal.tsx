@@ -10,13 +10,13 @@ import { AppContext } from "../v3-context/v3.context";
 import Modal from "../modal/modal";
 import Button from "../button/button";
 import { AppSettings } from "../v3-game/v3-game";
+import { FormattedTime } from "../game-end-modal/game-end-modal";
 
 const COLUMN_GAP = "gap-0.5 md:gap-1";
 const REQUIRES_RESTART = "Requires restart to take effect.";
 
 export default component$(() => {
   const appStore = useContext(AppContext);
-
 
   // TODO:
   // pause timer when settings is open
@@ -35,7 +35,8 @@ export default component$(() => {
       isShowing={appStore.interface.settingsModal.isShowing}
       hideModal$={() => {
         appStore.interface.settingsModal.isShowing = false;
-        console.log('hideModal fn runs');
+        appStore.createTimestamp({paused: false});
+        console.log("hideModal fn runs");
       }}
       title="Game Settings"
     >
@@ -166,6 +167,15 @@ export const SettingsContent = component$(() => {
               }}
               value={appStore.settings.interface.showDimensions}
             />
+          </SettingsRow>
+          <SettingsRow>
+            <div class="w-full flex justify-between tooltip">
+              <label>Played Time:</label>
+              <FormattedTime timeMs={appStore.game.time.total} />
+              <span class="tooltiptext">
+                Total un-paused play time for this round.
+              </span>
+            </div>
           </SettingsRow>
         </div>
 

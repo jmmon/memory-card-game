@@ -3,8 +3,6 @@ import {
   Slot,
   component$,
   useContext,
-  useSignal,
-  useVisibleTask$,
 } from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
 import Button from "../button/button";
@@ -23,31 +21,6 @@ export default component$(
   ({ showSettings$ }: { showSettings$: PropFunction<() => void> }) => {
     const appStore = useContext(AppContext);
 
-    const time = useSignal<number>(0);
-
-    useVisibleTask$((taskCtx) => {
-      // const startMs = taskCtx.track(() => appStore.game.time.start);
-      // // TODO: if paused, return? or use it to destroy and recreate the interval
-      if (false) return;
-
-      const updateTime = () => {
-        const now = Date.now();
-        const start = appStore.game.time.start;
-        const accum = appStore.game.time.accum;
-
-        time.value = now - start + (accum > -1 ? accum : 0);
-        console.log("running updateTime:", {
-          time: time.value,
-          start: appStore.game.time.start,
-          accum: appStore.game.time.accum,
-          end: appStore.game.time.end,
-        });
-      };
-      const timer = setInterval(updateTime, 100);
-      updateTime();
-      taskCtx.cleanup(() => clearInterval(timer));
-    });
-
     return (
       <header
         class={`mx-auto text-center text-xs md:text-sm flex justify-around w-full h-min`}
@@ -60,7 +33,7 @@ export default component$(
           {appStore.settings.interface.showDimensions && (
             <DimensionsHeaderComponent />
           )}
-          <TimerHeaderComponent time={time.value} />
+          <TimerHeaderComponent />
         </HeaderSection>
         <Button text="Settings" onClick$={showSettings$} />
         <HeaderSection>
@@ -170,12 +143,15 @@ const DimensionsHeaderComponent = component$(() => {
   );
 });
 
-export const TimerHeaderComponent = ({ time }: { time: number }) => {
+
+export const TimerHeaderComponent = component$(() => {
+  const appStore = useContext(AppContext);
+
   return (
     <code
       class={` bg-slate-800 flex gap-1.5 text-center ${CODE_TEXT_LIGHT} ${CODE_PADDING}`}
     >
-      <FormattedTime timeMs={time} />
+      <FormattedTime timeMs={appStore.game.time.total} />
     </code>
   );
-};
+});

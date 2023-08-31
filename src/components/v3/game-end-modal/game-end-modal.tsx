@@ -28,10 +28,10 @@ export const FormattedTime = ({ timeMs }: { timeMs: number }) => {
   const { minutes, seconds, ms } = formatTime(timeMs);
 
   return (
-    <>
+    <span>
       <GreyedAtZero val={minutes} text="m" /> {seconds}
       <span class="text-xs text-slate-400">.{ms}s</span>
-    </>
+    </span>
   );
 };
 
@@ -79,7 +79,7 @@ export default component$(() => {
           <div class="flex flex-grow justify-between">
             <span>Time:</span>
             <span>
-              <FormattedTime timeMs={appStore.game.time.accum} />
+              <FormattedTime timeMs={appStore.game.time.total} />
             </span>
           </div>
         </SettingsRow>

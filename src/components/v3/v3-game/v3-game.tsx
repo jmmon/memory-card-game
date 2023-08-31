@@ -5,6 +5,7 @@ import {
   useContextProvider,
   useSignal,
   useStore,
+  useVisibleTask$,
 } from "@builder.io/qwik";
 import V3Board from "../v3-board/v3-board";
 import { AppContext } from "../v3-context/v3.context";
@@ -56,9 +57,6 @@ export type AppSettings = {
     MAXIMUM_CARDS: number;
     fullDeck: V3Card[];
   };
-  modal: {
-    isShowing: boolean;
-  };
   interface: {
     showSelectedIds: boolean;
     showDimensions: boolean;
@@ -85,6 +83,7 @@ export type AppStore = {
   cardLayout: CardLayout;
 
   game: {
+    isStarted: boolean;
     flippedCardId: number;
     selectedCardIds: number[];
     successfulPairs: Pair[];
@@ -93,12 +92,12 @@ export type AppStore = {
     mismatchPair: Pair | string;
     isShaking: boolean;
     isLoading: boolean;
-    isShuffling: boolean;
+    isShufflingAnimation: boolean;
     isShufflingDelayed: boolean;
     time: {
-      start: number;
-      end: number;
-      accum: number;
+      isPaused: boolean;
+      timestamps: number[];
+      total: number;
     };
   };
 
@@ -125,8 +124,29 @@ export type AppStore = {
       isWin?: boolean;
     }
   >;
-  startTimer: QRL<() => void>;
-  stopTimer: QRL<() => void>;
+  createTimestamp: QRL<
+    (opts?: Partial<{ paused?: boolean }>) => number | undefined
+  >;
+  startGame: QRL<() => void>;
+};
+
+const INITIAL_GAME_STATE = {
+  isStarted: false,
+  cards: [],
+  mismatchPair: "",
+  isShaking: false,
+  flippedCardId: -1,
+  selectedCardIds: [],
+  successfulPairs: [],
+  mismatchPairs: [],
+  isLoading: true,
+  isShufflingAnimation: false,
+  isShufflingDelayed: false,
+  time: {
+    isPaused: true,
+    timestamps: [],
+    total: 0,
+  },
 };
 
 const INITIAL_STATE = {
@@ -145,24 +165,7 @@ const INITIAL_STATE = {
     roundedCornersPx: 2.533,
     area: 50.668 * 70.3955,
   },
-
-  game: {
-    flippedCardId: -1,
-    selectedCardIds: [],
-    successfulPairs: [],
-    cards: [],
-    mismatchPairs: [],
-    mismatchPair: "",
-    isShaking: false,
-    isLoading: true,
-    isShuffling: false,
-    isShufflingDelayed: false,
-    time: {
-      start: -1,
-      end: -1,
-      accum: 0,
-    },
-  },
+  game: INITIAL_GAME_STATE,
 
   settings: {
     cardFlipAnimationDuration: 800,
@@ -203,8 +206,6 @@ const INITIAL_STATE = {
       fullDeck: formattedDeck,
     },
 
-    modal: { isShowing: false },
-
     interface: {
       showSelectedIds: false,
       showDimensions: false,
@@ -232,18 +233,14 @@ const INITIAL_STATE = {
    * ================================ */
   shuffleCardPositions: $(function (this: AppStore) {
     console.log("shuffleCardPositionsWithTransition");
-    const cards = this.game.cards;
     // shuffle and set new positions, save old positions
-    const shuffled = shuffleCardPositions(cards);
-    console.log({ cards, shuffled });
-
-    this.game.cards = shuffled;
+    this.game.cards = shuffleCardPositions(this.game.cards);
 
     // to activate animation - only when running on client
     if (isServer) return;
-    this.settings.modal.isShowing = false;
     this.game.isLoading = true;
-    this.game.isShuffling = true;
+    this.interface.settingsModal.isShowing = false;
+    this.game.isShufflingAnimation = true;
   }),
 
   sliceDeck: $(function (this: AppStore) {
@@ -251,10 +248,7 @@ const INITIAL_STATE = {
       ...this.settings.deck.fullDeck,
     ]);
 
-    const cards = deckShuffledByPairs.slice(0, this.settings.deck.size);
-
-    this.game.cards = cards;
-    console.log("playing deck:", { cards });
+    this.game.cards = deckShuffledByPairs.slice(0, this.settings.deck.size);
   }),
 
   resetGame: $(function (this: AppStore, settings?: Partial<AppSettings>) {
@@ -264,16 +258,7 @@ const INITIAL_STATE = {
         ...settings,
       };
     }
-    this.game = {
-      ...this.game,
-      flippedCardId: -1,
-      selectedCardIds: [],
-      successfulPairs: [],
-      mismatchPairs: [],
-      isLoading: true,
-      isShuffling: false,
-      isShufflingDelayed: false,
-    };
+    this.game = INITIAL_GAME_STATE;
     this.sliceDeck();
   }),
 
@@ -287,21 +272,61 @@ const INITIAL_STATE = {
     return { isEnded, isWin };
   }),
 
-  startTimer: $(function (this: AppStore) {
-    this.game.time.start = Date.now();
+  startGame: $(function (this: AppStore) {
+    this.game.isStarted = true;
   }),
 
-  stopTimer: $(function (this: AppStore) {
+  createTimestamp: $(function (
+    this: AppStore,
+    opts?: Partial<{ paused?: boolean }>
+  ) {
+    if (!this.game.isStarted) return;
+
     const now = Date.now();
-    this.game.time.end = now;
-    const thisSessionAccum = now - this.game.time.start;
-    this.game.time.accum += thisSessionAccum;
-    this.game.time.start = -1;
-    return thisSessionAccum;
+    const wasPaused = this.game.time.isPaused;
+
+    if (opts) {
+      if (opts.paused !== wasPaused) {
+        this.game.time.timestamps.push(now);
+      } else {
+        // replace last timestamp with new time
+        this.game.time.timestamps = this.game.time.timestamps.splice(
+          -1,
+          1,
+          now
+        );
+      }
+    } else {
+      this.game.time.timestamps.push(now);
+    }
+
+    // length === 0 when starting the game and initial paused state
+    // so === 1 after first click, should unpause the timer (=== false)
+    this.game.time.isPaused = this.game.time.timestamps.length % 2 === 0;
+    return now;
   }),
 };
 
-// export const serverFetchDeck = server$(fetchAndFormatDeck);
+const calculateAccumTimeFromTimestampsArr = (timestamps: number[]) => {
+  // even indices are start
+  let accum = 0;
+  let start = 0;
+  for (let i = 0; i < timestamps.length; i++) {
+    const isStart = i % 2 === 0;
+
+    if (isStart) {
+      start = timestamps[i];
+    } else {
+      accum += timestamps[i] - start;
+      start = 0;
+    }
+  }
+  if (start !== 0) {
+    // we know the timer is unpaused
+    // so we have accum time, then need to count from there
+  }
+  return { isPaused: start === 0, accum };
+};
 
 export default component$(() => {
   console.log("game render count");
@@ -310,11 +335,45 @@ export default component$(() => {
   useContextProvider(AppContext, appStore);
   const containerRef = useSignal<HTMLElement>();
 
+  useVisibleTask$((taskCtx) => {
+    const isPaused = taskCtx.track(() => appStore.game.time.isPaused);
+
+    const updateTime = () => {
+      const now = Date.now();
+      const { isPaused, accum } = calculateAccumTimeFromTimestampsArr(
+        appStore.game.time.timestamps
+      );
+      if (isPaused) {
+        appStore.game.time.total = accum;
+      } else {
+        appStore.game.time.total =
+          accum + (now - (appStore.game.time.timestamps.at(-1) as number));
+      }
+
+      console.log("running updateTime:", {
+        time: appStore.game.time.total,
+        accum,
+        isPaused,
+        now,
+      });
+    };
+
+    updateTime(); // update whenever isPaused changes
+
+    if (isPaused) {
+      return;
+    }
+
+    const timer = setInterval(updateTime, 100);
+    taskCtx.cleanup(() => clearInterval(timer));
+  });
+
   return (
     <>
       {/* <InverseModal */}
       {/*   isShowing={appStore.interface.inverseSettingsModal.isShowing} */}
       {/*   hideModal$={() => { */}
+      {/*     appStore.createTimestamp({paused: false}); */}
       {/*     appStore.interface.inverseSettingsModal.isShowing = false; */}
       {/*   }} */}
       {/*   title="Settings" */}
@@ -346,6 +405,7 @@ export default component$(() => {
         <GameHeader
           showSettings$={() => {
             appStore.interface.settingsModal.isShowing = true;
+            appStore.createTimestamp({ paused: true });
             console.log("header - showing settings");
           }}
         />
@@ -445,4 +505,9 @@ const LoadingPage = component$(
  *   - each card would be absolute top left
  *   - translate into each spot (based on coords/position)
  *   - When a card needs to move to a new position, just find the difference between the old and the new and apply it!
+ *
+ *
+ *
+ *
+ *
  * */

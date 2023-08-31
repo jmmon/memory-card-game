@@ -286,24 +286,33 @@ export const fetchAndFormatDeck = async () => {
  * card utils
  *
  * */
-// export const buildSetFromPairs = (pairs: Pair[]) =>
-//   pairs.reduce((accum, cur) => {
-//     const [c1, c2] = cur.split(":");
-//     accum.add(Number(c1));
-//     accum.add(Number(c2));
-//     return accum;
-//   }, new Set<number>());
 
 // find cardId inside pairs
-export const isCardRemoved = (
-  pairs: `${number}:${number}`[],
+export const isCardInPairs = (
+  pairs: Pair[],
   cardId: number
 ) => {
-const removedPairs = pairs.join(',');
-return removedPairs.includes(String(cardId));
-  // const removedCards = buildSetFromPairs(pairs);
-  // return removedCards.has(cardId);
+  const removedPairs = pairs.join(',');
+  return removedPairs.includes(String(cardId));
 };
+
+export const checkIfCardIsRemoved = ((pairs: Pair[], clickedId: number) => {
+  // check if target is an empty slot
+  const cardId = clickedId as number;
+  const isRemoved = isCardInPairs(pairs, cardId);
+  if (isRemoved) return -1;
+  return cardId;
+});
+
+export const handleSelectCard = 
+  (selected: number[], id: number) => {
+    const isSameCardClicked = selected.length === 1 && id === selected[0];
+
+    if (isSameCardClicked) return selected;
+
+    return [...selected, id];
+  }
+
 
 export const checkMatch = (
   cardA: V3Card | undefined,
