@@ -523,10 +523,3 @@ export const formattedDeck = [
   },
 ];
 
-// const modified = formattedDeck.map((each) => {
-//   return {
-//     ...each,
-//     localSVG: `/cards/${each.text}.svg`,
-//   };
-// });
-// console.log({ modified });

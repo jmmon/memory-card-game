@@ -9,14 +9,14 @@ import type { Card } from "~/utils/cardUtils";
 import {
   CARD_FLIP_ANIMATION_DURATION,
   CARD_FLIP_ANIMATION_DURATION_HALF,
-} from "~/routes/v1.5";
+} from "~/routes/older-versions/v1.5";
 import {
   COLUMN_COUNT,
   MIN_MAX_COLUMNS_OFFSET,
   MIN_MAX_ROWS_OFFSET,
   getXYFromPosition,
   isCardRemoved,
-} from "~/routes/v2";
+} from "~/routes/older-versions/v2";
 
 type FlippableCardProps = {
   card: Card;

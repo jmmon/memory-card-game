@@ -2,11 +2,9 @@ import {
   PropFunction,
   Slot,
   component$,
-  useContext,
   useStylesScoped$,
 } from "@builder.io/qwik";
-import { AppContext } from "../v3-context/v3.context";
-import { CloseButton, ModalHeader } from "../modal/modal";
+import {  ModalHeader } from "../modal/modal";
 
 export default component$<{
   isShowing: boolean;

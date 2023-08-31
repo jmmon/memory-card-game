@@ -196,7 +196,7 @@ export default component$(
       appStore.game.flippedCardId = cardId;
     });
 
-    const handleClickBoard = $(async (e: QwikMouseEvent) => {
+    const handleClickBoard$ = $(async (e: QwikMouseEvent) => {
       // console.log("clicked board:", { event: e, target: e.target });
       const isCardFlipped = appStore.game.flippedCardId !== -1;
       // attempt to get the card id if click is on a card
@@ -221,7 +221,7 @@ export default component$(
             const isFirstClick = appStore.game.time.timestamps.length === 0;
 
             if (isFirstClick) {
-              await appStore.startGame(); // must finish before createTimestamp
+              appStore.game.isStarted = true;
               appStore.createTimestamp({ paused: false });
             }
 
@@ -437,36 +437,40 @@ export default component$(
     });
 
     useStyles$(`
-    .shake-card {
-      animation: shake-card ${CARD_SHAKE_ANIMATION_DURATION}ms;
-    }
+     .card * {
+        pointer-events: none;
+      }
 
-    @keyframes shake-card {
-      0% {
-        transform: translateX(0%);
+      .shake-card {
+        animation: shake-card ${CARD_SHAKE_ANIMATION_DURATION}ms;
       }
-      10% {
-        transform: translateX(-7%);  
-        box-shadow: 5px 0px 5px 5px rgba(255, 63, 63, 0.5);
+
+      @keyframes shake-card {
+        0% {
+          transform: translateX(0%);
+        }
+        10% {
+          transform: translateX(-7%);  
+          box-shadow: 5px 0px 5px 5px rgba(255, 63, 63, 0.5);
+        }
+        23% {
+          transform: translateX(5%);  
+          box-shadow: -4px 0px 4px 4px rgba(255, 63, 63, 0.4);
+        }
+        56% {
+          transform: translateX(-3%);  
+          box-shadow: 3px 0px 3px 3px rgba(255, 63, 63, 0.3);
+        }
+        84% {
+          transform: translateX(1%);  
+          box-shadow: -2px 0px 2px 2px rgba(255, 63, 63, 0.2);
+        }
+        100% {
+          transform: translateX(0%);  
+          box-shadow: 1px 0px 1px 1px rgba(255, 63, 63, 0.1);
+        }
       }
-      23% {
-        transform: translateX(5%);  
-        box-shadow: -4px 0px 4px 4px rgba(255, 63, 63, 0.4);
-      }
-      56% {
-        transform: translateX(-3%);  
-        box-shadow: 3px 0px 3px 3px rgba(255, 63, 63, 0.3);
-      }
-      84% {
-        transform: translateX(1%);  
-        box-shadow: -2px 0px 2px 2px rgba(255, 63, 63, 0.2);
-      }
-      100% {
-        transform: translateX(0%);  
-        box-shadow: 1px 0px 1px 1px rgba(255, 63, 63, 0.1);
-      }
-    }
-  `);
+    `);
 
     return (
       <>
@@ -479,7 +483,7 @@ export default component$(
             gridTemplateRows: `repeat(${appStore.boardLayout.rows}, 1fr)`,
           }}
           ref={boardRef}
-          onClick$={(e: QwikMouseEvent) => handleClickBoard(e)}
+          onClick$={handleClickBoard$}
           data-label="board"
         >
           {appStore.game.cards.map((card) => (

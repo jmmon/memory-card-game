@@ -18,18 +18,6 @@ const REQUIRES_RESTART = "Requires restart to take effect.";
 export default component$(() => {
   const appStore = useContext(AppContext);
 
-  // TODO:
-  // pause timer when settings is open
-  // - store total game time
-  // when starting game, or when resuming from settings, save the time.start
-  // when ending game, or when opening settings, note the time
-  // - then calculate that session's game time, and add it on to time.total
-  // (then resume again, resets time.start to Date.now() for next session)
-
-  // useTask$((taskCtx) => {
-  // taskCtx.track(() => appStore.settings.modal.isShowing);
-  //   const prevTime = appStore.game.time.pausedCount;
-  // });
   return (
     <Modal
       isShowing={appStore.interface.settingsModal.isShowing}

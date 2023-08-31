@@ -2,7 +2,7 @@ import type { QwikMouseEvent, PropFunction } from "@builder.io/qwik";
 import { component$, $, Slot, useTask$, useSignal } from "@builder.io/qwik";
 
 const DURATION = "duration-[300ms]";
-const IS_SHOWING_DELAY = 50;
+// const IS_SHOWING_DELAY = 50;
 const DEFAULT_CONTAINER_BG = "bg-slate-600";
 
 export default component$(
@@ -24,8 +24,9 @@ export default component$(
     options?: Partial<{ detectClickOutside: boolean }>;
   }) => {
     const containerClasses = DEFAULT_CONTAINER_BG + " " + classes;
-    const closeModal = $((e: QwikMouseEvent) => {
-      // console.log((e.target as HTMLElement).dataset.name);
+    const closeModal$ = $((e: QwikMouseEvent) => {
+      if (options?.detectClickOutside) return;
+
       if (
         (e.target as HTMLElement).dataset.name === "background" &&
         isShowing
@@ -40,13 +41,7 @@ export default component$(
           isShowing ? `${bgClasses} z-[100] bg-opacity-30 ` : "z-[-1] bg-opacity-0"
         }`}
         data-name="background"
-        onClick$={(e) => {
-          if (options?.detectClickOutside) {
-            void 0;
-          } else {
-            closeModal(e);
-          }
-        }}
+        onClick$={closeModal$}
         style={bgStyles}
       >
         <div

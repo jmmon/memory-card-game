@@ -13,6 +13,8 @@ import {
   CARD_SHUFFLE_DELAYED_START,
 } from "../v3-board/v3-board";
 // import Back from "../cards/back/back";
+//
+import ImageBackWhite from "~/media/cards/_backWhite.svg?jsx";
 
 const CARD_RATIO_VS_CONTAINER = 0.9;
 /*
@@ -273,7 +275,8 @@ export default component$(({ card }: { card: V3Card }) => {
         transitionTimingFunction: "cubic-bezier(0.40, 1.3, 0.62, 1.045)",
         // transitionTimingFunction: "ease-in-out",
         transform:
-          (appStore.game.isShufflingAnimation && appStore.game.isShufflingDelayed) ||
+          (appStore.game.isShufflingAnimation &&
+            appStore.game.isShufflingDelayed) ||
           !appStore.game.isShufflingAnimation
             ? ""
             : shuffleTransform.value,
@@ -303,7 +306,7 @@ export default component$(({ card }: { card: V3Card }) => {
             isRemoved.value &&
             appStore.game.flippedCardId !== card.id &&
             appStore.game.flippedCardId !== card.pairId
-              ? "opacity-0 scale-[107%]"
+              ? "opacity-0 scale-[110%]"
               : "opacity-100 cursor-pointer"
           } ${
             isMismatched.value && appStore.game.isShaking ? "shake-card" : ""
@@ -312,80 +315,93 @@ export default component$(({ card }: { card: V3Card }) => {
             borderRadius: appStore.cardLayout.roundedCornersPx + "px",
           }}
         >
-          <div
-            data-id={card.id}
-            class={`w-full h-full relative text-center [transform-style:preserve-3d] [transition-property:all]`}
-            style={{
-              transform:
-                isCardFlipped.value ||
-                (isRemoved.value && isCardFlippedDelayedOff.value)
-                  ? flipTransform.value
-                  : "",
-              transitionDuration: CARD_FLIP_ANIMATION_DURATION + "ms",
-              // understanding cubic bezier: we control the two middle points
-              // [ t:0, p:0 ], (t:0.2, p:1.285), (t:0.32, p:1.075), [t:1, p:1]
-              // t == time, p == animationProgress
-              // e.g.:
-              // - so at 20%, our animation will be 128.5% complete,
-              // - then at 32% ouranimation will be 107.5% complete,
-              // - then finally at 100% our animation will complete
-              transitionTimingFunction: "cubic-bezier(0.40, 1.3, 0.62, 1.045)",
-              borderRadius: appStore.cardLayout.roundedCornersPx + "px",
-            }}
-          >
-            <div
-              data-id={card.id}
-              data-label="card-back"
-              class={`absolute w-full h-full border-2 border-slate-50 text-white bg-[dodgerblue] flex flex-col justify-center [backface-visibility:hidden]`}
-              style={{
-                borderRadius: appStore.cardLayout.roundedCornersPx + "px",
-              }}
-            >
-              {/* <Back  */}
-              {/* color="dodgerblue" */}
-              {/* width="25" */}
-              {/* height="35" */}
-              {/* classes="w-full h-full" */}
-              {/* id={card.id} */}
-              {/* /> */}
-              <img
-                data-id={card.id}
-                width="25"
-                height="35"
-                src="/cards/_backWhite.svg"
-                class="w-full h-full"
-              />
-              {/* <div */}
-              {/*   data-id={card.id} */}
-              {/*   data-label="circle" */}
-              {/*   class="w-1/2 h-auto aspect-square rounded-[50%] bg-white/40 mx-auto flex flex-col justify-center items-center" */}
-              {/* ></div> */}
-            </div>
-
-            <div
-              data-id={card.id}
-              class={`absolute w-full border border-white h-full flex justify-center items-center text-black bg-slate-300 [transform:rotateY(180deg)] [backface-visibility:hidden] `}
-              data-label="card-front"
-              style={{
-                borderRadius: appStore.cardLayout.roundedCornersPx + "px",
-              }}
-            >
-              {isUnderSideShowing.value &&
-                (card.localSVG ? (
-                  <img
-                    data-id={card.id}
-                    width="25"
-                    height="35"
-                    src={card.localSVG}
-                    class="w-full h-full"
-                  />
-                ) : (
-                  <div data-id={card.id}>{card.text}</div>
-                ))}
-            </div>
-          </div>
+          <CardView
+            card={card}
+            isCardFlipped={isCardFlipped.value}
+            isUnderSideShowing={isUnderSideShowing.value}
+            isRemoved={isRemoved.value}
+            isCardFlippedDelayedOff={isCardFlippedDelayedOff.value}
+            flipTransform={flipTransform.value}
+            roundedCornersPx={appStore.cardLayout.roundedCornersPx}
+          />
         </div>
       </div>
     </div>
   );
 });
+
+export const CardView = component$(
+  ({
+    card,
+    isCardFlipped,
+    isRemoved,
+    isCardFlippedDelayedOff,
+    flipTransform,
+    roundedCornersPx,
+    isUnderSideShowing,
+  }: {
+    card: V3Card;
+    isCardFlipped: boolean;
+    isUnderSideShowing: boolean;
+    isRemoved: boolean;
+    isCardFlippedDelayedOff: boolean;
+    flipTransform: string;
+    roundedCornersPx: number;
+  }) => {
+    return (
+      <div
+        data-id={card.id}
+        class={`card w-full h-full relative text-center [transform-style:preserve-3d] [transition-property:all]`}
+        style={{
+          transform:
+            isCardFlipped || (isRemoved && isCardFlippedDelayedOff)
+              ? flipTransform
+              : "",
+          transitionDuration: CARD_FLIP_ANIMATION_DURATION + "ms",
+          // understanding cubic bezier: we control the two middle points
+          // [ t:0, p:0 ], (t:0.2, p:1.285), (t:0.32, p:1.075), [t:1, p:1]
+          // t == time, p == animationProgress
+          // e.g.:
+          // - so at 20%, our animation will be 128.5% complete,
+          // - then at 32% ouranimation will be 107.5% complete,
+          // - then finally at 100% our animation will complete
+          transitionTimingFunction: "cubic-bezier(0.40, 1.3, 0.62, 1.045)",
+          borderRadius: roundedCornersPx + "px",
+        }}
+      >
+        <div
+          data-id={card.id}
+          data-label="card-back"
+          class={`absolute w-full h-full border-2 border-slate-50 text-white bg-[dodgerblue] flex flex-col justify-center [backface-visibility:hidden]`}
+          style={{
+            borderRadius: roundedCornersPx + "px",
+          }}
+        >
+          <img
+            width="25"
+            height="35"
+            src="/cards/_backWhite.svg"
+            class="w-full h-full"
+          />
+        </div>
+
+        <div
+          class={`absolute w-full border border-white h-full flex justify-center items-center text-black bg-slate-300 [transform:rotateY(180deg)] [backface-visibility:hidden] `}
+          data-label="card-front"
+          style={{
+            borderRadius: roundedCornersPx + "px",
+          }}
+        >
+          {isUnderSideShowing && (
+            <img
+              width="25"
+              height="35"
+              src={card.localSVG}
+              class="w-full h-full"
+            />
+          )}
+        </div>
+      </div>
+    );
+  }
+);

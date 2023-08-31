@@ -78,11 +78,7 @@ export type CardLayout = {
   roundedCornersPx: number;
 };
 
-export type AppStore = {
-  boardLayout: BoardLayout;
-  cardLayout: CardLayout;
-
-  game: {
+type GameContext = {
     isStarted: boolean;
     flippedCardId: number;
     selectedCardIds: number[];
@@ -99,7 +95,12 @@ export type AppStore = {
       timestamps: number[];
       total: number;
     };
-  };
+  }
+export type AppStore = {
+  boardLayout: BoardLayout;
+  cardLayout: CardLayout;
+
+  game: GameContext;
 
   settings: AppSettings;
 
@@ -127,10 +128,9 @@ export type AppStore = {
   createTimestamp: QRL<
     (opts?: Partial<{ paused?: boolean }>) => number | undefined
   >;
-  startGame: QRL<() => void>;
 };
 
-const INITIAL_GAME_STATE = {
+const INITIAL_GAME_STATE: GameContext = {
   isStarted: false,
   cards: [],
   mismatchPair: "",
@@ -149,7 +149,7 @@ const INITIAL_GAME_STATE = {
   },
 };
 
-const INITIAL_STATE = {
+const INITIAL_STATE: AppStore = {
   boardLayout: {
     width: 291.07,
     height: 281.81,
@@ -272,10 +272,6 @@ const INITIAL_STATE = {
     return { isEnded, isWin };
   }),
 
-  startGame: $(function (this: AppStore) {
-    this.game.isStarted = true;
-  }),
-
   createTimestamp: $(function (
     this: AppStore,
     opts?: Partial<{ paused?: boolean }>
@@ -331,7 +327,7 @@ const calculateAccumTimeFromTimestampsArr = (timestamps: number[]) => {
 export default component$(() => {
   console.log("game render count");
   // set up context
-  const appStore = useStore<AppStore>({ ...INITIAL_STATE }, { deep: true });
+  const appStore = useStore({ ...INITIAL_STATE }, { deep: true });
   useContextProvider(AppContext, appStore);
   const containerRef = useSignal<HTMLElement>();
 
