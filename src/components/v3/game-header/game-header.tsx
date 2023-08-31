@@ -1,10 +1,5 @@
-import type {
-  PropFunction} from "@builder.io/qwik";
-import {
-  Slot,
-  component$,
-  useContext,
-} from "@builder.io/qwik";
+import type { PropFunction } from "@builder.io/qwik";
+import { Slot, component$, useContext } from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
 import Button from "../button/button";
 import { FormattedTime } from "../game-end-modal/game-end-modal";
@@ -143,7 +138,6 @@ const DimensionsHeaderComponent = component$(() => {
     </code>
   );
 });
-
 
 export const TimerHeaderComponent = component$(() => {
   const appStore = useContext(AppContext);

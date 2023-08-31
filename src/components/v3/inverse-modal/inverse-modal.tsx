@@ -1,27 +1,16 @@
-import type {
-  PropFunction} from "@builder.io/qwik";
-import {
-  Slot,
-  component$,
-  useStylesScoped$,
-} from "@builder.io/qwik";
-import {  ModalHeader } from "../modal/modal";
+import type { PropFunction } from "@builder.io/qwik";
+import { Slot, component$, useStylesScoped$ } from "@builder.io/qwik";
+import { ModalHeader } from "../modal/modal";
 
 export default component$<{
   isShowing: boolean;
   hideModal$: PropFunction<() => void>;
-  classes?: string;
-  bgClasses?: string;
-  bgStyles?: any;
   title: string;
 }>(
   ({
     isShowing,
     hideModal$,
-    classes = "",
-    bgClasses = "backdrop-blur-sm",
     title,
-    bgStyles,
   }) => {
     useStylesScoped$(`
     .inverse-modal-container .game {
@@ -56,7 +45,9 @@ opacity: 0;
 
     return (
       <div
-        class={`inverse-modal-container relative w-full h-full ${isShowing ? "show-settings" : ""}`}
+        class={`inverse-modal-container relative w-full h-full ${
+          isShowing ? "show-settings" : ""
+        }`}
       >
         <div class={`game absolute top-0 left-0 w-full h-full`}>
           <Slot name="mainContent" />

@@ -97,7 +97,6 @@ export default component$(() => {
               min={appStore.settings.deck.MINIMUM_CARDS}
               max={appStore.settings.deck.MAXIMUM_CARDS}
               step="2"
-              value={appStore.settings.deck.size}
               bind:value={cardCount}
             />
             <span class="tooltiptext">

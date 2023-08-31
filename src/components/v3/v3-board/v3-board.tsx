@@ -10,10 +10,7 @@ import {
   useVisibleTask$,
 } from "@builder.io/qwik";
 
-import V3Card, {
-  CARD_FLIP_ANIMATION_DURATION,
-  CARD_SHAKE_ANIMATION_DURATION,
-} from "../v3-card/v3-card";
+import V3Card from "../v3-card/v3-card";
 import { AppContext } from "../v3-context/v3.context";
 import type { Pair } from "../v3-game/v3-game";
 import { CONTAINER_PADDING_PERCENT } from "../v3-game/v3-game";
@@ -23,9 +20,11 @@ import {
   checkMatch,
   findCardById,
   handleSelectCard,
-  isCardInPairs,
 } from "../utils/v3CardUtils";
-// const CARD_RATIO = 2.5 / 3.5; // w / h
+
+export const CARD_FLIP_ANIMATION_DURATION = 600;
+export const CARD_SHAKE_ANIMATION_DURATION = 700;
+
 export const CARD_RATIO = 113 / 157; // w / h
 export const CORNERS_WIDTH_RATIO = 1 / 20;
 

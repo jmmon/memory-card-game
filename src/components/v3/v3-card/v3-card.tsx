@@ -11,10 +11,8 @@ import {
   CARD_RATIO,
   CARD_SHUFFLE_ACTIVE_DURATION,
   CARD_SHUFFLE_DELAYED_START,
+  CARD_FLIP_ANIMATION_DURATION,
 } from "../v3-board/v3-board";
-// import Back from "../cards/back/back";
-//
-import ImageBackWhite from "~/media/cards/_backWhite.svg?jsx";
 
 const CARD_RATIO_VS_CONTAINER = 0.9;
 /*
@@ -22,9 +20,6 @@ const CARD_RATIO_VS_CONTAINER = 0.9;
  * range: 0-1
  * */
 const ENLARGED_CARD_SCALE__RATIO_FOR_LIMITING_DIMENSION = 0.8;
-
-export const CARD_FLIP_ANIMATION_DURATION = 600;
-export const CARD_SHAKE_ANIMATION_DURATION = 700;
 
 // underside shows immediately, but hides after this far during return transition
 const HIDE_UNDERSIDE_AFTER_PERCENT = 0.9;

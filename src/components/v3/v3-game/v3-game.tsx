@@ -10,14 +10,11 @@ import {
 import V3Board from "../v3-board/v3-board";
 import { AppContext } from "../v3-context/v3.context";
 import { shuffleCardPositions, shuffleByPairs } from "../utils/v3CardUtils";
-import SettingsModal, {
-  SettingsContent,
-} from "../settings-modal/settings-modal";
+import SettingsModal  from "../settings-modal/settings-modal";
 import GameHeader from "../game-header/game-header";
 import { isServer } from "@builder.io/qwik/build";
 import { formattedDeck } from "../utils/cards";
 import GameEndModal from "../game-end-modal/game-end-modal";
-import InverseModal from "../inverse-modal/inverse-modal";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
 export const DEFAULT_CARD_COUNT = 18;
