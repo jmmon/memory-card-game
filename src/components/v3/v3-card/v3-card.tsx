@@ -30,6 +30,9 @@ const FLIPPED_DELAYED_OFF_DURATION_MS = 250;
 
 type Coords = { x: number; y: number };
 
+type ShuffleTransform = { x: number; y: number };
+const DEFAULT_SHUFFLE_TRANSFORM: ShuffleTransform = { x: 0, y: 0 };
+
 /*
  * getXYFromPosition
  * takes position (card slot index) and calculates board coordinates x and y coords
@@ -55,8 +58,10 @@ const generateShuffleTranslateTransform = (
   rowHeight: number,
   prevCoords: Coords,
   newCoords: Coords
-) => `translateX(${(prevCoords.x - newCoords.x) * colWidth}px) 
-translateY(${(prevCoords.y - newCoords.y) * rowHeight}px)`;
+) => ({
+  x: (prevCoords.x - newCoords.x) * colWidth,
+  y: (prevCoords.y - newCoords.y) * rowHeight,
+});
 
 const buildTranslateTransformToCenter = (
   totalSlots: number,
@@ -212,30 +217,65 @@ export default component$(({ card }: { card: V3Card }) => {
   - turn off transition so it moves forward (remove the class/props)
 * */
 
-  const shuffleTransform = useSignal("");
+  const shuffleTransform = useSignal<ShuffleTransform>(
+    DEFAULT_SHUFFLE_TRANSFORM
+  );
   const flipTransform = useSignal("");
 
   // shuffling will change the card position, causing this to run
   // calc & save prev/cur grid coords from that card position;
-  const coords = useComputed$(() => {
+  useTask$((taskCtx) => {
+    taskCtx.track(() => [
+      card.prevPosition,
+      card.position,
+      appStore.boardLayout.width,
+      appStore.boardLayout.height,
+      appStore.boardLayout.rows,
+      appStore.boardLayout.columns,
+    ]);
+
     const prevCoords = getXYFromPosition(
       card.prevPosition ?? 0,
       appStore.boardLayout.columns
     );
     const newCoords = getXYFromPosition(
-      card.position,
+      card.position ?? 0,
       appStore.boardLayout.columns
     );
 
     const rowHeight = appStore.boardLayout.height / appStore.boardLayout.rows;
     const colWidth = appStore.boardLayout.width / appStore.boardLayout.columns;
 
-    shuffleTransform.value = generateShuffleTranslateTransform(
+    let prevTransform = shuffleTransform.value;
+    if (card.prevPosition === null) {
+      console.log("DEFAULT_SHUFFLE_TRANSFORM");
+      prevTransform = generateShuffleTranslateTransform(
+        colWidth,
+        rowHeight,
+        { x: 0, y: 0 },
+        prevCoords
+      );
+    }
+
+    const newTransform = generateShuffleTranslateTransform(
       colWidth,
       rowHeight,
       prevCoords,
       newCoords
     );
+
+    shuffleTransform.value = {
+      x: prevTransform.x - newTransform.x,
+      y: prevTransform.y - newTransform.y,
+    };
+    console.log({
+      prevCoords,
+      newCoords,
+      card,
+      newTransform,
+      prevTransform,
+      shuffleTransform: shuffleTransform.value,
+    });
 
     flipTransform.value = generateFlipTranslateTransform(
       appStore.boardLayout,
@@ -244,20 +284,21 @@ export default component$(({ card }: { card: V3Card }) => {
       colWidth,
       rowHeight
     );
-    return newCoords;
   });
+  // const coords = useComputed$(() => {
+  // });
 
   /* perspective: for 3D effect, adjust based on width, and card area compared to viewport */
 
   return (
     <div
-      class={`mx-auto aspect-[2.25/3.5] flex flex-col justify-center`}
+      class={`absolute top-0 left-0 aspect-[2.25/3.5] flex flex-col justify-center`}
       style={{
         width: appStore.cardLayout.width + "px",
         height: appStore.cardLayout.height + "px",
         borderRadius: appStore.cardLayout.roundedCornersPx + "px",
-        gridColumn: `${coords.value.x + 1} / ${coords.value.x + 2}`,
-        gridRow: `${coords.value.y + 1} / ${coords.value.y + 2}`,
+        // gridColumn: `${coords.value.x + 1} / ${coords.value.x + 2}`,
+        // gridRow: `${coords.value.y + 1} / ${coords.value.y + 2}`,
 
         zIndex: isCardFlipped.value
           ? 20 // applies while card is being flipped up but not while being flipped down
@@ -269,17 +310,20 @@ export default component$(({ card }: { card: V3Card }) => {
         transitionProperty: "transform",
         transitionTimingFunction: "cubic-bezier(0.40, 1.3, 0.62, 1.045)",
         // transitionTimingFunction: "ease-in-out",
-        transform:
-          (appStore.game.isShufflingAnimation &&
-            appStore.game.isShufflingDelayed) ||
-          !appStore.game.isShufflingAnimation
-            ? ""
-            : shuffleTransform.value,
+        transform: `translateX(${shuffleTransform.value.x}px) translateY(${shuffleTransform.value.y}px)`,
+        transitionDuration:
+          CARD_SHUFFLE_DELAYED_START + CARD_SHUFFLE_ACTIVE_DURATION + "ms",
+        // transform:
+        //   (appStore.game.isShufflingAnimation &&
+        //     appStore.game.isShufflingDelayed) ||
+        //   !appStore.game.isShufflingAnimation
+        //     ? ""
+        //     : `translateX(${shuffleTransform.value.x}px) translateY(${shuffleTransform.value.y}px)`,
 
         // only applied when shuffle is transforming back to  new position
-        transitionDuration: appStore.game.isShufflingDelayed
-          ? CARD_SHUFFLE_DELAYED_START + CARD_SHUFFLE_ACTIVE_DURATION + "ms"
-          : "0ms",
+        // transitionDuration: appStore.game.isShufflingDelayed
+        //   ? CARD_SHUFFLE_DELAYED_START + CARD_SHUFFLE_ACTIVE_DURATION + "ms"
+        //   : "0ms",
       }}
       data-label="card-slot-container"
     >

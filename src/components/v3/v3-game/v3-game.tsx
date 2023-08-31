@@ -10,7 +10,7 @@ import {
 import V3Board from "../v3-board/v3-board";
 import { AppContext } from "../v3-context/v3.context";
 import { shuffleCardPositions, shuffleByPairs } from "../utils/v3CardUtils";
-import SettingsModal  from "../settings-modal/settings-modal";
+import SettingsModal from "../settings-modal/settings-modal";
 import GameHeader from "../game-header/game-header";
 import { isServer } from "@builder.io/qwik/build";
 import { formattedDeck } from "../utils/cards";
@@ -76,23 +76,23 @@ export type CardLayout = {
 };
 
 type GameContext = {
-    isStarted: boolean;
-    flippedCardId: number;
-    selectedCardIds: number[];
-    successfulPairs: Pair[];
-    cards: V3Card[];
-    mismatchPairs: Pair[];
-    mismatchPair: Pair | string;
-    isShaking: boolean;
-    isLoading: boolean;
-    isShufflingAnimation: boolean;
-    isShufflingDelayed: boolean;
-    time: {
-      isPaused: boolean;
-      timestamps: number[];
-      total: number;
-    };
-  }
+  isStarted: boolean;
+  flippedCardId: number;
+  selectedCardIds: number[];
+  successfulPairs: Pair[];
+  cards: V3Card[];
+  mismatchPairs: Pair[];
+  mismatchPair: Pair | string;
+  isShaking: boolean;
+  isLoading: boolean;
+  isShufflingAnimation: boolean;
+  isShufflingDelayed: boolean;
+  time: {
+    isPaused: boolean;
+    timestamps: number[];
+    total: number;
+  };
+};
 export type AppStore = {
   boardLayout: BoardLayout;
   cardLayout: CardLayout;
@@ -229,12 +229,12 @@ const INITIAL_STATE: AppStore = {
    * 1-5 === shuffle n times with animation
    * ================================ */
   shuffleCardPositions: $(function (this: AppStore) {
-    console.log("shuffleCardPositionsWithTransition");
     // shuffle and set new positions, save old positions
-    this.game.cards = shuffleCardPositions(this.game.cards);
+    let newCards = shuffleCardPositions(this.game.cards);
+    console.log("shuffleCardPositions:", { newCards });
+      // newCards = newCards.map((card) => ({ ...card, prevPosition: 0 }));
+    this.game.cards = newCards;
 
-    // to activate animation - only when running on client
-    if (isServer) return;
     this.game.isLoading = true;
     this.interface.settingsModal.isShowing = false;
     this.game.isShufflingAnimation = true;
@@ -244,8 +244,14 @@ const INITIAL_STATE: AppStore = {
     const deckShuffledByPairs = shuffleByPairs([
       ...this.settings.deck.fullDeck,
     ]);
-
-    this.game.cards = deckShuffledByPairs.slice(0, this.settings.deck.size);
+    const cards = deckShuffledByPairs.slice(0, this.settings.deck.size);
+    const withResetPositions = cards.map((card, i) => ({
+      ...card,
+      position: 0,
+      prevPosition: null,
+    }));
+    console.log("sliceDeck:", { withResetPositions });
+    this.game.cards = withResetPositions;
   }),
 
   resetGame: $(function (this: AppStore, settings?: Partial<AppSettings>) {
@@ -499,21 +505,20 @@ const LoadingPage = component$(
  *   - translate into each spot (based on coords/position)
  *   - When a card needs to move to a new position, just find the difference between the old and the new and apply it!
  *
+ *   - so when position changes, transform will change/recalc, and will cause the slide into the new position
+ *
  *
  *
  *
  *
  * */
 
-
-
-
-/* 
-*
-*  TODO: attempt to find edge case in qwik build? heh...
-*
-*  board component fetches and initializes cards, then jsx is able to render them
-*  board component is using a variable exported by card component
-*  the order of imports in the build ends up out of order for some reason
-*
-*  */
+/*
+ *
+ *  TODO: attempt to find edge case in qwik build? heh...
+ *
+ *  board component fetches and initializes cards, then jsx is able to render them
+ *  board component is using a variable exported by card component
+ *  the order of imports in the build ends up out of order for some reason
+ *
+ *  */

@@ -467,13 +467,7 @@ export default component$(
     return (
       <>
         <div
-          class="grid max-h-full max-w-full flex-grow items-center"
-          style={{
-            gridTemplateColumns: `repeat(${
-              appStore.boardLayout.columns || 4
-            }, 1fr)`,
-            gridTemplateRows: `repeat(${appStore.boardLayout.rows}, 1fr)`,
-          }}
+          class="relative max-h-full max-w-full w-full h-full items-center "
           ref={boardRef}
           onClick$={handleClickBoard$}
           data-label="board"
@@ -486,8 +480,3 @@ export default component$(
     );
   }
 );
-
-// alternate way to handle positioning:
-// flex container
-// cards dynamic sizing
-// when card is removed, need to leave a "ghost" slot to take up the space (or else the cards will slide up to fill in slots)

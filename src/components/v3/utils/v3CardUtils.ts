@@ -117,13 +117,15 @@ export const shuffleCardPositions = (cards: V3Card[]) => {
     new Array(cards.length).fill(0).map((_, i) => i)
   );
 
+  const isFirstShuffle = cards.filter((c) => c.position === 0).length === cards.length;
+
   return cards
     .map((card, i) => ({
       ...card,
-      prevPosition: card.position,
+      prevPosition: isFirstShuffle ? null : card.position,
       position: randomOrder[i],
     }))
-    .sort((a, b) => a.position - b.position);
+    // .sort((a, b) => a.position - b.position);
 };
 
 /*
