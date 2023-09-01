@@ -9,10 +9,6 @@ import {
 } from "@builder.io/qwik";
 import V3Board from "../v3-board/v3-board";
 import { AppContext } from "../v3-context/v3.context";
-import {
-  shuffleCardPositions,
-  sliceRandomPairsFromDeck,
-} from "../utils/v3CardUtils";
 import SettingsModal from "../settings-modal/settings-modal";
 import GameHeader from "../game-header/game-header";
 import { formattedDeck } from "../utils/cards";
@@ -21,6 +17,7 @@ import {
   calculateBoardDimensions,
   calculateLayouts,
 } from "../utils/boardUtils";
+import deckUtils from "../utils/deckUtils";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
 export const DEFAULT_CARD_COUNT = 18;
@@ -253,9 +250,8 @@ const INITIAL_STATE: AppStore = {
    * ================================ */
   shuffleCardPositions: $(function (this: AppStore) {
     // shuffle and set new positions, save old positions
-    let newCards = shuffleCardPositions(this.game.cards);
+    const newCards = deckUtils.shuffleCardPositions(this.game.cards);
     console.log("shuffleCardPositions:", { newCards });
-    // newCards = newCards.map((card) => ({ ...card, prevPosition: 0 }));
     this.game.cards = newCards;
   }),
 
@@ -268,18 +264,11 @@ const INITIAL_STATE: AppStore = {
   }),
 
   sliceDeck: $(function (this: AppStore) {
-    const deckShuffledByPairs = sliceRandomPairsFromDeck([
+    const deckShuffledByPairs = deckUtils.sliceRandomPairsFromDeck([
       ...this.settings.deck.fullDeck,
     ]);
     const cards = deckShuffledByPairs.slice(0, this.settings.deck.size);
     this.game.cards = cards;
-    // const withResetPositions = cards.map((card) => ({
-    //   ...card,
-    //   position: 0,
-    //   prevPosition: null,
-    // }));
-    // console.log("sliceDeck:", { withResetPositions });
-    // this.game.cards = withResetPositions;
   }),
 
   resetGame: $(function (this: AppStore, settings?: Partial<AppSettings>) {
@@ -332,13 +321,13 @@ const INITIAL_STATE: AppStore = {
     this.game.time.isPaused = this.game.time.timestamps.length % 2 === 0;
     return now;
   }),
+
   initializeBoard: $(async function (
     this: AppStore,
     boardRef: HTMLDivElement,
     containerRef: HTMLDivElement
   ) {
     await this.sliceDeck();
-    // await this.shuffleCardPositions();
     await this.calculateAndResizeBoard(boardRef, containerRef);
     this.game.shufflingState = 5;
   }),

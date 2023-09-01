@@ -6,20 +6,13 @@ import {
   useTask$,
 } from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
-import type { BoardLayout, CardLayout, V3Card } from "../v3-game/v3-game";
+import type { V3Card } from "../v3-game/v3-game";
 import {
-  CARD_RATIO,
   CARD_SHUFFLE_ACTIVE_DURATION,
   CARD_SHUFFLE_DELAYED_START,
   CARD_FLIP_ANIMATION_DURATION,
 } from "../v3-board/v3-board";
-
-const CARD_RATIO_VS_CONTAINER = 0.9;
-/*
- * compared to board, how big will the enlarged card (flipped card) be?
- * range: 0-1
- * */
-const ENLARGED_CARD_SCALE__RATIO_FOR_LIMITING_DIMENSION = 0.8;
+import v3CardUtils, { CARD_RATIO_VS_CONTAINER, DEFAULT_SHUFFLE_TRANSFORM, ShuffleTransform } from "../utils/v3CardUtils";
 
 // underside shows immediately, but hides after this far during return transition
 const HIDE_UNDERSIDE_AFTER_PERCENT = 0.9;
@@ -28,103 +21,7 @@ const HIDE_UNDERSIDE_AFTER_PERCENT = 0.9;
 // e.g. time allowed for card to vanish (before it would return to board)
 const FLIPPED_DELAYED_OFF_DURATION_MS = 250;
 
-type Coords = { x: number; y: number };
 
-type ShuffleTransform = { x: number; y: number };
-const DEFAULT_SHUFFLE_TRANSFORM: ShuffleTransform = { x: 0, y: 0 };
-
-/*
- * getXYFromPosition
- * takes position (card slot index) and calculates board coordinates x and y coords
- * // e.g. 23 % 6 = 5; 16 % 6 = 4;
- * // e.g. 23 / 6 = 3.; 16 / 6 = 2.;
- * */
-export const getXYFromPosition = (position: number, columnCount: number) => ({
-  x: position % columnCount,
-  y: Math.floor(position / columnCount),
-});
-
-/*
- * generates percentage shift for moving the cards during shuffling
- * from origin:[0,0] to destination:newCoords
- * */
-const generateShuffleTranslateTransformPercent = (
-  cardLayout: CardLayout,
-  newCoords: Coords
-) => {
-  const colGap =
-    (1 / 2) * cardLayout.colGapPercent + newCoords.x * cardLayout.colGapPercent;
-  const rowGap =
-    (1 / 2) * cardLayout.rowGapPercent + newCoords.y * cardLayout.rowGapPercent;
-
-  return {
-    x: newCoords.x * 100 + colGap,
-    y: newCoords.y * 100 + rowGap,
-  };
-};
-
-const generateTranslateTransformToCenter = (
-  totalSlots: number,
-  currentPosition: number,
-  slotWidthPx: number
-) => {
-  const maximumSlotsToTransverse = (totalSlots - 1) / 2;
-  const slotsToTransverse = maximumSlotsToTransverse - currentPosition;
-  const translatePx = slotWidthPx * slotsToTransverse;
-  return translatePx;
-};
-
-const generateScaleTransformToCenter = (
-  boardLayout: BoardLayout,
-  cardLayout: CardLayout
-) => {
-  const boardRatio = boardLayout.width / boardLayout.height;
-
-  const isWidthTheLimitingDimension = boardRatio < CARD_RATIO;
-  // console.log({ boardRatio, isWidthTheLimitingDimension, CARD_RATIO });
-
-  if (isWidthTheLimitingDimension) {
-    const targetWidthPx =
-      boardLayout.width * ENLARGED_CARD_SCALE__RATIO_FOR_LIMITING_DIMENSION;
-    return targetWidthPx / (cardLayout.width * CARD_RATIO_VS_CONTAINER);
-  } else {
-    const targetHeightPx =
-      boardLayout.height * ENLARGED_CARD_SCALE__RATIO_FOR_LIMITING_DIMENSION;
-    return targetHeightPx / (cardLayout.height * CARD_RATIO_VS_CONTAINER);
-  }
-};
-
-/*
- * generateFlipTransform
- * uses positioning and layouts to calculate transform required to flip card over and land in the center, scaled up.
- * numOfColsToTransverseMax e.g. 6cols => 2.5, 8cols => 3.5, 7cols => 3
- * */
-const generateFlipTranslateTransform = (
-  boardLayout: BoardLayout,
-  cardLayout: CardLayout,
-  newCoords: Coords
-) => {
-  const isOnLeftSide = newCoords.x < boardLayout.columns / 2;
-
-  const translateXPx = generateTranslateTransformToCenter(
-    boardLayout.columns,
-    newCoords.x,
-    boardLayout.colWidth
-  );
-
-  const translateYPx = generateTranslateTransformToCenter(
-    boardLayout.rows,
-    newCoords.y,
-    boardLayout.rowHeight
-  );
-
-  const scale = generateScaleTransformToCenter(boardLayout, cardLayout);
-
-  return `translateX(${translateXPx}px) 
-      translateY(${translateYPx}px) 
-      rotateY(${isOnLeftSide ? "" : "-"}180deg) 
-      scale(${scale})`;
-};
 
 export default component$(({ card }: { card: V3Card }) => {
   const appStore = useContext(AppContext);
@@ -208,13 +105,14 @@ export default component$(({ card }: { card: V3Card }) => {
       appStore.boardLayout.columns,
     ]);
 
-    const newCoords = getXYFromPosition(
-      card.position ?? 0,
+    const newCoords = v3CardUtils.getXYFromPosition(
+      card.position,
       appStore.boardLayout.columns
     );
 
     const prevTransform = shuffleTransform.value;
-    shuffleTransform.value = generateShuffleTranslateTransformPercent(
+
+    shuffleTransform.value = v3CardUtils.generateShuffleTranslateTransformPercent(
       appStore.cardLayout,
       newCoords
     );
@@ -226,7 +124,7 @@ export default component$(({ card }: { card: V3Card }) => {
       shuffleTransform: shuffleTransform.value,
     });
 
-    flipTransform.value = generateFlipTranslateTransform(
+    flipTransform.value = v3CardUtils.generateFlipTranslateTransform(
       appStore.boardLayout,
       appStore.cardLayout,
       newCoords
