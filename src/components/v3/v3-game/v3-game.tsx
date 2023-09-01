@@ -84,16 +84,15 @@ export type CardLayout = {
 
 type GameContext = {
   isStarted: boolean;
+  state: "WAITING" | "PLAYING" | "ENDED";
   flippedCardId: number;
   selectedCardIds: number[];
   successfulPairs: Pair[];
   cards: V3Card[];
   mismatchPairs: Pair[];
-  mismatchPair: Pair | string;
+  mismatchPair: Pair | "";
   isShaking: boolean;
   isLoading: boolean;
-  isShufflingAnimation: boolean;
-  isShufflingDelayed: boolean;
   time: {
     isPaused: boolean;
     timestamps: number[];
@@ -125,25 +124,39 @@ export type AppStore = {
   sliceDeck: QRL<() => void>;
   resetGame: QRL<(settings?: Partial<AppSettings>) => void>;
   isGameEnded: QRL<
-    () => {
-      isEnded: boolean;
-      isWin?: boolean;
-    }
+    () =>
+      | { isEnded: false }
+      | {
+          isEnded: true;
+          isWin: boolean;
+        }
   >;
   createTimestamp: QRL<
     (opts?: Partial<{ paused?: boolean }>) => number | undefined
   >;
-  startShuffle: QRL<(count?: number) => void>;
-  initializeBoard: QRL<
-    (boardRef: HTMLDivElement, containerRef: HTMLDivElement) => void
-  >;
+  startShuffling: QRL<(count?: number) => void>;
+  stopShuffling: QRL<() => void>;
+  initializeDeck: QRL<() => void>;
   calculateAndResizeBoard: QRL<
     (boardRef: HTMLDivElement, containerRef: HTMLDivElement) => void
   >;
+  startGame: QRL<() => void>;
+  endGame: QRL<(isWin: boolean) => void>;
+};
+
+export const GAME_STATES: Readonly<{
+  WAITING: "WAITING";
+  PLAYING: "PLAYING";
+  ENDED: "ENDED";
+}> = {
+  WAITING: "WAITING",
+  PLAYING: "PLAYING",
+  ENDED: "ENDED",
 };
 
 const INITIAL_GAME_STATE: GameContext = {
   isStarted: false,
+  state: GAME_STATES.WAITING,
   cards: [],
   mismatchPair: "",
   isShaking: false,
@@ -152,8 +165,6 @@ const INITIAL_GAME_STATE: GameContext = {
   successfulPairs: [],
   mismatchPairs: [],
   isLoading: true,
-  isShufflingAnimation: false,
-  isShufflingDelayed: false,
   time: {
     isPaused: true,
     timestamps: [],
@@ -241,13 +252,6 @@ const INITIAL_STATE: AppStore = {
     },
   },
 
-  /* ================================
-   * TODO:
-   * integrate shuffleCounter better into the shuffle function
-   * e.g. appStore.shuffleCards(count: <0-5>);
-   * 0 === shuffle once without animation
-   * 1-5 === shuffle n times with animation
-   * ================================ */
   shuffleCardPositions: $(function (this: AppStore) {
     // shuffle and set new positions, save old positions
     const newCards = deckUtils.shuffleCardPositions(this.game.cards);
@@ -255,12 +259,15 @@ const INITIAL_STATE: AppStore = {
     this.game.cards = newCards;
   }),
 
-  startShuffle: $(function (this: AppStore, count: number = 5) {
+  startShuffling: $(function (this: AppStore, count: number = 5) {
     this.game.shufflingState = count;
-
     this.game.isLoading = true;
     this.interface.settingsModal.isShowing = false;
-    this.game.isShufflingAnimation = true;
+  }),
+
+  stopShuffling: $(function (this: AppStore) {
+    this.game.shufflingState = 0;
+    this.game.isLoading = false;
   }),
 
   sliceDeck: $(function (this: AppStore) {
@@ -271,7 +278,10 @@ const INITIAL_STATE: AppStore = {
     this.game.cards = cards;
   }),
 
-  resetGame: $(function (this: AppStore, settings?: Partial<AppSettings>) {
+  resetGame: $(async function (
+    this: AppStore,
+    settings?: Partial<AppSettings>
+  ) {
     if (settings) {
       this.settings = {
         ...this.settings,
@@ -279,7 +289,7 @@ const INITIAL_STATE: AppStore = {
       };
     }
     this.game = INITIAL_GAME_STATE;
-    this.sliceDeck();
+    this.initializeDeck();
   }),
 
   isGameEnded: $(function (this: AppStore) {
@@ -287,8 +297,10 @@ const INITIAL_STATE: AppStore = {
     // implement other modes, like max mismatches
     const isEnded =
       this.game.successfulPairs.length === this.settings.deck.size / 2;
+    if (!isEnded) return { isEnded };
     const isWin =
       this.game.successfulPairs.length === this.settings.deck.size / 2;
+
     return { isEnded, isWin };
   }),
 
@@ -296,6 +308,11 @@ const INITIAL_STATE: AppStore = {
     this: AppStore,
     opts?: Partial<{ paused?: boolean }>
   ) {
+    if (
+      this.game.state === GAME_STATES.WAITING ||
+      this.game.state === GAME_STATES.ENDED
+    )
+      return;
     if (!this.game.isStarted) return;
 
     const now = Date.now();
@@ -322,14 +339,9 @@ const INITIAL_STATE: AppStore = {
     return now;
   }),
 
-  initializeBoard: $(async function (
-    this: AppStore,
-    boardRef: HTMLDivElement,
-    containerRef: HTMLDivElement
-  ) {
+  initializeDeck: $(async function (this: AppStore) {
     await this.sliceDeck();
-    await this.calculateAndResizeBoard(boardRef, containerRef);
-    this.game.shufflingState = 5;
+    this.startShuffling();
   }),
 
   calculateAndResizeBoard: $(function (
@@ -348,6 +360,21 @@ const INITIAL_STATE: AppStore = {
       ...this.boardLayout,
       ...boardLayout,
     };
+  }),
+  startGame: $(function (this: AppStore) {
+    // should run on first click, to initialize the timer
+    this.game.isStarted = true;
+    this.game.state = GAME_STATES.PLAYING;
+    this.createTimestamp({ paused: false });
+  }),
+  endGame: $(function (this: AppStore, isWin: boolean) {
+    // should run when game is ended, to hault timer permanently
+    this.interface.endOfGameModal.isWin = isWin;
+    this.interface.endOfGameModal.isShowing = true;
+    this.game.time.isPaused = true; // needed?
+
+    this.game.isStarted = false; // needed?
+    this.game.state = GAME_STATES.ENDED;
   }),
 };
 
@@ -529,39 +556,15 @@ const LoadingPage = component$(
  *
  *
  *
+ * FIX TIMER:
+ * - when completing game, close out of endGameModal, click settings
+ * - expected: timer to be paused still
+ * - actual: timer resumes and kinda resets
  *
- *
- *
- *   ALTERNATE CARD POSITIONING:
- * - use positions (top, left) and be relative to the Board component
- * - set the top left corners
- * - Then, when shuffling, simply adjust the top and left of each card
- * - the transtions on top & left will handle the rest!!!
- *
- * - Should be able to reuse coordinates
- * - just need to set top & left instead of setting gridRow & gridCol
- * - then can simplify the shuffling method
- *
- *
- * - other ideas for card positioning??
- *   - run shuffle over time, card after card, so animation is one at a time
- *   - e.g. chain them: c[5] => c[1], c[1] => c[7], c[7] => c[n]
- *
- * - Transform-translate EVERYTHING:
- *   - no need for grid
- *   - each card would be absolute top left
- *   - translate into each spot (based on coords/position)
- *   - When a card needs to move to a new position, just find the difference between the old and the new and apply it!
- *
- *   - so when position changes, transform will change/recalc, and will cause the slide into the new position
- *
- *
- *
- *
- * TODO:
- * - Make translations of cards be based on percentage of boardRef,
- *     reactive to boardRef and its position and the correct cols and rows
- *
+ * solutions?: isGameEnded boolean which is true at the end, and is false once game is clicked
+ * maybe should have endGame function and startGame function to make it easier
+ * - track settingsModal.isOpen to pause the timer
+ * - also track isGameEnded (or isGameStarted) to pause the timer
  * */
 
 /*

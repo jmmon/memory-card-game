@@ -12,7 +12,11 @@ import {
   CARD_SHUFFLE_DELAYED_START,
   CARD_FLIP_ANIMATION_DURATION,
 } from "../v3-board/v3-board";
-import v3CardUtils, { CARD_RATIO_VS_CONTAINER, DEFAULT_SHUFFLE_TRANSFORM, ShuffleTransform } from "../utils/v3CardUtils";
+import v3CardUtils, {
+  CARD_RATIO_VS_CONTAINER,
+  DEFAULT_SHUFFLE_TRANSFORM,
+  ShuffleTransform,
+} from "../utils/v3CardUtils";
 
 // underside shows immediately, but hides after this far during return transition
 const HIDE_UNDERSIDE_AFTER_PERCENT = 0.9;
@@ -21,14 +25,13 @@ const HIDE_UNDERSIDE_AFTER_PERCENT = 0.9;
 // e.g. time allowed for card to vanish (before it would return to board)
 const FLIPPED_DELAYED_OFF_DURATION_MS = 250;
 
-
-
 export default component$(({ card }: { card: V3Card }) => {
   const appStore = useContext(AppContext);
 
   const isRemoved = useComputed$(() =>
-    appStore.game.successfulPairs.join(",").includes(String(card.id))
+    v3CardUtils.isCardInPairs(appStore.game.successfulPairs, card.id)
   );
+
   const isMismatched = useComputed$(() =>
     appStore.game.mismatchPair.includes(String(card.id))
   );
@@ -91,8 +94,8 @@ export default component$(({ card }: { card: V3Card }) => {
   const shuffleTransform = useSignal<ShuffleTransform>(
     DEFAULT_SHUFFLE_TRANSFORM
   );
+
   const flipTransform = useSignal("");
-  const newCoordsSignal = useSignal(DEFAULT_SHUFFLE_TRANSFORM);
 
   // shuffling will change the card position, causing this to run
   // calc & save prev/cur grid coords from that card position;
@@ -110,26 +113,26 @@ export default component$(({ card }: { card: V3Card }) => {
       appStore.boardLayout.columns
     );
 
-    const prevTransform = shuffleTransform.value;
+    // const prevTransform = shuffleTransform.value;
 
-    shuffleTransform.value = v3CardUtils.generateShuffleTranslateTransformPercent(
-      appStore.cardLayout,
-      newCoords
-    );
+    shuffleTransform.value =
+      v3CardUtils.generateShuffleTranslateTransformPercent(
+        appStore.cardLayout,
+        newCoords
+      );
 
-    console.log({
-      newCoords,
-      card,
-      prevTransform,
-      shuffleTransform: shuffleTransform.value,
-    });
+    // console.log({
+    //   newCoords,
+    //   card,
+    //   prevTransform,
+    //   shuffleTransform: shuffleTransform.value,
+    // });
 
     flipTransform.value = v3CardUtils.generateFlipTranslateTransform(
       appStore.boardLayout,
       appStore.cardLayout,
       newCoords
     );
-    newCoordsSignal.value = newCoords;
   });
 
   return (
@@ -155,7 +158,7 @@ export default component$(({ card }: { card: V3Card }) => {
           CARD_SHUFFLE_DELAYED_START + CARD_SHUFFLE_ACTIVE_DURATION + "ms",
       }}
       data-label="card-slot-container"
-      data-position={`(${newCoordsSignal.value.x},${newCoordsSignal.value.y})`}
+      data-position={card.position}
     >
       <div
         class="border border-slate-50/10 mx-auto bg-transparent"
@@ -232,7 +235,7 @@ export const CardView = ({
         // - so at 20%, our animation will be 128.5% complete,
         // - then at 32% ouranimation will be 107.5% complete,
         // - then finally at 100% our animation will complete
-        transitionTimingFunction: "cubic-bezier(0.40, 1.3, 0.62, 1.045)",
+        transitionTimingFunction: "cubic-bezier(0.40, 1.2, 0.62, 1.045)",
         borderRadius: roundedCornersPx + "px",
       }}
     >

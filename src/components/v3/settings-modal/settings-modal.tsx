@@ -79,7 +79,7 @@ export const SettingsContent = component$(() => {
           <Button
             text="Shuffle Deck"
             // onClick$={() => appStore.shuffleCardPositions()}
-            onClick$={() => appStore.startShuffle(5)}
+            onClick$={() => appStore.startShuffling(5)}
           />
           <span class="tooltiptext">Shuffle the card positions.</span>
         </div>

@@ -14,19 +14,17 @@ export const DEFAULT_SHUFFLE_TRANSFORM: ShuffleTransform = { x: 0, y: 0 };
 
 // find cardId inside pairs
 function isCardInPairs(pairs: Pair[], cardId: number) {
-  const removedPairs = pairs.join(",");
-  return removedPairs.includes(String(cardId));
+  return pairs.join(",").includes(String(cardId));
 }
 
-function checkIfCardIsRemoved(pairs: Pair[], clickedId: number) {
+function getIdIfNotRemoved(pairs: Pair[], clickedId: number):number | undefined {
   // check if target is an empty slot
-  const cardId = clickedId as number;
-  const isRemoved = isCardInPairs(pairs, cardId);
-  if (isRemoved) return -1;
-  return cardId;
+  const isRemoved = isCardInPairs(pairs, clickedId);
+  if (isRemoved) return undefined;
+  return clickedId;
 }
 
-function handleSelectCard(selected: number[], id: number) {
+function handleAddCardToSelected(selected: number[], id: number) {
   const isSameCardClicked = selected.length === 1 && id === selected[0];
 
   if (isSameCardClicked) return selected;
@@ -138,10 +136,34 @@ const generateFlipTranslateTransform = (
       scale(${scale})`;
 };
 
+// const v3CardUtils: {
+//   isCardInPairs: typeof isCardInPairs,
+//   checkIfCardIsRemoved: typeof checkIfCardIsRemoved,//(pairs: Pair[], clickedId: number) => number | typeof MinusOne,
+//   handleAddCardToSelected: typeof handleAddCardToSelected,
+//   checkMatch: typeof checkMatch,
+//   findCardById: typeof findCardById,
+//   getXYFromPosition: typeof getXYFromPosition,
+//   generateShuffleTranslateTransformPercent: typeof generateShuffleTranslateTransformPercent,
+//   generateScaleTransformToCenter  : typeof generateScaleTransformToCenter,
+//   generateTranslateTransformToCenter: typeof generateTranslateTransformToCenter,
+//   generateFlipTranslateTransform: typeof generateFlipTranslateTransform,
+// } = {
+//   isCardInPairs,
+//   checkIfCardIsRemoved,
+//   handleAddCardToSelected,
+//   checkMatch,
+//   findCardById,
+//   getXYFromPosition,
+//   generateShuffleTranslateTransformPercent,
+//   generateScaleTransformToCenter,
+//   generateTranslateTransformToCenter,
+//   generateFlipTranslateTransform,
+// };
+
 const v3CardUtils = {
   isCardInPairs,
-  checkIfCardIsRemoved,
-  handleSelectCard,
+  getIdIfNotRemoved,
+  handleAddCardToSelected,
   checkMatch,
   findCardById,
   getXYFromPosition,
@@ -149,6 +171,6 @@ const v3CardUtils = {
   generateScaleTransformToCenter,
   generateTranslateTransformToCenter,
   generateFlipTranslateTransform,
-};
+}
 
 export default v3CardUtils;
