@@ -9,12 +9,18 @@ import {
 } from "@builder.io/qwik";
 import V3Board from "../v3-board/v3-board";
 import { AppContext } from "../v3-context/v3.context";
-import { shuffleCardPositions, sliceRandomPairsFromDeck } from "../utils/v3CardUtils";
+import {
+  shuffleCardPositions,
+  sliceRandomPairsFromDeck,
+} from "../utils/v3CardUtils";
 import SettingsModal from "../settings-modal/settings-modal";
 import GameHeader from "../game-header/game-header";
 import { formattedDeck } from "../utils/cards";
 import GameEndModal from "../game-end-modal/game-end-modal";
-import { calculateBoardDimensions, calculateLayouts } from "../utils/boardUtils";
+import {
+  calculateBoardDimensions,
+  calculateLayouts,
+} from "../utils/boardUtils";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
 export const DEFAULT_CARD_COUNT = 18;
@@ -67,12 +73,16 @@ export type BoardLayout = {
   rows: number;
   area: number;
   isLocked: boolean;
+  rowHeight: number;
+  colWidth: number;
 };
 export type CardLayout = {
   width: number;
   height: number;
   area: number;
   roundedCornersPx: number;
+  colGapPercent: number;
+  rowGapPercent: number;
 };
 
 type GameContext = {
@@ -127,8 +137,12 @@ export type AppStore = {
     (opts?: Partial<{ paused?: boolean }>) => number | undefined
   >;
   startShuffle: QRL<(count?: number) => void>;
-  initializeBoard: QRL<(boardRef: HTMLDivElement, containerRef: HTMLDivElement) => void>;
-calculateAndResizeBoard: QRL<(boardRef: HTMLDivElement, containerRef: HTMLDivElement) => void>;
+  initializeBoard: QRL<
+    (boardRef: HTMLDivElement, containerRef: HTMLDivElement) => void
+  >;
+  calculateAndResizeBoard: QRL<
+    (boardRef: HTMLDivElement, containerRef: HTMLDivElement) => void
+  >;
 };
 
 const INITIAL_GAME_STATE: GameContext = {
@@ -159,6 +173,8 @@ const INITIAL_STATE: AppStore = {
     columns: 5,
     rows: 4,
     isLocked: false, // prevent recalculation of board layout
+    colWidth: 291.07 / 5,
+    rowHeight: 281.81 / 4,
   },
 
   cardLayout: {
@@ -166,6 +182,8 @@ const INITIAL_STATE: AppStore = {
     height: 70.3955,
     roundedCornersPx: 2.533,
     area: 50.668 * 70.3955,
+    colGapPercent: 0,
+    rowGapPercent: 0,
   },
   game: INITIAL_GAME_STATE,
 
@@ -254,13 +272,14 @@ const INITIAL_STATE: AppStore = {
       ...this.settings.deck.fullDeck,
     ]);
     const cards = deckShuffledByPairs.slice(0, this.settings.deck.size);
-    const withResetPositions = cards.map((card) => ({
-      ...card,
-      position: 0,
-      prevPosition: null,
-    }));
-    console.log("sliceDeck:", { withResetPositions });
-    this.game.cards = withResetPositions;
+    this.game.cards = cards;
+    // const withResetPositions = cards.map((card) => ({
+    //   ...card,
+    //   position: 0,
+    //   prevPosition: null,
+    // }));
+    // console.log("sliceDeck:", { withResetPositions });
+    // this.game.cards = withResetPositions;
   }),
 
   resetGame: $(function (this: AppStore, settings?: Partial<AppSettings>) {
@@ -313,28 +332,34 @@ const INITIAL_STATE: AppStore = {
     this.game.time.isPaused = this.game.time.timestamps.length % 2 === 0;
     return now;
   }),
-initializeBoard: $(async function(this: AppStore, boardRef: HTMLDivElement, containerRef: HTMLDivElement){
-      await this.sliceDeck();
-      await this.calculateAndResizeBoard(boardRef, containerRef);
-      this.game.shufflingState = 5;
-}),
+  initializeBoard: $(async function (
+    this: AppStore,
+    boardRef: HTMLDivElement,
+    containerRef: HTMLDivElement
+  ) {
+    await this.sliceDeck();
+    // await this.shuffleCardPositions();
+    await this.calculateAndResizeBoard(boardRef, containerRef);
+    this.game.shufflingState = 5;
+  }),
 
-calculateAndResizeBoard : $(function (this: AppStore, boardRef: HTMLDivElement, containerRef: HTMLDivElement) {
-      const newBoard = calculateBoardDimensions(
-        containerRef,
-        boardRef
-      );
-      const { cardLayout, boardLayout } = calculateLayouts(
-        newBoard.width,
-        newBoard.height,
-        this.settings.deck.size
-      );
-      this.cardLayout = cardLayout;
-      this.boardLayout = {
-        ...this.boardLayout,
-        ...boardLayout,
-      };
-    }),
+  calculateAndResizeBoard: $(function (
+    this: AppStore,
+    boardRef: HTMLDivElement,
+    containerRef: HTMLDivElement
+  ) {
+    const newBoard = calculateBoardDimensions(containerRef, boardRef);
+    const { cardLayout, boardLayout } = calculateLayouts(
+      newBoard.width,
+      newBoard.height,
+      this.settings.deck.size
+    );
+    this.cardLayout = cardLayout;
+    this.boardLayout = {
+      ...this.boardLayout,
+      ...boardLayout,
+    };
+  }),
 };
 
 const calculateAccumTimeFromTimestampsArr = (timestamps: number[]) => {
@@ -359,12 +384,15 @@ const calculateAccumTimeFromTimestampsArr = (timestamps: number[]) => {
 };
 
 export default component$(() => {
-  console.log("game render count");
+  console.log("game render");
   // set up context
   const appStore = useStore({ ...INITIAL_STATE }, { deep: true });
   useContextProvider(AppContext, appStore);
   const containerRef = useSignal<HTMLElement>();
 
+  /* ============================
+   * Handle game timer calculation and pausing
+   * ============================ */
   useVisibleTask$((taskCtx) => {
     const isPaused = taskCtx.track(() => appStore.game.time.isPaused);
 
@@ -380,12 +408,12 @@ export default component$(() => {
           accum + (now - (appStore.game.time.timestamps.at(-1) as number));
       }
 
-      console.log("running updateTime:", {
-        time: appStore.game.time.total,
-        accum,
-        isPaused,
-        now,
-      });
+      // console.log("running updateTime:", {
+      //   time: appStore.game.time.total,
+      //   accum,
+      //   isPaused,
+      //   now,
+      // });
     };
 
     updateTime(); // update whenever isPaused changes
@@ -541,6 +569,9 @@ const LoadingPage = component$(
  *
  *
  *
+ * TODO:
+ * - Make translations of cards be based on percentage of boardRef,
+ *     reactive to boardRef and its position and the correct cols and rows
  *
  * */
 

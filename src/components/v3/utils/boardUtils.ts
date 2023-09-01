@@ -42,6 +42,10 @@ export const calculateLayouts = (width: number, height: number, deckSize: number
     height: newCardHeight,
     roundedCornersPx: CORNERS_WIDTH_RATIO * newCardWidth,
     area: cardArea,
+    // half of this value should be on either edge, full value in the gaps
+    // as percent of card width
+    colGapPercent: ((boardWidth - (columns * newCardWidth)) / (columns)) / newCardWidth * 100, 
+    rowGapPercent: ((boardHeight - (rows * newCardHeight)) / (rows)) / newCardHeight * 100,
   };
 
   // save board width/height
@@ -51,16 +55,13 @@ export const calculateLayouts = (width: number, height: number, deckSize: number
     area: boardArea,
     rows,
     columns,
+    colWidth: boardWidth / columns,
+    rowHeight: boardHeight / rows,
   };
 
   console.log({
     boardLayout,
     cardLayout,
-    // container: {
-    //   width: containerRef.value?.offsetWidth,
-    //   height: containerRef.value?.offsetHeight,
-    // },
-    // window: { width: window.innerWidth, height: window.innerHeight },
     columns,
     rows,
   });

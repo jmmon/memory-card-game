@@ -45,25 +45,25 @@ export const getXYFromPosition = (position: number, columnCount: number) => ({
 });
 
 /*
- * generateShuffleTransform
- * using old and new coords, create transform to make the move
- * applied instantly when shuffling, then transition is reverted over time to end up in the new position
- *
- * e.g. 0, 1, 2, 3 columns, new = 3; prev = 0
- * prev - new = -3 columns from new position back to old position
- * -3 columns * columnWidth = px
+ * generates percentage shift for moving the cards during shuffling
+ * from origin:[0,0] to destination:newCoords
  * */
-const generateShuffleTranslateTransform = (
-  colWidth: number,
-  rowHeight: number,
-  prevCoords: Coords,
+const generateShuffleTranslateTransformPercent = (
+  cardLayout: CardLayout,
   newCoords: Coords
-) => ({
-  x: (prevCoords.x - newCoords.x) * colWidth,
-  y: (prevCoords.y - newCoords.y) * rowHeight,
-});
+) => {
+  const colGap =
+    (1 / 2) * cardLayout.colGapPercent + newCoords.x * cardLayout.colGapPercent;
+  const rowGap =
+    (1 / 2) * cardLayout.rowGapPercent + newCoords.y * cardLayout.rowGapPercent;
 
-const buildTranslateTransformToCenter = (
+  return {
+    x: newCoords.x * 100 + colGap,
+    y: newCoords.y * 100 + rowGap,
+  };
+};
+
+const generateTranslateTransformToCenter = (
   totalSlots: number,
   currentPosition: number,
   slotWidthPx: number
@@ -74,7 +74,7 @@ const buildTranslateTransformToCenter = (
   return translatePx;
 };
 
-const buildScaleTransformToCenter = (
+const generateScaleTransformToCenter = (
   boardLayout: BoardLayout,
   cardLayout: CardLayout
 ) => {
@@ -102,25 +102,23 @@ const buildScaleTransformToCenter = (
 const generateFlipTranslateTransform = (
   boardLayout: BoardLayout,
   cardLayout: CardLayout,
-  newCoords: Coords,
-  colWidth: number,
-  rowHeight: number
+  newCoords: Coords
 ) => {
   const isOnLeftSide = newCoords.x < boardLayout.columns / 2;
 
-  const translateXPx = buildTranslateTransformToCenter(
+  const translateXPx = generateTranslateTransformToCenter(
     boardLayout.columns,
     newCoords.x,
-    colWidth
+    boardLayout.colWidth
   );
 
-  const translateYPx = buildTranslateTransformToCenter(
+  const translateYPx = generateTranslateTransformToCenter(
     boardLayout.rows,
     newCoords.y,
-    rowHeight
+    boardLayout.rowHeight
   );
 
-  const scale = buildScaleTransformToCenter(boardLayout, cardLayout);
+  const scale = generateScaleTransformToCenter(boardLayout, cardLayout);
 
   return `translateX(${translateXPx}px) 
       translateY(${translateYPx}px) 
@@ -143,30 +141,9 @@ export default component$(({ card }: { card: V3Card }) => {
     () => appStore.game.flippedCardId === card.id
   );
 
-  // delayed indicator, turns true once the flipped card returns to the board
-  const isRemovedDelayedTrue = useSignal(false);
-
-  // when card is removed, trigger our isRemovedDelayedTrue
-  // after card has enough time to return to the board
-  useTask$((taskCtx) => {
-    taskCtx.track(() => isRemoved.value);
-    let timer: ReturnType<typeof setTimeout>;
-
-    if (isRemoved.value === false) {
-      isRemovedDelayedTrue.value = false;
-    } else {
-      timer = setTimeout(() => {
-        isRemovedDelayedTrue.value = true;
-      }, CARD_FLIP_ANIMATION_DURATION);
-    }
-
-    taskCtx.cleanup(() => {
-      clearTimeout(timer);
-    });
-  });
-
   // show and hide the back face, so the backs of cards can't be inspected when face-down
   const isUnderSideShowing = useSignal(false);
+  // When pair is matched, instead of unflipping the card, wait this duration and then disappear the two cards
   const isCardFlippedDelayedOff = useSignal(false);
 
   // when card is flipped, control timers for isUnderSideShowing and isCardFlippedDelayedOff
@@ -208,25 +185,22 @@ export default component$(({ card }: { card: V3Card }) => {
   });
 
   /* SHUFFLE CARDS TRANSFORM
-*
-  so when shuffling, position is updated so card is moved immediately.
-  We should calculate the transition from prevPosition => position as the position is updated.
-  NOW I have the transition.
-  - INVERSE the transition immediately so to move the card backward to prevPosition.
-  - apply transition-duration
-  - turn off transition so it moves forward (remove the class/props)
-* */
+   * - new method!
+   * - transforms based off how to get from 0,0 to newCoords
+   * - any changes in coords will change the transform
+   *     so the card will slide to the correct position
+   * */
 
   const shuffleTransform = useSignal<ShuffleTransform>(
     DEFAULT_SHUFFLE_TRANSFORM
   );
   const flipTransform = useSignal("");
+  const newCoordsSignal = useSignal(DEFAULT_SHUFFLE_TRANSFORM);
 
   // shuffling will change the card position, causing this to run
   // calc & save prev/cur grid coords from that card position;
   useTask$((taskCtx) => {
     taskCtx.track(() => [
-      card.prevPosition,
       card.position,
       appStore.boardLayout.width,
       appStore.boardLayout.height,
@@ -234,45 +208,20 @@ export default component$(({ card }: { card: V3Card }) => {
       appStore.boardLayout.columns,
     ]);
 
-    const prevCoords = getXYFromPosition(
-      card.prevPosition ?? 0,
-      appStore.boardLayout.columns
-    );
     const newCoords = getXYFromPosition(
       card.position ?? 0,
       appStore.boardLayout.columns
     );
 
-    const rowHeight = appStore.boardLayout.height / appStore.boardLayout.rows;
-    const colWidth = appStore.boardLayout.width / appStore.boardLayout.columns;
-
-    let prevTransform = shuffleTransform.value;
-    if (card.prevPosition === null) {
-      console.log("DEFAULT_SHUFFLE_TRANSFORM");
-      prevTransform = generateShuffleTranslateTransform(
-        colWidth,
-        rowHeight,
-        { x: 0, y: 0 },
-        prevCoords
-      );
-    }
-
-    const newTransform = generateShuffleTranslateTransform(
-      colWidth,
-      rowHeight,
-      prevCoords,
+    const prevTransform = shuffleTransform.value;
+    shuffleTransform.value = generateShuffleTranslateTransformPercent(
+      appStore.cardLayout,
       newCoords
     );
 
-    shuffleTransform.value = {
-      x: prevTransform.x - newTransform.x,
-      y: prevTransform.y - newTransform.y,
-    };
     console.log({
-      prevCoords,
       newCoords,
       card,
-      newTransform,
       prevTransform,
       shuffleTransform: shuffleTransform.value,
     });
@@ -280,15 +229,10 @@ export default component$(({ card }: { card: V3Card }) => {
     flipTransform.value = generateFlipTranslateTransform(
       appStore.boardLayout,
       appStore.cardLayout,
-      newCoords,
-      colWidth,
-      rowHeight
+      newCoords
     );
+    newCoordsSignal.value = newCoords;
   });
-  // const coords = useComputed$(() => {
-  // });
-
-  /* perspective: for 3D effect, adjust based on width, and card area compared to viewport */
 
   return (
     <div
@@ -297,8 +241,6 @@ export default component$(({ card }: { card: V3Card }) => {
         width: appStore.cardLayout.width + "px",
         height: appStore.cardLayout.height + "px",
         borderRadius: appStore.cardLayout.roundedCornersPx + "px",
-        // gridColumn: `${coords.value.x + 1} / ${coords.value.x + 2}`,
-        // gridRow: `${coords.value.y + 1} / ${coords.value.y + 2}`,
 
         zIndex: isCardFlipped.value
           ? 20 // applies while card is being flipped up but not while being flipped down
@@ -310,11 +252,12 @@ export default component$(({ card }: { card: V3Card }) => {
         transitionProperty: "transform",
         transitionTimingFunction: "cubic-bezier(0.40, 1.3, 0.62, 1.045)",
         // transitionTimingFunction: "ease-in-out",
-        transform: `translateX(${shuffleTransform.value.x}px) translateY(${shuffleTransform.value.y}px)`,
+        transform: `translateX(${shuffleTransform.value.x}%) translateY(${shuffleTransform.value.y}%)`,
         transitionDuration:
           CARD_SHUFFLE_DELAYED_START + CARD_SHUFFLE_ACTIVE_DURATION + "ms",
       }}
       data-label="card-slot-container"
+      data-position={`(${newCoordsSignal.value.x},${newCoordsSignal.value.y})`}
     >
       <div
         class="border border-slate-50/10 mx-auto bg-transparent"
@@ -328,9 +271,7 @@ export default component$(({ card }: { card: V3Card }) => {
         <div
           data-id={card.id}
           data-label="card"
-          class={`w-full h-full [perspective:${
-            CARD_RATIO_VS_CONTAINER * 100
-          }vw] border border-slate-50/25 bg-transparent transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
+          class={`w-full h-full border border-slate-50/25 bg-transparent transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
             isRemoved.value &&
             appStore.game.flippedCardId !== card.id &&
             appStore.game.flippedCardId !== card.pairId
@@ -341,6 +282,7 @@ export default component$(({ card }: { card: V3Card }) => {
           }`}
           style={{
             borderRadius: appStore.cardLayout.roundedCornersPx + "px",
+            perspective: CARD_RATIO_VS_CONTAINER * 100 + "vw",
           }}
         >
           <CardView
@@ -358,78 +300,76 @@ export default component$(({ card }: { card: V3Card }) => {
   );
 });
 
-export const CardView = component$(
-  ({
-    card,
-    isCardFlipped,
-    isRemoved,
-    isCardFlippedDelayedOff,
-    flipTransform,
-    roundedCornersPx,
-    isUnderSideShowing,
-  }: {
-    card: V3Card;
-    isCardFlipped: boolean;
-    isUnderSideShowing: boolean;
-    isRemoved: boolean;
-    isCardFlippedDelayedOff: boolean;
-    flipTransform: string;
-    roundedCornersPx: number;
-  }) => {
-    return (
+export const CardView = ({
+  card,
+  isCardFlipped,
+  isRemoved,
+  isCardFlippedDelayedOff,
+  flipTransform,
+  roundedCornersPx,
+  isUnderSideShowing,
+}: {
+  card: V3Card;
+  isCardFlipped: boolean;
+  isUnderSideShowing: boolean;
+  isRemoved: boolean;
+  isCardFlippedDelayedOff: boolean;
+  flipTransform: string;
+  roundedCornersPx: number;
+}) => {
+  return (
+    <div
+      data-id={card.id}
+      class={`card w-full h-full relative text-center [transform-style:preserve-3d] [transition-property:all]`}
+      style={{
+        transform:
+          isCardFlipped || (isRemoved && isCardFlippedDelayedOff)
+            ? flipTransform
+            : "",
+        transitionDuration: CARD_FLIP_ANIMATION_DURATION + "ms",
+        // understanding cubic bezier: we control the two middle points
+        // [ t:0, p:0 ], (t:0.2, p:1.285), (t:0.32, p:1.075), [t:1, p:1]
+        // t == time, p == animationProgress
+        // e.g.:
+        // - so at 20%, our animation will be 128.5% complete,
+        // - then at 32% ouranimation will be 107.5% complete,
+        // - then finally at 100% our animation will complete
+        transitionTimingFunction: "cubic-bezier(0.40, 1.3, 0.62, 1.045)",
+        borderRadius: roundedCornersPx + "px",
+      }}
+    >
       <div
         data-id={card.id}
-        class={`card w-full h-full relative text-center [transform-style:preserve-3d] [transition-property:all]`}
+        data-label="card-back"
+        class={`absolute w-full h-full border-2 border-slate-50 text-white bg-slate-100 flex flex-col justify-center [backface-visibility:hidden]`}
         style={{
-          transform:
-            isCardFlipped || (isRemoved && isCardFlippedDelayedOff)
-              ? flipTransform
-              : "",
-          transitionDuration: CARD_FLIP_ANIMATION_DURATION + "ms",
-          // understanding cubic bezier: we control the two middle points
-          // [ t:0, p:0 ], (t:0.2, p:1.285), (t:0.32, p:1.075), [t:1, p:1]
-          // t == time, p == animationProgress
-          // e.g.:
-          // - so at 20%, our animation will be 128.5% complete,
-          // - then at 32% ouranimation will be 107.5% complete,
-          // - then finally at 100% our animation will complete
-          transitionTimingFunction: "cubic-bezier(0.40, 1.3, 0.62, 1.045)",
           borderRadius: roundedCornersPx + "px",
         }}
       >
-        <div
-          data-id={card.id}
-          data-label="card-back"
-          class={`absolute w-full h-full border-2 border-slate-50 text-white bg-[dodgerblue] flex flex-col justify-center [backface-visibility:hidden]`}
-          style={{
-            borderRadius: roundedCornersPx + "px",
-          }}
-        >
+        <img
+          width="25"
+          height="35"
+          src="/cards/_backWhite.svg"
+          class="w-full h-full"
+        />
+      </div>
+
+      <div
+        class={`absolute w-full border border-white h-full flex justify-center items-center text-black bg-slate-300 [transform:rotateY(180deg)] [backface-visibility:hidden] `}
+        data-label="card-front"
+        style={{
+          borderRadius: roundedCornersPx + "px",
+        }}
+      >
+        {isUnderSideShowing && (
           <img
             width="25"
             height="35"
-            src="/cards/_backWhite.svg"
+            src={card.localSVG}
             class="w-full h-full"
           />
-        </div>
-
-        <div
-          class={`absolute w-full border border-white h-full flex justify-center items-center text-black bg-slate-300 [transform:rotateY(180deg)] [backface-visibility:hidden] `}
-          data-label="card-front"
-          style={{
-            borderRadius: roundedCornersPx + "px",
-          }}
-        >
-          {isUnderSideShowing && (
-            <img
-              width="25"
-              height="35"
-              src={card.localSVG}
-              class="w-full h-full"
-            />
-          )}
-        </div>
+        )}
       </div>
-    );
-  }
-);
+    </div>
+  );
+};
