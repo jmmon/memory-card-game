@@ -25,9 +25,9 @@ export const CARD_RATIO = 113 / 157; // w / h
 export const CORNERS_WIDTH_RATIO = 1 / 20;
 
 // after initial instant transform, wait this long before starting animation
-export const CARD_SHUFFLE_DELAYED_START = 200;
+export const CARD_SHUFFLE_PAUSE_DURATION = 0;
 // animation duration
-export const CARD_SHUFFLE_ACTIVE_DURATION = 400;
+export const CARD_SHUFFLE_ACTIVE_DURATION = 300;
 export const CARD_SHUFFLE_ROUNDS = 5;
 
 // higher means shake starts sooner
@@ -78,6 +78,7 @@ export default component$(
 
       // finally finally, check for end conditions
       const res = await appStore.isGameEnded();
+
       if (res.isEnded) {
         appStore.endGame(res.isWin);
       }
@@ -129,6 +130,7 @@ export default component$(
     const handleClickBoard$ = $((e: QwikMouseEvent) => {
       const isCardFlipped = appStore.game.flippedCardId !== -1;
       // attempt to get the card id if click is on a card
+      // removed cards don't intercept click events, so they're filtered out automatically
       const clickedId = Number((e.target as HTMLElement).dataset.id) || false;
 
       const isClickedOnCard = !!clickedId;
@@ -147,21 +149,11 @@ export default component$(
         case isClickedOnCard:
           {
             // initialize game timer on first click
-            // const isFirstClick = appStore.game.time.timestamps.length === 0;
-            const isFirstClick = !appStore.game.isStarted;
-
-            if (isFirstClick) {
+            if (!appStore.timer.state.isStarted) {
               appStore.startGame();
             }
 
-            const cardId = v3CardUtils.getIdIfNotRemoved(
-              appStore.game.successfulPairs,
-              Number(clickedId)
-            );
-
-            if (cardId !== undefined) {
-              handleClickCard(cardId);
-            }
+            handleClickCard(Number(clickedId));
           }
           break;
       }
@@ -306,7 +298,7 @@ export default component$(
 
       const nextStartTimer = setTimeout(() => {
         appStore.game.shufflingState -= 1;
-      }, CARD_SHUFFLE_DELAYED_START + CARD_SHUFFLE_ACTIVE_DURATION);
+      }, CARD_SHUFFLE_PAUSE_DURATION + CARD_SHUFFLE_ACTIVE_DURATION);
 
       taskCtx.cleanup(() => {
         clearTimeout(nextStartTimer);
@@ -339,8 +331,33 @@ export default component$(
     });
 
     useStyles$(`
-     .card * {
+      /* diable clicks for all the innards */
+      .card-flip * {
         pointer-events: none;
+      }
+
+      .card-flip {
+        /*
+          understanding cubic bezier: we control the two middle points
+          [ t:0, p:0 ], (t:0.2, p:1.285), (t:0.32, p:1.075), [t:1, p:1]
+          t == time, p == animationProgress
+          e.g.:
+          - so at 20%, our animation will be 128.5% complete,
+          - then at 32% ouranimation will be 107.5% complete,
+          - then finally at 100% our animation will complete
+        * */
+        transition-property: all;
+        transition-timing-function: cubic-bezier(0.40, 1.2, 0.62, 1.045);
+        transform-style: preserve-3d;
+        transition-duration: ${CARD_FLIP_ANIMATION_DURATION}ms;
+      }
+
+      .card-shuffle-transform {
+        transition-property: transform;
+        transition-timing-function: cubic-bezier(0.40, 1.3, 0.62, 1.045);
+        transition-duration: ${
+          CARD_SHUFFLE_PAUSE_DURATION + CARD_SHUFFLE_ACTIVE_DURATION
+        }ms;
       }
 
       .shake-card {

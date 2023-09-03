@@ -1,6 +1,6 @@
 import type { RequestHandler } from "@builder.io/qwik-city";
 
-import { fetchAndFormatDeck } from "~/components/v3/utils/v3CardUtils";
+// import { fetchAndFormatDeck } from "~/components/v3/utils/v3CardUtils";
 
 export const onGet: RequestHandler = async (requestEvent) => {
   // Control caching for this request for best performance and to reduce hosting costs:
@@ -12,12 +12,12 @@ export const onGet: RequestHandler = async (requestEvent) => {
     maxAge: 5,
   });
 
-  try {
-    console.log('\napi/deck ~~');
-    const formattedDeck = await fetchAndFormatDeck();
-
-    requestEvent.json(200, formattedDeck);
-  } catch (err) {
-    requestEvent.json(500, []);
-  }
+  // try {
+  //   console.log('\napi/deck ~~');
+  //   const formattedDeck = await fetchAndFormatDeck();
+  //
+  //   requestEvent.json(200, formattedDeck);
+  // } catch (err) {
+  //   requestEvent.json(500, []);
+  // }
 };

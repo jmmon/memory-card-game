@@ -16,15 +16,16 @@ const COLUMN_GAP = "gap-0.5 md:gap-1";
 const REQUIRES_RESTART = "Requires restart to take effect.";
 
 export default component$(() => {
-  const appStore = useContext(AppContext);
+  const gameContext = useContext(AppContext);
 
   return (
     <Modal
-      isShowing={appStore.interface.settingsModal.isShowing}
+      isShowing={gameContext.interface.settingsModal.isShowing}
       hideModal$={() => {
-        appStore.interface.settingsModal.isShowing = false;
-        appStore.createTimestamp({paused: false});
-        console.log("hideModal fn runs");
+        gameContext.hideSettings();
+        // gameContext.interface.settingsModal.isShowing = false;
+        // gameContext.createTimestamp({paused: false});
+        // console.log("hideModal fn runs");
       }}
       title="Game Settings"
     >
@@ -34,10 +35,10 @@ export default component$(() => {
 });
 
 export const SettingsContent = component$(() => {
-  const appStore = useContext(AppContext);
+  const gameContext = useContext(AppContext);
 
   const newSettings = useSignal<AppSettings>({
-    ...appStore.settings,
+    ...gameContext.settings,
   });
 
   useStyles$(`
@@ -78,8 +79,8 @@ export const SettingsContent = component$(() => {
         <div class="justify-center flex gap-[2%] items-center tooltip">
           <Button
             text="Shuffle Deck"
-            // onClick$={() => appStore.shuffleCardPositions()}
-            onClick$={() => appStore.startShuffling(5)}
+            // onClick$={() => gameContext.shuffleCardPositions()}
+            onClick$={() => gameContext.startShuffling(5)}
           />
           <span class="tooltiptext">Shuffle the card positions.</span>
         </div>
@@ -87,8 +88,9 @@ export const SettingsContent = component$(() => {
           <Button
             text="Refresh Board"
             onClick$={() => {
-              appStore.settings.resizeBoard = !appStore.settings.resizeBoard;
-              console.log(appStore.settings.resizeBoard);
+              gameContext.settings.resizeBoard =
+                !gameContext.settings.resizeBoard;
+              console.log(gameContext.settings.resizeBoard);
             }}
           />
           <span class="tooltiptext">
@@ -105,7 +107,7 @@ export const SettingsContent = component$(() => {
               text="Lock Board:"
               tooltip="Prevent board layout from changing."
               onChange$={(e) => {
-                appStore.boardLayout.isLocked = (
+                gameContext.boardLayout.isLocked = (
                   e.target as HTMLInputElement
                 ).checked;
               }}
@@ -130,7 +132,7 @@ export const SettingsContent = component$(() => {
           <SettingsRow>
             <DeckSizeSlider
               newSettings={newSettings}
-              isLocked={appStore.settings.deck.isLocked}
+              isLocked={gameContext.settings.deck.isLocked}
             />
           </SettingsRow>
 
@@ -139,7 +141,7 @@ export const SettingsContent = component$(() => {
               text="Show Selected Card Ids"
               tooltip="Show unique card ids for currently selected cards"
               onChange$={(e) => {
-                appStore.settings.interface.showSelectedIds = (
+                gameContext.settings.interface.showSelectedIds = (
                   e.target as HTMLInputElement
                 ).checked;
               }}
@@ -150,17 +152,17 @@ export const SettingsContent = component$(() => {
               text="Show Dimensions"
               tooltip="Show board layout and window dimensions."
               onChange$={(e) => {
-                appStore.settings.interface.showDimensions = (
+                gameContext.settings.interface.showDimensions = (
                   e.target as HTMLInputElement
                 ).checked;
               }}
-              value={appStore.settings.interface.showDimensions}
+              value={gameContext.settings.interface.showDimensions}
             />
           </SettingsRow>
           <SettingsRow>
             <div class="w-full flex justify-between tooltip">
               <label>Played Time:</label>
-              <FormattedTime timeMs={appStore.game.time.total} />
+              <FormattedTime timeMs={gameContext.timer.state.total} />
               <span class="tooltiptext">
                 Total un-paused play time for this round.
               </span>
@@ -184,10 +186,10 @@ export const SettingsContent = component$(() => {
         {/*         min="0" */}
         {/*         max="20" */}
         {/*         step="1" */}
-        {/*         value={Number(appStore.settings.shuffleBoardAfterMismatches)} */}
+        {/*         value={Number(gameContext.settings.shuffleBoardAfterMismatches)} */}
         {/*         onChange$={(e, t: HTMLInputElement) => { */}
         {/*           console.log("input:", t.value); */}
-        {/*           appStore.settings.shuffleBoardAfterMismatches = Number( */}
+        {/*           gameContext.settings.shuffleBoardAfterMismatches = Number( */}
         {/*             t.value */}
         {/*           ); */}
         {/*         }} */}
@@ -204,7 +206,7 @@ export const SettingsContent = component$(() => {
         {/*       text="Shuffle Board After Pair:" */}
         {/*       tooltip="COMING SOON: After each successful match, shuffle the board." */}
         {/*       onChange$={(e) => { */}
-        {/*         appStore.settings.shuffleBoardAfterPair = ( */}
+        {/*         gameContext.settings.shuffleBoardAfterPair = ( */}
         {/*           e.target as HTMLInputElement */}
         {/*         ).checked; */}
         {/*       }} */}
@@ -217,7 +219,7 @@ export const SettingsContent = component$(() => {
         {/*       text="Shuffle Board After Round:" */}
         {/*       tooltip="COMING SOON: After each round (success or mismatch), shuffle the board." */}
         {/*       onChange$={(e) => { */}
-        {/*         appStore.settings.shuffleBoardAfterRound = ( */}
+        {/*         gameContext.settings.shuffleBoardAfterRound = ( */}
         {/*           e.target as HTMLInputElement */}
         {/*         ).checked; */}
         {/*       }} */}
@@ -229,7 +231,7 @@ export const SettingsContent = component$(() => {
         {/*       text="Shuffle Picked Cards After Mismatch:" */}
         {/*       tooltip="COMING SOON: After mismatching a pair of cards, shuffle them with two other cards." */}
         {/*       onChange$={(e) => { */}
-        {/*         appStore.settings.shufflePickedAfterMismatch = ( */}
+        {/*         gameContext.settings.shufflePickedAfterMismatch = ( */}
         {/*           e.target as HTMLInputElement */}
         {/*         ).checked; */}
         {/*       }} */}
@@ -242,7 +244,7 @@ export const SettingsContent = component$(() => {
         {/*       text="Reorganize Board After Mismatch:" */}
         {/*       tooltip="COMING SOON: After mismatching a pair, reorganize the board to fill in gaps and adjust to window size." */}
         {/*       onChange$={(e) => { */}
-        {/*         appStore.settings.reorgnanizeBoardOnMismatch = ( */}
+        {/*         gameContext.settings.reorgnanizeBoardOnMismatch = ( */}
         {/*           e.target as HTMLInputElement */}
         {/*         ).checked; */}
         {/*       }} */}
@@ -254,7 +256,7 @@ export const SettingsContent = component$(() => {
         {/*       text="Reorganize Board After Pair:" */}
         {/*       tooltip="COMING SOON: After a successful pair, reorganize the board to fill in gaps and adjust to window size." */}
         {/*       onChange$={(e) => { */}
-        {/*         appStore.settings.reorgnanizeBoardOnPair = ( */}
+        {/*         gameContext.settings.reorgnanizeBoardOnPair = ( */}
         {/*           e.target as HTMLInputElement */}
         {/*         ).checked; */}
         {/*       }} */}
@@ -268,7 +270,7 @@ export const SettingsContent = component$(() => {
           <Button
             text="Reset Game"
             onClick$={() => {
-              appStore.resetGame();
+              gameContext.resetGame();
             }}
           />
           <span class="tooltiptext">Force board size to recalculate.</span>
@@ -279,7 +281,7 @@ export const SettingsContent = component$(() => {
           <Button
             text="Save And Restart"
             onClick$={() => {
-              appStore.resetGame(newSettings.value);
+              gameContext.resetGame(newSettings.value);
             }}
           />
           <span class="tooltiptext">Force board size to recalculate.</span>

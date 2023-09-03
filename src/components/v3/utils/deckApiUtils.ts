@@ -5,7 +5,7 @@
  *
  * */
 
-import { V3Card } from "../v3-game/v3-game";
+import type { V3Card } from "../v3-game/v3-game";
 import deckUtils from "./deckUtils";
 
 const PARTIAL_DECK_API = "https://deckofcardsapi.com/api/deck/new/?cards=";

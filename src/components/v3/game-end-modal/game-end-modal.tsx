@@ -24,31 +24,39 @@ export const formatTime = (timeMs: number) => {
   return { minutes, seconds, ms };
 };
 
-export const FormattedTime = ({ timeMs }: { timeMs: number }) => {
+export const FormattedTime = ({
+  timeMs,
+  limit = 3,
+}: {
+  timeMs: number;
+  limit?: number;
+}) => {
   const { minutes, seconds, ms } = formatTime(timeMs);
 
+  const limitedMs =
+    limit > 0 ? `.${Math.round(Number(ms) / (10 ** (3 - limit)))}s` : "";
   return (
     <span>
       <GreyedAtZero val={minutes} text="m" /> {seconds}
-      <span class="text-xs text-slate-400">.{ms}s</span>
+      <span class="text-xs text-slate-400">{limitedMs}</span>
     </span>
   );
 };
 
 export default component$(() => {
-  const appStore = useContext(AppContext);
+  const gameContext = useContext(AppContext);
 
   // for adjusting deck size before restarting
-  const cardCount = useSignal<string>(String(appStore.settings.deck.size));
+  const cardCount = useSignal<string>(String(gameContext.settings.deck.size));
 
   const hideModal$ = $(() => {
-    appStore.interface.endOfGameModal.isShowing = false;
+    gameContext.interface.endOfGameModal.isShowing = false;
   });
   return (
     <Modal
-      isShowing={appStore.interface.endOfGameModal.isShowing}
+      isShowing={gameContext.interface.endOfGameModal.isShowing}
       hideModal$={hideModal$}
-      title={appStore.interface.endOfGameModal.isWin ? "You Win!" : "Game Over"}
+      title={gameContext.interface.endOfGameModal.isWin ? "You Win!" : "Game Over"}
       bgStyles={{ backgroundColor: "rgba(0,0,0,0.1)" }}
       options={{
         detectClickOutside: false,
@@ -59,8 +67,8 @@ export default component$(() => {
           <div class="flex flex-grow justify-between">
             <span>Pairs:</span>
             <span>
-              {appStore.game.successfulPairs.length}/
-              {appStore.settings.deck.size / 2}
+              {gameContext.game.successfulPairs.length}/
+              {gameContext.settings.deck.size / 2}
             </span>
           </div>
         </SettingsRow>
@@ -68,9 +76,9 @@ export default component$(() => {
           <div class="flex flex-grow justify-between">
             <span>Mismatches:</span>
             <span>
-              {appStore.game.mismatchPairs.length}
-              {appStore.settings.maxAllowableMismatches !== -1
-                ? `/${appStore.settings.deck.size / 2} `
+              {gameContext.game.mismatchPairs.length}
+              {gameContext.settings.maxAllowableMismatches !== -1
+                ? `/${gameContext.settings.deck.size / 2} `
                 : ""}
             </span>
           </div>
@@ -79,7 +87,7 @@ export default component$(() => {
           <div class="flex flex-grow justify-between">
             <span>Time:</span>
             <span>
-              <FormattedTime timeMs={appStore.game.time.total} />
+              <FormattedTime timeMs={gameContext.timer.state.total} />
             </span>
           </div>
         </SettingsRow>
@@ -94,8 +102,8 @@ export default component$(() => {
               id="deck-card-count-end-game"
               class="flex-grow w-8/12"
               type="range"
-              min={appStore.settings.deck.MINIMUM_CARDS}
-              max={appStore.settings.deck.MAXIMUM_CARDS}
+              min={gameContext.settings.deck.MINIMUM_CARDS}
+              max={gameContext.settings.deck.MAXIMUM_CARDS}
               step="2"
               bind:value={cardCount}
             />
@@ -106,14 +114,14 @@ export default component$(() => {
         </SettingsRow>
         <Button
           onClick$={() => {
-            appStore.resetGame({
+            gameContext.resetGame({
               deck: {
-                ...appStore.settings.deck,
+                ...gameContext.settings.deck,
                 size: Number(cardCount.value),
               },
             });
 
-            appStore.interface.endOfGameModal.isShowing = false;
+            gameContext.interface.endOfGameModal.isShowing = false;
           }}
           text="Play Again"
         />

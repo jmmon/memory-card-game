@@ -15,18 +15,18 @@ const roundToDecimals = (number: number, decimals: number = DECIMALS) =>
 
 export default component$(
   ({ showSettings$ }: { showSettings$: PropFunction<() => void> }) => {
-    const appStore = useContext(AppContext);
+    const gameContext = useContext(AppContext);
 
     return (
       <header
         class={`mx-auto text-center text-xs md:text-sm flex justify-around w-full h-min`}
       >
         <HeaderSection classes="justify-start md:justify-around">
-          {appStore.settings.interface.showSelectedIds && (
+          {gameContext.settings.interface.showSelectedIds && (
             <SelectionHeaderComponent />
           )}
-          {/* <LockedIndicator name="deck" isLocked={appStore.settings.deck.isLocked} /> */}
-          {appStore.settings.interface.showDimensions && (
+          {/* <LockedIndicator name="deck" isLocked={gameContext.settings.deck.isLocked} /> */}
+          {gameContext.settings.interface.showDimensions && (
             <DimensionsHeaderComponent />
           )}
           <TimerHeaderComponent />
@@ -44,15 +44,15 @@ export default component$(
             </div>
             <div class="flex flex-col flex-grow justify-evenly">
               <span>
-                {appStore.game.successfulPairs.length}/
-                {appStore.settings.deck.size / 2}{" "}
+                {gameContext.game.successfulPairs.length}/
+                {gameContext.settings.deck.size / 2}{" "}
               </span>
 
               <span>
-                {appStore.game.mismatchPairs.length}
-                {appStore.settings.maxAllowableMismatches === -1
+                {gameContext.game.mismatchPairs.length}
+                {gameContext.settings.maxAllowableMismatches === -1
                   ? ""
-                  : `/${appStore.settings.maxAllowableMismatches}`}
+                  : `/${gameContext.settings.maxAllowableMismatches}`}
               </span>
             </div>
           </code>
@@ -63,16 +63,16 @@ export default component$(
 );
 
 const SelectionHeaderComponent = component$(() => {
-  const appStore = useContext(AppContext);
+  const gameContext = useContext(AppContext);
   return (
     <code
       class={` bg-slate-800 flex flex-col text-center text-slate-200 ${CODE_PADDING}`}
     >
       <span class="w-min mx-auto">cards selected:</span>
       <div class="grid grid-cols-[3.6em_0.6em_3.6em] mx-auto">
-        <span>{appStore.game.selectedCardIds[0] ?? "-"}</span>
+        <span>{gameContext.game.selectedCardIds[0] ?? "-"}</span>
         <span>:</span>
-        <span>{appStore.game.selectedCardIds[1] ?? "-"}</span>
+        <span>{gameContext.game.selectedCardIds[1] ?? "-"}</span>
       </div>
     </code>
   );
@@ -106,7 +106,7 @@ const LockedIndicator = ({
 };
 
 const DimensionsHeaderComponent = component$(() => {
-  const appStore = useContext(AppContext);
+  const gameContext = useContext(AppContext);
   return (
     <code
       class={` bg-slate-800 flex gap-1.5 text-center ${CODE_TEXT_LIGHT} ${CODE_PADDING}`}
@@ -118,8 +118,8 @@ const DimensionsHeaderComponent = component$(() => {
       </div>
       <div class="flex gap-0.5">
         <div class="flex flex-col text-right">
-          <span>{roundToDecimals(appStore.boardLayout.width)}</span>
-          <span>{roundToDecimals(appStore.boardLayout.width)}</span>
+          <span>{roundToDecimals(gameContext.boardLayout.width)}</span>
+          <span>{roundToDecimals(gameContext.boardLayout.width)}</span>
           <span>{roundToDecimals(window.innerWidth)}</span>
         </div>
         <div class={` flex flex-col ${CODE_TEXT_DARK}`}>
@@ -129,9 +129,9 @@ const DimensionsHeaderComponent = component$(() => {
         </div>
         <div class={` text-left flex flex-col `}>
           <span>
-            {roundToDecimals(window.innerHeight - appStore.boardLayout.height)}
+            {roundToDecimals(window.innerHeight - gameContext.boardLayout.height)}
           </span>
-          <span>{roundToDecimals(appStore.boardLayout.height)}</span>
+          <span>{roundToDecimals(gameContext.boardLayout.height)}</span>
           <span>{roundToDecimals(window.innerHeight)}</span>
         </div>
       </div>
@@ -140,13 +140,24 @@ const DimensionsHeaderComponent = component$(() => {
 });
 
 export const TimerHeaderComponent = component$(() => {
-  const appStore = useContext(AppContext);
+  const gameContext = useContext(AppContext);
 
   return (
     <code
-      class={` bg-slate-800 flex gap-1.5 text-center ${CODE_TEXT_LIGHT} ${CODE_PADDING}`}
+      class={` bg-slate-800 flex gap-1.5 text-center items-center ${CODE_TEXT_LIGHT} ${CODE_PADDING}`}
     >
-      <FormattedTime timeMs={appStore.game.time.total} />
+
+      {/* <FormattedTime timeMs={gameContext.game.time.total} /> */}
+
+      <span
+        class={
+          gameContext.timer.state.isPaused && gameContext.timer.state.blink
+            ? "opacity-0"
+            : ""
+        }
+      >
+        <FormattedTime timeMs={gameContext.timer.state.runningTime} limit={1}/>
+      </span>
     </code>
   );
 });

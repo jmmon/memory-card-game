@@ -1,10 +1,13 @@
 import type { QwikMouseEvent, PropFunction } from "@builder.io/qwik";
-import { component$, $, Slot, } from "@builder.io/qwik";
+import { component$, $, Slot } from "@builder.io/qwik";
 
 const DURATION = "duration-[300ms]";
 // const IS_SHOWING_DELAY = 50;
 const DEFAULT_CONTAINER_BG = "bg-slate-600";
 
+type ModalOptions = { detectClickOutside: boolean };
+
+const DEFAULT_OPTIONS = {detectClickOutside: true};
 export default component$(
   ({
     isShowing,
@@ -13,7 +16,7 @@ export default component$(
     bgClasses = "backdrop-blur-sm",
     title,
     bgStyles,
-    options = { detectClickOutside: false },
+    options = DEFAULT_OPTIONS,
   }: {
     isShowing: boolean;
     hideModal$: PropFunction<() => void>;
@@ -21,16 +24,12 @@ export default component$(
     bgClasses?: string;
     bgStyles?: any;
     title: string;
-    options?: Partial<{ detectClickOutside: boolean }>;
+    options?: Partial<ModalOptions>;
   }) => {
     const containerClasses = DEFAULT_CONTAINER_BG + " " + classes;
     const closeModal$ = $((e: QwikMouseEvent) => {
-      if (options.detectClickOutside) return;
-
-      if (
-        (e.target as HTMLElement).dataset.name === "background" &&
-        isShowing
-      ) {
+      if (!options.detectClickOutside) return;
+      if ((e.target as HTMLElement).dataset.name === "background") {
         hideModal$(); // fn to turn off boolean
       }
     });
@@ -38,7 +37,9 @@ export default component$(
     return (
       <div
         class={`top-0 left-0 absolute w-full h-full bg-black flex justify-center items-center transition-all ${DURATION} ${
-          isShowing ? `${bgClasses} z-[100] bg-opacity-30 ` : "z-[-1] bg-opacity-0"
+          isShowing
+            ? `pointer-events-auto ${bgClasses} z-[100] bg-opacity-30 `
+            : "pointer-events-none z-[-1] bg-opacity-0"
         }`}
         data-name="background"
         onClick$={closeModal$}
@@ -86,9 +87,7 @@ export const ModalHeader = ({
   title: string;
   buttonOpts?: Partial<{ onLeft?: boolean; text?: string }>;
 }) => {
-  const button = (
-    <CloseButton hideModal$={hideModal$} text={buttonOpts.text} />
-  );
+  const button = <CloseButton hideModal$={hideModal$} text={buttonOpts.text} />;
 
   return (
     <header class="grid max-h-full grid-cols-[0.3fr_1fr_0.3fr] justify-center items-center">

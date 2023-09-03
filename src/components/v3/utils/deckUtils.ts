@@ -1,4 +1,4 @@
-import { V3Card } from "../v3-game/v3-game";
+import type { V3Card } from "../v3-game/v3-game";
 
 const FULL_DECK_COUNT = 52;
 
@@ -12,7 +12,7 @@ function genId  (length = 5) {
       return i === 0 ? num || 1 : num;
     })
     .join("");
-};
+}
 
 //backup generator
 function v3GenerateDeck (total: number = FULL_DECK_COUNT) {
@@ -44,7 +44,7 @@ function v3GenerateDeck (total: number = FULL_DECK_COUNT) {
     unshuffledCards.push(card1, card2);
   }
   return unshuffledCards;
-};
+}
 
 // this shuffles indices into the remaining array
 function v3Shuffle_FY_algo<T>(_array: T[]): T[] {
@@ -111,7 +111,7 @@ function shuffleCardPositions (cards: V3Card[]) {
     prevPosition: isFirstShuffle ? null : card.position,
     position: randomOrder[i],
   }));
-};
+}
 
 const deckUtils = {
   shuffleCardPositions,

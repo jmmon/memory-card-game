@@ -18,6 +18,7 @@ import {
   calculateLayouts,
 } from "../utils/boardUtils";
 import deckUtils from "../utils/deckUtils";
+import { useTimer } from "../utils/useTimer";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
 export const DEFAULT_CARD_COUNT = 18;
@@ -141,7 +142,10 @@ export type AppStore = {
     (boardRef: HTMLDivElement, containerRef: HTMLDivElement) => void
   >;
   startGame: QRL<() => void>;
+  showSettings: QRL<() => void>;
+  hideSettings: QRL<() => void>;
   endGame: QRL<(isWin: boolean) => void>;
+  timer: ReturnType<typeof useTimer>;
 };
 
 export const GAME_STATES: Readonly<{
@@ -156,7 +160,7 @@ export const GAME_STATES: Readonly<{
 
 const INITIAL_GAME_STATE: GameContext = {
   isStarted: false,
-  state: GAME_STATES.WAITING,
+  state: GAME_STATES.WAITING, // WAITING, PLAYING, ENDED
   cards: [],
   mismatchPair: "",
   isShaking: false,
@@ -173,7 +177,7 @@ const INITIAL_GAME_STATE: GameContext = {
   shufflingState: 0,
 };
 
-const INITIAL_STATE: AppStore = {
+const INITIAL_STATE = {
   boardLayout: {
     width: 291.07,
     height: 281.81,
@@ -289,6 +293,7 @@ const INITIAL_STATE: AppStore = {
       };
     }
     this.game = INITIAL_GAME_STATE;
+    this.timer.reset();
     this.initializeDeck();
   }),
 
@@ -297,7 +302,9 @@ const INITIAL_STATE: AppStore = {
     // implement other modes, like max mismatches
     const isEnded =
       this.game.successfulPairs.length === this.settings.deck.size / 2;
+
     if (!isEnded) return { isEnded };
+
     const isWin =
       this.game.successfulPairs.length === this.settings.deck.size / 2;
 
@@ -363,84 +370,150 @@ const INITIAL_STATE: AppStore = {
   }),
   startGame: $(function (this: AppStore) {
     // should run on first click, to initialize the timer
-    this.game.isStarted = true;
-    this.game.state = GAME_STATES.PLAYING;
-    this.createTimestamp({ paused: false });
+    // TODO: swap from game.isStarted to timer.state.isStarted
+    // this.game.isStarted = true;
+    // this.game.state = GAME_STATES.PLAYING;
+    // this.createTimestamp({ paused: false });
+
+    // NEW: using the useTimer hook!!!!:
+    if (this.timer.state.isStarted) {
+      this.timer.reset();
+    }
+    this.timer.start();
+  }),
+  showSettings: $(function (this: AppStore) {
+    // TODO: swap from game.time.isPaused to timer.state.isPaused
+    // this.game.time.isPaused = true;
+    this.timer.pause();
+    this.interface.settingsModal.isShowing = true;
+  }),
+  hideSettings: $(function (this: AppStore) {
+    // TODO: swap from game.time.isPaused to timer.state.isPaused
+    // this.game.time.isPaused = true;
+    this.interface.settingsModal.isShowing = false;
+    this.timer.resume();
   }),
   endGame: $(function (this: AppStore, isWin: boolean) {
-    // should run when game is ended, to hault timer permanently
+    this.timer.stop();
+
     this.interface.endOfGameModal.isWin = isWin;
     this.interface.endOfGameModal.isShowing = true;
-    this.game.time.isPaused = true; // needed?
+    // this.game.time.isPaused = true; // needed?
 
-    this.game.isStarted = false; // needed?
-    this.game.state = GAME_STATES.ENDED;
+    // this.game.isStarted = false; // needed?
+    // this.game.state = GAME_STATES.ENDED;
+
   }),
 };
 
-const calculateAccumTimeFromTimestampsArr = (timestamps: number[]) => {
-  // even indices are start
-  let accum = 0;
-  let start = 0;
-  for (let i = 0; i < timestamps.length; i++) {
-    const isStart = i % 2 === 0;
-
-    if (isStart) {
-      start = timestamps[i];
-    } else {
-      accum += timestamps[i] - start;
-      start = 0;
-    }
-  }
-  if (start !== 0) {
-    // we know the timer is unpaused
-    // so we have accum time, then need to count from there
-  }
-  return { isPaused: start === 0, accum };
-};
+// const calculateAccumTimeFromTimestampsArr = (timestamps: number[]) => {
+//   // even indices are start
+//   let accum = 0;
+//   let start = 0;
+//   for (let i = 0; i < timestamps.length; i++) {
+//     const isStart = i % 2 === 0;
+//
+//     if (isStart) {
+//       start = timestamps[i];
+//     } else {
+//       accum += timestamps[i] - start;
+//       start = 0;
+//     }
+//   }
+//   if (start !== 0) {
+//     // we know the timer is unpaused
+//     // so we have accum time, then need to count from there
+//   }
+//   return { isPaused: start === 0, accum };
+// };
+//
 
 export default component$(() => {
+  const timer = useTimer();
   console.log("game render");
   // set up context
-  const appStore = useStore({ ...INITIAL_STATE }, { deep: true });
+  const appStore = useStore<AppStore>(
+    {
+      ...INITIAL_STATE,
+      timer: timer,
+    },
+    { deep: true }
+  );
   useContextProvider(AppContext, appStore);
   const containerRef = useSignal<HTMLElement>();
+
+  useVisibleTask$(({ track }) => {
+    track(() => [
+      appStore.timer.state.isPaused,
+      appStore.timer.state.isStarted,
+    ]);
+    console.log({
+      isStarted: appStore.timer.state.isStarted,
+      isPaused: appStore.timer.state.isPaused,
+    });
+  });
+  /* TODO: rethink through timer, make sure it's designed well
+   * Functionality:
+   * - start, pause, (resume,) stop, reset
+   * - paused when settings modal is open - watch modal isShowing
+   *   - game end modal should not affect it
+   *
+   *   OPERATION:
+   * - save timer start time
+   * - when pausing, save end time, calculate session total and add to game total.
+   * - when resuming, clear end time and save start time
+   * - pausing: save end time, calc, add to total
+   * - resuming: clear end time & save start time
+   * - ending game: save end time and calc and add to total (same as pausing)
+   *
+   * // meh:
+   * Use custom EVENTS for fun: game:start, game:pause, game:resume, game:end
+   * - so need to set up the listeners, then set up the triggers
+   * - startGame, endGame, pauseGame, resumeGame:
+   *   - each trigger an event
+   * - on startup (first visibleTask), set up listeners
+   *   - startGameListener: flip boolean to true, save startTime
+   *   - endGameListener: flipp boolean to false, save endTime & calculate
+   *
+   *
+   *  STILL need to have an interval or timeout, to keep the header clock updated
+   * */
 
   /* ============================
    * Handle game timer calculation and pausing
    * ============================ */
-  useVisibleTask$((taskCtx) => {
-    const isPaused = taskCtx.track(() => appStore.game.time.isPaused);
-
-    const updateTime = () => {
-      const now = Date.now();
-      const { isPaused, accum } = calculateAccumTimeFromTimestampsArr(
-        appStore.game.time.timestamps
-      );
-      if (isPaused) {
-        appStore.game.time.total = accum;
-      } else {
-        appStore.game.time.total =
-          accum + (now - (appStore.game.time.timestamps.at(-1) as number));
-      }
-
-      // console.log("running updateTime:", {
-      //   time: appStore.game.time.total,
-      //   accum,
-      //   isPaused,
-      //   now,
-      // });
-    };
-
-    updateTime(); // update whenever isPaused changes
-
-    if (isPaused) {
-      return;
-    }
-
-    const timer = setInterval(updateTime, 100);
-    taskCtx.cleanup(() => clearInterval(timer));
-  });
+  // useVisibleTask$((taskCtx) => {
+  //   const isPaused = taskCtx.track(() => appStore.game.time.isPaused);
+  //
+  //   const updateTime = () => {
+  //     const now = Date.now();
+  //     const { isPaused, accum } = calculateAccumTimeFromTimestampsArr(
+  //       appStore.game.time.timestamps
+  //     );
+  //     if (isPaused) {
+  //       appStore.game.time.total = accum;
+  //     } else {
+  //       appStore.game.time.total =
+  //         accum + (now - (appStore.game.time.timestamps.at(-1) as number));
+  //     }
+  //
+  //     // console.log("running updateTime:", {
+  //     //   time: appStore.game.time.total,
+  //     //   accum,
+  //     //   isPaused,
+  //     //   now,
+  //     // });
+  //   };
+  //
+  //   updateTime(); // update whenever isPaused changes
+  //
+  //   if (isPaused) {
+  //     return;
+  //   }
+  //
+  //   const timer = setInterval(updateTime, 100);
+  //   taskCtx.cleanup(() => clearInterval(timer));
+  // });
 
   return (
     <>
@@ -478,9 +551,10 @@ export default component$(() => {
       >
         <GameHeader
           showSettings$={() => {
-            appStore.interface.settingsModal.isShowing = true;
-            appStore.createTimestamp({ paused: true });
-            console.log("header - showing settings");
+            appStore.showSettings();
+            // appStore.interface.settingsModal.isShowing = true;
+            // appStore.createTimestamp({ paused: true });
+            // console.log("header - showing settings");
           }}
         />
         <V3Board containerRef={containerRef} />
@@ -515,34 +589,18 @@ const LoadingPage = component$(
  *
  * TODO:
  *
- * Some way to initialize dummy cards and fill in with actual data later?
- * That way I can do initial shuffle as the api is responding? then swap them out
- * Will need to have a loading indicator in case the fetch takes a long time
- * BETTER:
- * "loading" animation is simply the cards shuffling repeatedly!
- * after loaded from API, (shuffle the cards, or map them to the shuffled dummy ids, and then) swap the cards out
- *
- *  BEST:
- *  use hardcoded cards!!! then only need to load while shuffling
- *
- *
  *
  * Settings:
- * - "Cancel" button??
+ * - "Cancel" button?
  *
  *
  *
- * Points system
+ * Points system - meh
  *   - Total Points?: 10 * n - (maxM ? m * 10 * (maxM / maxN) : 0) // if counting maxM, can factor that in to the points
  *
  *
  *
  * Eventually: score board??? Enter your initials or something
- *
- *
- *
- *
- * Some advanced prefetch guarantee for the images? proxy the images so I can cache them??? possible??
  *
  *
  *
@@ -565,6 +623,19 @@ const LoadingPage = component$(
  * maybe should have endGame function and startGame function to make it easier
  * - track settingsModal.isOpen to pause the timer
  * - also track isGameEnded (or isGameStarted) to pause the timer
+ *
+ *
+ *
+ *
+ *
+ *
+ * db: storing game data
+ * - want initials of user? or actual login info??? meh
+ *   - maybe there's a way to make a unique identifier for the ip / user / session / ??? otherwise might have lots of dupliate initials.
+ * - want to store pairs, mismatches, deck.size, time.total, modes? (TODO)
+ * - then can fetch all data and sort by deck.size
+ *   - and then can compare current game with the rest (of the same deck.size) to find out how good you did vs others (percentile)
+ *
  * */
 
 /*

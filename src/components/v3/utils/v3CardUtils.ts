@@ -67,10 +67,9 @@ const generateShuffleTranslateTransformPercent = (
   const rowGap =
     (1 / 2) * cardLayout.rowGapPercent + newCoords.y * cardLayout.rowGapPercent;
 
-  return {
-    x: newCoords.x * 100 + colGap,
-    y: newCoords.y * 100 + rowGap,
-  };
+  const x = newCoords.x * 100 + colGap;
+  const y = newCoords.y * 100 + rowGap;
+  return `translate(${x}%, ${y}%)`;
 };
 
 const generateScaleTransformToCenter = (
@@ -130,8 +129,7 @@ const generateFlipTranslateTransform = (
 
   const scale = generateScaleTransformToCenter(boardLayout, cardLayout);
 
-  return `translateX(${translateXPx}px) 
-      translateY(${translateYPx}px) 
+  return `translate(${translateXPx}px, ${translateYPx}px) 
       rotateY(${isOnLeftSide ? "" : "-"}180deg) 
       scale(${scale})`;
 };
