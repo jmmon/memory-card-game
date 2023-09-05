@@ -29,6 +29,7 @@
     "@types/compression": "^1.7.2",
     "@types/eslint": "8.40.2",
     "@types/node": "^20.4.0",
+    "@types/pg": "^8.10.2",
     "@typescript-eslint/eslint-plugin": "5.61.0",
     "@typescript-eslint/parser": "5.61.0",
     "autoprefixer": "^10.4.14",
@@ -36,6 +37,7 @@
     "drizzle-kit": "^0.19.13",
     "eslint": "^8.48.0",
     "eslint-plugin-qwik": "^1.2.10",
+    "node-env-run": "^4.0.2",
     "postcss": "^8.4.23",
     "prettier": "2.8.8",
     "tailwindcss": "^3.3.1",
@@ -45,6 +47,7 @@
     "vite-tsconfig-paths": "^4.2.0"
   },
   "dependencies": {
+    "dotenv": "^16.3.1",
     "drizzle-orm": "^0.28.5",
     "jabber": "^1.5.3",
     "pm2": "^5.3.0",

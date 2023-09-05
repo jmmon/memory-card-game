@@ -1,4 +1,4 @@
-import { integer, interval, pgTable, serial, text, timestamp, varchar } from "drizzle-orm/pg-core";
+import { integer, interval, pgTable, serial, timestamp, varchar } from "drizzle-orm/pg-core";
 // import {ulid} from 'ulid';
 
 /* scoreModel: {
@@ -20,12 +20,16 @@ import { integer, interval, pgTable, serial, text, timestamp, varchar } from "dr
 // so:
 // email is for UUID, displayName is just a displayName
 // email could be used to generate a sprite icon
-export const score = pgTable('scores', {
+export const scores = pgTable('scores', {
   id: serial('id').primaryKey(),
   createdAt: timestamp('createdAt', {withTimezone: true}),
   deckSize: integer('deckSize'),
-  time: interval('time'),
+  gameTime: interval('gameTime'),
   mismatches: integer('mismatches'),
   userId: varchar('userId', { length: 256 }), // some uuid
   initials: varchar('initials', { length: 256 }), // some optional inputted string??
 });
+
+export type Score = typeof scores.$inferSelect;
+export type NewScore = typeof scores.$inferInsert;
+
