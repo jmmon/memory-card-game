@@ -3,41 +3,32 @@ import { Link, type DocumentHead } from "@builder.io/qwik-city";
 
 export default component$(() => {
   return (
-    <div class="flex flex-col w-full h-full items-center gap-8">
+    <div class="grid w-full justify-center items-center gap-8">
       <h1 class="text-center text-4xl text-slate-500">Memory Card Game</h1>
 
-      <p>Intro</p>
+      <h3 class="text-center">Goal:</h3>
+      <p class="text-center text-lg ">Eliminate all cards from the board.</p>
 
-      <div>
-        <h3 class="text-slate-500 mb-2 text-2xl text-center">Newest:</h3>
-        <ul class="flex flex-col gap-2">
-          <LinkLi href="/v3" pretext="v3" text="Third version" />
-        </ul>
+      <ol class="list-decimal marker:text-gray-400 text-lg grid gap-4">
+        <li class="pl-4">Pick two cards.</li>
+        <li class="pl-4">
+          If the numbers and colors match, they're removed from the game.
+        </li>
+      </ol>
+
+      <div class="flex flex-col items-center">
+        <Link href="/v3" class="text-white text-4xl py-4 px-8 border-gray-200 rounded-lg bg-slate-800 hover:bg-slate-600">
+          Play
+        </Link>
 
         <br />
         <br />
-
-        <h3 class="text-slate-500 mb-2 text-2xl text-center">
-          Older versions:
-        </h3>
-        <ul class="flex flex-col gap-2">
-          <LinkLi
-            href="/older-versions/resize"
-            pretext="v2.5"
-            text="Better dynamic board resizing"
-          />
-          <LinkLi
-            href="/older-versions/v2"
-            pretext="v2"
-            text="Second version"
-          />
-          <LinkLi
-            href="/older-versions/v1.5"
-            pretext="v1.5"
-            text="Card flip prototype"
-          />
-          <LinkLi href="/older-versions/v1" pretext="v1" text="First version" />
-        </ul>
+        <Link
+          href="/older-versions"
+          class=" text-slate-500 text-center underline hover:text-slate-300"
+        >
+          Older versions...
+        </Link>
       </div>
     </div>
   );
@@ -50,7 +41,7 @@ export type LinkLiProps = {
 };
 export const LinkLi = component$(({ href, pretext, text }: LinkLiProps) => {
   return (
-    <li>
+    <li class="hover:underline">
       <Link href={href}>
         <div class="w-8 text-slate-500 inline-block text-right mr-2">
           {pretext}:
