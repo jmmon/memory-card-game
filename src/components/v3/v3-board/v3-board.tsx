@@ -2,11 +2,11 @@ import type { QwikMouseEvent, Signal } from "@builder.io/qwik";
 import {
   $,
   component$,
+  useComputed$,
   useContext,
   useOnWindow,
   useSignal,
   useStyles$,
-  useTask$,
   useVisibleTask$,
 } from "@builder.io/qwik";
 
@@ -17,6 +17,9 @@ import { CONTAINER_PADDING_PERCENT } from "../v3-game/v3-game";
 import { useDebounce } from "../utils/useDebounce";
 import { calculateLayouts } from "../utils/boardUtils";
 import v3CardUtils from "../utils/v3CardUtils";
+import { useDelayedTimeout, useTimeout } from "../utils/useTimeout";
+
+const AUTO_PAUSE_DELAY_MS = 5000;
 
 export const CARD_RATIO = 113 / 157; // w / h
 export const CORNERS_WIDTH_RATIO = 1 / 20;
@@ -185,19 +188,15 @@ export default component$(
       }
     });
 
-    useVisibleTask$((taskCtx) => {
-      taskCtx.track(() => lastClick.value);
-      console.log('autopause task runs:', {lastClick: lastClick.value});
-      if (lastClick.value === -1) return;
-
-      const timer = setTimeout(() => {
-        console.log('timeout fired');
+    useTimeout(
+      $(() => {
         gameContext.timer.pause();
         gameContext.interface.settingsModal.isShowing = true;
         lastClick.value === -1;
-      }, lastClick.value + 5000);
-      taskCtx.cleanup(() => clearTimeout(timer));
-    });
+      }),
+      useComputed$(() => lastClick.value !== -1),
+      AUTO_PAUSE_DELAY_MS
+    );
 
     /*
      * niceity: esc will unflip a flipped card
@@ -247,11 +246,14 @@ export default component$(
       })
     );
 
+    const calcAndResizeBoard = $(() =>
+      gameContext.calculateAndResizeBoard(
+        boardRef.value as HTMLDivElement,
+        containerRef.value as HTMLDivElement
+      )
+    );
+
     const adjustDeckSize = $((newDeckSize: number) => {
-      console.log("~~ uvt$ deckSize changed:", {
-        last: lastDeckSize.value,
-        new: newDeckSize,
-      });
       lastDeckSize.value = newDeckSize;
 
       if (gameContext.settings.deck.isLocked) {
@@ -268,28 +270,7 @@ export default component$(
       if (gameContext.boardLayout.isLocked) {
         return;
       }
-      gameContext.calculateAndResizeBoard(
-        boardRef.value as HTMLDivElement,
-        containerRef.value as HTMLDivElement
-      );
-    });
-
-    const handleRefreshBoard = $((newRefresh: boolean) => {
-      console.log("~~ uvt$ refreshBoard");
-      lastRefresh.value = newRefresh;
-      gameContext.calculateAndResizeBoard(
-        boardRef.value as HTMLDivElement,
-        containerRef.value as HTMLDivElement
-      );
-    });
-
-    const initializeBoardAndDeck = $(async () => {
-      console.log("~~ uvt$ should be only on mount!");
-      await gameContext.calculateAndResizeBoard(
-        boardRef.value as HTMLDivElement,
-        containerRef.value as HTMLDivElement
-      );
-      gameContext.initializeDeck();
+      calcAndResizeBoard();
     });
 
     /* ================================
@@ -306,67 +287,64 @@ export default component$(
 
       // detect if resize caused the task to run
       if (isDeckChanged) {
+        console.log("~~ uvt$ deckSize changed:", {
+          last: lastDeckSize.value,
+          new: newDeckSize,
+        });
         adjustDeckSize(newDeckSize);
         return;
       }
 
       if (isBoardRefreshed) {
-        handleRefreshBoard(newRefresh);
+        console.log("~~ uvt$ refreshBoard");
+        lastRefresh.value = newRefresh;
+        calcAndResizeBoard();
         return;
       }
 
       // runs on mount only
-      initializeBoardAndDeck();
+      console.log("~~ uvt$ should be only on mount!");
+      await calcAndResizeBoard();
+      gameContext.initializeDeck();
     });
 
     /* ================================
      * Handles shuffling
      * - when shuffling state > 0, we shuffle a round and then decrement
      * ================================ */
-    useVisibleTask$((taskCtx) => {
-      const newState = taskCtx.track(() => gameContext.game.shufflingState);
-      if (newState === 0) return;
-      if (newState === 1) {
-        // finish this round but stop after
-        gameContext.stopShuffling();
-      }
-      // console.log(`shuffling ${newState} times`);
-
-      gameContext.shuffleCardPositions();
-
-      const nextStartTimer = setTimeout(() => {
+    useTimeout(
+      $(() => {
+        gameContext.shuffleCardPositions();
+        if (gameContext.game.shufflingState <= 1) {
+          gameContext.stopShuffling();
+        }
         gameContext.game.shufflingState -= 1;
-      }, CARD_SHUFFLE_PAUSE_DURATION + CARD_SHUFFLE_ACTIVE_DURATION);
-
-      taskCtx.cleanup(() => {
-        clearTimeout(nextStartTimer);
-      });
-    });
+      }),
+      useComputed$(() => {
+        return gameContext.game.shufflingState > 0;
+      }),
+      CARD_SHUFFLE_PAUSE_DURATION + CARD_SHUFFLE_ACTIVE_DURATION
+    );
 
     /* ================================
      * Handle Shake Animation Timers
      * - when mismatching a pair, shake the cards
      *   - wait until card is returned before starting
      * ================================ */
-    useTask$((taskCtx) => {
-      taskCtx.track(() => gameContext.game.mismatchPair);
-      if (gameContext.game.mismatchPair === "") return;
 
-      // waits until flipped card is returned to the board
-      const startAnimationTimeout = setTimeout(() => {
+    useDelayedTimeout(
+      $(() => {
         gameContext.game.isShaking = true;
-      }, SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD);
-
-      const endAnimationTimeout = setTimeout(() => {
+      }),
+      $(() => {
         gameContext.game.isShaking = false;
         gameContext.game.mismatchPair = "";
-      }, SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD + CARD_SHAKE_ANIMATION_DURATION);
-
-      taskCtx.cleanup(() => {
-        clearTimeout(startAnimationTimeout);
-        clearTimeout(endAnimationTimeout);
-      });
-    });
+      }),
+      useComputed$(() => gameContext.game.mismatchPair !== ""),
+      SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD,
+      SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD +
+        CARD_SHAKE_ANIMATION_DURATION
+    );
 
     useStyles$(`
       /* diable clicks  and mouse highlighting for all the innards */
@@ -407,31 +385,31 @@ export default component$(
       @keyframes shake-card {
         0% {
           transform: translate(0%,0%);
-opacity: 1;
+          opacity: 1;
         }
         10% {
           transform: translate(-7%,1%);  
-opacity: 0.95;
+          opacity: 0.95;
           box-shadow: 5px 0px 5px 5px rgba(255, 63, 63, 0.5);
         }
         23% {
           transform: translate(5%,1.8%);  
-opacity: 0.91;
+          opacity: 0.91;
           box-shadow: -4px 0px 4px 4px rgba(255, 63, 63, 0.4);
         }
         56% {
           transform: translate(-3%,3.6%);  
-opacity: 0.82;
+          opacity: 0.82;
           box-shadow: 3px 0px 3px 3px rgba(255, 63, 63, 0.3);
         }
         84% {
           transform: translate(1%,2.6%);  
-opacity: 0.87;
+          opacity: 0.87;
           box-shadow: -2px 0px 2px 2px rgba(255, 63, 63, 0.2);
         }
         100% {
           transform: translate(0%,0%);  
-opacity: 1;
+          opacity: 1;
           box-shadow: 1px 0px 1px 1px rgba(255, 63, 63, 0.1);
         }
       }

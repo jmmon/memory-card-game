@@ -1,16 +1,16 @@
 import type { PropFunction } from "@builder.io/qwik";
 import {
-  // $,
+  $,
   Slot,
   component$,
+  useComputed$,
   useContext,
   useStylesScoped$,
-  useVisibleTask$,
 } from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
 import Button from "../button/button";
 import { FormattedTime } from "../game-end-modal/game-end-modal";
-// import { useTimeout } from "../utils/useTimeout";
+import { useTimeout } from "../utils/useTimeout";
 
 const CODE_PADDING = "px-1.5 md:px-3 lg:px-4";
 const CODE_TEXT_LIGHT = "text-slate-200";
@@ -27,29 +27,21 @@ export default component$(
   ({ showSettings$ }: { showSettings$: PropFunction<() => void> }) => {
     const gameContext = useContext(AppContext);
 
-    useVisibleTask$((taskCtx) => {
-      taskCtx.track(() => gameContext.interface.successAnimation);
-      if (!gameContext.interface.successAnimation) return;
-      const timer = setTimeout(() => {
+    useTimeout(
+      $(() => {
         gameContext.interface.successAnimation = false;
-      }, COUNTER_ANIMATE_DURATION);
-      taskCtx.cleanup(() => {
-        clearTimeout(timer);
-      });
-    });
+      }),
+      useComputed$(() => gameContext.interface.successAnimation),
+      COUNTER_ANIMATE_DURATION
+    );
 
-    useVisibleTask$((taskCtx) => {
-      const mismatch = taskCtx.track(
-        () => gameContext.interface.mismatchAnimation
-      );
-      if (!mismatch) return;
-      const timer = setTimeout(() => {
+    useTimeout(
+      $(() => {
         gameContext.interface.mismatchAnimation = false;
-      }, COUNTER_ANIMATE_DURATION);
-      taskCtx.cleanup(() => {
-        clearTimeout(timer);
-      });
-    });
+      }),
+      useComputed$(() => gameContext.interface.mismatchAnimation),
+      COUNTER_ANIMATE_DURATION
+    );
 
     useStylesScoped$(`
 .success, .mismatch {
@@ -214,8 +206,6 @@ export const TimerHeaderComponent = component$(() => {
     <code
       class={` bg-slate-800 flex gap-1.5 text-center items-center ${CODE_TEXT_LIGHT} ${CODE_PADDING}`}
     >
-      {/* <FormattedTime timeMs={gameContext.game.time.total} /> */}
-
       <span
         class={
           gameContext.timer.state.isPaused && gameContext.timer.state.blink

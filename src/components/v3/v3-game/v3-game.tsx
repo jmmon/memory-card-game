@@ -94,11 +94,6 @@ type GameContext = {
   mismatchPair: Pair | "";
   isShaking: boolean;
   isLoading: boolean;
-  time: {
-    isPaused: boolean;
-    timestamps: number[];
-    total: number;
-  };
   shufflingState: number;
 };
 export type AppStore = {
@@ -134,9 +129,6 @@ export type AppStore = {
           isWin: boolean;
         }
   >;
-  createTimestamp: QRL<
-    (opts?: Partial<{ paused?: boolean }>) => number | undefined
-  >;
   startShuffling: QRL<(count?: number) => void>;
   stopShuffling: QRL<() => void>;
   initializeDeck: QRL<() => void>;
@@ -171,11 +163,6 @@ const INITIAL_GAME_STATE: GameContext = {
   successfulPairs: [],
   mismatchPairs: [],
   isLoading: true,
-  time: {
-    isPaused: true,
-    timestamps: [],
-    total: 0,
-  },
   shufflingState: 0,
 };
 
@@ -315,41 +302,6 @@ const INITIAL_STATE = {
     return { isEnded, isWin };
   }),
 
-  createTimestamp: $(function (
-    this: AppStore,
-    opts?: Partial<{ paused?: boolean }>
-  ) {
-    if (
-      this.game.state === GAME_STATES.WAITING ||
-      this.game.state === GAME_STATES.ENDED
-    )
-      return;
-    if (!this.game.isStarted) return;
-
-    const now = Date.now();
-    const wasPaused = this.game.time.isPaused;
-
-    if (opts) {
-      if (opts.paused !== wasPaused) {
-        this.game.time.timestamps.push(now);
-      } else {
-        // replace last timestamp with new time
-        this.game.time.timestamps = this.game.time.timestamps.splice(
-          -1,
-          1,
-          now
-        );
-      }
-    } else {
-      this.game.time.timestamps.push(now);
-    }
-
-    // length === 0 when starting the game and initial paused state
-    // so === 1 after first click, should unpause the timer (=== false)
-    this.game.time.isPaused = this.game.time.timestamps.length % 2 === 0;
-    return now;
-  }),
-
   initializeDeck: $(async function (this: AppStore) {
     await this.sliceDeck();
     this.startShuffling();
@@ -373,27 +325,16 @@ const INITIAL_STATE = {
     };
   }),
   startGame: $(function (this: AppStore) {
-    // should run on first click, to initialize the timer
-    // TODO: swap from game.isStarted to timer.state.isStarted
-    // this.game.isStarted = true;
-    // this.game.state = GAME_STATES.PLAYING;
-    // this.createTimestamp({ paused: false });
-
-    // NEW: using the useTimer hook!!!!:
     if (this.timer.state.isStarted) {
       this.timer.reset();
     }
     this.timer.start();
   }),
   showSettings: $(function (this: AppStore) {
-    // TODO: swap from game.time.isPaused to timer.state.isPaused
-    // this.game.time.isPaused = true;
     this.timer.pause();
     this.interface.settingsModal.isShowing = true;
   }),
   hideSettings: $(function (this: AppStore) {
-    // TODO: swap from game.time.isPaused to timer.state.isPaused
-    // this.game.time.isPaused = true;
     this.interface.settingsModal.isShowing = false;
     this.timer.resume();
   }),
@@ -403,28 +344,6 @@ const INITIAL_STATE = {
     this.interface.endOfGameModal.isShowing = true;
   }),
 };
-
-// const calculateAccumTimeFromTimestampsArr = (timestamps: number[]) => {
-//   // even indices are start
-//   let accum = 0;
-//   let start = 0;
-//   for (let i = 0; i < timestamps.length; i++) {
-//     const isStart = i % 2 === 0;
-//
-//     if (isStart) {
-//       start = timestamps[i];
-//     } else {
-//       accum += timestamps[i] - start;
-//       start = 0;
-//     }
-//   }
-//   if (start !== 0) {
-//     // we know the timer is unpaused
-//     // so we have accum time, then need to count from there
-//   }
-//   return { isPaused: start === 0, accum };
-// };
-//
 
 export default component$(() => {
   const timer = useTimer();
@@ -476,7 +395,9 @@ export default component$(() => {
     }
     // IE 9 and lower:
     else if ("onfocusin" in document) {
-      document.onfocusin = document.onfocusout = onchange;
+      (document as Document & { onfocusin: any }).onfocusin = (
+        document as Document & { onfocusout: any }
+      ).onfocusout = onchange;
       state = 5;
     }
     // All others:
@@ -492,7 +413,7 @@ export default component$(() => {
       console.log("onchange runs", { evt });
       var v = "visible",
         h = "hidden",
-        evtMap = {
+        evtMap: { [key: string]: string } = {
           focus: v,
           focusin: v,
           pageshow: v,
@@ -515,8 +436,12 @@ export default component$(() => {
     }
 
     // set the initial state (but only if browser supports the Page Visibility API)
-    if (document[hidden] !== undefined) {
-      onchange({ type: document[hidden] ? "blur" : "focus" });
+    if ((document as Document & { [key: string]: any })[hidden] !== undefined) {
+      onchange({
+        type: (document as Document & { [key: string]: any })[hidden]
+          ? "blur"
+          : "focus",
+      });
     }
 
     cleanup(() => {
@@ -530,7 +455,9 @@ export default component$(() => {
       } else if (state === 4) {
         document.removeEventListener("msvisibilitychange", onchange);
       } else if (state === 5) {
-        document.onfocusin = document.onfocusout = null;
+        (document as Document & { onfocusin: any }).onfocusin = (
+          document as Document & { onfocusout: any }
+        ).onfocusout = null;
       } else if (state === 0) {
         window.onpageshow =
           window.onpagehide =
