@@ -376,7 +376,7 @@ export default component$(() => {
    * ============================ */
   useVisibleTask$(({ cleanup }) => {
     console.log("setup visibilitychange listener");
-    var hidden = "hidden";
+    let hidden = "hidden";
     let state = 0;
 
     // Standards:
@@ -411,7 +411,7 @@ export default component$(() => {
 
     function onchange(evt: any) {
       console.log("onchange runs", { evt });
-      var v = "visible",
+      const v = "visible",
         h = "hidden",
         evtMap: { [key: string]: string } = {
           focus: v,

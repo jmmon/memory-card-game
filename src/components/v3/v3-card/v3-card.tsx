@@ -1,5 +1,5 @@
 import {
-  Signal,
+ type Signal,
   Slot,
   component$,
   useComputed$,

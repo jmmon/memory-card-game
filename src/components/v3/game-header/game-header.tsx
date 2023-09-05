@@ -159,21 +159,21 @@ const HeaderSection = component$(
   }
 );
 
-const LockedIndicator = ({
-  name,
-  isLocked,
-}: {
-  name: string;
-  isLocked: boolean;
-}) => {
-  return (
-    <>
-      {isLocked && (
-        <code class="bg-slate-800 text-slate-200">{name} locked</code>
-      )}
-    </>
-  );
-};
+// const LockedIndicator = ({
+//   name,
+//   isLocked,
+// }: {
+//   name: string;
+//   isLocked: boolean;
+// }) => {
+//   return (
+//     <>
+//       {isLocked && (
+//         <code class="bg-slate-800 text-slate-200">{name} locked</code>
+//       )}
+//     </>
+//   );
+// };
 
 const DimensionsHeaderComponent = component$(() => {
   const gameContext = useContext(AppContext);

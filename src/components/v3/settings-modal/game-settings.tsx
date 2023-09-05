@@ -1,18 +1,24 @@
-import { Signal, component$, useContext } from "@builder.io/qwik";
-import { AppSettings } from "../v3-game/v3-game";
+import { type Signal, component$, useContext } from "@builder.io/qwik";
+import type { AppSettings } from "../v3-game/v3-game";
 import { AppContext } from "../v3-context/v3.context";
 import Button from "../button/button";
-import { Lock, COLUMN_GAP, REQUIRES_RESTART, SettingsRow, DeckSizeSlider } from "./settings-modal";
+import {
+  Lock,
+  COLUMN_GAP,
+  REQUIRES_RESTART,
+  SettingsRow,
+  DeckSizeSlider,
+} from "./settings-modal";
 import { FormattedTime } from "../game-end-modal/game-end-modal";
 
 // animation settings:
 // e.g. flip card speed,
-// minimum between cards, 
+// minimum between cards,
 // minimum before unflip,
 // shuffle speed,
 // shuffle pause time,
 
-export default component$(({settings}: {settings: Signal<AppSettings>}) => {
+export default component$(({ settings }: { settings: Signal<AppSettings> }) => {
   const gameContext = useContext(AppContext);
 
   return (

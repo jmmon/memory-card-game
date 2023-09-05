@@ -1,4 +1,4 @@
-import { $, QRL, useStore, useVisibleTask$ } from "@builder.io/qwik";
+import { type QRL, $, useStore, useVisibleTask$ } from "@builder.io/qwik";
 
 type UseTimerOpts = {
   onPause: QRL<() => void>;
@@ -84,7 +84,6 @@ export const useTimer = ({
     if (typeof onReset !== "undefined") onReset();
   });
 
-
   // onMount:
   useVisibleTask$((taskCtx) => {
     const status = taskCtx.track(() => state.status);
@@ -116,7 +115,7 @@ export const useTimer = ({
 
       if (state.isPaused) {
         blinkId = setInterval(() => {
-          state.blink= !state.blink;
+          state.blink = !state.blink;
         }, 1000);
         state.blink = true;
       }

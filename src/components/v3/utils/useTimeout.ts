@@ -1,4 +1,10 @@
-import { $, QRL, Signal, useSignal, useVisibleTask$ } from "@builder.io/qwik";
+import {
+  $,
+  type QRL,
+  type Signal,
+  useSignal,
+  useVisibleTask$,
+} from "@builder.io/qwik";
 
 export const useTimeout = (
   reset: QRL<() => void>,
@@ -55,9 +61,11 @@ export const useDelayedTimeout = (
   });
 
   return {
-    setDelay: $(({start, interval}: Partial<{start: number, interval: number}>) => {
-      if (start !== undefined) startDelay.value = start;
-      if (interval !== undefined) intervalSignal.value = interval;
-    }),
+    setDelay: $(
+      ({ start, interval }: Partial<{ start: number; interval: number }>) => {
+        if (start !== undefined) startDelay.value = start;
+        if (interval !== undefined) intervalSignal.value = interval;
+      }
+    ),
   };
 };
