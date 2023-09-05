@@ -23,6 +23,8 @@ const roundToDecimals = (number: number, decimals: number = DECIMALS) =>
 
 const COUNTER_ANIMATE_DURATION = 400;
 
+const SCORE_ANIMATION_CLASSES = "animate text-slate-100";
+
 export default component$(
   ({ showSettings$ }: { showSettings$: PropFunction<() => void> }) => {
     const gameContext = useContext(AppContext);
@@ -44,24 +46,34 @@ export default component$(
     );
 
     useStylesScoped$(`
-.success, .mismatch {
-  transition: all ${
-    COUNTER_ANIMATE_DURATION * 0.8
-  }ms cubic-bezier(0.2,1.29,0.42,1.075);
-/*   transition: all 0.2s ease-in-out; */
-}
-.success.animate {
-  transform: translateY(20%) scale(1.3);
-background-color: #ffffff80;
-  box-shadow: 0 0 4px 10px #ffffff80;
-}
+      .success, .mismatch {
+        transition: all ${
+          COUNTER_ANIMATE_DURATION * 0.8
+        }ms cubic-bezier(0.2,1.29,0.42,1.075);
+      /*   transition: all 0.2s ease-in-out; */
+      }
 
-.mismatch.animate {
-  transform:  translateY(-20%) scale(1.3);
-  background-color: #ffbbbb80;
-  box-shadow: 0 0 4px 10px #ffbbbb80;
-}
-`);
+      .success.animate {
+        transform: translateY(20%) scale(1.3);
+        background-color: var(--success-color);
+        box-shadow: 0 0 0.2em 0.8em var(--success-color);
+      }
+
+      .mismatch.animate {
+        transform:  translateY(-20%) scale(1.3);
+        background-color: var(--mismatch-color);
+        box-shadow: 0 0 0.2em 0.8em var(--mismatch-color);
+      }
+    `);
+
+    const animateMismatch = useComputed$(() => {
+      const extraMismatchFeatures =
+        gameContext.settings.maxAllowableMismatches !== -1 ||
+        gameContext.settings.reorgnanizeBoardOnMismatch ||
+        gameContext.settings.shufflePickedAfterMismatch ||
+        gameContext.settings.shuffleBoardAfterMismatches;
+      return gameContext.interface.mismatchAnimation && extraMismatchFeatures;
+    });
     return (
       <header
         class={`mx-auto text-center text-xs md:text-sm flex justify-around w-full h-min`}
@@ -81,9 +93,9 @@ background-color: #ffffff80;
             class={`bg-slate-800 ${CODE_TEXT_LIGHT} flex flex-col w-[11em] gap-1 ${CODE_PADDING}`}
           >
             <div
-              class={`rounded-md success ${
+              class={`rounded success ${
                 gameContext.interface.successAnimation
-                  ? "animate text-slate-800"
+                  ? SCORE_ANIMATION_CLASSES
                   : ""
               } flex gap-2 ${CODE_TEXT_DARK}`}
             >
@@ -97,11 +109,11 @@ background-color: #ffffff80;
             </div>
 
             <div
-              class={`mismatch ${
-                gameContext.interface.mismatchAnimation
-                  ? "animate text-slate-800"
+              class={`rounded mismatch ${
+animateMismatch.value
+                  ? SCORE_ANIMATION_CLASSES
                   : ""
-              } rounded-md flex gap-2 ${CODE_TEXT_DARK}`}
+              } flex gap-2 ${CODE_TEXT_DARK}`}
             >
               <span class="w-8/12 flex-grow flex-shrink-0 text-right">
                 mismatches:

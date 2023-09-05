@@ -208,9 +208,7 @@ export const CardView = ({
   return (
     <div
       data-id={card.id}
-      class={`${
-        isSelected.value ? "selected" : ""
-      } card-flip w-full h-full relative text-center`}
+      class={`card-flip w-full h-full relative text-center`}
       style={{
         transform:
           isCardFlipped.value ||
@@ -219,7 +217,7 @@ export const CardView = ({
             : "",
         borderRadius: roundedCornersPx + "px",
         boxShadow: isSelected.value
-          ? `0px 0px ${roundedCornersPx}px ${roundedCornersPx}px rgba(123, 123, 255, 1)`
+          ? `0px 0px ${roundedCornersPx}px ${roundedCornersPx}px var(--success-color)`
           : "",
       }}
     >

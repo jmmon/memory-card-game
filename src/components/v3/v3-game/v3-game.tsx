@@ -395,8 +395,8 @@ export default component$(() => {
     }
     // IE 9 and lower:
     else if ("onfocusin" in document) {
-      (document as Document & { onfocusin: any }).onfocusin = (
-        document as Document & { onfocusout: any }
+      (document as Document & { onfocusin: any; onfocusout: any }).onfocusin = (
+        document as Document & { onfocusin: any; onfocusout: any }
       ).onfocusout = onchange;
       state = 5;
     }
@@ -423,12 +423,14 @@ export default component$(() => {
         };
 
       evt = evt || window.event;
-      if (evt.type in evtMap)
+      if (evt.type in evtMap) {
         document.body.dataset["visibilitychange"] = evtMap[evt.type];
-      else
+      } else {
+        // @ts-ignore
         document.body.dataset["visibilitychange"] = this[hidden]
           ? "hidden"
           : "visible";
+      }
 
       if (document.body.dataset["visibilitychange"] === "hidden") {
         gameContext.showSettings();
@@ -584,6 +586,9 @@ const LoadingPage = component$(
  * - user can type in initials (3 characters, or maybe more?) 8? 12? 16?
  *
  *
+*
+*
+* disable mismatch score animation, except if using special modes (not yet implemented)
  *
  * */
 
