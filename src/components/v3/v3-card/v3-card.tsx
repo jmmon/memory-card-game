@@ -1,5 +1,5 @@
 import {
-    Signal,
+  Signal,
   Slot,
   component$,
   useComputed$,
@@ -158,20 +158,20 @@ export default component$(({ card }: { card: V3Card }) => {
               ? "opacity-0 scale-[110%] pointer-events-none"
               : "opacity-100 cursor-pointer"
           } ${
-            isThisMismatched.value && gameContext.game.isShaking
+            isThisMismatched.value &&
+            gameContext.game.isShaking &&
+            gameContext.game.flippedCardId !== card.id
               ? "shake-card"
               : ""
           }
-`}
+          `}
           style={{
             borderRadius: gameContext.cardLayout.roundedCornersPx + "px",
             perspective: CARD_RATIO_VS_CONTAINER * 100 + "vw",
           }}
         >
           <CardView
-            isSelected={
-              isSelected
-            }
+            isSelected={isSelected}
             card={card}
             isCardFlipped={isCardFlipped}
             isFaceShowing={isFaceShowing}
@@ -213,14 +213,13 @@ export const CardView = ({
       } card-flip w-full h-full relative text-center`}
       style={{
         transform:
-          isCardFlipped.value || (isRemoved.value && isFaceShowing_delayedOff.value)
+          isCardFlipped.value ||
+          (isRemoved.value && isFaceShowing_delayedOff.value)
             ? flipTransform.value
             : "",
         borderRadius: roundedCornersPx + "px",
         boxShadow: isSelected.value
-          ? `0px 0px ${
-              roundedCornersPx
-            }px ${roundedCornersPx}px rgba(123, 123, 255, 1)`
+          ? `0px 0px ${roundedCornersPx}px ${roundedCornersPx}px rgba(123, 123, 255, 1)`
           : "",
       }}
     >
