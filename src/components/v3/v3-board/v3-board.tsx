@@ -18,159 +18,197 @@ import { useDebounce } from "../utils/useDebounce";
 import { calculateLayouts } from "../utils/boardUtils";
 import v3CardUtils from "../utils/v3CardUtils";
 
-export const CARD_FLIP_ANIMATION_DURATION = 600;
-export const CARD_SHAKE_ANIMATION_DURATION = 700;
-
 export const CARD_RATIO = 113 / 157; // w / h
 export const CORNERS_WIDTH_RATIO = 1 / 20;
 
-// after initial instant transform, wait this long before starting animation
-export const CARD_SHUFFLE_PAUSE_DURATION = 0;
-// animation duration
-export const CARD_SHUFFLE_ACTIVE_DURATION = 300;
-export const CARD_SHUFFLE_ROUNDS = 5;
-
+export const CARD_FLIP_ANIMATION_DURATION = 600;
+export const CARD_SHAKE_ANIMATION_DURATION = 600;
 // higher means shake starts sooner
-const START_SHAKE_ANIMATION_EAGER_MS = 100;
-const START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE = 0.9;
+const START_SHAKE_ANIMATION_EAGER_MS = 20;
+const START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE = 0.75;
 const SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD =
   CARD_FLIP_ANIMATION_DURATION *
     START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE -
   START_SHAKE_ANIMATION_EAGER_MS;
 
+// after initial instant transform, wait this long before starting animation
+export const CARD_SHUFFLE_PAUSE_DURATION = 50;
+// animation duration
+export const CARD_SHUFFLE_ACTIVE_DURATION = 350;
+export const CARD_SHUFFLE_ROUNDS = 5;
+
 const MINIMUM_CARD_VIEW_TIME = 500;
+const MINIMUM_BETWEEN_CARDS = 500;
 
 export default component$(
   ({ containerRef }: { containerRef: Signal<HTMLElement | undefined> }) => {
-    const appStore = useContext(AppContext);
+    const gameContext = useContext(AppContext);
     const boardRef = useSignal<HTMLDivElement>();
 
-    const lastDeckSize = useSignal(appStore.settings.deck.size);
-    const lastRefresh = useSignal(appStore.settings.resizeBoard);
+    const lastDeckSize = useSignal(gameContext.settings.deck.size);
+    const lastRefresh = useSignal(gameContext.settings.resizeBoard);
+
+    const flippedTime = useSignal(-1);
+    const unflippedTime = useSignal(-1);
+    const lastClick = useSignal(-1);
 
     const handleAddToSuccessfulPairsIfMatching = $(async () => {
-      const [cardId1, cardId2] = appStore.game.selectedCardIds;
+      const [cardId1, cardId2] = gameContext.game.selectedCardIds;
       const pair: Pair = `${cardId1}:${cardId2}`;
       // run checkMatch
-      const card1 = v3CardUtils.findCardById(appStore.game.cards, cardId1);
-      const card2 = v3CardUtils.findCardById(appStore.game.cards, cardId2);
+      const card1 = v3CardUtils.findCardById(gameContext.game.cards, cardId1);
+      const card2 = v3CardUtils.findCardById(gameContext.game.cards, cardId2);
       const isMatch = v3CardUtils.checkMatch(card1, card2);
 
       // console.log({ isMatch, card1, card2 });
 
       if (!isMatch) {
-        appStore.game.mismatchPairs = [...appStore.game.mismatchPairs, pair];
-        appStore.game.mismatchPair = pair;
+        gameContext.game.mismatchPairs = [
+          ...gameContext.game.mismatchPairs,
+          pair,
+        ];
+        gameContext.game.mismatchPair = pair;
+        gameContext.interface.mismatchAnimation = true;
       } else {
         // add to our pairs
-        appStore.game.successfulPairs = [
-          ...appStore.game.successfulPairs,
+        gameContext.game.successfulPairs = [
+          ...gameContext.game.successfulPairs,
           pair,
         ];
 
         // TODO:
         // some success animation to indicate a pair,
         // like a sparkle or a background blur around the pairs count
+        gameContext.interface.successAnimation = true;
       }
 
       // clear our selectedCards
-      appStore.game.selectedCardIds = [];
+      gameContext.game.selectedCardIds = [];
 
       // finally finally, check for end conditions
-      const res = await appStore.isGameEnded();
+      const res = await gameContext.isGameEnded();
 
       if (res.isEnded) {
-        appStore.endGame(res.isWin);
+        gameContext.endGame(res.isWin);
       }
     });
 
-    const unflipCard$ = $(() => {
-      if (appStore.game.selectedCardIds.length === 2) {
-        handleAddToSuccessfulPairsIfMatching();
-      }
-      appStore.game.flippedCardId = -1;
+    const unflipDebounce = useDebounce<number>(
+      $(() => {
+        if (gameContext.game.selectedCardIds.length === 2) {
+          handleAddToSuccessfulPairsIfMatching();
+        }
+        gameContext.game.flippedCardId = -1;
+        unflippedTime.value = Date.now();
+      }),
+      MINIMUM_CARD_VIEW_TIME
+    );
+
+    const runUnflipDebounce = $((time: number) => {
+      unflipDebounce.setDelay(time);
+      unflipDebounce.setValue(-1);
     });
-
-    const { setValue: debounceUnflipCard, setDelay: setDebounceDelay } =
-      useDebounce<number>(unflipCard$, MINIMUM_CARD_VIEW_TIME);
-
-    const flippedTime = useSignal(-1);
 
     const handleClickCard = $((cardId: number) => {
       // to prevent card from returning super quick
       flippedTime.value = Date.now();
 
       const newSelected = v3CardUtils.handleAddCardToSelected(
-        [...appStore.game.selectedCardIds],
+        [...gameContext.game.selectedCardIds],
         cardId
       );
 
-      if (newSelected.length !== appStore.game.selectedCardIds.length) {
-        appStore.game.selectedCardIds = newSelected;
+      if (newSelected.length !== gameContext.game.selectedCardIds.length) {
+        gameContext.game.selectedCardIds = newSelected;
 
         const isFinalPair =
           newSelected.length === 2 &&
-          appStore.game.successfulPairs.length + 1 ===
-            appStore.settings.deck.size / 2;
+          gameContext.game.successfulPairs.length ===
+            gameContext.settings.deck.size / 2 - 1;
 
         // check immediately for the final pair
         if (isFinalPair) {
-          appStore.createTimestamp({ paused: true });
-          appStore.game.flippedCardId = cardId;
-          setDebounceDelay(MINIMUM_CARD_VIEW_TIME * 1.5);
-          debounceUnflipCard(-1);
+          // appStore.createTimestamp({ paused: true });
+          gameContext.game.flippedCardId = cardId;
+          gameContext.timer.pause();
+          runUnflipDebounce(MINIMUM_CARD_VIEW_TIME * 1.5);
           return;
         }
       }
 
       // flip it either way
-      appStore.game.flippedCardId = cardId;
+      gameContext.game.flippedCardId = cardId;
+    });
+
+    const clickDebounce = useDebounce<number>(
+      $((clickedId) => {
+        handleClickCard(Number(clickedId));
+      }),
+      MINIMUM_CARD_VIEW_TIME
+    );
+
+    const runClickDebounce = $((clickedId: number) => {
+      clickDebounce.setDelay(
+        MINIMUM_BETWEEN_CARDS - (Date.now() - unflippedTime.value)
+      );
+      clickDebounce.setValue(clickedId);
     });
 
     const handleClickBoard$ = $((e: QwikMouseEvent) => {
-      const isCardFlipped = appStore.game.flippedCardId !== -1;
+      const isCardFlipped = gameContext.game.flippedCardId !== -1;
       // attempt to get the card id if click is on a card
       // removed cards don't intercept click events, so they're filtered out automatically
       const clickedId = Number((e.target as HTMLElement).dataset.id) || false;
 
       const isClickedOnCard = !!clickedId;
 
-      switch (true) {
-        case isCardFlipped:
-          {
-            setDebounceDelay(
-              MINIMUM_CARD_VIEW_TIME - (Date.now() - flippedTime.value)
-            );
-            debounceUnflipCard(-1);
-          }
-          break;
+      if (!isClickedOnCard && !isCardFlipped) return;
 
-        // card is not flipped
-        case isClickedOnCard:
-          {
-            // initialize game timer on first click
-            if (!appStore.timer.state.isStarted) {
-              appStore.startGame();
-            }
+      // else, we care about the click
+      // gameContext.timer.resume(); // resume if it were paused
+      lastClick.value = Date.now();
 
-            handleClickCard(Number(clickedId));
-          }
-          break;
+      // unflip card if flipped
+      if (isCardFlipped) {
+        runUnflipDebounce(
+          MINIMUM_CARD_VIEW_TIME - (Date.now() - flippedTime.value)
+        );
       }
+      // card is not flipped
+      else if (isClickedOnCard) {
+        // initialize game timer on first click
+        if (!gameContext.timer.state.isStarted) {
+          gameContext.startGame();
+        }
+
+        runClickDebounce(clickedId);
+      }
+    });
+
+    useVisibleTask$((taskCtx) => {
+      taskCtx.track(() => lastClick.value);
+      console.log('autopause task runs:', {lastClick: lastClick.value});
+      if (lastClick.value === -1) return;
+
+      const timer = setTimeout(() => {
+        console.log('timeout fired');
+        gameContext.timer.pause();
+        gameContext.interface.settingsModal.isShowing = true;
+        lastClick.value === -1;
+      }, lastClick.value + 5000);
+      taskCtx.cleanup(() => clearTimeout(timer));
     });
 
     /*
      * niceity: esc will unflip a flipped card
      * */
-    const handleUnflipCard = $(() => {
-      appStore.game.flippedCardId = -1;
-    });
-
     useOnWindow(
       "keydown",
       $((e) => {
         if ((e as KeyboardEvent).key === "Escape") {
-          handleUnflipCard();
+          runUnflipDebounce(
+            MINIMUM_CARD_VIEW_TIME - (Date.now() - flippedTime.value)
+          );
         }
       })
     );
@@ -181,7 +219,7 @@ export default component$(
     useOnWindow(
       "resize",
       $(() => {
-        if (appStore.boardLayout.isLocked) return;
+        if (gameContext.boardLayout.isLocked) return;
 
         const container = containerRef.value as HTMLElement; // or use window instead of container/game?
         const board = boardRef.value as HTMLElement;
@@ -198,12 +236,12 @@ export default component$(
         const { cardLayout, boardLayout } = calculateLayouts(
           boardWidth,
           boardHeight,
-          appStore.settings.deck.size
+          gameContext.settings.deck.size
         );
 
-        appStore.cardLayout = cardLayout;
-        appStore.boardLayout = {
-          ...appStore.boardLayout,
+        gameContext.cardLayout = cardLayout;
+        gameContext.boardLayout = {
+          ...gameContext.boardLayout,
           ...boardLayout,
         };
       })
@@ -216,21 +254,21 @@ export default component$(
       });
       lastDeckSize.value = newDeckSize;
 
-      if (appStore.settings.deck.isLocked) {
+      if (gameContext.settings.deck.isLocked) {
         return;
       }
-      appStore.resetGame({
-        ...appStore.settings,
+      gameContext.resetGame({
+        ...gameContext.settings,
         deck: {
-          ...appStore.settings.deck,
-          size: appStore.settings.deck.size,
+          ...gameContext.settings.deck,
+          size: gameContext.settings.deck.size,
         },
       });
 
-      if (appStore.boardLayout.isLocked) {
+      if (gameContext.boardLayout.isLocked) {
         return;
       }
-      appStore.calculateAndResizeBoard(
+      gameContext.calculateAndResizeBoard(
         boardRef.value as HTMLDivElement,
         containerRef.value as HTMLDivElement
       );
@@ -239,7 +277,7 @@ export default component$(
     const handleRefreshBoard = $((newRefresh: boolean) => {
       console.log("~~ uvt$ refreshBoard");
       lastRefresh.value = newRefresh;
-      appStore.calculateAndResizeBoard(
+      gameContext.calculateAndResizeBoard(
         boardRef.value as HTMLDivElement,
         containerRef.value as HTMLDivElement
       );
@@ -247,11 +285,11 @@ export default component$(
 
     const initializeBoardAndDeck = $(async () => {
       console.log("~~ uvt$ should be only on mount!");
-      await appStore.calculateAndResizeBoard(
+      await gameContext.calculateAndResizeBoard(
         boardRef.value as HTMLDivElement,
         containerRef.value as HTMLDivElement
       );
-      appStore.initializeDeck();
+      gameContext.initializeDeck();
     });
 
     /* ================================
@@ -261,8 +299,8 @@ export default component$(
      * ================================ */
 
     useVisibleTask$(async (taskCtx) => {
-      const newDeckSize = taskCtx.track(() => appStore.settings.deck.size);
-      const newRefresh = taskCtx.track(() => appStore.settings.resizeBoard);
+      const newDeckSize = taskCtx.track(() => gameContext.settings.deck.size);
+      const newRefresh = taskCtx.track(() => gameContext.settings.resizeBoard);
       const isDeckChanged = lastDeckSize.value !== newDeckSize;
       const isBoardRefreshed = lastRefresh.value !== newRefresh;
 
@@ -286,18 +324,18 @@ export default component$(
      * - when shuffling state > 0, we shuffle a round and then decrement
      * ================================ */
     useVisibleTask$((taskCtx) => {
-      const newState = taskCtx.track(() => appStore.game.shufflingState);
+      const newState = taskCtx.track(() => gameContext.game.shufflingState);
       if (newState === 0) return;
       if (newState === 1) {
         // finish this round but stop after
-        appStore.stopShuffling();
+        gameContext.stopShuffling();
       }
-      console.log(`shuffling ${newState} times`);
+      // console.log(`shuffling ${newState} times`);
 
-      appStore.shuffleCardPositions();
+      gameContext.shuffleCardPositions();
 
       const nextStartTimer = setTimeout(() => {
-        appStore.game.shufflingState -= 1;
+        gameContext.game.shufflingState -= 1;
       }, CARD_SHUFFLE_PAUSE_DURATION + CARD_SHUFFLE_ACTIVE_DURATION);
 
       taskCtx.cleanup(() => {
@@ -311,17 +349,17 @@ export default component$(
      *   - wait until card is returned before starting
      * ================================ */
     useTask$((taskCtx) => {
-      taskCtx.track(() => appStore.game.mismatchPair);
-      if (appStore.game.mismatchPair === "") return;
+      taskCtx.track(() => gameContext.game.mismatchPair);
+      if (gameContext.game.mismatchPair === "") return;
 
       // waits until flipped card is returned to the board
       const startAnimationTimeout = setTimeout(() => {
-        appStore.game.isShaking = true;
+        gameContext.game.isShaking = true;
       }, SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD);
 
       const endAnimationTimeout = setTimeout(() => {
-        appStore.game.isShaking = false;
-        appStore.game.mismatchPair = "";
+        gameContext.game.isShaking = false;
+        gameContext.game.mismatchPair = "";
       }, SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD + CARD_SHAKE_ANIMATION_DURATION);
 
       taskCtx.cleanup(() => {
@@ -331,9 +369,10 @@ export default component$(
     });
 
     useStyles$(`
-      /* diable clicks for all the innards */
+      /* diable clicks  and mouse highlighting for all the innards */
       .card-flip * {
         pointer-events: none;
+        user-select: none;
       }
 
       .card-flip {
@@ -347,7 +386,8 @@ export default component$(
           - then finally at 100% our animation will complete
         * */
         transition-property: all;
-        transition-timing-function: cubic-bezier(0.40, 1.2, 0.62, 1.045);
+/*         transition-timing-function: cubic-bezier(0.35, 1.2, 0.60, 1.045); */
+        transition-timing-function: cubic-bezier(0.20, 1.285, 0.32, 1.075);
         transform-style: preserve-3d;
         transition-duration: ${CARD_FLIP_ANIMATION_DURATION}ms;
       }
@@ -366,26 +406,32 @@ export default component$(
 
       @keyframes shake-card {
         0% {
-          transform: translateX(0%);
+          transform: translate(0%,0%);
+opacity: 1;
         }
         10% {
-          transform: translateX(-7%);  
+          transform: translate(-7%,1%);  
+opacity: 0.95;
           box-shadow: 5px 0px 5px 5px rgba(255, 63, 63, 0.5);
         }
         23% {
-          transform: translateX(5%);  
+          transform: translate(5%,1.8%);  
+opacity: 0.91;
           box-shadow: -4px 0px 4px 4px rgba(255, 63, 63, 0.4);
         }
         56% {
-          transform: translateX(-3%);  
+          transform: translate(-3%,3.6%);  
+opacity: 0.82;
           box-shadow: 3px 0px 3px 3px rgba(255, 63, 63, 0.3);
         }
         84% {
-          transform: translateX(1%);  
+          transform: translate(1%,2.6%);  
+opacity: 0.87;
           box-shadow: -2px 0px 2px 2px rgba(255, 63, 63, 0.2);
         }
         100% {
-          transform: translateX(0%);  
+          transform: translate(0%,0%);  
+opacity: 1;
           box-shadow: 1px 0px 1px 1px rgba(255, 63, 63, 0.1);
         }
       }
@@ -399,7 +445,7 @@ export default component$(
           onClick$={handleClickBoard$}
           data-label="board"
         >
-          {appStore.game.cards.map((card) => (
+          {gameContext.game.cards.map((card) => (
             <V3Card card={card} key={card.id} />
           ))}
         </div>

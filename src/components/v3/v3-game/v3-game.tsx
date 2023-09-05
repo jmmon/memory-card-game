@@ -110,6 +110,8 @@ export type AppStore = {
   settings: AppSettings;
 
   interface: {
+    successAnimation: boolean;
+    mismatchAnimation: boolean;
     inverseSettingsModal: {
       isShowing: boolean;
     };
@@ -244,6 +246,8 @@ const INITIAL_STATE = {
     },
   },
   interface: {
+    successAnimation: false,
+    mismatchAnimation: false,
     inverseSettingsModal: {
       isShowing: false,
     },
@@ -395,14 +399,8 @@ const INITIAL_STATE = {
   }),
   endGame: $(function (this: AppStore, isWin: boolean) {
     this.timer.stop();
-
     this.interface.endOfGameModal.isWin = isWin;
     this.interface.endOfGameModal.isShowing = true;
-    // this.game.time.isPaused = true; // needed?
-
-    // this.game.isStarted = false; // needed?
-    // this.game.state = GAME_STATES.ENDED;
-
   }),
 };
 
@@ -432,88 +430,116 @@ export default component$(() => {
   const timer = useTimer();
   console.log("game render");
   // set up context
-  const appStore = useStore<AppStore>(
+  const gameContext = useStore<AppStore>(
     {
       ...INITIAL_STATE,
       timer: timer,
     },
     { deep: true }
   );
-  useContextProvider(AppContext, appStore);
+  useContextProvider(AppContext, gameContext);
   const containerRef = useSignal<HTMLElement>();
 
   useVisibleTask$(({ track }) => {
     track(() => [
-      appStore.timer.state.isPaused,
-      appStore.timer.state.isStarted,
+      gameContext.timer.state.isPaused,
+      gameContext.timer.state.isStarted,
     ]);
     console.log({
-      isStarted: appStore.timer.state.isStarted,
-      isPaused: appStore.timer.state.isPaused,
+      isStarted: gameContext.timer.state.isStarted,
+      isPaused: gameContext.timer.state.isPaused,
     });
   });
-  /* TODO: rethink through timer, make sure it's designed well
-   * Functionality:
-   * - start, pause, (resume,) stop, reset
-   * - paused when settings modal is open - watch modal isShowing
-   *   - game end modal should not affect it
-   *
-   *   OPERATION:
-   * - save timer start time
-   * - when pausing, save end time, calculate session total and add to game total.
-   * - when resuming, clear end time and save start time
-   * - pausing: save end time, calc, add to total
-   * - resuming: clear end time & save start time
-   * - ending game: save end time and calc and add to total (same as pausing)
-   *
-   * // meh:
-   * Use custom EVENTS for fun: game:start, game:pause, game:resume, game:end
-   * - so need to set up the listeners, then set up the triggers
-   * - startGame, endGame, pauseGame, resumeGame:
-   *   - each trigger an event
-   * - on startup (first visibleTask), set up listeners
-   *   - startGameListener: flip boolean to true, save startTime
-   *   - endGameListener: flipp boolean to false, save endTime & calculate
-   *
-   *
-   *  STILL need to have an interval or timeout, to keep the header clock updated
-   * */
 
   /* ============================
-   * Handle game timer calculation and pausing
+   * pause game when switching tabs
+   * - set up listeners
    * ============================ */
-  // useVisibleTask$((taskCtx) => {
-  //   const isPaused = taskCtx.track(() => appStore.game.time.isPaused);
-  //
-  //   const updateTime = () => {
-  //     const now = Date.now();
-  //     const { isPaused, accum } = calculateAccumTimeFromTimestampsArr(
-  //       appStore.game.time.timestamps
-  //     );
-  //     if (isPaused) {
-  //       appStore.game.time.total = accum;
-  //     } else {
-  //       appStore.game.time.total =
-  //         accum + (now - (appStore.game.time.timestamps.at(-1) as number));
-  //     }
-  //
-  //     // console.log("running updateTime:", {
-  //     //   time: appStore.game.time.total,
-  //     //   accum,
-  //     //   isPaused,
-  //     //   now,
-  //     // });
-  //   };
-  //
-  //   updateTime(); // update whenever isPaused changes
-  //
-  //   if (isPaused) {
-  //     return;
-  //   }
-  //
-  //   const timer = setInterval(updateTime, 100);
-  //   taskCtx.cleanup(() => clearInterval(timer));
-  // });
+  useVisibleTask$(({ cleanup }) => {
+    console.log("setup visibilitychange listener");
+    var hidden = "hidden";
+    let state = 0;
+
+    // Standards:
+    if (hidden in document) {
+      document.addEventListener("visibilitychange", onchange);
+      state = 1;
+    } else if ((hidden = "mozHidden") in document) {
+      document.addEventListener("mozvisibilitychange", onchange);
+      state = 2;
+    } else if ((hidden = "webkitHidden") in document) {
+      document.addEventListener("webkitvisibilitychange", onchange);
+      state = 3;
+    } else if ((hidden = "msHidden") in document) {
+      document.addEventListener("msvisibilitychange", onchange);
+      state = 4;
+    }
+    // IE 9 and lower:
+    else if ("onfocusin" in document) {
+      document.onfocusin = document.onfocusout = onchange;
+      state = 5;
+    }
+    // All others:
+    else {
+      window.onpageshow =
+        window.onpagehide =
+        window.onfocus =
+        window.onblur =
+          onchange;
+    }
+
+    function onchange(evt: any) {
+      console.log("onchange runs", { evt });
+      var v = "visible",
+        h = "hidden",
+        evtMap = {
+          focus: v,
+          focusin: v,
+          pageshow: v,
+          blur: h,
+          focusout: h,
+          pagehide: h,
+        };
+
+      evt = evt || window.event;
+      if (evt.type in evtMap)
+        document.body.dataset["visibilitychange"] = evtMap[evt.type];
+      else
+        document.body.dataset["visibilitychange"] = this[hidden]
+          ? "hidden"
+          : "visible";
+
+      if (document.body.dataset["visibilitychange"] === "hidden") {
+        gameContext.showSettings();
+      }
+    }
+
+    // set the initial state (but only if browser supports the Page Visibility API)
+    if (document[hidden] !== undefined) {
+      onchange({ type: document[hidden] ? "blur" : "focus" });
+    }
+
+    cleanup(() => {
+      console.log("cleanup visibilitychange listener");
+      if (state === 1) {
+        document.removeEventListener("visibilitychange", onchange);
+      } else if (state === 2) {
+        document.removeEventListener("mozvisibilitychange", onchange);
+      } else if (state === 3) {
+        document.removeEventListener("webkitvisibilitychange", onchange);
+      } else if (state === 4) {
+        document.removeEventListener("msvisibilitychange", onchange);
+      } else if (state === 5) {
+        document.onfocusin = document.onfocusout = null;
+      } else if (state === 0) {
+        window.onpageshow =
+          window.onpagehide =
+          window.onfocus =
+          window.onblur =
+            null;
+      }
+    });
+  });
 
   return (
     <>
@@ -545,22 +571,19 @@ export default component$(() => {
 
       <div
         class={`flex flex-col flex-grow justify-between w-full h-full p-[${CONTAINER_PADDING_PERCENT}%] gap-1 ${
-          appStore.boardLayout.isLocked ? "overflow-x-auto" : ""
+          gameContext.boardLayout.isLocked ? "overflow-x-auto" : ""
         }`}
         ref={containerRef}
       >
         <GameHeader
           showSettings$={() => {
-            appStore.showSettings();
-            // appStore.interface.settingsModal.isShowing = true;
-            // appStore.createTimestamp({ paused: true });
-            // console.log("header - showing settings");
+            gameContext.showSettings();
           }}
         />
         <V3Board containerRef={containerRef} />
       </div>
 
-      <LoadingPage isShowing={appStore.game.isLoading} />
+      <LoadingPage isShowing={gameContext.game.isLoading} />
       <SettingsModal />
       <GameEndModal />
     </>
@@ -590,14 +613,8 @@ const LoadingPage = component$(
  * TODO:
  *
  *
- * Settings:
- * - "Cancel" button?
- *
- *
- *
- * Points system - meh
- *   - Total Points?: 10 * n - (maxM ? m * 10 * (maxM / maxN) : 0) // if counting maxM, can factor that in to the points
- *
+ * instead just give people a score of x percentile of mismatches and y percentile of time
+ * - separate scoreboard per pairs count, and can rate games by time and by mismatches
  *
  *
  * Eventually: score board??? Enter your initials or something
@@ -605,24 +622,6 @@ const LoadingPage = component$(
  *
  *
  * Query params to initialize game with certain settings? would be epic!
- *
- *
- * timed missions?
- * - time starts on first click and ends on gameEndModal popup
- *   (- can rate against other players, top percentile rankings eventually)
- * - separate scoreboard per pairs count, and can rate games by time and by mismatches
- *
- *
- *
- * FIX TIMER:
- * - when completing game, close out of endGameModal, click settings
- * - expected: timer to be paused still
- * - actual: timer resumes and kinda resets
- *
- * solutions?: isGameEnded boolean which is true at the end, and is false once game is clicked
- * maybe should have endGame function and startGame function to make it easier
- * - track settingsModal.isOpen to pause the timer
- * - also track isGameEnded (or isGameStarted) to pause the timer
  *
  *
  *
@@ -635,6 +634,29 @@ const LoadingPage = component$(
  * - want to store pairs, mismatches, deck.size, time.total, modes? (TODO)
  * - then can fetch all data and sort by deck.size
  *   - and then can compare current game with the rest (of the same deck.size) to find out how good you did vs others (percentile)
+ *
+ *
+ *
+ *
+ * maybe use sql?
+ * scoreModel: {
+ *   createdAt: Date,
+ *   time: number,
+ *   deckSize: number,
+ *   mismatches: number,
+ *   userId: string
+ * }
+ *
+ * submitWin(data): submits the win and calculates and returns your percentile scores
+ *
+ * getCategory(deckSize): returns list of scores matching deck size
+ * getAllScores(): returns all scores
+ *
+ * unique user id for saving the score
+ * - ask to store in localStorage or cookie
+ * - user can type in initials (3 characters, or maybe more?) 8? 12? 16?
+ *
+ *
  *
  * */
 

@@ -1,8 +1,16 @@
 import type { PropFunction } from "@builder.io/qwik";
-import { Slot, component$, useContext } from "@builder.io/qwik";
+import {
+  // $,
+  Slot,
+  component$,
+  useContext,
+  useStylesScoped$,
+  useVisibleTask$,
+} from "@builder.io/qwik";
 import { AppContext } from "../v3-context/v3.context";
 import Button from "../button/button";
 import { FormattedTime } from "../game-end-modal/game-end-modal";
+// import { useTimeout } from "../utils/useTimeout";
 
 const CODE_PADDING = "px-1.5 md:px-3 lg:px-4";
 const CODE_TEXT_LIGHT = "text-slate-200";
@@ -13,10 +21,55 @@ const DECIMALS = 1;
 const roundToDecimals = (number: number, decimals: number = DECIMALS) =>
   Math.round(number * 10 ** decimals) / 10 ** decimals;
 
+const COUNTER_ANIMATE_DURATION = 400;
+
 export default component$(
   ({ showSettings$ }: { showSettings$: PropFunction<() => void> }) => {
     const gameContext = useContext(AppContext);
 
+    useVisibleTask$((taskCtx) => {
+      taskCtx.track(() => gameContext.interface.successAnimation);
+      if (!gameContext.interface.successAnimation) return;
+      const timer = setTimeout(() => {
+        gameContext.interface.successAnimation = false;
+      }, COUNTER_ANIMATE_DURATION);
+      taskCtx.cleanup(() => {
+        clearTimeout(timer);
+      });
+    });
+
+    useVisibleTask$((taskCtx) => {
+      const mismatch = taskCtx.track(
+        () => gameContext.interface.mismatchAnimation
+      );
+      if (!mismatch) return;
+      const timer = setTimeout(() => {
+        gameContext.interface.mismatchAnimation = false;
+      }, COUNTER_ANIMATE_DURATION);
+      taskCtx.cleanup(() => {
+        clearTimeout(timer);
+      });
+    });
+
+    useStylesScoped$(`
+.success, .mismatch {
+  transition: all ${
+    COUNTER_ANIMATE_DURATION * 0.8
+  }ms cubic-bezier(0.2,1.29,0.42,1.075);
+/*   transition: all 0.2s ease-in-out; */
+}
+.success.animate {
+  transform: translateY(20%) scale(1.3);
+background-color: #ffffff80;
+  box-shadow: 0 0 4px 10px #ffffff80;
+}
+
+.mismatch.animate {
+  transform:  translateY(-20%) scale(1.3);
+  background-color: #ffbbbb80;
+  box-shadow: 0 0 4px 10px #ffbbbb80;
+}
+`);
     return (
       <header
         class={`mx-auto text-center text-xs md:text-sm flex justify-around w-full h-min`}
@@ -25,7 +78,6 @@ export default component$(
           {gameContext.settings.interface.showSelectedIds && (
             <SelectionHeaderComponent />
           )}
-          {/* <LockedIndicator name="deck" isLocked={gameContext.settings.deck.isLocked} /> */}
           {gameContext.settings.interface.showDimensions && (
             <DimensionsHeaderComponent />
           )}
@@ -34,21 +86,35 @@ export default component$(
         <Button text="Settings" onClick$={showSettings$} />
         <HeaderSection>
           <code
-            class={` bg-slate-800 ${CODE_TEXT_LIGHT} flex gap-1 ${CODE_PADDING}`}
+            class={`bg-slate-800 ${CODE_TEXT_LIGHT} flex flex-col w-[11em] gap-1 ${CODE_PADDING}`}
           >
             <div
-              class={` flex flex-col flex-grow justify-evenly text-right ${CODE_TEXT_DARK}`}
+              class={`rounded-md success ${
+                gameContext.interface.successAnimation
+                  ? "animate text-slate-800"
+                  : ""
+              } flex gap-2 ${CODE_TEXT_DARK}`}
             >
-              <span>pairs:</span>
-              <span>mismatches:</span>
-            </div>
-            <div class="flex flex-col flex-grow justify-evenly">
-              <span>
+              <span class={`w-8/12 flex-grow flex-shrink-0 text-right`}>
+                pairs:
+              </span>
+              <span class={`w-4/12 flex-grow flex-shrink-0 text-left`}>
                 {gameContext.game.successfulPairs.length}/
                 {gameContext.settings.deck.size / 2}{" "}
               </span>
+            </div>
 
-              <span>
+            <div
+              class={`mismatch ${
+                gameContext.interface.mismatchAnimation
+                  ? "animate text-slate-800"
+                  : ""
+              } rounded-md flex gap-2 ${CODE_TEXT_DARK}`}
+            >
+              <span class="w-8/12 flex-grow flex-shrink-0 text-right">
+                mismatches:
+              </span>
+              <span class="w-4/12 flex-grow flex-shrink-0 text-left">
                 {gameContext.game.mismatchPairs.length}
                 {gameContext.settings.maxAllowableMismatches === -1
                   ? ""
@@ -129,7 +195,9 @@ const DimensionsHeaderComponent = component$(() => {
         </div>
         <div class={` text-left flex flex-col `}>
           <span>
-            {roundToDecimals(window.innerHeight - gameContext.boardLayout.height)}
+            {roundToDecimals(
+              window.innerHeight - gameContext.boardLayout.height
+            )}
           </span>
           <span>{roundToDecimals(gameContext.boardLayout.height)}</span>
           <span>{roundToDecimals(window.innerHeight)}</span>
@@ -146,7 +214,6 @@ export const TimerHeaderComponent = component$(() => {
     <code
       class={` bg-slate-800 flex gap-1.5 text-center items-center ${CODE_TEXT_LIGHT} ${CODE_PADDING}`}
     >
-
       {/* <FormattedTime timeMs={gameContext.game.time.total} /> */}
 
       <span
@@ -156,7 +223,7 @@ export const TimerHeaderComponent = component$(() => {
             : ""
         }
       >
-        <FormattedTime timeMs={gameContext.timer.state.runningTime} limit={1}/>
+        <FormattedTime timeMs={gameContext.timer.state.runningTime} limit={2} />
       </span>
     </code>
   );

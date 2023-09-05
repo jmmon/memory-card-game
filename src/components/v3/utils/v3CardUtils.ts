@@ -134,30 +134,6 @@ const generateFlipTranslateTransform = (
       scale(${scale})`;
 };
 
-// const v3CardUtils: {
-//   isCardInPairs: typeof isCardInPairs,
-//   checkIfCardIsRemoved: typeof checkIfCardIsRemoved,//(pairs: Pair[], clickedId: number) => number | typeof MinusOne,
-//   handleAddCardToSelected: typeof handleAddCardToSelected,
-//   checkMatch: typeof checkMatch,
-//   findCardById: typeof findCardById,
-//   getXYFromPosition: typeof getXYFromPosition,
-//   generateShuffleTranslateTransformPercent: typeof generateShuffleTranslateTransformPercent,
-//   generateScaleTransformToCenter  : typeof generateScaleTransformToCenter,
-//   generateTranslateTransformToCenter: typeof generateTranslateTransformToCenter,
-//   generateFlipTranslateTransform: typeof generateFlipTranslateTransform,
-// } = {
-//   isCardInPairs,
-//   checkIfCardIsRemoved,
-//   handleAddCardToSelected,
-//   checkMatch,
-//   findCardById,
-//   getXYFromPosition,
-//   generateShuffleTranslateTransformPercent,
-//   generateScaleTransformToCenter,
-//   generateTranslateTransformToCenter,
-//   generateFlipTranslateTransform,
-// };
-
 const v3CardUtils = {
   isCardInPairs,
   getIdIfNotRemoved,

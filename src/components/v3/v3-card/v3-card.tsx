@@ -1,4 +1,5 @@
 import {
+    Signal,
   Slot,
   component$,
   useComputed$,
@@ -12,11 +13,11 @@ import { CARD_FLIP_ANIMATION_DURATION } from "../v3-board/v3-board";
 import v3CardUtils, { CARD_RATIO_VS_CONTAINER } from "../utils/v3CardUtils";
 
 // underside shows immediately, but hides after this far during return transition
-const HIDE_UNDERSIDE_AFTER_PERCENT = 0.9;
+export const CARD_HIDE_UNDERSIDE_AFTER_PERCENT = 0.9;
 
 // if matching, delay return animation by this amount
 // e.g. time allowed for card to vanish (before it would return to board)
-const FLIPPED_DELAYED_OFF_DURATION_MS = 250;
+export const CARD_FLIPPED_DELAYED_OFF_DURATION_MS = 250;
 
 export default component$(({ card }: { card: V3Card }) => {
   const gameContext = useContext(AppContext);
@@ -56,11 +57,11 @@ export default component$(({ card }: { card: V3Card }) => {
       // when hiding card, keep the underside visible for a while
       undersideRevealDelayTimer = setTimeout(() => {
         isFaceShowing.value = isCardFlipped.value;
-      }, CARD_FLIP_ANIMATION_DURATION * HIDE_UNDERSIDE_AFTER_PERCENT);
+      }, CARD_FLIP_ANIMATION_DURATION * CARD_HIDE_UNDERSIDE_AFTER_PERCENT);
 
       flippedDelayTimer = setTimeout(() => {
         isFaceShowing_delayedOff.value = isCardFlipped.value;
-      }, FLIPPED_DELAYED_OFF_DURATION_MS);
+      }, CARD_FLIPPED_DELAYED_OFF_DURATION_MS);
     }
 
     taskCtx.cleanup(() => {
@@ -117,6 +118,9 @@ export default component$(({ card }: { card: V3Card }) => {
       newCoords
     );
   });
+  const isSelected = useComputed$(() =>
+    gameContext.game.selectedCardIds.includes(card.id)
+  );
 
   return (
     <div
@@ -157,19 +161,23 @@ export default component$(({ card }: { card: V3Card }) => {
             isThisMismatched.value && gameContext.game.isShaking
               ? "shake-card"
               : ""
-          }`}
+          }
+`}
           style={{
             borderRadius: gameContext.cardLayout.roundedCornersPx + "px",
             perspective: CARD_RATIO_VS_CONTAINER * 100 + "vw",
           }}
         >
           <CardView
+            isSelected={
+              isSelected
+            }
             card={card}
-            isCardFlipped={isCardFlipped.value}
-            isFaceShowing={isFaceShowing.value}
-            isRemoved={isThisRemoved.value}
-            isFaceShowing_delayedOff={isFaceShowing_delayedOff.value}
-            flipTransform={flipTransform.value}
+            isCardFlipped={isCardFlipped}
+            isFaceShowing={isFaceShowing}
+            isRemoved={isThisRemoved}
+            isFaceShowing_delayedOff={isFaceShowing_delayedOff}
+            flipTransform={flipTransform}
             roundedCornersPx={gameContext.cardLayout.roundedCornersPx}
           />
         </div>
@@ -180,6 +188,7 @@ export default component$(({ card }: { card: V3Card }) => {
 
 export const CardView = ({
   card,
+  isSelected,
   isCardFlipped,
   isRemoved,
   isFaceShowing_delayedOff,
@@ -188,23 +197,31 @@ export const CardView = ({
   isFaceShowing,
 }: {
   card: V3Card;
-  isCardFlipped: boolean;
-  isFaceShowing: boolean;
-  isRemoved: boolean;
-  isFaceShowing_delayedOff: boolean;
-  flipTransform: string;
+  isSelected: Signal<boolean>;
+  isCardFlipped: Signal<boolean>;
+  isFaceShowing: Signal<boolean>;
+  isRemoved: Signal<boolean>;
+  isFaceShowing_delayedOff: Signal<boolean>;
+  flipTransform: Signal<string>;
   roundedCornersPx: number;
 }) => {
   return (
     <div
       data-id={card.id}
-      class={`card-flip w-full h-full relative text-center`}
+      class={`${
+        isSelected.value ? "selected" : ""
+      } card-flip w-full h-full relative text-center`}
       style={{
         transform:
-          isCardFlipped || (isRemoved && isFaceShowing_delayedOff)
-            ? flipTransform
+          isCardFlipped.value || (isRemoved.value && isFaceShowing_delayedOff.value)
+            ? flipTransform.value
             : "",
         borderRadius: roundedCornersPx + "px",
+        boxShadow: isSelected.value
+          ? `0px 0px ${
+              roundedCornersPx
+            }px ${roundedCornersPx}px rgba(123, 123, 255, 1)`
+          : "",
       }}
     >
       <CardFace
@@ -213,7 +230,7 @@ export const CardView = ({
         classes="border border-white text-black bg-sky-300 [transform:rotateY(180deg)]"
       >
         <>
-          {isFaceShowing && (
+          {isFaceShowing.value && (
             <img
               width="25"
               height="35"

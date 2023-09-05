@@ -6,7 +6,7 @@ import Button from "../button/button";
 
 const GreyedAtZero = ({ val, text }: { val: number; text: string }) => {
   return (
-    <span class={val === 0 ? "text-slate-400" : ""}>
+    <span class={`text-right ${val === 0 ? "text-slate-400" : ""}`}>
       {val}
       {text}
     </span>
@@ -34,9 +34,9 @@ export const FormattedTime = ({
   const { minutes, seconds, ms } = formatTime(timeMs);
 
   const limitedMs =
-    limit > 0 ? `.${Math.round(Number(ms) / (10 ** (3 - limit)))}s` : "";
+    limit > 0 ? `.${(Math.round(Number(ms) / (10 ** (3 - limit) ))).toString().padStart(limit, '0')}s` : "";
   return (
-    <span>
+    <span class="text-left">
       <GreyedAtZero val={minutes} text="m" /> {seconds}
       <span class="text-xs text-slate-400">{limitedMs}</span>
     </span>
@@ -87,7 +87,7 @@ export default component$(() => {
           <div class="flex flex-grow justify-between">
             <span>Time:</span>
             <span>
-              <FormattedTime timeMs={gameContext.timer.state.total} />
+              <FormattedTime timeMs={gameContext.timer.state.runningTime} />
             </span>
           </div>
         </SettingsRow>

@@ -22,7 +22,7 @@ export function useDebounce<T>(
 
     const timer = setTimeout(() => {
       action(signal.value as T);
-    }, delay.value);
+    }, Math.max(0, delay.value));
 
     taskCtx.cleanup(() => clearTimeout(timer));
   });
@@ -49,14 +49,16 @@ export function useDebounce2<T>(
     const timer = setTimeout(async () => {
       await action(signal.value);
       debounced.value = signal.value;
-    }, delay.value);
+    }, Math.max(0, delay.value));
 
     taskCtx.cleanup(() => clearTimeout(timer));
   });
 
   return {
     delay,
-    setDelay: $((newDelay: number) => {delay.value = newDelay;}),
-    debounced
+    setDelay: $((newDelay: number) => {
+      delay.value = newDelay;
+    }),
+    debounced,
   };
 }

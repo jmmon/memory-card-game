@@ -1,4 +1,4 @@
-import { $, QRL, useSignal, useStore, useVisibleTask$ } from "@builder.io/qwik";
+import { $, QRL, useStore, useVisibleTask$ } from "@builder.io/qwik";
 
 type UseTimerOpts = {
   onPause: QRL<() => void>;
@@ -105,14 +105,11 @@ export const useTimer = ({
     let intervalId: ReturnType<typeof setInterval> | null = null;
     let blinkId: ReturnType<typeof setInterval> | null = null;
 
-    if (blinkId) clearInterval(blinkId);
-    if (intervalId) clearInterval(intervalId);
-
     if (status === "RUNNING") {
       intervalId = setInterval(() => {
         // wrap in fn because typescript
         updateRunningTime();
-      }, 100);
+      }, 95);
       updateRunningTime(); // run immediately also
     } else if (status === "STOPPED") {
       updateRunningTime({ isStopped: true }); // make sure it's synched with total
