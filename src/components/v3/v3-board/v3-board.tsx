@@ -17,28 +17,21 @@ import { CONTAINER_PADDING_PERCENT } from "../v3-game/v3-game";
 import { useDebounce } from "../utils/useDebounce";
 import { calculateLayouts } from "../utils/boardUtils";
 import v3CardUtils from "../utils/v3CardUtils";
-import { useDelayedTimeout, useTimeout } from "../utils/useTimeout";
+import { useTimeout } from "../utils/useTimeout";
 
-const AUTO_PAUSE_DELAY_MS = 5000;
 
 export const CARD_RATIO = 113 / 157; // w / h
 export const CORNERS_WIDTH_RATIO = 1 / 20;
 
+const AUTO_PAUSE_DELAY_MS = 5000;
+
 export const CARD_FLIP_ANIMATION_DURATION = 600;
 export const CARD_SHAKE_ANIMATION_DURATION = 600;
-// higher means shake starts sooner
-const START_SHAKE_ANIMATION_EAGER_MS = 20;
-const START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE = 0.75;
-const SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD =
-  CARD_FLIP_ANIMATION_DURATION *
-    START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE -
-  START_SHAKE_ANIMATION_EAGER_MS;
 
 // after initial instant transform, wait this long before starting animation
 export const CARD_SHUFFLE_PAUSE_DURATION = 50;
 // animation duration
 export const CARD_SHUFFLE_ACTIVE_DURATION = 350;
-export const CARD_SHUFFLE_ROUNDS = 5;
 
 const MINIMUM_CARD_VIEW_TIME = 500;
 const MINIMUM_BETWEEN_CARDS = 500;
@@ -308,43 +301,6 @@ export default component$(
       gameContext.initializeDeck();
     });
 
-    /* ================================
-     * Handles shuffling
-     * - when shuffling state > 0, we shuffle a round and then decrement
-     * ================================ */
-    useTimeout(
-      $(() => {
-        gameContext.shuffleCardPositions();
-        if (gameContext.game.shufflingState <= 1) {
-          gameContext.stopShuffling();
-        }
-        gameContext.game.shufflingState -= 1;
-      }),
-      useComputed$(() => {
-        return gameContext.game.shufflingState > 0;
-      }),
-      CARD_SHUFFLE_PAUSE_DURATION + CARD_SHUFFLE_ACTIVE_DURATION
-    );
-
-    /* ================================
-     * Handle Shake Animation Timers
-     * - when mismatching a pair, shake the cards
-     *   - wait until card is returned before starting
-     * ================================ */
-
-    useDelayedTimeout(
-      $(() => {
-        gameContext.game.isShaking = true;
-      }),
-      $(() => {
-        gameContext.game.isShaking = false;
-        gameContext.game.mismatchPair = "";
-      }),
-      useComputed$(() => gameContext.game.mismatchPair !== ""),
-      SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD,
-      SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD +
-        CARD_SHAKE_ANIMATION_DURATION
-    );
 
     useStyles$(`
       /* diable clicks  and mouse highlighting for all the innards */
@@ -416,7 +372,6 @@ export default component$(
     `);
 
     return (
-      <>
         <div
           class="relative max-h-full max-w-full w-full h-full items-center "
           ref={boardRef}
@@ -427,7 +382,6 @@ export default component$(
             <V3Card card={card} key={card.id} />
           ))}
         </div>
-      </>
     );
   }
 );
