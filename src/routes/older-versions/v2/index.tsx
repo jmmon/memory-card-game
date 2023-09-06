@@ -40,10 +40,9 @@ import {
   useSignal,
   useVisibleTask$,
 } from "@builder.io/qwik";
-import { FlippableCard } from "~/components/v2/FlippableCard";
-import { MatchModalContext } from "~/components/v2/context/match-modal.context";
-import type { Card } from "~/utils/cardUtils";
-import { generateCards, shuffle_FY_algo } from "~/utils/cardUtils";
+import { Card, generateCards, shuffle_FY_algo } from "~/old/utils/cardUtils";
+import { FlippableCard } from "~/old/v2/components/FlippableCard";
+import { MatchModalContext } from "~/old/v2/context/match-modal.context";
 
 export const CARD_FLIP_ANIMATION_DURATION = 800;
 export const CARD_FLIP_ANIMATION_DURATION_HALF = CARD_FLIP_ANIMATION_DURATION / 2;

@@ -6,8 +6,8 @@ import {
   useOnDocument,
   useStore,
 } from "@builder.io/qwik";
-import MatchModal from "~/components/v2/match-modal/match-modal";
-import { MatchModalContext } from "~/components/v2/context/match-modal.context";
+import MatchModal from "~/old/v2/components/match-modal/match-modal";
+import { MatchModalContext } from "~/old/v2/context/match-modal.context";
 
 export default component$(() => {
   const MatchModalStore = useStore<MatchModalContext>({
