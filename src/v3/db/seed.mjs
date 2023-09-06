@@ -11,10 +11,10 @@ import postgres from "postgres";
 import "dotenv/config";
 
 // const connectionString = `postgres://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD_ENCODED}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
-const connectionString = `postgres://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME_ENCODED}?user=${process.env.DB_USERNAME}&password=${process.env.DB_PASSWORD_ENCODED}`;
+// const connectionString = `postgres://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME_ENCODED}?user=${process.env.DB_USERNAME}&password=${process.env.DB_PASSWORD_ENCODED}`;
 // const connectionString = 'postgresql:///mydb?host=localhost&port=5433'
 
-// DATABASE_URL="postgresql://postgres:postgres@localhost:5432/qwik_blog" #?schema=public
+const connectionString = "postgresql://postgres:postgres@localhost:5432/memory-card-game-scores"
 
 
 // const allScores = await db.select().from(scores);
@@ -77,6 +77,7 @@ const scores = pgTable("scores", {
     await createManyScores(5);
 
     console.log(await getAllScores());
+    process.exit(0);
   } catch (err) {
     console.log(err);
   }

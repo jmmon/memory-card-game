@@ -11,6 +11,8 @@ import ImageBackFace from "~/media/cards/_backWhite.png?jsx";
 import ImageAceSpades from "~/media/cards/AS.png?jsx";
 import { GameContext } from "~/v3/context/gameContext";
 import { Card } from "~/v3/types/types";
+import v3CardUtils, { CARD_RATIO_VS_CONTAINER } from "~/v3/utils/v3CardUtils";
+import { CARD_FLIP_ANIMATION_DURATION } from "../board/board";
 
 // underside shows immediately, but hides after this far during return transition
 export const CARD_HIDE_UNDERSIDE_AFTER_PERCENT = 0.9;
@@ -196,7 +198,7 @@ export const CardView = ({
   roundedCornersPx,
   isFaceShowing,
 }: {
-  card: V3Card;
+  card: Card;
   isSelected: Signal<boolean>;
   isCardFlipped: Signal<boolean>;
   isFaceShowing: Signal<boolean>;
