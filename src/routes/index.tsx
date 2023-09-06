@@ -6,23 +6,30 @@ export default component$(() => {
     <div class="grid w-full justify-center items-center gap-8">
       <h1 class="text-center text-4xl text-slate-500">Memory Card Game</h1>
 
-      <h3 class="text-center">Goal:</h3>
-      <p class="text-center text-lg ">Eliminate all cards from the board.</p>
+      <h3 class="text-center ">Goal:</h3>
+      <p class="text-center text-2xl ">Eliminate all cards from the board.</p>
 
-      <ol class="list-decimal marker:text-gray-400 text-lg grid gap-4">
+      <ol class="list-decimal marker:text-slate-400 text-md md:text-lg grid gap-4 w-[50ch]">
         <li class="pl-4">Pick two cards.</li>
         <li class="pl-4">
           If the numbers and colors match, they're removed from the game.
         </li>
+        <li class="pl-4">
+          Match all the cards to win!
+        </li>
+        <li class="pl-4 text-slate-500">
+          (COMING SOON:) Save your score, and see how you compare to other players!
+        </li>
       </ol>
 
       <div class="flex flex-col items-center">
-        <Link href="/v3" class="text-white text-4xl py-4 px-8 border-gray-200 rounded-lg bg-slate-800 hover:bg-slate-600">
+        <Link href="/v3" class="text-slate-200 hover:text-white text-4xl py-4 px-8 border-slate-200 rounded-lg bg-slate-800 hover:bg-slate-700">
           Play
         </Link>
 
         <br />
         <br />
+
         <Link
           href="/older-versions"
           class=" text-slate-500 text-center underline hover:text-slate-300"

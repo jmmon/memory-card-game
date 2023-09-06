@@ -1,5 +1,5 @@
 import {db} from "../db/index";
-import {NewScore, scores} from "../db/schema";
+import {type NewScore, scores} from "../db/schema";
 
 
 const createScore = (data: NewScore) => db.insert(scores).values(data);
