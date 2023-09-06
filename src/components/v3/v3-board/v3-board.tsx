@@ -19,11 +19,10 @@ import { calculateLayouts } from "../utils/boardUtils";
 import v3CardUtils from "../utils/v3CardUtils";
 import { useTimeout } from "../utils/useTimeout";
 
-
 export const CARD_RATIO = 113 / 157; // w / h
 export const CORNERS_WIDTH_RATIO = 1 / 20;
 
-const AUTO_PAUSE_DELAY_MS = 5000;
+const AUTO_PAUSE_DELAY_MS = 10000;
 
 export const CARD_FLIP_ANIMATION_DURATION = 600;
 export const CARD_SHAKE_ANIMATION_DURATION = 600;
@@ -301,7 +300,6 @@ export default component$(
       gameContext.initializeDeck();
     });
 
-
     useStyles$(`
       /* diable clicks  and mouse highlighting for all the innards */
       .card-flip * {
@@ -372,16 +370,16 @@ export default component$(
     `);
 
     return (
-        <div
-          class="relative max-h-full max-w-full w-full h-full items-center "
-          ref={boardRef}
-          onClick$={handleClickBoard$}
-          data-label="board"
-        >
-          {gameContext.game.cards.map((card) => (
-            <V3Card card={card} key={card.id} />
-          ))}
-        </div>
+      <div
+        class="relative max-h-full max-w-full w-full h-full items-center "
+        ref={boardRef}
+        onClick$={handleClickBoard$}
+        data-label="board"
+      >
+        {gameContext.game.cards.map((card) => (
+          <V3Card card={card} key={card.id} />
+        ))}
+      </div>
     );
   }
 );

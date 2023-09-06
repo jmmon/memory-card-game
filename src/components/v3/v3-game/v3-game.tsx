@@ -9,7 +9,7 @@ import {
   useVisibleTask$,
 } from "@builder.io/qwik";
 import V3Board, {
-    CARD_FLIP_ANIMATION_DURATION,
+  CARD_FLIP_ANIMATION_DURATION,
   CARD_SHAKE_ANIMATION_DURATION,
   CARD_SHUFFLE_ACTIVE_DURATION,
   CARD_SHUFFLE_PAUSE_DURATION,
@@ -32,7 +32,6 @@ import {
 } from "../utils/useTimeout";
 // import dbService from "../services/db.service";
 // import InverseModal from "../inverse-modal/inverse-modal";
- 
 
 export const CARD_SHUFFLE_ROUNDS = 5;
 
@@ -43,7 +42,6 @@ const SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD =
   CARD_FLIP_ANIMATION_DURATION *
     START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE -
   START_SHAKE_ANIMATION_EAGER_MS;
-
 
 export const DEFAULT_CARD_COUNT = 18;
 
@@ -272,12 +270,16 @@ const INITIAL_STATE = {
   },
 
   shuffleCardPositions: $(function (this: AppStore) {
+    // shuffle and set new positions, save old positions
     const newCards = deckUtils.shuffleCardPositions(this.game.cards);
     console.log("shuffleCardPositions:", { newCards });
     this.game.cards = newCards;
   }),
 
-  startShuffling: $(function (this: AppStore, count: number = CARD_SHUFFLE_ROUNDS) {
+  startShuffling: $(function (
+    this: AppStore,
+    count: number = CARD_SHUFFLE_ROUNDS
+  ) {
     this.shuffleCardPositions();
     this.game.shufflingState = count - 1;
     this.game.isLoading = true;

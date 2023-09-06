@@ -2,7 +2,6 @@ import { component$ } from "@builder.io/qwik";
 import { routeLoader$ } from "@builder.io/qwik-city";
 import type { RequestHandler } from "@builder.io/qwik-city";
 
-
 export const onGet: RequestHandler = async (requestEvent) => {
   // Control caching for this request for best performance and to reduce hosting costs:
   // https://qwik.builder.io/docs/caching/
@@ -12,7 +11,6 @@ export const onGet: RequestHandler = async (requestEvent) => {
     // Max once every 5 seconds, revalidate on the server to get a fresh version of this page
     maxAge: 5,
   });
-
 };
 
 export const useServerTimeLoader = routeLoader$(() => {
@@ -23,6 +21,8 @@ export const useServerTimeLoader = routeLoader$(() => {
 
 export default component$(() => {
   return (
-<div>test route v4, or json formattedDeck?</div>
+    <div>
+      <div>test route v4, or json formattedDeck?</div>
+    </div>
   );
 });

@@ -1,5 +1,5 @@
 import {
- type Signal,
+  type Signal,
   Slot,
   component$,
   useComputed$,
@@ -11,6 +11,8 @@ import { AppContext } from "../v3-context/v3.context";
 import type { V3Card } from "../v3-game/v3-game";
 import { CARD_FLIP_ANIMATION_DURATION } from "../v3-board/v3-board";
 import v3CardUtils, { CARD_RATIO_VS_CONTAINER } from "../utils/v3CardUtils";
+import ImageBackFace from "~/media/cards/_backWhite.png?jsx";
+import ImageAceSpades from "~/media/cards/AS.png?jsx";
 
 // underside shows immediately, but hides after this far during return transition
 export const CARD_HIDE_UNDERSIDE_AFTER_PERCENT = 0.9;
@@ -227,14 +229,25 @@ export const CardView = ({
         classes="border border-white text-black bg-sky-300 [transform:rotateY(180deg)]"
       >
         <>
-          {isFaceShowing.value && (
-            <img
-              width="25"
-              height="35"
-              src={card.localSVG}
-              class="w-full h-full"
-            />
-          )}
+          {isFaceShowing.value &&
+            (card.text === "AS" ? (
+              <ImageAceSpades />
+            ) : (
+              <img
+                width="25"
+                height="35"
+                src={card.localSVG}
+                class="w-full h-full"
+              />
+            ))}
+          {/* {isFaceShowing.value &&( */}
+          {/*     <img */}
+          {/*       width="25" */}
+          {/*       height="35" */}
+          {/*       src={card.localSVG} */}
+          {/*       class="w-full h-full" */}
+          {/*     /> */}
+          {/*   )} */}
         </>
       </CardFace>
 
@@ -243,12 +256,13 @@ export const CardView = ({
         data-label="card-back"
         classes="bg-slate-100 text-white  border-2 border-slate-50 "
       >
-        <img
-          width="25"
-          height="35"
-          src="/cards/_backWhite.svg"
-          class="w-full h-full"
-        />
+        <ImageBackFace loading="eager" decoding="auto" />
+        {/* <img */}
+        {/*   width="25" */}
+        {/*   height="35" */}
+        {/*   src="/cards/_backWhite.svg" */}
+        {/*   class="w-full h-full" */}
+        {/* /> */}
       </CardFace>
     </div>
   );

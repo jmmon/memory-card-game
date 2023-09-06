@@ -10,8 +10,12 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import "dotenv/config";
 
-const connectionString = `postgresql://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
+// const connectionString = `postgres://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD_ENCODED}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`;
+const connectionString = `postgres://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME_ENCODED}?user=${process.env.DB_USERNAME}&password=${process.env.DB_PASSWORD_ENCODED}`;
 // const connectionString = 'postgresql:///mydb?host=localhost&port=5433'
+
+// DATABASE_URL="postgresql://postgres:postgres@localhost:5432/qwik_blog" #?schema=public
+
 
 // const allScores = await db.select().from(scores);
 const scores = pgTable("scores", {
