@@ -8,9 +8,9 @@ import {
   useStylesScoped$,
 } from "@builder.io/qwik";
 import Button from "../button/button";
-import { FormattedTime } from "../game-end-modal/game-end-modal";
 import { GameContext } from "~/v3/context/gameContext";
 import { useTimeout } from "~/v3/utils/useTimeout";
+import { FormattedTime } from "../formatted-time/formatted-time";
 
 const CODE_PADDING = "px-1.5 md:px-3 lg:px-4";
 const CODE_TEXT_LIGHT = "text-slate-200";
@@ -226,6 +226,7 @@ export const TimerHeaderComponent = component$(() => {
         }
       >
         <FormattedTime timeMs={gameContext.timer.state.runningTime} limit={2} />
+
       </span>
     </code>
   );

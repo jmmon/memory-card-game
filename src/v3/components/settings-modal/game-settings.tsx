@@ -7,9 +7,9 @@ import {
   SettingsRow,
   DeckSizeSlider,
 } from "./settings-modal";
-import { FormattedTime } from "../game-end-modal/game-end-modal";
 import { GameSettings } from "~/v3/types/types";
 import { GameContext } from "~/v3/context/gameContext";
+import { FormattedTime } from "../formatted-time/formatted-time";
 
 // animation settings:
 // e.g. flip card speed,

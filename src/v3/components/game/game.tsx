@@ -26,11 +26,14 @@ import { useDelayedTimeout, useInterval, useTimeout } from "~/v3/utils/useTimeou
 // import dbService from "../services/db.service";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
+const AUTO_SHUFFLE_INTERVAL = 10000;
+const AUTO_SHUFFLE_DELAY = 10000;
+
 export const CARD_SHUFFLE_ROUNDS = 5;
 
 // higher means shake starts sooner
-const START_SHAKE_ANIMATION_EAGER_MS = 20;
-const START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE = 0.75;
+const START_SHAKE_ANIMATION_EAGER_MS = 150;
+const START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE = 0.8;
 const SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD =
   CARD_FLIP_ANIMATION_DURATION *
     START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE -
@@ -291,8 +294,8 @@ export default component$(() => {
       gameContext.shuffleCardPositions();
     }),
     useComputed$(() => !gameContext.timer.state.isStarted),
-    10000,
-    10000
+    AUTO_SHUFFLE_DELAY,
+    AUTO_SHUFFLE_INTERVAL
   );
 
   /* ================================

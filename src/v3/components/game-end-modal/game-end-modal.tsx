@@ -3,45 +3,7 @@ import Modal from "../modal/modal";
 import { SettingsRow } from "../settings-modal/settings-modal";
 import Button from "../button/button";
 import { GameContext } from "~/v3/context/gameContext";
-
-const GreyedAtZero = ({ val, text }: { val: number; text: string }) => {
-  return (
-    <span class={`text-right ${val === 0 ? "text-slate-400" : ""}`}>
-      {val}
-      {text}
-    </span>
-  );
-};
-
-export const formatTime = (timeMs: number) => {
-  const minutes = Math.floor(timeMs / 1000 / 60);
-  const seconds = Math.floor((timeMs / 1000) % 60)
-    .toString()
-    .padStart(2, "0");
-  const ms = Math.floor(timeMs % 1000)
-    .toString()
-    .padStart(3, "0");
-  return { minutes, seconds, ms };
-};
-
-export const FormattedTime = ({
-  timeMs,
-  limit = 3,
-}: {
-  timeMs: number;
-  limit?: number;
-}) => {
-  const { minutes, seconds, ms } = formatTime(timeMs);
-
-  const limitedMs =
-    limit > 0 ? `.${(Math.round(Number(ms) / (10 ** (3 - limit) ))).toString().padStart(limit, '0')}s` : "";
-  return (
-    <span class="text-left">
-      <GreyedAtZero val={minutes} text="m" /> {seconds}
-      <span class="text-xs text-slate-400">{limitedMs}</span>
-    </span>
-  );
-};
+import { FormattedTime } from "../formatted-time/formatted-time";
 
 export default component$(() => {
   const gameContext = useContext(GameContext);
@@ -56,7 +18,9 @@ export default component$(() => {
     <Modal
       isShowing={gameContext.interface.endOfGameModal.isShowing}
       hideModal$={hideModal$}
-      title={gameContext.interface.endOfGameModal.isWin ? "You Win!" : "Game Over"}
+      title={
+        gameContext.interface.endOfGameModal.isWin ? "You Win!" : "Game Over"
+      }
       bgStyles={{ backgroundColor: "rgba(0,0,0,0.1)" }}
       options={{
         detectClickOutside: false,

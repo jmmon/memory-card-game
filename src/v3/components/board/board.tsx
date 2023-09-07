@@ -18,7 +18,8 @@ import { useTimeout } from "~/v3/utils/useTimeout";
 import { CONTAINER_PADDING_PERCENT } from "../game/game";
 import { calculateLayouts } from "~/v3/utils/boardUtils";
 
-export const CARD_RATIO = 113 / 157; // w / h
+// export const CARD_RATIO = 113 / 157; // w / h
+export const CARD_RATIO = 2.5 / 3.5; // w / h
 export const CORNERS_WIDTH_RATIO = 1 / 20;
 
 const AUTO_PAUSE_DELAY_MS = 10000;
@@ -185,7 +186,7 @@ export default component$(
         gameContext.interface.settingsModal.isShowing = true;
         lastClick.value === -1;
       }),
-      useComputed$(() => lastClick.value !== -1),
+      useComputed$(() => gameContext.timer.state.isStarted && lastClick.value !== -1),
       AUTO_PAUSE_DELAY_MS
     );
 

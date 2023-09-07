@@ -10,9 +10,9 @@ import {
 import ImageBackFace from "~/media/cards/_backWhite.png?jsx";
 import ImageAceSpades from "~/media/cards/AS.png?jsx";
 import { GameContext } from "~/v3/context/gameContext";
-import { Card } from "~/v3/types/types";
+import { Card, CardLayout } from "~/v3/types/types";
 import v3CardUtils, { CARD_RATIO_VS_CONTAINER } from "~/v3/utils/v3CardUtils";
-import { CARD_FLIP_ANIMATION_DURATION } from "../board/board";
+import { CARD_FLIP_ANIMATION_DURATION, CARD_RATIO } from "../board/board";
 
 // underside shows immediately, but hides after this far during return transition
 export const CARD_HIDE_UNDERSIDE_AFTER_PERCENT = 0.9;
@@ -126,7 +126,7 @@ export default component$(({ card }: { card: Card }) => {
 
   return (
     <div
-      class={`card-shuffle-transform absolute top-0 left-0 aspect-[2.25/3.5] flex flex-col justify-center`}
+      class={`box-content card-shuffle-transform absolute top-0 left-0 aspect-[${CARD_RATIO}] flex flex-col justify-center`}
       style={{
         width: gameContext.cardLayout.width + "px",
         height: gameContext.cardLayout.height + "px",
@@ -142,7 +142,7 @@ export default component$(({ card }: { card: Card }) => {
       data-position={card.position}
     >
       <div
-        class="border border-slate-50/10 mx-auto bg-transparent"
+        class="box-border border border-slate-50/10 mx-auto bg-transparent"
         style={{
           borderRadius: gameContext.cardLayout.roundedCornersPx + "px",
           width: CARD_RATIO_VS_CONTAINER * 100 + "%",
@@ -153,7 +153,7 @@ export default component$(({ card }: { card: Card }) => {
         <div
           data-id={card.id}
           data-label="card"
-          class={`w-full h-full border border-slate-50/25 bg-transparent transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
+          class={`box-border w-full h-full border border-slate-50/25 bg-transparent transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
             isThisRemoved.value &&
             gameContext.game.flippedCardId !== card.id &&
             gameContext.game.flippedCardId !== card.pairId
@@ -172,7 +172,7 @@ export default component$(({ card }: { card: Card }) => {
             perspective: CARD_RATIO_VS_CONTAINER * 100 + "vw",
           }}
         >
-          <CardView
+          <CardFlippingWrapper
             isSelected={isSelected}
             card={card}
             isCardFlipped={isCardFlipped}
@@ -181,6 +181,7 @@ export default component$(({ card }: { card: Card }) => {
             isFaceShowing_delayedOff={isFaceShowing_delayedOff}
             flipTransform={flipTransform}
             roundedCornersPx={gameContext.cardLayout.roundedCornersPx}
+            cardLayout={gameContext.cardLayout}
           />
         </div>
       </div>
@@ -188,7 +189,8 @@ export default component$(({ card }: { card: Card }) => {
   );
 });
 
-export const CardView = ({
+
+export const CardFlippingWrapper = ({
   card,
   isSelected,
   isCardFlipped,
@@ -197,6 +199,7 @@ export const CardView = ({
   flipTransform,
   roundedCornersPx,
   isFaceShowing,
+  cardLayout,
 }: {
   card: Card;
   isSelected: Signal<boolean>;
@@ -206,11 +209,12 @@ export const CardView = ({
   isFaceShowing_delayedOff: Signal<boolean>;
   flipTransform: Signal<string>;
   roundedCornersPx: number;
+  cardLayout: CardLayout;
 }) => {
   return (
     <div
       data-id={card.id}
-      class={`card-flip w-full h-full relative text-center`}
+      class={`flex flex-col items-center justify-center h-full bg-transparent card-flip relative text-center`}
       style={{
         transform:
           isCardFlipped.value ||
@@ -223,65 +227,99 @@ export const CardView = ({
           : "",
       }}
     >
-      <CardFace
+      <CardView
+        card={card}
         roundedCornersPx={roundedCornersPx}
-        data-label="card-front"
-        classes="border border-white text-black bg-sky-300 [transform:rotateY(180deg)]"
-      >
-        <>
-          {isFaceShowing.value &&
-            (card.text === "AS" ? (
-              <ImageAceSpades />
-            ) : (
-              <img
-                width="25"
-                height="35"
-                src={card.localSVG}
-                class="w-full h-full"
-              />
-            ))}
-          {/* {isFaceShowing.value &&( */}
-          {/*     <img */}
-          {/*       width="25" */}
-          {/*       height="35" */}
-          {/*       src={card.localSVG} */}
-          {/*       class="w-full h-full" */}
-          {/*     /> */}
-          {/*   )} */}
-        </>
-      </CardFace>
-
-      <CardFace
-        roundedCornersPx={roundedCornersPx}
-        data-label="card-back"
-        classes="bg-slate-100 text-white  border-2 border-slate-50 "
-      >
-        <ImageBackFace loading="eager" decoding="auto" />
-        {/* <img */}
-        {/*   width="25" */}
-        {/*   height="35" */}
-        {/*   src="/cards/_backWhite.svg" */}
-        {/*   class="w-full h-full" */}
-        {/* /> */}
-      </CardFace>
+        cardLayout={cardLayout}
+        isFaceShowing={isFaceShowing}
+      />
     </div>
   );
 };
+
+// holds the front and back of card
+const CardView =  ({
+    card,
+    roundedCornersPx,
+    cardLayout,
+    isFaceShowing,
+  }: {
+    card: Card;
+    roundedCornersPx: number;
+    cardLayout: CardLayout;
+    isFaceShowing: Signal<boolean>;
+  }) => {
+    const style = {
+      width: cardLayout.width * CARD_RATIO_VS_CONTAINER ,
+      height: cardLayout.height * CARD_RATIO_VS_CONTAINER,
+    };
+
+    return (
+      <>
+        <CardFace
+          roundedCornersPx={roundedCornersPx}
+          data-label="card-front"
+          classes="text-black [transform:rotateY(180deg)]"
+            width={style.width}
+            height={style.height}
+        >
+          <>
+            {isFaceShowing.value &&
+              (card.text === "AS" ? (
+                <ImageAceSpades
+                  width={style.width}
+                  height={style.height}
+                  decoding="auto"
+                />
+              ) : (
+                <img
+                  src={card.localSVG}
+                  width={style.width}
+                  height={style.height}
+                />
+              ))}
+          </>
+        </CardFace>
+
+        <CardFace
+          roundedCornersPx={roundedCornersPx}
+          data-label="card-back"
+          classes="text-white"
+
+            width={style.width}
+            height={style.height}
+        >
+          <ImageBackFace
+            loading="eager"
+            decoding="auto"
+            width={style.width}
+            height={style.height}
+          />
+        </CardFace>
+      </>
+    );
+  }
 
 const CardFace = component$(
   ({
     roundedCornersPx,
     classes = "",
+width,
+height,
   }: {
     roundedCornersPx: number;
     classes: string;
+width: number,
+height: number
   }) => {
     return (
       <div
-        class={`absolute w-full h-full flex items-center justify-center [backface-visibility:hidden] ${classes}`}
+        class={` absolute flex items-center justify-center [backface-visibility:hidden] ${classes}`}
         data-label="card-front"
         style={{
           borderRadius: roundedCornersPx + "px",
+width: width + 'px',
+height: height + 'px',
         }}
       >
         <Slot />
