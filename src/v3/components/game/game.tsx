@@ -17,12 +17,25 @@ import { GameContext } from "../../context/gameContext";
 import SettingsModal from "../settings-modal/settings-modal";
 import GameHeader from "../game-header/game-header";
 import GameEndModal from "../game-end-modal/game-end-modal";
-import { GameData, GameSettings, GameContext as TGameContext } from "~/v3/types/types";
+import {
+  GameData,
+  GameSettings,
+  GameContext as TGameContext,
+} from "~/v3/types/types";
 import { formattedDeck } from "~/v3/utils/cards";
 import deckUtils from "~/v3/utils/deckUtils";
-import { calculateBoardDimensions, calculateLayouts } from "~/v3/utils/boardUtils";
+import {
+  calculateBoardDimensions,
+  calculateLayouts,
+} from "~/v3/utils/boardUtils";
 import { useTimer } from "~/v3/utils/useTimer";
-import { useDelayedTimeout, useInterval, useTimeout } from "~/v3/utils/useTimeout";
+import {
+  useDelayedTimeout,
+  useInterval,
+  useTimeout,
+} from "~/v3/utils/useTimeout";
+import FaceCardSymbols from "../playing-card-components/face-card-symbols";
+import CardSymbols from "../playing-card-components/card-symbols";
 // import dbService from "../services/db.service";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
@@ -32,8 +45,8 @@ const AUTO_SHUFFLE_DELAY = 10000;
 export const CARD_SHUFFLE_ROUNDS = 5;
 
 // higher means shake starts sooner
-const START_SHAKE_ANIMATION_EAGER_MS = 150;
-const START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE = 0.8;
+const START_SHAKE_ANIMATION_EAGER_MS = 250;
+const START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE = 0.75;
 const SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD =
   CARD_FLIP_ANIMATION_DURATION *
     START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE -
@@ -43,20 +56,8 @@ export const DEFAULT_CARD_COUNT = 18;
 
 export const CONTAINER_PADDING_PERCENT = 1.5;
 
-
-export const GAME_STATES: Readonly<{
-  WAITING: "WAITING";
-  PLAYING: "PLAYING";
-  ENDED: "ENDED";
-}> = {
-  WAITING: "WAITING",
-  PLAYING: "PLAYING",
-  ENDED: "ENDED",
-};
-
 const INITIAL_GAME_STATE: GameData = {
   isStarted: false,
-  state: GAME_STATES.WAITING, // WAITING, PLAYING, ENDED
   cards: [],
   mismatchPair: "",
   isShaking: false,
@@ -267,7 +268,6 @@ const INITIAL_STATE = {
 export default component$(() => {
   const timer = useTimer();
   console.log("game render");
-  // set up context
   const gameContext = useStore<TGameContext>(
     {
       ...INITIAL_STATE,
@@ -278,24 +278,20 @@ export default component$(() => {
   useContextProvider(GameContext, gameContext);
   const containerRef = useSignal<HTMLElement>();
 
-  useVisibleTask$(({ track }) => {
-    track(() => [
-      gameContext.timer.state.isPaused,
-      gameContext.timer.state.isStarted,
-    ]);
-    console.log({
-      isStarted: gameContext.timer.state.isStarted,
-      isPaused: gameContext.timer.state.isPaused,
-    });
-  });
-
+  /* ================================
+   * Shuffle on interval (for fun)
+   * - gives it a nice look if you leave the tab open (and you haven't started the game)
+   * ================================ */
   useInterval(
     $(() => {
       gameContext.shuffleCardPositions();
     }),
-    useComputed$(() => !gameContext.timer.state.isStarted),
-    AUTO_SHUFFLE_DELAY,
-    AUTO_SHUFFLE_INTERVAL
+    useComputed$(
+      () =>
+        !gameContext.timer.state.isStarted && !gameContext.timer.state.isEnded
+    ),
+    AUTO_SHUFFLE_INTERVAL,
+    AUTO_SHUFFLE_DELAY
   );
 
   /* ================================
@@ -305,14 +301,11 @@ export default component$(() => {
   useTimeout(
     $(() => {
       gameContext.shuffleCardPositions();
-      if (gameContext.game.shufflingState <= 1) {
-        gameContext.stopShuffling();
-      }
       gameContext.game.shufflingState -= 1;
+
+      if (gameContext.game.shufflingState <= 0) gameContext.stopShuffling();
     }),
-    useComputed$(() => {
-      return gameContext.game.shufflingState > 0;
-    }),
+    useComputed$(() => gameContext.game.shufflingState > 0),
     CARD_SHUFFLE_PAUSE_DURATION + CARD_SHUFFLE_ACTIVE_DURATION
   );
 
@@ -480,6 +473,10 @@ export default component$(() => {
       <LoadingPage isShowing={gameContext.game.isLoading} />
       <SettingsModal />
       <GameEndModal />
+
+      {/* SVG card symbols */}
+      <CardSymbols />
+      <FaceCardSymbols />
     </>
   );
 });

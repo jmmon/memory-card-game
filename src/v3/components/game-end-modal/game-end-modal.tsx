@@ -51,7 +51,7 @@ export default component$(() => {
           <div class="flex flex-grow justify-between">
             <span>Time:</span>
             <span>
-              <FormattedTime timeMs={gameContext.timer.state.runningTime} />
+              <FormattedTime timeMs={gameContext.timer.state.runningTime} limit={3}  />
             </span>
           </div>
         </SettingsRow>

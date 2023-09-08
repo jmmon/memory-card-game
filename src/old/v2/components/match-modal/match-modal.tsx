@@ -1,5 +1,5 @@
 import { component$, useContext } from "@builder.io/qwik";
-import { MatchModalContext } from "../context/match-modal.context";
+import { MatchModalContext } from "../../context/match-modal.context";
 
 export default component$(() => {
   const MatchModalStore = useContext(MatchModalContext);

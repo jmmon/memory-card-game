@@ -11,7 +11,7 @@ export const onGet: RequestHandler = async (requestEvent) => {
     // mark it as public resources?
     public: true,
     // Always serve a cached response by default, up to a week stale
-    staleWhileRevalidate: 60 * 60 * 24 * 30,
+    staleWhileRevalidate: 60 * 60 * 24 * 7,
     // Max once every 5 seconds, revalidate on the server to get a fresh version of this page
     maxAge: 5,
   });

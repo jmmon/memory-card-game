@@ -8,6 +8,17 @@ export type ShuffleTransform = { x: number; y: number };
 
 export type Pair = `${number}:${number}`;
 
+
+export type PlayingCardSvgProps =
+  | {
+      color: "red";
+      symbol: "diamonds" | "hearts";
+    }
+  | {
+      color: "black";
+      symbol: "clubs" | "spades";
+    };
+
 export type Card = {
   id: number;
   text: string; // alternate content of the card (if no img)
@@ -67,7 +78,6 @@ export type CardLayout = {
 
 export type GameData = {
   isStarted: boolean;
-  state: "WAITING" | "PLAYING" | "ENDED";
   flippedCardId: number;
   selectedCardIds: number[];
   successfulPairs: Pair[];

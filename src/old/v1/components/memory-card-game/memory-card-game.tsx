@@ -8,9 +8,9 @@ import {
   useTask$,
   useComputed$,
 } from "@builder.io/qwik";
-import type { Card } from "~/utils/cardUtils";
-import { AppContext, type CardPair } from "../context/context";
 import Jabber from "jabber";
+import { AppContext, CardPair } from "../../context/context";
+import { Card } from "~/old/utils/cardUtils";
 
 export default component$(() => {
   const appStore = useStore<AppContext>({

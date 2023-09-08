@@ -7,17 +7,17 @@ import {
 } from "@builder.io/qwik";
 
 export const useTimeout = (
-  reset: QRL<() => void>,
-  trigger: Signal<boolean>,
+  action: QRL<() => void | any>,
+  triggerCondition: Signal<boolean>,
   initialDelay: number
 ) => {
   const delay = useSignal(initialDelay);
 
   useVisibleTask$((taskCtx) => {
-    taskCtx.track(() => trigger.value);
-    if (!trigger.value) return;
+    taskCtx.track(() => triggerCondition.value);
+    if (!triggerCondition.value) return;
     const timer = setTimeout(() => {
-      reset();
+      action();
     }, delay.value);
     taskCtx.cleanup(() => {
       clearTimeout(timer);
@@ -32,9 +32,9 @@ export const useTimeout = (
 };
 
 export const useDelayedTimeout = (
-  on: QRL<() => void>,
-  off: QRL<() => void>,
-  trigger: Signal<boolean>,
+  actionOnStart: QRL<() => void | any>,
+  actionOnEnd: QRL<() => void | any>,
+  triggerCondition: Signal<boolean>,
   initialDelay: number,
   interval: number
 ) => {
@@ -42,16 +42,16 @@ export const useDelayedTimeout = (
   const intervalSignal = useSignal(interval);
 
   useVisibleTask$((taskCtx) => {
-    taskCtx.track(() => trigger.value);
+    taskCtx.track(() => triggerCondition.value);
 
-    if (!trigger.value) return;
+    if (!triggerCondition.value) return;
 
     const startTimer = setTimeout(() => {
-      on();
+      actionOnStart();
     }, startDelay.value);
 
     const endTimer = setTimeout(() => {
-      off();
+      actionOnEnd();
     }, startDelay.value + intervalSignal.value);
 
     taskCtx.cleanup(() => {
@@ -71,20 +71,20 @@ export const useDelayedTimeout = (
 };
 
 export const useInterval = (
-  run: QRL<() => void>,
-  trigger: Signal<boolean>,
-  initialDelay: number,
-  interval: number
+  action: QRL<() => void>,
+  triggerCondition: Signal<boolean>,
+  regularInterval: number,
+  initialDelay?: number,
 ) => {
   const startDelay = useSignal(initialDelay);
-  const intervalSignal = useSignal(interval);
+  const intervalSignal = useSignal(regularInterval);
   const runInterval = useSignal(false);
 
   useVisibleTask$((taskCtx) => {
-    taskCtx.track(() => trigger.value);
+    taskCtx.track(() => triggerCondition.value);
 
     runInterval.value = false;
-    if (!trigger.value) return;
+    if (!triggerCondition.value) return;
 
     const startTimer = setTimeout(() => {
       runInterval.value = true;
@@ -100,7 +100,7 @@ export const useInterval = (
     if (runInterval.value === false) return;
 
     const update = () => {
-      run();
+      action();
     }
 
     const intervalTimer = setInterval(update, intervalSignal.value);
