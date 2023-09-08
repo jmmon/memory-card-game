@@ -430,6 +430,10 @@ export default component$(() => {
 
   return (
     <>
+      {/* SVG card symbols */}
+      <CardSymbols />
+      <FaceCardSymbols />
+
       {/* <InverseModal */}
       {/*   isShowing={appStore.interface.inverseSettingsModal.isShowing} */}
       {/*   hideModal$={() => { */}
@@ -474,9 +478,6 @@ export default component$(() => {
       <SettingsModal />
       <GameEndModal />
 
-      {/* SVG card symbols */}
-      <CardSymbols />
-      <FaceCardSymbols />
     </>
   );
 });
