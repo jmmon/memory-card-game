@@ -1,5 +1,5 @@
 import { CARD_RATIO } from "../components/board/board";
-import { BoardLayout, CardLayout, Coords, Pair, ShuffleTransform, Card } from "../types/types";
+import type { BoardLayout, CardLayout, Coords, Pair, ShuffleTransform, Card } from "../types/types";
 
 /*
  * compared to board, how big will the enlarged card (flipped card) be?

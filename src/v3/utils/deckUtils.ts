@@ -1,4 +1,4 @@
-import { Card } from "../types/types";
+import type { Card } from "../types/types";
 
 const FULL_DECK_COUNT = 52;
 

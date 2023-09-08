@@ -5,7 +5,7 @@ import {
   useSignal,
   useTask$,
 } from "@builder.io/qwik";
-import { Card } from "~/old/utils/cardUtils";
+import type { Card } from "~/old/utils/cardUtils";
 import {
   CARD_FLIP_ANIMATION_DURATION,
   CARD_FLIP_ANIMATION_DURATION_HALF,

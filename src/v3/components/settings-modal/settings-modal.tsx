@@ -8,7 +8,7 @@ import {
 import Modal from "../modal/modal";
 import GameSettings from "./game-settings";
 import { GameContext } from "~/v3/context/gameContext";
-import { GameSettings as TGameSettings } from "~/v3/types/types";
+import type { GameSettings as TGameSettings } from "~/v3/types/types";
 
 export const COLUMN_GAP = "gap-0.5 md:gap-1";
 export const REQUIRES_RESTART = "Requires restart to take effect.";

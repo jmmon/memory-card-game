@@ -7,7 +7,7 @@ import {
   SettingsRow,
   DeckSizeSlider,
 } from "./settings-modal";
-import { GameSettings } from "~/v3/types/types";
+import type { GameSettings } from "~/v3/types/types";
 import { GameContext } from "~/v3/context/gameContext";
 import { FormattedTime } from "../formatted-time/formatted-time";
 

@@ -40,7 +40,8 @@ import {
   useSignal,
   useVisibleTask$,
 } from "@builder.io/qwik";
-import { Card, generateCards, shuffle_FY_algo } from "~/old/utils/cardUtils";
+import type { Card} from "~/old/utils/cardUtils";
+import { generateCards, shuffle_FY_algo } from "~/old/utils/cardUtils";
 import { FlippableCard } from "~/old/v2/components/FlippableCard";
 import { MatchModalContext } from "~/old/v2/context/match-modal.context";
 

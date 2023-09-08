@@ -8,9 +8,8 @@ import {
   useTask$,
 } from "@builder.io/qwik";
 import ImageBackFace from "~/media/cards/_backWhite.png?jsx";
-import ImageAceSpades from "~/media/cards/AS.png?jsx";
 import { GameContext } from "~/v3/context/gameContext";
-import { Card, CardLayout } from "~/v3/types/types";
+import type { Card } from "~/v3/types/types";
 import v3CardUtils, { CARD_RATIO_VS_CONTAINER } from "~/v3/utils/v3CardUtils";
 import { CARD_FLIP_ANIMATION_DURATION, CARD_RATIO } from "../board/board";
 import PlayingCardComponents from "../playing-card-components";
@@ -143,18 +142,20 @@ export default component$(({ card }: { card: Card }) => {
       data-position={card.position}
     >
       <div
-        class="box-border border border-slate-50/10 mx-auto bg-transparent"
+        class={`aspect-[${CARD_RATIO}] border border-slate-50/10 mx-auto bg-transparent`}
         style={{
           borderRadius: gameContext.cardLayout.roundedCornersPx + "px",
           width: CARD_RATIO_VS_CONTAINER * 100 + "%",
-          height: CARD_RATIO_VS_CONTAINER * 100 + "%",
+          // height: CARD_RATIO_VS_CONTAINER * 100 + "%",
+          height: "auto",
+          aspectRatio: CARD_RATIO,
         }}
         data-label="card-outline"
       >
         <div
           data-id={card.id}
           data-label="card"
-          class={`box-border w-full h-full border border-slate-50/25 bg-transparent transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
+          class={`box-border w-full border border-slate-50/25 bg-transparent transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
             isThisRemoved.value &&
             gameContext.game.flippedCardId !== card.id &&
             gameContext.game.flippedCardId !== card.pairId
@@ -171,6 +172,8 @@ export default component$(({ card }: { card: Card }) => {
           style={{
             borderRadius: gameContext.cardLayout.roundedCornersPx + "px",
             perspective: CARD_RATIO_VS_CONTAINER * 100 + "vw",
+            height: "auto",
+            aspectRatio: CARD_RATIO,
           }}
         >
           <CardFlippingWrapper
@@ -182,7 +185,6 @@ export default component$(({ card }: { card: Card }) => {
             isFaceShowing_delayedOff={isFaceShowing_delayedOff}
             flipTransform={flipTransform}
             roundedCornersPx={gameContext.cardLayout.roundedCornersPx}
-            cardLayout={gameContext.cardLayout}
           />
         </div>
       </div>
@@ -199,7 +201,6 @@ export const CardFlippingWrapper = ({
   flipTransform,
   roundedCornersPx,
   isFaceShowing,
-  cardLayout,
 }: {
   card: Card;
   isSelected: Signal<boolean>;
@@ -209,12 +210,11 @@ export const CardFlippingWrapper = ({
   isFaceShowing_delayedOff: Signal<boolean>;
   flipTransform: Signal<string>;
   roundedCornersPx: number;
-  cardLayout: CardLayout;
 }) => {
   return (
     <div
       data-id={card.id}
-      class={`flex flex-col items-center justify-center h-full bg-transparent card-flip relative text-center`}
+      class={`flex flex-col items-center justify-center w-full bg-transparent card-flip relative text-center`}
       style={{
         transform:
           isCardFlipped.value ||
@@ -223,14 +223,17 @@ export const CardFlippingWrapper = ({
             : "",
         borderRadius: roundedCornersPx + "px",
         boxShadow: isSelected.value
-          ? `0px 0px ${roundedCornersPx}px ${roundedCornersPx}px var(--success-color)`
+          ? `0 0 ${roundedCornersPx}px ${roundedCornersPx}px var(--success-color)`
           : "",
+        background: 'var(--success-color)',
+
+        height: "auto",
+        aspectRatio: CARD_RATIO,
       }}
     >
       <CardView
         card={card}
         roundedCornersPx={roundedCornersPx}
-        cardLayout={cardLayout}
         isFaceShowing={isFaceShowing}
       />
     </div>
@@ -242,15 +245,13 @@ const CardView = component$(
   ({
     card,
     roundedCornersPx,
-    cardLayout,
     isFaceShowing,
   }: {
     card: Card;
     roundedCornersPx: number;
-    cardLayout: CardLayout;
     isFaceShowing: Signal<boolean>;
   }) => {
-const gameContext = useContext(GameContext);
+    const gameContext = useContext(GameContext);
 
     return (
       <>
@@ -301,10 +302,11 @@ const CardFace = component$(
         data-label="card-front"
         style={{
           borderRadius: roundedCornersPx + "px",
-          width: width + "px",
-          height: height + "px",
-          // width: '100%',
-          // height: 'auto',
+          // width: width + "px",
+          // height: height + "px",
+          width: "100%",
+          height: "auto",
+          aspectRatio: CARD_RATIO,
         }}
       >
         <Slot />

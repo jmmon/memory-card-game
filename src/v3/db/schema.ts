@@ -1,4 +1,4 @@
-import { integer, interval, pgSchema, pgTable, serial, timestamp, varchar } from "drizzle-orm/pg-core";
+import { integer, interval, pgTable, serial, timestamp, varchar } from "drizzle-orm/pg-core";
 // import {ulid} from 'ulid';
 
 /* scoreModel: {

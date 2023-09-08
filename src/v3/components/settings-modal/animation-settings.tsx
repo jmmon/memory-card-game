@@ -1,7 +1,7 @@
 import { type Signal, component$, useContext } from "@builder.io/qwik";
 import Button from "../button/button";
 import { Lock, COLUMN_GAP, REQUIRES_RESTART, SettingsRow, DeckSizeSlider } from "./settings-modal";
-import { GameSettings } from "~/v3/types/types";
+import type { GameSettings } from "~/v3/types/types";
 import { GameContext } from "~/v3/context/gameContext";
 import { FormattedTime } from "../formatted-time/formatted-time";
 

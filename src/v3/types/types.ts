@@ -1,5 +1,5 @@
-import { QRL } from "@builder.io/qwik";
-import { useTimer } from "../utils/useTimer";
+import type { QRL } from "@builder.io/qwik";
+import type { useTimer } from "../utils/useTimer";
 export type Timer = ReturnType<typeof useTimer>;
 
 export type Coords = { x: number; y: number };

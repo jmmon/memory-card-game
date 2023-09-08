@@ -1,5 +1,4 @@
-import { component$ } from "@builder.io/qwik";
-import { PlayingCardSvgProps } from "~/v3/types/types";
+import type { PlayingCardSvgProps } from "~/v3/types/types";
 
 export default ({ color, symbol }: PlayingCardSvgProps) => {
   const symbolHref = `#symbol-${symbol}`;

@@ -9,8 +9,9 @@ import {
   useComputed$,
 } from "@builder.io/qwik";
 import Jabber from "jabber";
-import { AppContext, CardPair } from "../../context/context";
-import { Card } from "~/old/utils/cardUtils";
+import type { CardPair } from "../../context/context";
+import { AppContext } from "../../context/context";
+import type { Card } from "~/old/utils/cardUtils";
 
 export default component$(() => {
   const appStore = useStore<AppContext>({

@@ -17,7 +17,7 @@ import { GameContext } from "../../context/gameContext";
 import SettingsModal from "../settings-modal/settings-modal";
 import GameHeader from "../game-header/game-header";
 import GameEndModal from "../game-end-modal/game-end-modal";
-import {
+import type {
   GameData,
   GameSettings,
   GameContext as TGameContext,
