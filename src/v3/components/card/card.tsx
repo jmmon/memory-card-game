@@ -263,30 +263,12 @@ const CardView = ({
         width={style.width}
         height={style.height}
       >
-        <>
-          {/* {isFaceShowing.value && */}
-          {/*   (card.text === "AS" ? ( */}
-          {/*     <ImageAceSpades loading="eager" decoding="sync" /> */}
-          {/*   ) : ( */}
-          {/*     <img src={card.localSVG} alt={card.text} /> */}
-          {/*   ))} */}
-
-          {/* {isFaceShowing.value && card.text[0] === "A" ? ( */}
-          {/*   <div */}
-          {/*     style={{ width: "100%" }} */}
-          {/*     dangerouslySetInnerHTML={PlayingCardComponents[card.text]} */}
-          {/*   ></div> */}
-          {/* ) : ( */}
-          {/*   <img src={card.localSVG} alt={card.text} /> */}
-          {/* )} */}
-
-          {isFaceShowing.value && (
-            <div
-              style={{ width: "100%" }}
-              dangerouslySetInnerHTML={PlayingCardComponents[card.text]}
-            ></div>
-          )}
-        </>
+        {isFaceShowing.value && (
+          <div
+            style={{ width: "100%" }}
+            dangerouslySetInnerHTML={PlayingCardComponents[card.text]}
+          ></div>
+        )}
       </CardFace>
 
       <CardFace
