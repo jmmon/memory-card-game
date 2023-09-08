@@ -127,7 +127,7 @@ export default component$(({ card }: { card: Card }) => {
 
   return (
     <div
-      class={`box-content card-shuffle-transform absolute top-0 left-0 aspect-[${CARD_RATIO}] flex flex-col justify-center`}
+      class={`card-shuffle-transform absolute top-0 left-0 aspect-[${CARD_RATIO}] flex flex-col justify-center`}
       style={{
         width: gameContext.cardLayout.width + "px",
         height: gameContext.cardLayout.height + "px",
@@ -238,51 +238,50 @@ export const CardFlippingWrapper = ({
 };
 
 // holds the front and back of card
-const CardView = ({
-  card,
-  roundedCornersPx,
-  cardLayout,
-  isFaceShowing,
-}: {
-  card: Card;
-  roundedCornersPx: number;
-  cardLayout: CardLayout;
-  isFaceShowing: Signal<boolean>;
-}) => {
-  const style = {
-    width: cardLayout.width * CARD_RATIO_VS_CONTAINER,
-    height: cardLayout.height * CARD_RATIO_VS_CONTAINER,
-  };
+const CardView = component$(
+  ({
+    card,
+    roundedCornersPx,
+    cardLayout,
+    isFaceShowing,
+  }: {
+    card: Card;
+    roundedCornersPx: number;
+    cardLayout: CardLayout;
+    isFaceShowing: Signal<boolean>;
+  }) => {
+const gameContext = useContext(GameContext);
 
-  return (
-    <>
-      <CardFace
-        roundedCornersPx={roundedCornersPx}
-        data-label="card-front"
-        classes="text-black [transform:rotateY(180deg)]"
-        width={style.width}
-        height={style.height}
-      >
-        {isFaceShowing.value && (
-          <div
-            style={{ width: "100%" }}
-            dangerouslySetInnerHTML={PlayingCardComponents[card.text]}
-          ></div>
-        )}
-      </CardFace>
+    return (
+      <>
+        <CardFace
+          roundedCornersPx={roundedCornersPx}
+          data-label="card-front"
+          classes="text-black [transform:rotateY(180deg)]"
+          width={gameContext.cardLayout.width * CARD_RATIO_VS_CONTAINER}
+          height={gameContext.cardLayout.height * CARD_RATIO_VS_CONTAINER}
+        >
+          {isFaceShowing.value && (
+            <div
+              style={{ width: "100%" }}
+              dangerouslySetInnerHTML={PlayingCardComponents[card.text]}
+            ></div>
+          )}
+        </CardFace>
 
-      <CardFace
-        roundedCornersPx={roundedCornersPx}
-        data-label="card-back"
-        classes="text-white"
-        width={style.width}
-        height={style.height}
-      >
-        <ImageBackFace loading="eager" decoding="sync" />
-      </CardFace>
-    </>
-  );
-};
+        <CardFace
+          roundedCornersPx={roundedCornersPx}
+          data-label="card-back"
+          classes="text-white"
+          width={gameContext.cardLayout.width * CARD_RATIO_VS_CONTAINER}
+          height={gameContext.cardLayout.height * CARD_RATIO_VS_CONTAINER}
+        >
+          <ImageBackFace loading="eager" decoding="sync" />
+        </CardFace>
+      </>
+    );
+  }
+);
 
 const CardFace = component$(
   ({
@@ -304,6 +303,8 @@ const CardFace = component$(
           borderRadius: roundedCornersPx + "px",
           width: width + "px",
           height: height + "px",
+          // width: '100%',
+          // height: 'auto',
         }}
       >
         <Slot />

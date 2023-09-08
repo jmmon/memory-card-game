@@ -5,7 +5,7 @@ import fourCard from "./numbers/four-card";
 import fiveCard from "./numbers/five-card";
 import sixCard from "./numbers/six-card";
 import sevenCard from "./numbers/seven-card";
-import eightCard from "./numbers/eight-card";
+import eightCard from "./numbers/nine-card";
 import nineCard from "./numbers/eight-card";
 import tenCard from "./numbers/ten-card";
 import jackClubsCard from "./faces/jack-clubs-card";
