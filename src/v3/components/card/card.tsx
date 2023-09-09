@@ -288,8 +288,6 @@ const CardFace = component$(
   ({
     roundedCornersPx,
     classes = "",
-    width,
-    height,
   }: {
     roundedCornersPx: number;
     classes: string;

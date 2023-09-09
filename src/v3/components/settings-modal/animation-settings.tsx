@@ -103,7 +103,7 @@ export default component$(({settings}: {settings: Signal<GameSettings>}) => {
           <SettingsRow>
             <div class="w-full flex justify-between tooltip">
               <label>Played Time:</label>
-              <FormattedTime timeMs={gameContext.timer.state.total} />
+              <FormattedTime timeMs={gameContext.timer.state.runningTime} />
               <span class="tooltiptext">
                 Total un-paused play time for this round.
               </span>

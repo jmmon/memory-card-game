@@ -78,7 +78,7 @@ export default component$(
       <header
         class={`mx-auto text-center text-xs md:text-sm flex justify-around w-full h-min`}
       >
-        <HeaderSection classes="justify-start md:justify-around">
+        <HeaderSection classes="justify-around">
           {gameContext.settings.interface.showSelectedIds && (
             <SelectionHeaderComponent />
           )}

@@ -23,7 +23,7 @@ export default component$(() => {
       </ol>
 
       <div class="flex flex-col items-center">
-        <Link href="/v3" class="text-slate-200 hover:text-white text-4xl py-4 px-8 border-slate-200 rounded-lg bg-slate-800 hover:bg-slate-700">
+        <Link href="/game/" class="text-slate-200 hover:text-white text-4xl py-4 px-8 border-slate-200 rounded-lg bg-slate-800 hover:bg-slate-700">
           Play
         </Link>
 
