@@ -261,7 +261,7 @@ const INITIAL_STATE = {
       };
     }
     this.game = INITIAL_GAME_STATE;
-    this.timer.reset();
+    await this.timer.reset();
     this.initializeDeck();
   }),
 };

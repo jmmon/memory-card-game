@@ -1,10 +1,5 @@
 import type { Signal, PropFunction, QwikChangeEvent } from "@builder.io/qwik";
-import {
-  component$,
-  useContext,
-  Slot,
-  useSignal,
-} from "@builder.io/qwik";
+import { component$, useContext, Slot, useSignal } from "@builder.io/qwik";
 import Modal from "../modal/modal";
 import GameSettings from "./game-settings";
 import { GameContext } from "~/v3/context/gameContext";
@@ -28,11 +23,10 @@ export default component$(() => {
       }}
       title="Game Settings"
     >
-      <GameSettings settings={newSettings}/>
+      <GameSettings settings={newSettings} />
     </Modal>
   );
 });
-
 
 export const SettingsRow = component$(
   ({ disabled = false }: { disabled?: boolean }) => {
@@ -96,15 +90,17 @@ export const Lock = component$(
 export const DeckSizeSlider = component$<{
   settings: Signal<TGameSettings>;
   isLocked?: boolean;
+  for?: string;
 }>((props) => {
+  const name = `deck-size-slider${props.for ? "-" + props.for : ""}`;
   return (
     <div class="flex flex-grow gap-[2%] items-center tooltip w-full py-1.5">
-      <label class="w-4/12 text-left" for="deck-card-count-settings">
-        Deck Card Count:
+      <label class="w-4/12 text-left" for={name}>
+        Card Count:
       </label>
       <input
-        name="deck-card-count-settings"
-        id="deck-card-count-settings"
+        name={name}
+        id={name}
         class="flex-grow w-8/12"
         type="range"
         min={props.settings.value.deck.MINIMUM_CARDS}

@@ -11,6 +11,13 @@ import type { GameSettings } from "~/v3/types/types";
 import { GameContext } from "~/v3/context/gameContext";
 import { FormattedTime } from "../formatted-time/formatted-time";
 
+// animation settings:
+// e.g. flip card speed,
+// minimum between cards,
+// minimum before unflip,
+// shuffle speed,
+// shuffle pause time,
+
 export default component$(
   ({ settings }: { settings: Signal<GameSettings> }) => {
     const gameContext = useContext(GameContext);
@@ -24,20 +31,20 @@ export default component$(
             </Button>
             <span class="tooltiptext">Shuffle the card positions.</span>
           </div>
-          <div class="justify-center flex  gap-[2%] items-center tooltip">
-            <Button
-              onClick$={() => {
-                gameContext.settings.resizeBoard =
-                  !gameContext.settings.resizeBoard;
-                console.log(gameContext.settings.resizeBoard);
-              }}
-            >
-              Refresh Board
-            </Button>
-            <span class="tooltiptext">
-              Force board dimensions to recalculate.
-            </span>
-          </div>
+          {/* <div class="justify-center flex  gap-[2%] items-center tooltip"> */}
+          {/*   <Button */}
+          {/*     onClick$={() => { */}
+          {/*       gameContext.settings.resizeBoard = */}
+          {/*         !gameContext.settings.resizeBoard; */}
+          {/*       console.log(gameContext.settings.resizeBoard); */}
+          {/*     }} */}
+          {/*   > */}
+          {/*     Refresh Board */}
+          {/*   </Button> */}
+          {/*   <span class="tooltiptext"> */}
+          {/*     Force board dimensions to recalculate. */}
+          {/*   </span> */}
+          {/* </div> */}
         </div>
 
         <div class={` flex flex-col md:flex-row justify-center ${COLUMN_GAP} `}>
@@ -74,6 +81,7 @@ export default component$(
               <DeckSizeSlider
                 settings={settings}
                 isLocked={gameContext.settings.deck.isLocked}
+                for="game-settings"
               />
             </SettingsRow>
 
@@ -210,12 +218,13 @@ export default component$(
           <div class="justify-center flex  gap-[2%] items-center tooltip">
             <Button
               onClick$={() => {
+// only resetting timer... should reset the cards as well
                 gameContext.resetGame();
               }}
             >
               Reset Game
             </Button>
-            <span class="tooltiptext">Force board size to recalculate.</span>
+            <span class="tooltiptext">Reset the game, keeping current settings.</span>
           </div>
         </div>
         <div class="flex-grow flex justify-evenly items-center">
@@ -227,7 +236,7 @@ export default component$(
             >
               Save & Restart
             </Button>
-            <span class="tooltiptext">Force board size to recalculate.</span>
+            <span class="tooltiptext">Save current settings and restart.</span>
           </div>
         </div>
         <details class="w-full mt-2 flex flex-col gap-2 items-center">
