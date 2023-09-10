@@ -87,7 +87,7 @@ export default component$(
           )}
           <TimerHeaderComponent />
         </HeaderSection>
-        <Button text="Settings" onClick$={showSettings$} />
+        <Button onClick$={showSettings$}>Settings</Button>
         <HeaderSection>
           <code
             class={`bg-slate-800 ${CODE_TEXT_LIGHT} flex flex-col w-[11em] gap-1 ${CODE_PADDING}`}

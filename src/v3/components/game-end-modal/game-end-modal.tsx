@@ -87,9 +87,8 @@ export default component$(() => {
 
             gameContext.interface.endOfGameModal.isShowing = false;
           }}
-          text="Play Again"
-        />
-        <Button onClick$={hideModal$} text="Close" />
+        >Play Again</Button>
+        <Button onClick$={hideModal$} >Close</Button>
       </div>
     </Modal>
   );

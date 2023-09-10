@@ -99,6 +99,7 @@ export const useTimer = ({
       state.runningTime = isStopped
         ? state.total
         : state.total + (Date.now() - state.start);
+      console.log({runningTimeMs: state.runningTime});
     };
 
     let intervalId: ReturnType<typeof setInterval> | null = null;

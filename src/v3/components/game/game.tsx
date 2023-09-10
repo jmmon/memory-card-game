@@ -179,36 +179,6 @@ const INITIAL_STATE = {
     const cards = deckShuffledByPairs.slice(0, this.settings.deck.size);
     this.game.cards = cards;
   }),
-
-  resetGame: $(async function (
-    this: TGameContext,
-    settings?: Partial<GameSettings>
-  ) {
-    if (settings) {
-      this.settings = {
-        ...this.settings,
-        ...settings,
-      };
-    }
-    this.game = INITIAL_GAME_STATE;
-    this.timer.reset();
-    this.initializeDeck();
-  }),
-
-  isGameEnded: $(function (this: TGameContext) {
-    // TODO:
-    // implement other modes, like max mismatches
-    const isEnded =
-      this.game.successfulPairs.length === this.settings.deck.size / 2;
-
-    if (!isEnded) return { isEnded };
-
-    const isWin =
-      this.game.successfulPairs.length === this.settings.deck.size / 2;
-
-    return { isEnded, isWin };
-  }),
-
   initializeDeck: $(async function (this: TGameContext) {
     await this.sliceDeck();
     this.startShuffling();
@@ -231,12 +201,7 @@ const INITIAL_STATE = {
       ...boardLayout,
     };
   }),
-  startGame: $(function (this: TGameContext) {
-    if (this.timer.state.isStarted) {
-      this.timer.reset();
-    }
-    this.timer.start();
-  }),
+
   showSettings: $(function (this: TGameContext) {
     this.timer.pause();
     this.interface.settingsModal.isShowing = true;
@@ -244,6 +209,27 @@ const INITIAL_STATE = {
   hideSettings: $(function (this: TGameContext) {
     this.interface.settingsModal.isShowing = false;
     this.timer.resume();
+  }),
+
+  isGameEnded: $(function (this: TGameContext) {
+    // TODO:
+    // implement other modes, like max mismatches
+    const isEnded =
+      this.game.successfulPairs.length === this.settings.deck.size / 2;
+
+    if (!isEnded) return { isEnded };
+
+    const isWin =
+      this.game.successfulPairs.length === this.settings.deck.size / 2;
+
+    return { isEnded, isWin };
+  }),
+
+  startGame: $(function (this: TGameContext) {
+    if (this.timer.state.isStarted) {
+      this.timer.reset();
+    }
+    this.timer.start();
   }),
   endGame: $(function (this: TGameContext, isWin: boolean) {
     this.timer.stop();
@@ -263,6 +249,22 @@ const INITIAL_STATE = {
     //   initials: "joe",
     // });
   }),
+
+  resetGame: $(async function (
+    this: TGameContext,
+    settings?: Partial<GameSettings>
+  ) {
+    if (settings) {
+      this.settings = {
+        ...this.settings,
+        ...settings,
+      };
+    }
+    this.game = INITIAL_GAME_STATE;
+    this.timer.reset();
+    this.initializeDeck();
+  }),
+
 };
 
 export default component$(() => {

@@ -92,12 +92,11 @@ const generateScaleTransformToCenter = (
 const generateTranslateTransformToCenter = (
   totalSlots: number,
   currentPosition: number,
-  slotWidthPx: number
 ) => {
   const maximumSlotsToTransverse = (totalSlots - 1) / 2;
   const slotsToTransverse = maximumSlotsToTransverse - currentPosition;
-  const translatePx = slotWidthPx * slotsToTransverse;
-  return translatePx;
+  const translatePercent = 100 * slotsToTransverse;
+  return translatePercent;
 };
 
 /*
@@ -112,23 +111,19 @@ const generateFlipTranslateTransform = (
 ) => {
   const isOnLeftSide = newCoords.x < boardLayout.columns / 2;
 
-  const translateXPx = generateTranslateTransformToCenter(
+  const translateX = generateTranslateTransformToCenter(
     boardLayout.columns,
     newCoords.x,
-    boardLayout.colWidth
   );
 
-  const translateYPx = generateTranslateTransformToCenter(
+  const translateY = generateTranslateTransformToCenter(
     boardLayout.rows,
     newCoords.y,
-    boardLayout.rowHeight
   );
 
   const scale = generateScaleTransformToCenter(boardLayout, cardLayout);
 
-  return `translate(${translateXPx}px, ${translateYPx}px) 
-      rotateY(${isOnLeftSide ? "" : "-"}180deg) 
-      scale(${scale})`;
+  return {translateX, translateY, rotateY: isOnLeftSide ? "180deg" : "-180deg", scale}
 };
 
 const v3CardUtils = {

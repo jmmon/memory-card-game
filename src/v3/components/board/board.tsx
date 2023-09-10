@@ -105,7 +105,7 @@ export default component$(
 
     const handleClickCard = $((cardId: number) => {
       // to prevent card from returning super quick
-      console.log('handleClickCard', {cardId});
+      console.log("handleClickCard", { cardId });
 
       flippedTime.value = Date.now();
 
@@ -181,6 +181,7 @@ export default component$(
       }
     });
 
+    // auto pause after some inactivity
     useTimeout(
       $(() => {
         gameContext.timer.pause();
@@ -188,9 +189,13 @@ export default component$(
         lastClick.value === -1;
       }),
       useComputed$(
-        () => gameContext.timer.state.isStarted && lastClick.value !== -1
+        () =>
+          gameContext.timer.state.isStarted &&
+          !gameContext.timer.state.isEnded &&
+          lastClick.value !== -1
       ),
-      AUTO_PAUSE_DELAY_MS
+      AUTO_PAUSE_DELAY_MS,
+      true
     );
 
     /*
@@ -274,34 +279,39 @@ export default component$(
      * - also when "resize" flip-flops, or when deck.size changes
      * ================================ */
 
-    useVisibleTask$(async (taskCtx) => {
-      const newDeckSize = taskCtx.track(() => gameContext.settings.deck.size);
-      const newRefresh = taskCtx.track(() => gameContext.settings.resizeBoard);
-      const isDeckChanged = lastDeckSize.value !== newDeckSize;
-      const isBoardRefreshed = lastRefresh.value !== newRefresh;
+    useVisibleTask$(
+      async (taskCtx) => {
+        const newDeckSize = taskCtx.track(() => gameContext.settings.deck.size);
+        const newRefresh = taskCtx.track(
+          () => gameContext.settings.resizeBoard
+        );
+        const isDeckChanged = lastDeckSize.value !== newDeckSize;
+        const isBoardRefreshed = lastRefresh.value !== newRefresh;
 
-      // detect if resize caused the task to run
-      if (isDeckChanged) {
-        console.log("~~ uvt$ deckSize changed:", {
-          last: lastDeckSize.value,
-          new: newDeckSize,
-        });
-        adjustDeckSize(newDeckSize);
-        return;
-      }
+        // detect if resize caused the task to run
+        if (isDeckChanged) {
+          console.log("~~ uvt$ deckSize changed:", {
+            last: lastDeckSize.value,
+            new: newDeckSize,
+          });
+          adjustDeckSize(newDeckSize);
+          return;
+        }
 
-      if (isBoardRefreshed) {
-        console.log("~~ uvt$ refreshBoard");
-        lastRefresh.value = newRefresh;
-        calcAndResizeBoard();
-        return;
-      }
+        if (isBoardRefreshed) {
+          console.log("~~ uvt$ refreshBoard");
+          lastRefresh.value = newRefresh;
+          calcAndResizeBoard();
+          return;
+        }
 
-      // runs on mount only
-      console.log("~~ uvt$ should be only on mount!");
-      await calcAndResizeBoard();
-      gameContext.initializeDeck();
-    });
+        // runs on mount only
+        console.log("~~ uvt$ should be only on mount!");
+        await calcAndResizeBoard();
+        gameContext.initializeDeck();
+      },
+      { strategy: "document-idle" }
+    );
 
     useStyles$(`
       .card-face img {

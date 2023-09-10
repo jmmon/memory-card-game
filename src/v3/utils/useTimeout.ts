@@ -9,16 +9,20 @@ import {
 export const useTimeout = (
   action: QRL<() => void | any>,
   triggerCondition: Signal<boolean>,
-  initialDelay: number
+  initialDelay: number,
+  checkConditionOnTimeout: boolean = false
 ) => {
   const delay = useSignal(initialDelay);
 
   useVisibleTask$((taskCtx) => {
     taskCtx.track(() => triggerCondition.value);
     if (!triggerCondition.value) return;
+
     const timer = setTimeout(() => {
-      action();
+      if (!checkConditionOnTimeout) return action();
+      if (triggerCondition.value) return action();
     }, delay.value);
+
     taskCtx.cleanup(() => {
       clearTimeout(timer);
     });
@@ -74,7 +78,7 @@ export const useInterval = (
   action: QRL<() => void>,
   triggerCondition: Signal<boolean>,
   regularInterval: number,
-  initialDelay?: number,
+  initialDelay?: number
 ) => {
   const startDelay = useSignal(initialDelay);
   const intervalSignal = useSignal(regularInterval);
@@ -101,12 +105,14 @@ export const useInterval = (
 
     const update = () => {
       action();
-    }
+    };
 
     const intervalTimer = setInterval(update, intervalSignal.value);
     update();
 
-    taskCtx.cleanup(() => {clearInterval(intervalTimer)});
+    taskCtx.cleanup(() => {
+      clearInterval(intervalTimer);
+    });
   });
 
   return {
