@@ -1,29 +1,32 @@
 import { component$ } from "@builder.io/qwik";
 import { Link, type DocumentHead } from "@builder.io/qwik-city";
 
+const LI_CLASSES = "pl-2 md:pl-4";
 export default component$(() => {
   return (
-    <div class="grid w-full justify-center items-center gap-8">
+    <div class="grid w-full justify-center items-center gap-8 text-slate-200">
       <h1 class="text-center text-4xl text-slate-500">Memory Card Game</h1>
 
       <h3 class="text-center ">Goal:</h3>
       <p class="text-center text-2xl ">Eliminate all cards from the board.</p>
 
-      <ol class="list-decimal marker:text-slate-400 text-md md:text-lg grid gap-4 w-[50ch]">
-        <li class="pl-4">Pick two cards.</li>
-        <li class="pl-4">
+      <ol class=" border-box px-6 list-decimal marker:text-slate-400 text-md md:text-lg grid gap-4 w-full max-w-[50ch]">
+        <li class={LI_CLASSES}>Pick two cards.</li>
+        <li class={LI_CLASSES}>
           If the numbers and colors match, they're removed from the game.
         </li>
-        <li class="pl-4">
-          Match all the cards to win!
-        </li>
-        <li class="pl-4 text-slate-500">
-          (COMING SOON:) Save your score, and see how you compare to other players!
+        <li class={LI_CLASSES}>Match all the cards to win!</li>
+        <li class={`text-slate-500 ${LI_CLASSES}`}>
+          (COMING SOON:) Save your score, and see how you compare to other
+          players!
         </li>
       </ol>
 
       <div class="flex flex-col items-center">
-        <Link href="/game/" class="text-slate-200 hover:text-white text-4xl py-4 px-8 border-slate-200 rounded-lg bg-slate-800 hover:bg-slate-700">
+        <Link
+          href="/v3"
+          class="text-slate-200 hover:text-white text-4xl py-4 px-8 border-slate-200 rounded-lg bg-slate-800 hover:bg-slate-700"
+        >
           Play
         </Link>
 
@@ -68,54 +71,3 @@ export const head: DocumentHead = {
     },
   ],
 };
-
-// function fib(n: number): number {
-//   if (n === 1) {
-//     return 1;
-//   }
-//   if (n === 2) {
-//     return 2;
-//   }
-//   // console.log("fib", n);
-//   return fib(n - 1) + fib(n - 2);
-// }
-
-// function deriveDifficulty(count: number): number {
-// return fib(count);
-//
-// // if (count === 1) {
-// // return 1;
-// // }
-// // if (count === 2) {
-// // return 2;
-// // }
-// // return (deriveDifficulty(count - n));
-//
-//   // let total = 1;
-//   // for (let i = 1; i <= pairs ; i++) {
-//   //   total += i / (i + 1);
-//   // }
-//   // return total;
-// }
-// console.log("guaging difficulty", {
-//   pairs3: fib(3),
-//   // pairs6: fib(6),
-//   // pairs9: fib(9),
-//   // pairs12: fib(12),
-//   // pairs52: fib(52),
-// });
-
-// const result = {
-//   pairs3: 2.8333333333333335,
-//   pairs6: 3.45,
-//   pairs9: 3.828968253968254,
-//   pairs12: 4.1032106782106785,
-//   pairs52: 5.538043950697446,
-// };
-// const result2 = {
-//   pairs3: 3.45,
-//   pairs6: 4.1032106782106785,
-//   pairs9: 4.495108078196313,
-//   pairs12: 4.775958177753506,
-//   pairs52: 6.22640655178672,
-// };
