@@ -1,5 +1,6 @@
 import type { QRL } from "@builder.io/qwik";
 import type { useTimer } from "../utils/useTimer";
+import { Score } from "../db/schema";
 export type Timer = ReturnType<typeof useTimer>;
 
 export type Coords = { x: number; y: number };
@@ -7,7 +8,6 @@ export type Coords = { x: number; y: number };
 export type ShuffleTransform = { x: number; y: number };
 
 export type Pair = `${number}:${number}`;
-
 
 export type PlayingCardSvgProps =
   | {
@@ -110,6 +110,10 @@ export type GameContext = {
       isShowing: boolean;
       isWin: boolean;
     };
+    scoresModal: {
+      isShowing: boolean;
+      scores: Score[];
+    };
   };
   shuffleCardPositions: QRL<() => void>;
   sliceDeck: QRL<() => void>;
@@ -133,4 +137,5 @@ export type GameContext = {
   hideSettings: QRL<() => void>;
   endGame: QRL<(isWin: boolean) => void>;
   timer: Timer;
+  fetchScores: QRL<() => void>;
 };

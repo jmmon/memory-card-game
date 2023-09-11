@@ -24,6 +24,7 @@ const scores = pgTable("scores", {
   deckSize: integer("deckSize"),
   gameTime: interval("gameTime"),
   mismatches: integer("mismatches"),
+  pairs: integer('pairs'),
   userId: varchar("userId", { length: 256 }), // some uuid
   initials: varchar("initials", { length: 256 }), // some optional inputted string??
 });
@@ -32,6 +33,7 @@ const scores = pgTable("scores", {
   try {
     const client = postgres(connectionString);
     const db = drizzle(client);
+    await db.delete(scores);
 
     const createScore = (data) => db.insert(scores).values(data);
     const getAllScores = () => db.select().from(scores);
@@ -39,33 +41,39 @@ const scores = pgTable("scores", {
     const createManyScores = (count = 5) => {
       const promises = [];
       for (let i = 0; i < count; i++) {
+        const deckSize = 6;
         promises.push(
           createScore({
-            deckSize: 6,
+            deckSize,
             gameTime: "60000 millisecond",
             mismatches: 2,
+            pairs: deckSize / 2,
             userId: (Math.random() * 1000000).toFixed(0),
             initials: "joe",
           })
         );
       }
       for (let i = 0; i < count; i++) {
+        const deckSize = 12;
         promises.push(
           createScore({
-            deckSize: 12,
+            deckSize,
             gameTime: "60000 millisecond",
             mismatches: 2,
+            pairs: deckSize / 2,
             userId: (Math.random() * 1000000).toFixed(0),
             initials: "joe",
           })
         );
       }
       for (let i = 0; i < count; i++) {
+        const deckSize = 18;
         promises.push(
           createScore({
-            deckSize: 18,
+            deckSize,
             gameTime: "60000 millisecond",
             mismatches: 2,
+            pairs: deckSize / 2,
             userId: (Math.random() * 1000000).toFixed(0),
             initials: "joe",
           })

@@ -15,15 +15,16 @@ import { GameContext } from "~/v3/context/gameContext";
 import { FormattedTime } from "../formatted-time/formatted-time";
 import crypto from "node:crypto";
 import { useDefaultHash } from "~/routes/game";
+import PixelAvatar from "../pixel-avatar/pixel-avatar";
+import { NewScore } from "~/v3/db/schema";
+import serverDbService from "~/v3/services/db.service";
 const DEFAULT_HASH_LENGTH_BYTES = 32;
 
-const refreshHash = server$((bytes: number = DEFAULT_HASH_LENGTH_BYTES) => {
+const getRandomBytes = server$((bytes: number = DEFAULT_HASH_LENGTH_BYTES) => {
   return crypto.randomBytes(bytes).toString("hex");
 });
 
-export function bufferToHexString(buffer: ArrayBuffer) {
-  let byteArray = new Uint8Array(buffer);
-
+export function bufferToHexString(byteArray: Uint8Array) {
   let hexCodes = [...byteArray].map((value) => {
     return value.toString(16).padStart(2, "0");
   });
@@ -42,16 +43,21 @@ export const serverGetHash = server$(function (
     .substring(0, bytes);
 });
 
-export async function clientGetHash(
-  message: string,
-  bytes: number = DEFAULT_HASH_LENGTH_BYTES
-) {
-  let encoder = new TextEncoder();
-  let data = encoder.encode(message);
-  return bufferToHexString(
-    await window.crypto.subtle.digest("SHA-256", data)
-  ).substring(0, bytes);
-}
+// export async function clientGetHash(
+//   message: string,
+//   bytes: number = DEFAULT_HASH_LENGTH_BYTES
+// ) {
+//   let encoder = new TextEncoder();
+//   let data = encoder.encode(message);
+//   return window.crypto.subtle
+//     .digest("SHA-256", data)
+//     .then((res) => bufferToHexString(new Uint8Array(res)))
+//     .then((hex) => hex.substring(0, bytes));
+//   // return bufferToHexString(
+//   //   await window.crypto.subtle
+//   //     .digest("SHA-256", data)
+//   // ).substring(0, bytes);
+// }
 
 export default component$(() => {
   const gameContext = useContext(GameContext);
@@ -68,25 +74,33 @@ export default component$(() => {
   const identifier = useSignal(defaultHash.value);
 
   const getNewHash$ = $(async () => {
-    identifier.value = await refreshHash();
+    identifier.value = await getRandomBytes();
   });
 
-  const clearFieldOnFocus$ = $((e: QwikFocusEvent<HTMLInputElement>) => {
+  const selectFieldOnFocus$ = $((e: QwikFocusEvent<HTMLInputElement>) => {
     e.target.select();
   });
 
-  const computedHash = useComputed$(async () => {
-    const value = initials.value + "-" + identifier.value;
-    if (isServer) {
-      return "SERVER-" + (await serverGetHash(value));
-    } else {
-      return "CLIENT-" + (await clientGetHash(value));
-    }
+  const saveScore$ = $(async () => {
+    const newScore: NewScore = {
+      deckSize: gameContext.settings.deck.size,
+      gameTime: `${gameContext.timer.state.runningTime} millisecond`,
+      mismatches: gameContext.game.mismatchPairs.length,
+      pairs: gameContext.game.successfulPairs.length,
+      userId: identifier.value,
+      initials: initials.value,
+    };
+
+    console.log("saving score...", { newScore });
+    const saved = await serverDbService.createScore(newScore);
+    console.log("saved!", { saved });
+    await gameContext.fetchScores();
+    gameContext.interface.scoresModal.isShowing = true;
   });
+
   return (
     <Modal
-      // isShowing={gameContext.interface.endOfGameModal.isShowing}
-      isShowing={true}
+      isShowing={gameContext.interface.endOfGameModal.isShowing}
       hideModal$={hideModal$}
       title={
         gameContext.interface.endOfGameModal.isWin ? "You Win!" : "Game Over"
@@ -97,7 +111,25 @@ export default component$(() => {
       }}
     >
       <div class="flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%]">
-        <div class="flex flex-col md:flex-row gap-0.5 md:gap-1 py-[2%] px-[4%]">
+        <div class="flex flex-col md:flex-row gap-1 md:gap-2 py-[2%] px-[4%]">
+          <PixelAvatar
+            classes="inline-block flex-shrink-0 mx-auto"
+            width={50}
+            height={50}
+            rows={10}
+            cols={10}
+            text={identifier}
+            colorFrom={initials}
+            coloredSquaresStrokeWidth={0}
+            colorOptions={{
+              saturation: {
+                min: 0,
+                max: 100,
+              },
+              lightness: { min: 25, max: 75 },
+            }}
+          />
+
           <SettingsRow>
             <div class="flex flex-grow justify-between">
               <span>Time:</span>
@@ -145,7 +177,7 @@ export default component$(() => {
                       e.target as HTMLInputElement
                     ).value.toUpperCase();
                   }}
-                  onFocus$={clearFieldOnFocus$}
+                  onFocus$={selectFieldOnFocus$}
                   value={initials.value}
                 />
               </label>
@@ -154,16 +186,20 @@ export default component$(() => {
                 <input
                   type="text"
                   class="block w-full bg-slate-800 text-slate-100"
-                  onFocus$={clearFieldOnFocus$}
+                  onFocus$={selectFieldOnFocus$}
                   bind:value={identifier}
                 />
               </label>
-              <Button onClick$={getNewHash$}>Refresh Hash</Button>
-              <span class="text-xs break-all">
-                Calc'd Hash: {computedHash.value}
-              </span>
+              <Button classes="" onClick$={getNewHash$}>
+                Generate Random Identifier
+              </Button>
             </div>
           </SettingsRow>
+        </div>
+        <div class="flex py-[2%] px-[4%]">
+          <Button classes="mx-auto bg-green-600" onClick$={saveScore$}>
+            Save Score
+          </Button>
         </div>
         <hr />
         <div class="flex py-[2%] px-[4%]">

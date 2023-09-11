@@ -20,12 +20,13 @@ import { integer, interval, pgTable, serial, timestamp, varchar } from "drizzle-
 // so:
 // email is for UUID, displayName is just a displayName
 // email could be used to generate a sprite icon
-export const scores = pgTable('memory-card-game-scores', {
+export const scores = pgTable('scores', {
   id: serial('id').primaryKey(),
   createdAt: timestamp('createdAt', {withTimezone: true}),
   deckSize: integer('deckSize'),
   gameTime: interval('gameTime'),
   mismatches: integer('mismatches'),
+  pairs: integer('pairs'),
   userId: varchar('userId', { length: 256 }), // some uuid
   initials: varchar('initials', { length: 256 }), // some optional inputted string??
 });

@@ -86,6 +86,14 @@ export default component$(
             <DimensionsHeaderComponent />
           )}
           <TimerHeaderComponent />
+          <Button
+            onClick$={async () => {
+              await gameContext.fetchScores();
+              gameContext.interface.scoresModal.isShowing = true;
+            }}
+          >
+            Scores
+          </Button>
         </HeaderSection>
         <Button onClick$={showSettings$}>Settings</Button>
         <HeaderSection>
@@ -110,9 +118,7 @@ export default component$(
 
             <div
               class={`rounded mismatch ${
-animateMismatch.value
-                  ? SCORE_ANIMATION_CLASSES
-                  : ""
+                animateMismatch.value ? SCORE_ANIMATION_CLASSES : ""
               } flex gap-2 ${CODE_TEXT_DARK}`}
             >
               <span class="w-8/12 flex-grow flex-shrink-0 text-right">
@@ -226,7 +232,6 @@ export const TimerHeaderComponent = component$(() => {
         }
       >
         <FormattedTime timeMs={gameContext.timer.state.runningTime} limit={2} />
-
       </span>
     </code>
   );

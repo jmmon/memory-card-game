@@ -36,6 +36,8 @@ import {
 } from "~/v3/utils/useTimeout";
 import FaceCardSymbols from "../playing-card-components/face-card-symbols";
 import CardSymbols from "../playing-card-components/card-symbols";
+import serverDbService from "~/v3/services/db.service";
+import ScoresModal from "../scores-modal/scores-modal";
 // import dbService from "../services/db.service";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
@@ -148,6 +150,10 @@ const INITIAL_STATE = {
       isShowing: false,
       isWin: false,
     },
+    scoresModal: {
+      isShowing: false,
+      scores: [],
+    },
   },
 
   shuffleCardPositions: $(function (this: TGameContext) {
@@ -216,22 +222,28 @@ const INITIAL_STATE = {
     // implement other modes, like max mismatches
     const isEnded =
       this.game.successfulPairs.length === this.settings.deck.size / 2;
+    console.log({ isEnded });
 
     if (!isEnded) return { isEnded };
 
     const isWin =
       this.game.successfulPairs.length === this.settings.deck.size / 2;
 
+    console.log({ isEnded, isWin });
     return { isEnded, isWin };
   }),
 
-  startGame: $(function (this: TGameContext) {
+  startGame: $(async function (this: TGameContext) {
     if (this.timer.state.isStarted) {
       this.timer.reset();
     }
     this.timer.start();
+
+    console.log("getting all scores...");
+    const scores = await serverDbService.getAllScores();
+    console.log({ scores });
   }),
-  endGame: $(function (this: TGameContext, isWin: boolean) {
+  endGame: $(async function (this: TGameContext, isWin: boolean) {
     this.timer.stop();
     this.interface.endOfGameModal.isWin = isWin;
     this.interface.endOfGameModal.isShowing = true;
@@ -248,6 +260,8 @@ const INITIAL_STATE = {
     //   userId: (Math.random() * 1000000).toFixed(0),
     //   initials: "joe",
     // });
+
+    this.fetchScores();
   }),
 
   resetGame: $(async function (
@@ -264,6 +278,13 @@ const INITIAL_STATE = {
     await this.timer.reset();
     this.initializeDeck();
   }),
+
+fetchScores: $(async function (this: TGameContext) {
+    console.log("getting all scores...");
+  const scores = await serverDbService.getAllScores();
+  this.interface.scoresModal.scores = scores
+    console.log({ scores });
+})
 };
 
 export default component$(() => {
@@ -478,6 +499,7 @@ export default component$(() => {
       <LoadingPage isShowing={gameContext.game.isLoading} />
       <SettingsModal />
       <GameEndModal />
+      <ScoresModal />
     </>
   );
 });
