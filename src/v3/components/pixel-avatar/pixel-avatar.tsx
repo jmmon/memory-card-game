@@ -1,6 +1,7 @@
 import { Signal, component$, useSignal, useTask$ } from "@builder.io/qwik";
 import { isServer } from "@builder.io/qwik/build";
 import crypto from "crypto";
+import { stringToColor } from "~/v3/utils/avatarUtils";
 
 const DEFAULT_COLOR_OPTIONS = {
   saturation: {
@@ -8,44 +9,6 @@ const DEFAULT_COLOR_OPTIONS = {
     max: 80,
   },
   lightness: { min: 20, max: 80 },
-};
-
-export const stringToHash = (string: string) => {
-  let hash = 0;
-  for (let i = 0; i < string.length; i++) {
-    hash = string.charCodeAt(i) + ((hash << 5) - hash);
-    hash = hash & hash;
-  }
-  hash = hash < 0 ? hash * -1 : hash;
-
-  return hash;
-};
-
-export const stringToColor = (
-  string: string,
-  saturation = { min: 20, max: 100 },
-  lightness = { min: 40, max: 100 }
-) => {
-  // max unique colors: 360 * (saturation.max - saturation.min) * (lightness.max - lightness.min)
-  // 360 * 80 * 60 = 1_728_000
-
-  const hash = stringToHash(string);
-  const hashString = hash.toString();
-
-  const satPercent = (Number(hashString.slice(-3)) + 1) / 1000;
-  const lightPercent = (Number(hashString.slice(-5, -2)) + 1) / 1000;
-
-  const hue = hash % 360;
-  const sat = (
-    saturation.min +
-    Number(satPercent) * (saturation.max - saturation.min)
-  ).toFixed(0);
-  const light = (
-    lightness.min +
-    Number(lightPercent) * (lightness.max - lightness.min)
-  ).toFixed(0);
-
-  return `hsl(${hue}, ${sat}%, ${light}%)`;
 };
 
 export function bufferToHexString(buffer: ArrayBuffer) {
@@ -60,26 +23,17 @@ export function bufferToHexString(buffer: ArrayBuffer) {
 
 export function getHash(message: string) {
   if (isServer) {
-    const hash = crypto.createHash("sha256");
-    hash.update(message);
-
-    // console.log("isServer");
-    return hash.digest();
+    return crypto.createHash("sha256").update(message).digest();
   }
-  // console.log("isClient");
-  let encoder = new TextEncoder();
-  let data = encoder.encode(message);
-  return window.crypto.subtle.digest("SHA-1", data);
+  return window.crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(message)
+  );
 }
 
 export async function getHexHashString(userInput: string) {
-  let hash = bufferToHexString(await getHash(userInput));
-
+  const hash = bufferToHexString(await getHash(userInput));
   return hash;
-}
-
-export function getColor(hash: string) {
-  return `#${hash.slice(-3)}`;
 }
 
 export function hexCharToBase(hex: string, base: number) {
@@ -256,7 +210,7 @@ interface PixelAvatarProps {
   height?: number;
   rows?: number;
   cols?: number;
-  text: Signal<string>;
+  text?: Signal<string>;
   forceLighter?: boolean | "nochange";
   coloredSquaresStrokeWidth?: number;
   eachBlockSizePx?: number;
@@ -267,12 +221,13 @@ interface PixelAvatarProps {
   };
   colorFrom?: Signal<string>;
   color?: string;
+  pixels?: string;
 }
 
 export default component$(
   ({
-    rows = 9,
-    cols = 9,
+    rows = 10,
+    cols = 10,
     width = 100,
     height = 100,
     text,
@@ -283,6 +238,7 @@ export default component$(
     colorOptions = DEFAULT_COLOR_OPTIONS,
     colorFrom,
     color,
+    pixels,
   }: PixelAvatarProps) => {
     const data = useSignal({
       pixels: "",
@@ -297,61 +253,97 @@ export default component$(
     });
 
     useTask$(async ({ track }) => {
-      track(() => [text.value, colorFrom?.value, color]);
+      track(() => [color, pixels, text?.value, colorFrom?.value, ]);
 
-      let pixels, generatedColor;
-      if (!color) {
-        if (colorFrom) {
-          // if given a separate color string, need to hash it and calc the color
-          const res = await Promise.all([
-            calculateOnlyColor(
-              colorFrom.value,
-              colorOptions.saturation,
-              colorOptions.lightness
-            ),
-            calculateOnlyPixels(text.value, cols, rows),
-          ]);
-          generatedColor = res[0];
-          // then calc the pixels from the regular text (hashed)
-          pixels = res[1];
-          console.log("calculating separately...");
-        } else {
-          // else, need to calculate both from the one text, slicing off the last 3 chars for the color
-          const res = await calculatePixelData(
-            text.value,
-            cols,
-            rows,
-            colorOptions.saturation,
-            colorOptions.lightness
-          );
+      let generatedPixels, generatedColor;
+      // if (!color) {
+      //   if (colorFrom) {
+      //     // if given a separate color string, need to hash it and calc the color
+      //     const res = await Promise.all([
+      //       calculateOnlyColor(
+      //         colorFrom.value,
+      //         colorOptions.saturation,
+      //         colorOptions.lightness
+      //       ),
+      //       calculateOnlyPixels(text.value, cols, rows),
+      //     ]);
+      //     generatedColor = res[0];
+      //     // then calc the pixels from the regular text (hashed)
+      //     generatedPixels = res[1];
+      //     console.log("calculating separately...");
+      //   } else {
+      //     // else, need to calculate both from the one text, slicing off the last 3 chars for the color
+      //     const res = await calculatePixelData(
+      //       text.value,
+      //       cols,
+      //       rows,
+      //       colorOptions.saturation,
+      //       colorOptions.lightness
+      //     );
+      //
+      //     const splitRes = res.split(":");
+      //     generatedPixels = splitRes[0];
+      //     generatedColor = splitRes[1];
+      //     console.log("calculating combined...");
+      //   }
+      // } else {
+      //   generatedColor = color;
+      //   generatedPixels = await calculateOnlyPixels(text.value, cols, rows);
+      // }
 
-          const splitRes = res.split(":");
-          pixels = splitRes[0];
-          generatedColor = splitRes[1];
-          console.log("calculating combined...");
-        }
-      } else {
+      // TODO:
+      // if color, use it directly
+      // else if colorFrom, hash it and use it
+      //   else pull it from part of the text
+      // if pixels, don't hash it and use it directly
+      // else hash the (remaining?) text and use that
+      let textToUseForPixels = text?.value ?? '';
+      if (color) {
         generatedColor = color;
-        pixels = await calculateOnlyPixels(text.value, cols, rows);
+      } else {
+        let colorSlice = "";
+        if (colorFrom) {
+          // gen color from colorFrom
+          colorSlice = colorFrom.value;
+        } else {
+          // gen color from slice of text
+          colorSlice = textToUseForPixels.substring(-3);
+          textToUseForPixels = textToUseForPixels.substring(0, -3);
+        }
+        generatedColor = await calculateOnlyColor(
+          colorSlice,
+          colorOptions.saturation,
+          colorOptions.lightness
+        );
+      }
+      if (pixels) {
+        generatedPixels = pixels;
+      } else {
+        // hash the textToUseForPixels
+        generatedPixels = await calculateOnlyPixels(
+          textToUseForPixels,
+          cols,
+          rows
+        );
       }
 
-      console.log({ pixels, generatedColor });
-      const totalColored = pixels
+      console.log({ generatedPixels, generatedColor });
+      const totalColored = generatedPixels
         .split("")
         .reduce((accum, cur) => (accum += Number(cur)), 0);
-      const avg = totalColored / pixels.length;
+      const avg = totalColored / generatedPixels.length;
       const isMoreColored = avg > 0.5;
 
       meta.value = {
         totalColored: totalColored,
-        totalPixels: pixels.length,
+        totalPixels: generatedPixels.length,
         avg,
       };
 
       // if lighter === 'nochange' this is always false
       // const shouldBeInversed = forceLighter === data.value.isMoreColored;
       data.value = {
-        pixels,
+        pixels: generatedPixels,
         color: generatedColor,
         isMoreColored,
         shouldBeInversed: false,
@@ -370,7 +362,7 @@ export default component$(
             } `}
             width={width}
             height={height}
-            style={` stroke-width: 0px; background-color: ${
+            style={`mx-auto stroke-width: 0px; background-color: ${
               data.value.isMoreColored ? data.value.color : "#fff"
             }; `}
             class={classes}
@@ -396,8 +388,7 @@ export default component$(
   }
 );
 
-
-/* 
-*4278fc5a49c1f6e03179bb0968c78f71f0dbd17b6b7db75ab0096ff47999e4ca
-*7e0927d1c235c2f0766d393a9f7965b126e47756
-* */
+/*
+ *4278fc5a49c1f6e03179bb0968c78f71f0dbd17b6b7db75ab0096ff47999e4ca
+ *7e0927d1c235c2f0766d393a9f7965b126e47756
+ * */

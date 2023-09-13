@@ -7,7 +7,7 @@ const DEFAULT_CONTAINER_BG = "bg-slate-600";
 
 type ModalOptions = { detectClickOutside: boolean };
 
-const DEFAULT_OPTIONS = {detectClickOutside: true};
+const DEFAULT_OPTIONS = { detectClickOutside: true };
 export default component$(
   ({
     isShowing,
@@ -54,9 +54,9 @@ export default component$(
           data-name="modal"
         >
           <ModalHeader hideModal$={hideModal$} title={title} />
-<div class="w-full h-full overflow-y-auto">
-          <Slot />
-</div>
+          <div class="w-full h-full overflow-y-auto">
+            <Slot />
+          </div>
         </div>
       </div>
     );

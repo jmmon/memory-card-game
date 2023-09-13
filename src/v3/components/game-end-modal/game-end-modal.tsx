@@ -4,9 +4,7 @@ import {
   useContext,
   useSignal,
   QwikFocusEvent,
-  useComputed$,
 } from "@builder.io/qwik";
-import { isServer } from "@builder.io/qwik/build";
 import { server$ } from "@builder.io/qwik-city";
 import Modal from "../modal/modal";
 import { SettingsRow } from "../settings-modal/settings-modal";
@@ -16,7 +14,7 @@ import { FormattedTime } from "../formatted-time/formatted-time";
 import crypto from "node:crypto";
 import { useDefaultHash } from "~/routes/game";
 import PixelAvatar from "../pixel-avatar/pixel-avatar";
-import { NewScore } from "~/v3/db/schema";
+import { NewScore } from "~/v3/db/types";
 import serverDbService from "~/v3/services/db.service";
 const DEFAULT_HASH_LENGTH_BYTES = 32;
 

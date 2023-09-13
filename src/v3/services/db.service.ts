@@ -13,7 +13,10 @@ const getAllScores = () => db.select().from(scores);
 const getScoresByDeckSize = (deckSize: number) =>
   getAllScores().where(eq(scores.deckSize, deckSize));
 
-const createScore = (data: NewScore) => db.insert(scores).values(data).returning();
+const createScore = (data: NewScore) => {
+  if (!data.createdAt) data.createdAt = new Date();
+  return db.insert(scores).values(data).returning()
+};
 
 const serverDbService = {
   getAllScores: server$(getAllScores),
