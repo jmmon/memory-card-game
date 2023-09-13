@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "../db/index";
-import { type NewScore, scores } from "../db/schema";
+import { scores } from "../db/schema";
+import { type NewScore } from "../db/types";
 import { server$ } from "@builder.io/qwik-city";
 
 // submitWin(data): submits the win and calculates and returns your percentile scores
@@ -15,7 +16,7 @@ const getScoresByDeckSize = (deckSize: number) =>
 
 const createScore = (data: NewScore) => {
   if (!data.createdAt) data.createdAt = new Date();
-  return db.insert(scores).values(data).returning()
+  return db.insert(scores).values(data).returning();
 };
 
 const serverDbService = {

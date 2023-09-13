@@ -10,6 +10,7 @@ export type ShuffleTransform = { x: number; y: number };
 export type Pair = `${number}:${number}`;
 
 export type ScoreWithPercentiles = Score & {
+   [key: string]: number | string;
   timePercentile?: number;
   mismatchPercentile?: number;
 };

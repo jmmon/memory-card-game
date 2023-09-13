@@ -31,20 +31,6 @@ export default component$(
             </Button>
             <span class="tooltiptext">Shuffle the card positions.</span>
           </div>
-          {/* <div class="justify-center flex  gap-[2%] items-center tooltip"> */}
-          {/*   <Button */}
-          {/*     onClick$={() => { */}
-          {/*       gameContext.settings.resizeBoard = */}
-          {/*         !gameContext.settings.resizeBoard; */}
-          {/*       console.log(gameContext.settings.resizeBoard); */}
-          {/*     }} */}
-          {/*   > */}
-          {/*     Refresh Board */}
-          {/*   </Button> */}
-          {/*   <span class="tooltiptext"> */}
-          {/*     Force board dimensions to recalculate. */}
-          {/*   </span> */}
-          {/* </div> */}
         </div>
 
         <div class={` flex flex-col md:flex-row justify-center ${COLUMN_GAP} `}>

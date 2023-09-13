@@ -50,16 +50,14 @@ const sortFunctions: {
     return value;
   },
   timePercentile: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
-    // default sort direction is flipped ( smaller is better)
     const value =
-      ((a.timePercentile as number) ?? 0) - ((b.timePercentile as number) ?? 0);
+      ((b.timePercentile as number) ?? 0) - ((a.timePercentile as number) ?? 0);
     return value;
   },
   mismatchPercentile: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
-    // default sort direction is flipped (smaller is better)
     const value =
-      ((a.mismatchPercentile as number) ?? 0) -
-      ((b.mismatchPercentile as number) ?? 0);
+      ((b.mismatchPercentile as number) ?? 0) -
+      ((a.mismatchPercentile as number) ?? 0);
     return value;
   },
   createdAt: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
@@ -84,9 +82,7 @@ export default component$(() => {
   const sortedScores = useSignal<ScoreWithPercentiles[]>([]);
 
   const sortScores = $((scores: ScoreWithPercentiles[]) => {
-    let result = [...scores] as Array<
-      ScoreWithPercentiles & { [key: string]: number | string }
-    >;
+    let result = [...scores];
 
     console.log("SORTING...", {
       scores,
@@ -176,7 +172,6 @@ export default component$(() => {
   table.scoreboard thead {
     overflow: hidden;
     border: 1px solid #222;
-    background-color: #ffffff30;
     z-index: -1;
   }
   table.scoreboard tbody {
@@ -205,9 +200,6 @@ export default component$(() => {
 
     transition: all 0.1s ease-in-out;
   }
-  table.scoreboard th.rotate > div > div > * {
-overflow: hidden;
-  }
 
   table.scoreboard th.rotate > div > div,
   table.scoreboard th.rotate > div > button {
@@ -219,17 +211,18 @@ overflow: hidden;
     padding: 0em 2em;
 
   }
-  table.scoreboard th.rotate > div > * > span {
-    /* for when text is not gradiant */
-    color: #999;
-    font-weight: extra-bold;
-    pointer-events: none;
-  }
-
   table.scoreboard {
-    --gradiant-dark: #666;
+    --gradiant-dark: #aaa;
     --gradiant-light: #fff;
   }
+  table.scoreboard th.rotate > div > * > span {
+    /* for when text is not gradiant */
+    color: var(--gradiant-dark);
+    pointer-events: none;
+    font-weight: 900;
+    text-shadow: 1px 1px 3px #000;
+  }
+
 
   table.scoreboard > thead.asc  {
     --gradiant-start: var(--gradiant-dark);
@@ -243,33 +236,22 @@ overflow: hidden;
      background: linear-gradient(to right, var(--gradiant-start), var(--gradiant-end));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+    text-shadow: none;
   }
 
   table.scoreboard td + td {
     border-left: 1px solid #444;
   }
-  table.scoreboard > tbody > tr > td > div {
-    margin: auto;
-    width: 90%;
-    height: 90%;
-    background-color: #ffffff20;
-    display: flex;
-    justify-content: center;
-    gap: 0.1em;
-    flex-direction: column;
-    align-items: center;
-padding: 0 0.5em;
-  }
 
-  table.scoreboard > tbody > tr:first-child() {
-    width: ${PIXEL_AVATAR_SIZE}px;
-    min-width: ${PIXEL_AVATAR_SIZE}px;
-    max-width: ${PIXEL_AVATAR_SIZE}px;
+  table.scoreboard tbody tr > :not(:first-child) {
+    padding: 0 0.5em;
+    font-weight: 600;
+    text-shadow: 1px 1px 3px #000;
   }
 
   table.scoreboard {
-/*     width: 100%; */
     min-width: max-content;
+    background: #000;
   }
   `);
 
@@ -292,7 +274,9 @@ padding: 0 0.5em;
       title="Scoreboard"
     >
       <table class="scoreboard w-full max-w-[25rem] max-h-[90vh]">
-        <thead class={`${sortDirection.value} text-xs sm:text-sm md:text-md`}>
+        <thead
+          class={`${sortDirection.value} text-xs sm:text-sm md:text-md bg-slate-500`}
+        >
           <tr>
             {headersList.map((header) => {
               const hyphenated = header.toLowerCase().replace(" ", "-");
@@ -304,16 +288,14 @@ padding: 0 0.5em;
                   onClick$={
                     header === "Avatar" ? undefined : handleClickColumnHeader
                   }
-//classes={ header === "Avatar" ? `w-[${PIXEL_AVATAR_SIZE}px]` : ""}
-                  width={PIXEL_AVATAR_SIZE}
-                ></ScoreTableHeader>
+                />
               );
             })}
           </tr>
         </thead>
         <tbody>
           {sortedScores.value.map((score) => (
-            <ScoreRow key={score.userId} score={score}></ScoreRow>
+            <ScoreRow key={score.userId} score={score} />
           ))}
         </tbody>
       </table>
@@ -327,22 +309,14 @@ const ScoreTableHeader = component$(
     hyphenated,
     onClick$,
     classes = "",
-    width,
   }: {
     title: string;
     hyphenated: string;
     onClick$?: PropFunction<(e: QwikMouseEvent) => void>;
     classes?: string;
-    width?: number;
   }) => {
     return (
-      <th
-        style={{
-          width: width ? `${width}px` : "auto",
-          maxWidth: width ? `${width}px` : "auto",
-        }}
-        class={`rotate ${classes}`}
-      >
+      <th class={`rotate ${classes}`}>
         <div>
           {onClick$ ? (
             <button onClick$={onClick$} data-sort-column={hyphenated}>
@@ -398,15 +372,10 @@ const calculateTimePercentile = (
 ) => {
   const sorted = allScoresMatchingDeckSize.sort(
     (a, b) =>
-      timestampToMs(a.gameTime as string) - timestampToMs(b.gameTime as string)
+      timestampToMs(b.gameTime as string) - timestampToMs(a.gameTime as string)
   );
   const indexOfThisScore = sorted.findIndex((s) => s.id === score.id);
-  // console.log({
-  //   sorted,
-  //   indexOfThisScore,
-  //   thisScore: sorted[indexOfThisScore],
-  // });
-  //
+
   const countBelowThisScore = indexOfThisScore;
   const percentile = (countBelowThisScore / sorted.length) * 100;
 
@@ -418,22 +387,18 @@ const calculateMismatchPercentile = (
   allScoresMatchingDeckSize: Score[]
 ) => {
   const sorted = allScoresMatchingDeckSize.sort(
-    (a, b) => (a.mismatches ?? 0) - (b.mismatches ?? 0)
+    (a, b) => (b.mismatches ?? 0) - (a.mismatches ?? 0)
   );
   const indexOfThisScore = sorted.findIndex((s) => s.id === score.id);
-  // console.log({
-  //   sorted,
-  //   indexOfThisScore,
-  //   thisScore: sorted[indexOfThisScore],
-  // });
 
   const countBelowThisScore = indexOfThisScore;
   const percentile = (countBelowThisScore / sorted.length) * 100;
 
   // inverse the mismatches percentile, so 0 is the best score
-  return Math.round((100 - percentile) * 10) / 10;
+  return Math.round(percentile * 10) / 10;
 };
 
+const TIME_LABEL_COLOR = "text-slate-300";
 const GameTime = component$(({ gameTime }: { gameTime: string }) => {
   const [hours, minutes, seconds] = gameTime.split(":").map((n) => Number(n));
   const haveHours = hours !== 0;
@@ -446,7 +411,7 @@ const GameTime = component$(({ gameTime }: { gameTime: string }) => {
       {haveHours ? (
         <>
           <span>{hours}</span>
-          <span class="text-slate-400">h</span>
+          <span class={TIME_LABEL_COLOR}>h</span>
         </>
       ) : (
         ""
@@ -459,7 +424,7 @@ const GameTime = component$(({ gameTime }: { gameTime: string }) => {
           ) : (
             <span>{minutes}</span>
           )}
-          <span class="text-slate-400">m</span>
+          <span class={TIME_LABEL_COLOR}>m</span>
         </>
       ) : (
         ""
@@ -471,7 +436,7 @@ const GameTime = component$(({ gameTime }: { gameTime: string }) => {
         ) : (
           <span>{Number(truncSeconds)}</span>
         )}
-        <span class="text-xs text-slate-400">{limitedMs}s</span>
+        <span class={`text-xs ${TIME_LABEL_COLOR}`}>{limitedMs}s</span>
       </>
     </>
   );
@@ -486,10 +451,9 @@ const timestampToMs = (time: string) => {
   );
 };
 
+const ROW_BG_COLOR_ALPHA = 0.8;
 const generateBgAlpha = (color: string) =>
-  color.slice(0, -2) + `${BG_COLOR_ALPHA})`;
-
-const BG_COLOR_ALPHA = 0.9;
+  color.slice(0, -2) + `${ROW_BG_COLOR_ALPHA})`;
 
 const ScoreRow = component$(({ score }: { score: ScoreWithPercentiles }) => {
   // console.log({ score });
@@ -513,33 +477,21 @@ const ScoreRow = component$(({ score }: { score: ScoreWithPercentiles }) => {
           classes="border border-gray-100"
         />
       </td>
+      <td>{score.initials}</td>
+      <td>{score.deckSize}</td>
+      <td>{score.pairs}</td>
       <td>
-        <div>{score.initials}</div>
+        <span class="block">{score.timePercentile}%</span>
+        <span class="block">
+          <GameTime gameTime={score.gameTime as string} />
+        </span>
       </td>
       <td>
-        <div>{score.deckSize}</div>
+        <span class="block">{score.mismatchPercentile}%</span>
+        <span class="block">{score.mismatches}</span>
       </td>
       <td>
-        <div>{score.pairs}</div>
-      </td>
-      <td>
-        <div>
-          <span class="block">{score.timePercentile}%</span>
-          <span class="block">
-            <GameTime gameTime={score.gameTime as string} />
-          </span>
-        </div>
-      </td>
-      <td>
-        <div>
-          <span class="block">{score.mismatchPercentile}%</span>
-          <span class="block">{score.mismatches}</span>
-        </div>
-      </td>
-      <td>
-        <div>
-          <CreatedAt createdAt={score.createdAt ?? DATE_JAN_1_1970} />
-        </div>
+        <CreatedAt createdAt={score.createdAt ?? DATE_JAN_1_1970} />
       </td>
     </tr>
   );
