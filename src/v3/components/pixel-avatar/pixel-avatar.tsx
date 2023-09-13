@@ -256,48 +256,8 @@ export default component$(
       track(() => [color, pixels, text?.value, colorFrom?.value, ]);
 
       let generatedPixels, generatedColor;
-      // if (!color) {
-      //   if (colorFrom) {
-      //     // if given a separate color string, need to hash it and calc the color
-      //     const res = await Promise.all([
-      //       calculateOnlyColor(
-      //         colorFrom.value,
-      //         colorOptions.saturation,
-      //         colorOptions.lightness
-      //       ),
-      //       calculateOnlyPixels(text.value, cols, rows),
-      //     ]);
-      //     generatedColor = res[0];
-      //     // then calc the pixels from the regular text (hashed)
-      //     generatedPixels = res[1];
-      //     console.log("calculating separately...");
-      //   } else {
-      //     // else, need to calculate both from the one text, slicing off the last 3 chars for the color
-      //     const res = await calculatePixelData(
-      //       text.value,
-      //       cols,
-      //       rows,
-      //       colorOptions.saturation,
-      //       colorOptions.lightness
-      //     );
-      //
-      //     const splitRes = res.split(":");
-      //     generatedPixels = splitRes[0];
-      //     generatedColor = splitRes[1];
-      //     console.log("calculating combined...");
-      //   }
-      // } else {
-      //   generatedColor = color;
-      //   generatedPixels = await calculateOnlyPixels(text.value, cols, rows);
-      // }
-
-      // TODO:
-      // if color, use it directly
-      // else if colorFrom, hash it and use it
-      //   else pull it from part of the text
-      // if pixels, don't hash it and use it directly
-      // else hash the (remaining?) text and use that
       let textToUseForPixels = text?.value ?? '';
+
       if (color) {
         generatedColor = color;
       } else {
@@ -316,6 +276,7 @@ export default component$(
           colorOptions.lightness
         );
       }
+
       if (pixels) {
         generatedPixels = pixels;
       } else {
@@ -327,7 +288,7 @@ export default component$(
         );
       }
 
-      console.log({ generatedPixels, generatedColor });
+      // console.log({ generatedPixels, generatedColor });
       const totalColored = generatedPixels
         .split("")
         .reduce((accum, cur) => (accum += Number(cur)), 0);

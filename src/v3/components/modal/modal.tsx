@@ -46,7 +46,7 @@ export default component$(
         style={bgStyles}
       >
         <div
-          class={`min-w-[16rem] w-[50vw] max-w-[32rem] max-h-[90vh] relative mx-auto text-center ${containerClasses} rounded-lg lg:rounded-3xl flex flex-col gap-1 p-[1.5%] transition-all ${DURATION} ${
+          class={`min-w-[16rem] w-[50vw] max-w-max max-h-[90vh] relative mx-auto text-center ${containerClasses} rounded-lg lg:rounded-3xl flex flex-col gap-1 p-[1.5%] transition-all ${DURATION} ${
             isShowing
               ? "pointer-events-auto z-[100]"
               : "pointer-events-none z-[-1]"

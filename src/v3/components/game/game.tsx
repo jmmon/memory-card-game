@@ -151,7 +151,7 @@ const INITIAL_STATE = {
       isWin: false,
     },
     scoresModal: {
-      isShowing: false,
+      isShowing: true,
       scores: [],
     },
   },

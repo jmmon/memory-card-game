@@ -1,6 +1,6 @@
 import type { QRL } from "@builder.io/qwik";
 import type { useTimer } from "../utils/useTimer";
-import { Score } from "../db/schema";
+import { Score } from "../db/types";
 export type Timer = ReturnType<typeof useTimer>;
 
 export type Coords = { x: number; y: number };
@@ -8,6 +8,11 @@ export type Coords = { x: number; y: number };
 export type ShuffleTransform = { x: number; y: number };
 
 export type Pair = `${number}:${number}`;
+
+export type ScoreWithPercentiles = Score & {
+  timePercentile?: number;
+  mismatchPercentile?: number;
+};
 
 export type PlayingCardSvgProps =
   | {
@@ -112,7 +117,7 @@ export type GameContext = {
     };
     scoresModal: {
       isShowing: boolean;
-      scores: Score[];
+      scores: Array<ScoreWithPercentiles>;
     };
   };
   shuffleCardPositions: QRL<() => void>;

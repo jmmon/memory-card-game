@@ -23,7 +23,7 @@ export default component$(
     const gameContext = useContext(GameContext);
 
     return (
-      <div class="flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%]">
+      <div class="flex w-[25rem] max-w-[100%] gap-0.5 md:gap-1 flex-col py-[2%] px-[4%]">
         <div class="flex-grow flex justify-evenly items-center">
           <div class="justify-center flex gap-[2%] items-center tooltip">
             <Button onClick$={() => gameContext.startShuffling(5)}>
