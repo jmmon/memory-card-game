@@ -1,4 +1,5 @@
 import { sql } from "drizzle-orm";
+
 import {
   integer,
   interval,
@@ -39,6 +40,7 @@ export const scores = pgTable("scores", {
   initials: varchar("initials", { length: 32 }), // some optional inputted string??
   color: varchar("color", { length: 32 }), // hsl(xxx, xxx%, xxx%)
   pixels: varchar("pixels", { length: 256 }), // binary
+  scoreCounts: integer('scoreCounts'),
 });
 
 /*

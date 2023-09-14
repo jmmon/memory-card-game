@@ -1,6 +1,14 @@
 import type { QRL } from "@builder.io/qwik";
 import type { useTimer } from "../utils/useTimer";
 import { Score } from "../db/types";
+
+// for mapping our current score to find how many other scores are less than it
+export type LessThanOurScoreObj = { [key: number | string]: number };
+export type ScoreCountColumnOptions = "gameTime" | "mismatches";
+
+/* =====================================================
+ * Game Logic
+ * ===================================================== */
 export type Timer = ReturnType<typeof useTimer>;
 
 export type Coords = { x: number; y: number };
@@ -8,12 +16,6 @@ export type Coords = { x: number; y: number };
 export type ShuffleTransform = { x: number; y: number };
 
 export type Pair = `${number}:${number}`;
-
-export type ScoreWithPercentiles = Score & {
-   [key: string]: number | string;
-  timePercentile?: number;
-  mismatchPercentile?: number;
-};
 
 export type PlayingCardSvgProps =
   | {
@@ -35,6 +37,35 @@ export type Card = {
   localSVG?: string;
 };
 
+/* =====================================================
+ * Scoreboard: scores and sorting
+ * ===================================================== */
+export type ScoreWithPercentiles = Score & {
+  [key: string]: number | string | undefined;
+  timePercentile?: number;
+  mismatchPercentile?: number;
+};
+
+export type SortColumnWithDirection = {
+  column: ScoreColumn;
+  direction: SortDirection;
+};
+
+export type ScoreColumn =
+  | "initials"
+  | "deckSize"
+  | "pairs"
+  | "timePercentile"
+  | "mismatchPercentile"
+  | "createdAt";
+
+export type DeckSizesDictionary = { [key: string]: Score[] };
+
+export type SortDirection = "asc" | "desc";
+
+/* =====================================================
+ * Game Context and Settings
+ * ===================================================== */
 export type GameSettings = {
   cardFlipAnimationDuration: number;
   maxAllowableMismatches: number;
