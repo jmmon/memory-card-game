@@ -20,3 +20,13 @@ export const truncateMs = (ms: number, limit: number) => {
         .padStart(limit, "0")}`
     : "";
 };
+
+
+export const timestampToMs = (time: string) => {
+  const [hours, minutes, seconds] = time.split(":").map((n) => Number(n));
+  return (
+    Number(hours) * 60 * 60 * 1000 +
+    Number(minutes) * 60 * 1000 +
+    Number(seconds) * 1000
+  );
+};

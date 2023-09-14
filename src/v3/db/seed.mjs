@@ -21,7 +21,7 @@ const db = drizzle(client);
 
 const DEFAULT_HASH_LENGTH_BYTES = 32;
 
-const scores = pgTable("scores", {
+export const scores = pgTable("scores", {
   id: serial("id").primaryKey(),
   createdAt: timestamp("createdAt", { withTimezone: true }).default(sql`now()`),
   deckSize: integer("deckSize"),
@@ -75,11 +75,11 @@ const stringToColor = (
   const hue = hash % 360;
   const sat = Math.round(
     saturation.min +
-    (Number(satPercent) * (saturation.max - saturation.min)) / 100
+      (Number(satPercent) * (saturation.max - saturation.min)) / 100
   );
   const light = Math.round(
     lightness.min +
-    (Number(lightPercent) * (lightness.max - lightness.min)) / 100
+      (Number(lightPercent) * (lightness.max - lightness.min)) / 100
   );
 
   // console.log({ satPercent, lightPercent, hue, sat, light });
@@ -114,8 +114,8 @@ const getRandomMirroredPixels = () => {
     const forward = thisSlice.join("");
     const reversed = [...thisSlice].reverse().join("");
     const combined = forward + reversed;
-    console.log({ thisSlice, forward, reversed });
-    console.log({ combined });
+    // console.log({ thisSlice, forward, reversed });
+    // console.log({ combined });
     resultPixelsArray.push(combined);
   }
 
@@ -129,35 +129,48 @@ const getRandomMirroredPixels = () => {
   };
   const getAllScores = () => db.select().from(scores);
 
-  const createManyScores = (count = 5) => {
+  const createManyScores = ({
+    minDeckSize = 6,
+    maxDeckSize = 24,
+    stepBetweenDeckSizes = 6,
+    countPerDeckSize = 9,
+  }) => {
     const promises = [];
-    for (let deckSize = 6; deckSize <= 24; deckSize += 6) {
-      for (let i = 0; i < count; i++) {
+    for (
+      let deckSize = minDeckSize;
+      deckSize <= maxDeckSize;
+      deckSize += stepBetweenDeckSizes
+    ) {
+      for (let i = 0; i < countPerDeckSize; i++) {
         const userId = getRandomBytes();
         const initials = getRandomInitials();
-        // const halfPixels = Array(50)
-        //   .fill(0)
-        //   .map(() => (Math.random() > 0.5 ? 1 : 0));
-        // const pixels = halfPixels.concat([...halfPixels].reverse()).join("");
         const pixels = getRandomMirroredPixels();
+        const mismatches = Math.max(
+          0,
+          Math.round(
+            2 ** (deckSize / 6) +
+              (Math.random() > 0.5 ? 1 : -1) * (Math.random() * (deckSize / 2))
+          )
+        );
 
-        const newScore = createScore({
+        const newScore = {
           deckSize,
           gameTime: `${
             deckSize * 1000 + Math.round(Math.random() * 100000)
           } millisecond`,
-          mismatches:
-            2 ** (deckSize / 6) +
-            (Math.random() > 0.5 ? 1 : -1) *
-              Math.ceil(Math.random() * (deckSize / 2)),
+          mismatches,
           userId,
           initials,
           pairs: deckSize / 2,
           color: stringToColor(initials),
           pixels,
-        });
+        };
 
-        promises.push(newScore);
+        console.log({ newScore });
+
+        const newScorePromise = createScore(newScore);
+
+        promises.push(newScorePromise);
       }
     }
     return Promise.all(promises);
@@ -165,7 +178,12 @@ const getRandomMirroredPixels = () => {
 
   try {
     await db.delete(scores);
-    await createManyScores(5);
+    await createManyScores({
+      minDeckSize: 6,
+      maxDeckSize: 52,
+      stepBetweenDeckSizes: 4,
+      countPerDeckSize: 7,
+    });
 
     console.log(await getAllScores());
     process.exit(0);

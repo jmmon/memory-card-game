@@ -3,9 +3,9 @@ import {
   PropFunction,
   QwikMouseEvent,
   component$,
-  useComputed$,
   useContext,
   useSignal,
+  useStore,
   useStyles$,
   useTask$,
 } from "@builder.io/qwik";
@@ -14,16 +14,84 @@ import { GameContext } from "~/v3/context/gameContext";
 import { Score } from "~/v3/db/types";
 import PixelAvatar from "../pixel-avatar/pixel-avatar";
 import serverDbService from "~/v3/services/db.service";
-import { truncateMs } from "~/v3/utils/formatTime";
-import { ScoreWithPercentiles } from "~/v3/types/types";
+import { timestampToMs, truncateMs } from "~/v3/utils/formatTime";
+import Tabulation from "../tabulation//tabulation";
+import { type Signal } from "@builder.io/qwik";
+import {
+  type ScoreWithPercentiles,
+  type SortDirection,
+  type DeckSizesDictionary,
+  type ScoreColumn,
+  type SortColumnWithDirection,
+} from "~/v3/types/types";
+
+/* TODO: set up for multiple deckSizes
+ * Opt 1: have all the fetching and sorting logic in the modal, and it passes the data down to the tables.
+ * - However, how do we control the sorting? Could sort it inside each table
+ * - What is needed is to fetch data with particular sort settings and page settings, and return only that data
+ * - filter by deckSize, sort by column/direction
+ *
+ * So, no tabulation? Just have a deckSize filter, could be a bunch of checkboxes, showing depending on which sizes we have scores for
+ *
+ * */
+
+/*
+ * How to calculate percentiles?
+ * I would need all the scores for the given deckSize
+ * for a given score of a given deckSize, we need to know:
+ *   - total scores for those conditions
+ *   - count of scores less than this score
+ *
+ * How?
+ * - could query all scores of given deckSize, sorted by gameTime (or mismatches)
+ * - then we can know the length of the total set
+ * - and we can count how many land under our score
+ * - that way we can calculate the percentile for this score
+*
+* Performance:
+* Should I save some of this data in a secondaory table? scoreCounts table?
+* - scoreCounts might be for a given deckSize
+* - scoreCounts[size: 6] = {
+*     totalScores: n, (increment when we add a new score of this deckSize)
+*     lessThanOurScoreMap: {
+*       [ourScore (e.g. our mismatches)]: m (count less than our score)
+*       // when add a score of this deckSize, take our mismatches.
+*       // For each entry where key:mismatches is GREATER THAN our mismatches,
+*       //  - add 1 to each value
+*     }
+*   }
+* e.g. we have scores for deckSize of 6:
+* totalScores = 12,
+* lessThanOurScoreMap: {
+* 1: 0, // if our score is 1, there are 0 less than this score
+* 2: 2,
+* 3: 4,
+* 4: 6, // if our score is 4, there are 6 scores less than this score
+* 5: 9, // if our score is 5, there are 9 scores less than this score
+* 6: 10,
+* 8: 11, // 11 are less than a score of 8, so a score of 8 is the 12th score
+* }
+* 
+* When adding a new score of deckSize 6: score.mismatches = 4
+* totalScores = 12 + 1,
+* lessThanOurScoreMap: {
+*   1: 0,
+*   2: 2,
+*   3: 4,
+*   4: 6, // -- our score
+*   5: 9 + 1, // we scored 4, so we have to increment any that land ABOVE our score
+*   6: 10 + 1,
+*   8: 11 + 1 // now the score of 8 is the 13th score, with 12 less than it
+* }
+*
+ * */
 
 const JAN_1_1970_STRING = "1970-01-01T00:00:00.000Z";
 const DATE_JAN_1_1970 = new Date(JAN_1_1970_STRING);
 
 const PIXEL_AVATAR_SIZE = 44;
-const PIXEL_AVATAR_WIDTH_CLASS = `w-[${PIXEL_AVATAR_SIZE}px]`;
 
-const mapColTitleToObjKey: { [key: string]: string } = {
+const mapColTitleToObjKey: { [key: string]: ScoreColumn } = {
   initials: "initials",
   "deck-size": "deckSize",
   pairs: "pairs",
@@ -31,6 +99,39 @@ const mapColTitleToObjKey: { [key: string]: string } = {
   mismatches: "mismatchPercentile",
   date: "createdAt",
 };
+
+const DEFAULT_SORT_BY_COLUMNS_MAP: {
+  [key: string]: SortColumnWithDirection;
+} = {
+  deckSize: {
+    column: "deckSize",
+    direction: "desc",
+  },
+  timePercentile: {
+    column: "timePercentile",
+    direction: "desc",
+  },
+  mismatchPercentile: {
+    column: "mismatchPercentile",
+    direction: "desc",
+  },
+  createdAt: {
+    column: "createdAt",
+    direction: "desc",
+  },
+  initials: {
+    column: "initials",
+    direction: "asc",
+  },
+  pairs: {
+    column: "pairs",
+    direction: "desc",
+  },
+};
+
+const DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY = Object.values(
+  DEFAULT_SORT_BY_COLUMNS_MAP
+);
 
 const sortFunctions: {
   [key: string]: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => number;
@@ -68,50 +169,92 @@ const sortFunctions: {
   },
 };
 
+// TODO: this will be built into the query??
+const sortScores = (
+  scores: ScoreWithPercentiles[],
+  sortByColumnHistory: Array<SortColumnWithDirection>
+) => {
+  let result = [...scores];
+
+  result.sort((a, b) => {
+    let value = 0;
+    let nextKeyIndex = 0;
+    let { column, direction } = sortByColumnHistory[0];
+    // console.log({ sortByColumnHistory: sortByColumnHistory.value });
+    while (value === 0 && nextKeyIndex < sortByColumnHistory.length) {
+      const sortingInstructions = sortByColumnHistory[nextKeyIndex];
+      column = sortingInstructions.column;
+
+      value = sortFunctions[column](a, b);
+      // console.log({ value, key, fn });
+      nextKeyIndex++;
+    }
+    // console.log({ value });
+    return direction === "desc" ? value : 0 - value;
+  });
+
+  // console.log({ sortedResult: result });
+  return result;
+};
+
+const MAX_SORT_COLUMN_HISTORY = 2;
+// const DEFAULT_SORT_BY_COLUMN_HISTORY = [
+//   "deckSize",
+//   "timePercentile",
+//   "mismatchPercentile",
+// ];
+// const DEFAULT_SORT_DIRECTION: SortDirection = "desc";
+
+const fetchScores = async (
+  pageNumber: number,
+  deckSizesFilter: number[],
+  sortByColumnHistory: Array<SortColumnWithDirection>
+) => {
+  // fetch using the db service (TODO: add the settings to the dbService)
+  const fetchedScores = await serverDbService.queryScores({
+    pageNumber,
+    deckSizesFilter,
+    sortByColumnHistory,
+  });
+  console.log({ fetchedScores });
+  return fetchedScores as ScoreWithPercentiles[];
+};
+
 export default component$(() => {
   const gameContext = useContext(GameContext);
   const isLoading = useSignal(true);
 
-  const sortDirection = useSignal<"asc" | "desc">("desc");
-  const sortColumnHistory = useSignal<string[]>([
-    "deckSize",
-    "timePercentile",
-    "mismatchPercentile",
-  ]);
+  // TODO: NEW:
+  const queryStore = useStore(
+    {
+      sortByColumnHistory: DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY.slice(
+        0,
+        MAX_SORT_COLUMN_HISTORY
+      ),
+      deckSizesFilter: [gameContext.settings.deck.size],
+      pageNumber: 1,
+    },
+    { deep: true }
+  );
+
+  // map deck sizes to fetched scores -- needed after improvement??
+  const getDeckBySizeSignal = useSignal<DeckSizesDictionary>({});
+
+  /*
+* // array of sort-by-columns, so we can sort by a primary and secondary key
+  const sortByColumnHistory = useSignal(
+    DEFAULT_SORT_BY_COLUMN_HISTORY.slice(0, MAX_SORT_COLUMN_HISTORY)
+  );
+  // direction of the sortColumn
+  const sortDirection = useSignal<SortDirection>(DEFAULT_SORT_DIRECTION);
+  // array of deck sizes to show in the scores list 
+ */
 
   const sortedScores = useSignal<ScoreWithPercentiles[]>([]);
 
-  const sortScores = $((scores: ScoreWithPercentiles[]) => {
-    let result = [...scores];
-
-    console.log("SORTING...", {
-      scores,
-      sortColumnHistory: sortColumnHistory.value,
-      sortDirection: sortDirection.value,
-    });
-
-    result.sort((a, b) => {
-      let value = 0;
-      let nextKeyIndex = 0;
-      // console.log({ sortColumnHistory: sortColumnHistory.value });
-      while (value === 0 && nextKeyIndex < sortColumnHistory.value.length) {
-        const key = sortColumnHistory.value[nextKeyIndex];
-        const fn = sortFunctions[key];
-        value = fn(a, b);
-        // console.log({ value, key, fn });
-        nextKeyIndex++;
-      }
-      // console.log({ value });
-      return sortDirection.value === "desc" ? value : 0 - value;
-    });
-
-    console.log({ sortedResult: result });
-    return result;
-  });
-
   const handleClickColumnHeader = $(async (e: QwikMouseEvent) => {
     isLoading.value = true;
-    console.log({ e });
+    // console.log({ e });
     const clickedDataAttr = (e.target as HTMLButtonElement).dataset[
       "sortColumn"
     ] as string;
@@ -119,28 +262,34 @@ export default component$(() => {
     // tweak some words to match the object keys
     const clickedColumnTitle = mapColTitleToObjKey[clickedDataAttr];
 
-    console.log({
-      clickedDataAttr,
-      clickedColumnTitle,
-      mapColTitleToObjKey,
-    });
+    const currentSortByColumn = queryStore.sortByColumnHistory[0];
 
-    if (sortColumnHistory.value[0] === clickedColumnTitle) {
-      console.log("clicked the same column, switching direction");
-      sortDirection.value = sortDirection.value === "asc" ? "desc" : "asc";
+    if (currentSortByColumn.column === clickedColumnTitle) {
+      // console.log("clicked the same column, switching direction");
+
+      const newDirection =
+        currentSortByColumn.direction === "asc" ? "desc" : "asc";
+      queryStore.sortByColumnHistory[0].direction = newDirection;
     } else {
-      console.log("clicked different column, changing column");
-      sortColumnHistory.value = [
-        clickedColumnTitle,
-        ...sortColumnHistory.value,
-      ].slice(0, 3);
-      console.log({ sortColumnHistory: sortColumnHistory.value });
-      sortDirection.value = "desc";
+      // set new column & direction
+      queryStore.sortByColumnHistory = [
+        DEFAULT_SORT_BY_COLUMNS_MAP[clickedColumnTitle],
+        ...queryStore.sortByColumnHistory,
+      ].slice(0, MAX_SORT_COLUMN_HISTORY);
     }
 
     // resort:
-    sortedScores.value = await sortScores(
-      gameContext.interface.scoresModal.scores
+    // TODO: do a db query and pass in the parameters, rather than using our sort function
+    // sortedScores.value = sortScores(
+    //   gameContext.interface.scoresModal.scores,
+    //   queryStore.sortByColumnHistory
+    // );
+
+    isLoading.value = true;
+    sortedScores.value = await fetchScores(
+      queryStore.pageNumber,
+      queryStore.deckSizesFilter,
+      queryStore.sortByColumnHistory
     );
     isLoading.value = false;
   });
@@ -149,17 +298,35 @@ export default component$(() => {
     track(() => gameContext.interface.scoresModal.isShowing);
     if (!gameContext.interface.scoresModal.isShowing) return;
 
-    gameContext.interface.scoresModal.scores = calculatePercentiles(
-      await serverDbService.getAllScores()
+    const { scores, dictionary } = calculatePercentiles(
+      await fetchScores(
+        queryStore.pageNumber,
+        queryStore.deckSizesFilter,
+        queryStore.sortByColumnHistory
+      )
     );
+    // const { scores, dictionary } = calculatePercentiles(
+    //   await serverDbService.getAllScores()
+    // );
+    gameContext.interface.scoresModal.scores = scores;
+    getDeckBySizeSignal.value = dictionary;
 
     console.log({ scores: gameContext.interface.scoresModal.scores });
 
-    sortedScores.value = await sortScores(
-      gameContext.interface.scoresModal.scores
-    );
-    console.log({ sortedScores: sortedScores.value });
+    // // TODO: do a db query and pass in the parameters, rather than using our sort function
+    // sortedScores.value = sortScores(
+    //   gameContext.interface.scoresModal.scores,
+    //  sortByColumnHistory,
+    //   sortDirection
+    // );
+    // console.log({ sortedScores: sortedScores.value });
 
+    isLoading.value = true;
+    sortedScores.value = await fetchScores(
+      queryStore.pageNumber,
+      queryStore.deckSizesFilter,
+      queryStore.sortByColumnHistory
+    );
     isLoading.value = false;
     console.log("done loading");
   });
@@ -272,33 +439,58 @@ export default component$(() => {
         gameContext.interface.scoresModal.isShowing = false;
       }}
       title="Scoreboard"
+      classes="flex"
     >
-      <table class="scoreboard w-full max-w-[25rem] max-h-[90vh]">
-        <thead
-          class={`${sortDirection.value} text-xs sm:text-sm md:text-md bg-slate-500`}
+      <div class="flex flex-col w-min">
+        <Tabulation
+          setName="scoreboard"
+          containerClasses=""
+          handlesContainerClasses="overflow-y-clip overflow-x-scroll"
+          titles={Object.keys(getDeckBySizeSignal.value).map(
+            (deckSize) => deckSize
+          )}
         >
-          <tr>
-            {headersList.map((header) => {
-              const hyphenated = header.toLowerCase().replace(" ", "-");
-              return (
-                <ScoreTableHeader
-                  key={hyphenated}
-                  title={header}
-                  hyphenated={hyphenated}
-                  onClick$={
-                    header === "Avatar" ? undefined : handleClickColumnHeader
-                  }
-                />
-              );
-            })}
-          </tr>
-        </thead>
-        <tbody>
-          {sortedScores.value.map((score) => (
-            <ScoreRow key={score.userId} score={score} />
-          ))}
-        </tbody>
-      </table>
+          <table
+            q:slot="scoreboard-tab0"
+            class="scoreboard w-full  max-h-[90vh]"
+          >
+            <thead
+              class={`${sortDirection.value} text-xs sm:text-sm md:text-md bg-slate-500`}
+            >
+              <tr>
+                {headersList.map((header) => {
+                  const hyphenated = header.toLowerCase().replace(" ", "-");
+                  return (
+                    <ScoreTableHeader
+                      key={hyphenated}
+                      title={header}
+                      hyphenated={hyphenated}
+                      onClick$={
+                        header === "Avatar"
+                          ? undefined
+                          : handleClickColumnHeader
+                      }
+                    />
+                  );
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {sortedScores.value.map((score) => (
+                <ScoreRow key={score.userId} score={score} />
+              ))}
+            </tbody>
+          </table>
+          {Object.keys(getDeckBySizeSignal.value).map(
+            (_, i) =>
+              i !== 0 && (
+                <div q:slot={`scoreboard-tab${i}`} key={i}>
+                  test
+                </div>
+              )
+          )}
+        </Tabulation>
+      </div>
     </Modal>
   );
 });
@@ -334,7 +526,7 @@ const ScoreTableHeader = component$(
 );
 
 const calculatePercentiles = (scores: Score[]) => {
-  const dictionary = generateDictionaryDeckSizes(scores);
+  const dictionary = generateDeckSizesDictionary(scores);
   // console.log({ dictionary });
   for (let i = 0; i < scores.length; i++) {
     const score = scores[i] as ScoreWithPercentiles;
@@ -348,11 +540,11 @@ const calculatePercentiles = (scores: Score[]) => {
     );
   }
   // console.log("~~ SHOULD BE MODIFIED WITH PERCENTILES:", { scores });
-  return scores;
+  return { scores: scores as ScoreWithPercentiles[], dictionary };
 };
 
-const generateDictionaryDeckSizes = (scores: Score[]) => {
-  const dictionary: { [key: string]: Score[] } = {};
+const generateDeckSizesDictionary = (scores: Score[]) => {
+  const dictionary: DeckSizesDictionary = {};
   const deckSizes = new Set(scores.map((s) => s.deckSize));
   // console.log(Array.from(deckSizes));
 
@@ -441,15 +633,6 @@ const GameTime = component$(({ gameTime }: { gameTime: string }) => {
     </>
   );
 });
-
-const timestampToMs = (time: string) => {
-  const [hours, minutes, seconds] = time.split(":").map((n) => Number(n));
-  return (
-    Number(hours) * 60 * 60 * 1000 +
-    Number(minutes) * 60 * 1000 +
-    Number(seconds) * 1000
-  );
-};
 
 const ROW_BG_COLOR_ALPHA = 0.8;
 const generateBgAlpha = (color: string) =>

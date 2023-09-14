@@ -279,12 +279,12 @@ const INITIAL_STATE = {
     this.initializeDeck();
   }),
 
-fetchScores: $(async function (this: TGameContext) {
+  fetchScores: $(async function (this: TGameContext) {
     console.log("getting all scores...");
-  const scores = await serverDbService.getAllScores();
-  this.interface.scoresModal.scores = scores
+    const scores = await serverDbService.getAllScores();
+    this.interface.scoresModal.scores = scores;
     console.log({ scores });
-})
+  }),
 };
 
 export default component$(() => {
@@ -544,21 +544,6 @@ const LoadingPage = component$(
  *
  *
  *
- * maybe use sql?
- * scoreModel: {
- *   createdAt: Date,
- *   time: number,
- *   deckSize: number,
- *   mismatches: number,
- *   userId: string (256 chars?? this is the hashed result of the "email/identifier" input box)
- *   initials: string (3 chars)
- * }
- *
- * submitWin(data): submits the win and calculates and returns your percentile scores
- *
- * getCategory(deckSize): returns list of scores matching deck size
- * getAllScores(): returns all scores
- *
  *
  *  Saving scores:
  *  end of game modal:
@@ -586,6 +571,7 @@ const LoadingPage = component$(
  * Timer bug:
  * perhaps it saves the "start time", and then the user locks phone and stops playing for a time
  * then when resuming, maybe the stop time is taken now, causing a weird calculation??
+ * - just run the effect to count the time, and don't mess with timestamps!
  *
  *
  *
@@ -593,6 +579,13 @@ const LoadingPage = component$(
  * Reset Game button does NOT reset the scores!! It does however reset the timer
  *
  *
+ *
+ * scores:
+ * TODO:
+ * - implement paging: show x scores instead of showing all scores
+ * - implement tabulation: tabs based on deckSize, and first tab is All sizes
+ *   - When winning a game, want to open the scores modal while selecting
+ *     specific deckSize of the finished game
  * */
 
 /*
