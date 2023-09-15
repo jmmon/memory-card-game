@@ -68,7 +68,7 @@ export const Lock = component$(
       >
         <label
           for={text}
-          class="flex gap-2 items-center justify-between w-full mr-2 mb-1 cursor-pointer text-left"
+          class="text-slate-100 flex gap-2 items-center justify-between w-full mr-2 mb-1 cursor-pointer text-left"
         >
           {text}
           <input
@@ -95,7 +95,7 @@ export const DeckSizeSlider = component$<{
   const name = `deck-size-slider${props.for ? "-" + props.for : ""}`;
   return (
     <div class="flex flex-grow gap-[2%] items-center tooltip w-full py-1.5">
-      <label class="w-4/12 text-left" for={name}>
+      <label class="text-slate-100 w-4/12 text-left" for={name}>
         Card Count:
       </label>
       <input

@@ -1,4 +1,5 @@
-import { type Signal, component$, useContext } from "@builder.io/qwik";
+import { component$, useContext } from "@builder.io/qwik";
+import type { Signal } from "@builder.io/qwik";
 import Button from "../button/button";
 import {
   Lock,
@@ -27,7 +28,7 @@ export default component$(
         <div class="flex-grow flex justify-evenly items-center">
           <div class="justify-center flex gap-[2%] items-center tooltip">
             <Button onClick$={() => gameContext.startShuffling(5)}>
-              Shuffle Deck
+<span class="text-slate-100">Shuffle Deck</span>
             </Button>
             <span class="tooltiptext">Shuffle the card positions.</span>
           </div>
@@ -96,7 +97,7 @@ export default component$(
             </SettingsRow>
             <SettingsRow>
               <div class="w-full flex justify-between tooltip">
-                <label>Played Time:</label>
+                <label class="text-slate-100">Played Time:</label>
                 <FormattedTime timeMs={gameContext.timer.state.time} />
                 <span class="tooltiptext">
                   Total un-paused play time for this round.
@@ -208,7 +209,7 @@ export default component$(
                 gameContext.resetGame();
               }}
             >
-              Reset Game
+<span class="text-slate-100">Reset Game</span>
             </Button>
             <span class="tooltiptext">Reset the game, keeping current settings.</span>
           </div>
@@ -220,16 +221,16 @@ export default component$(
                 gameContext.resetGame(settings.value);
               }}
             >
-              Save & Restart
+<span class="text-slate-100">Save & Restart</span>
             </Button>
             <span class="tooltiptext">Save current settings and restart.</span>
           </div>
         </div>
         <details class="w-full mt-2 flex flex-col gap-2 items-center">
-          <summary class="p-2 border border-slate-200 bg-slate-700 rounded hover:bg-slate-500 cursor-pointer w-max mx-auto">
+          <summary class="text-slate-100 p-2 border border-slate-200 bg-slate-700 rounded hover:bg-slate-500 cursor-pointer w-max mx-auto">
             Help
           </summary>
-          <ul class="text-left list-disc grid gap-2 w-full">
+          <ul class="text-slate-100 text-left list-disc grid gap-2 w-full">
             <li>Select cards by clicking on them.</li>
             <li>
               Cards are matched when the two selected cards have the same number

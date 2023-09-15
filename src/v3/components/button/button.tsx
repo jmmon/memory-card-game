@@ -7,14 +7,12 @@ export default component$(
   }: {
     onClick$: PropFunction<() => void>;
     classes?: string;
-  }) => {
-    return (
-      <button
-        onClick$={onClick$}
-        class={`p-2 border border-slate-200 bg-slate-700 rounded hover:bg-slate-500 ${classes}`}
-      >
-        <Slot />
-      </button>
-    );
-  }
+  }) => (
+    <button
+      onClick$={onClick$}
+      class={`p-2 border border-slate-200 bg-slate-700 rounded hover:bg-slate-500 ${classes}`}
+    >
+      <Slot />
+    </button>
+  )
 );

@@ -12,7 +12,7 @@ export default component$(
   ({
     isShowing,
     hideModal$,
-    classes = "",
+    containerClasses = "",
     bgClasses = "backdrop-blur-sm",
     title,
     bgStyles,
@@ -20,13 +20,13 @@ export default component$(
   }: {
     isShowing: boolean;
     hideModal$: PropFunction<() => void>;
-    classes?: string;
+    containerClasses?: string;
     bgClasses?: string;
     bgStyles?: any;
     title: string;
     options?: Partial<ModalOptions>;
   }) => {
-    const containerClasses = DEFAULT_CONTAINER_BG + " " + classes;
+    containerClasses = DEFAULT_CONTAINER_BG + " " + containerClasses;
     const closeModal$ = $((e: QwikMouseEvent) => {
       if (!options.detectClickOutside) return;
       if ((e.target as HTMLElement).dataset.name === "background") {
@@ -64,21 +64,19 @@ export default component$(
 );
 
 export const CloseButton = ({
-  hideModal$,
   text = "X",
+  hideModal$,
 }: {
   text?: string;
   hideModal$: PropFunction<() => void>;
-}) => {
-  return (
-    <button
-      class="ml-auto border-slate-400 border rounded-lg py-1.5 px-2 transition-all bg-slate-800/90 hover:bg-slate-600"
-      onClick$={hideModal$}
-    >
-      {text}
-    </button>
-  );
-};
+}) => (
+  <button
+    class="text-slate-600 hover:text-slate-400 ml-auto border-slate-400 border rounded-lg py-1.5 px-2 transition-all bg-slate-800/90 hover:bg-slate-600"
+    onClick$={hideModal$}
+  >
+    {text}
+  </button>
+);
 
 export const ModalHeader = ({
   hideModal$,
@@ -94,7 +92,7 @@ export const ModalHeader = ({
   return (
     <header class="grid max-h-full grid-cols-[0.3fr_1fr_0.3fr] justify-center items-center">
       {buttonOpts.onLeft ? button : <div></div>}
-      <h3 class="text-lg">{title}</h3>
+      <h3 class="text-lg text-slate-100">{title}</h3>
       {!buttonOpts.onLeft ? button : <div></div>}
     </header>
   );
