@@ -21,8 +21,7 @@ export const FormattedTime = ({
 
   return (
     <span class="text-left">
-      <GrayedAtZero val={minutes} text="m" />
-      {seconds}
+      <GrayedAtZero val={minutes} text="m" /> {seconds}
       <span class="text-xs text-slate-400">{limitedMs}s</span>
     </span>
   );
