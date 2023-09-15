@@ -9,7 +9,8 @@ import {
 } from "@builder.io/qwik";
 import ImageBackFace from "~/media/cards/_backWhite.png?jsx";
 import { GameContext } from "~/v3/context/gameContext";
-import { Coords, type Card } from "~/v3/types/types";
+import type { Coords } from "~/v3/types/types";
+import { type Card } from "~/v3/types/types";
 import v3CardUtils, { CARD_RATIO_VS_CONTAINER } from "~/v3/utils/v3CardUtils";
 import { CARD_FLIP_ANIMATION_DURATION, CARD_RATIO } from "../board/board";
 import PlayingCardComponents from "../playing-card-components";
@@ -151,8 +152,16 @@ export default component$(({ card }: { card: Card }) => {
         zIndex:
           // use coords to create gradient of z-index, lowest in center and highest on edges/corners
           Math.floor(
-            (Math.abs(flipTransform.value.translateX / 50 ?? 0) +
-              Math.abs(flipTransform.value.translateY / 50 ?? 0)) /
+            (Math.abs(
+              (flipTransform.value.translateX === 0
+                ? 1
+                : flipTransform.value.translateX) / 50
+            ) +
+              Math.abs(
+                flipTransform.value.translateY === 0
+                  ? 1
+                  : flipTransform.value.translateY / 50
+              )) /
               2
           ) +
           // extra z-index for cards being flipped
