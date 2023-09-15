@@ -10,7 +10,7 @@ export default component$(
   }) => (
     <button
       onClick$={onClick$}
-      class={`text-slate-100 p-2 border border-slate-200 bg-slate-700 rounded hover:bg-slate-500 ${classes}`}
+      class={`p-2 border border-slate-200 bg-slate-700 rounded hover:bg-slate-500 ${classes}`}
     >
       <Slot />
     </button>

@@ -28,7 +28,7 @@ export default component$(
         <div class="flex-grow flex justify-evenly items-center">
           <div class="justify-center flex gap-[2%] items-center tooltip">
             <Button onClick$={() => gameContext.startShuffling(5)}>
-              Shuffle Deck
+<span class="text-slate-100">Shuffle Deck</span>
             </Button>
             <span class="tooltiptext">Shuffle the card positions.</span>
           </div>
@@ -223,7 +223,7 @@ export default component$(
                 gameContext.resetGame();
               }}
             >
-              Reset Game
+<span class="text-slate-100">Reset Game</span>
             </Button>
             <span class="tooltiptext">Reset the game, keeping current settings.</span>
           </div>
@@ -235,13 +235,13 @@ export default component$(
                 gameContext.resetGame(settings.value);
               }}
             >
-              Save & Restart
+<span class="text-slate-100">Save & Restart</span>
             </Button>
             <span class="tooltiptext">Save current settings and restart.</span>
           </div>
         </div>
         <details class="w-full mt-2 flex flex-col gap-2 items-center">
-          <summary class="p-2 border border-slate-200 bg-slate-700 rounded hover:bg-slate-500 cursor-pointer w-max mx-auto">
+          <summary class="text-slate-100 p-2 border border-slate-200 bg-slate-700 rounded hover:bg-slate-500 cursor-pointer w-max mx-auto">
             Help
           </summary>
           <ul class="text-left list-disc grid gap-2 w-full">
