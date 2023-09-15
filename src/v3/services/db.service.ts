@@ -1,7 +1,7 @@
 import { eq, inArray, asc, desc } from "drizzle-orm";
 import { db } from "../db/index";
 import { scores, scoreCounts } from "../db/index";
-import type { NewScore, NewScoreCounts, ScoreCounts } from "../db/types";
+import type { NewScore, Score, NewScoreCounts, ScoreCounts } from "../db/types";
 import { server$ } from "@builder.io/qwik-city";
 import {
   LessThanOurScoreObj,
@@ -205,6 +205,13 @@ const serverDbService = {
  *
  * When creating a new score, we need to update BOTH lessThanOurGameTimeMap and lessThanOurMismatchesMap
  * so it would be better to do this with one call, rather than doing two separate calls
+ *
+ * so create a score:
+ *   add a new score
+ *   update the ScoreCounts for this deckSize
+ *
+ * getScoresByDeckSize => calculate percentiles and return ScoreWithPercentiles?
  * */
+
 
 export default serverDbService;

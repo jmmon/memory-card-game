@@ -82,7 +82,7 @@ export default component$(() => {
   const saveScore$ = $(async () => {
     const newScore: NewScore = {
       deckSize: gameContext.settings.deck.size,
-      gameTime: `${gameContext.timer.state.runningTime} millisecond`,
+      gameTime: `${gameContext.timer.state.timeDs} millisecond`,
       mismatches: gameContext.game.mismatchPairs.length,
       pairs: gameContext.game.successfulPairs.length,
       userId: identifier.value,
@@ -133,7 +133,7 @@ export default component$(() => {
           <div class="text-slate-100 flex flex-grow justify-between">
             <span>Time:</span>
             <span>
-              <FormattedTime timeMs={gameContext.timer.state.time} limit={3} />
+              <FormattedTime timeMs={gameContext.timer.state.timeDs} limit={1} />
             </span>
           </div>
         </SettingsRow>

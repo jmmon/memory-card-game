@@ -38,6 +38,7 @@ import FaceCardSymbols from "../playing-card-components/face-card-symbols";
 import CardSymbols from "../playing-card-components/card-symbols";
 import serverDbService from "~/v3/services/db.service";
 import ScoresModal from "../scores-modal/scores-modal";
+import { Score } from "~/v3/db/types";
 // import dbService from "../services/db.service";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
@@ -281,7 +282,7 @@ const INITIAL_STATE = {
 
   fetchScores: $(async function (this: TGameContext) {
     console.log("getting all scores...");
-    const scores = await serverDbService.getAllScores();
+    const scores = await serverDbService.getAllScores() as Score[];
     this.interface.scoresModal.scores = scores;
     console.log({ scores });
   }),
