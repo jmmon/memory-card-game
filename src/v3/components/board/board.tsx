@@ -12,7 +12,7 @@ import {
 import Card from "../card/card";
 import { GameContext } from "~/v3/context/gameContext";
 import type { Pair } from "~/v3/types/types";
-import v3CardUtils from "~/v3/utils/v3CardUtils";
+import v3CardUtils from "~/v3/utils/cardUtils";
 import { useDebounce } from "~/v3/utils/useDebounce";
 import { useTimeout } from "~/v3/utils/useTimeout";
 import { CONTAINER_PADDING_PERCENT } from "../game/game";

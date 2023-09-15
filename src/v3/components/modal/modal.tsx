@@ -94,7 +94,7 @@ export const ModalHeader = ({
   return (
     <header class="grid max-h-full grid-cols-[0.3fr_1fr_0.3fr] justify-center items-center">
       {buttonOpts.onLeft ? button : <div></div>}
-      <h3 class="text-lg">{title}</h3>
+      <h3 class="text-lg text-slate-100">{title}</h3>
       {!buttonOpts.onLeft ? button : <div></div>}
     </header>
   );

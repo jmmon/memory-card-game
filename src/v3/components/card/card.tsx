@@ -1,5 +1,4 @@
 import {
-  type Signal,
   Slot,
   component$,
   useComputed$,
@@ -9,11 +8,11 @@ import {
 } from "@builder.io/qwik";
 import ImageBackFace from "~/media/cards/_backWhite.png?jsx";
 import { GameContext } from "~/v3/context/gameContext";
-import type { Coords } from "~/v3/types/types";
-import { type Card } from "~/v3/types/types";
-import v3CardUtils, { CARD_RATIO_VS_CONTAINER } from "~/v3/utils/v3CardUtils";
+import v3CardUtils, { CARD_RATIO_VS_CONTAINER } from "~/v3/utils/cardUtils";
 import { CARD_FLIP_ANIMATION_DURATION, CARD_RATIO } from "../board/board";
 import PlayingCardComponents from "../playing-card-components";
+import type { BoardLayout, Coords, Card } from "~/v3/types/types";
+import type { Signal } from "@builder.io/qwik";
 
 // underside shows immediately, but hides after this far during return transition
 export const CARD_HIDE_UNDERSIDE_AFTER_PERCENT = 0.9;
@@ -154,12 +153,12 @@ export default component$(({ card }: { card: Card }) => {
           Math.floor(
             (Math.abs(
               (flipTransform.value.translateX === 0
-                ? 1
+                ? 0
                 : flipTransform.value.translateX) / 50
             ) +
               Math.abs(
                 flipTransform.value.translateY === 0
-                  ? 1
+                  ? 0
                   : flipTransform.value.translateY / 50
               )) /
               2
@@ -220,6 +219,7 @@ export default component$(({ card }: { card: Card }) => {
             isFaceShowing_delayedOff={isFaceShowing_delayedOff}
             flipTransform={flipTransform}
             roundedCornersPx={gameContext.cardLayout.roundedCornersPx}
+            boardLayout={gameContext.boardLayout}
           />
         </div>
       </div>
@@ -236,6 +236,7 @@ export const CardFlippingWrapper = ({
   flipTransform,
   roundedCornersPx,
   isFaceShowing,
+  boardLayout,
 }: {
   card: Card;
   isSelected: Signal<boolean>;
@@ -245,6 +246,7 @@ export const CardFlippingWrapper = ({
   isFaceShowing_delayedOff: Signal<boolean>;
   flipTransform: Signal<FlipTransform>;
   roundedCornersPx: number;
+  boardLayout: BoardLayout;
 }) => {
   return (
     <div
@@ -254,7 +256,11 @@ export const CardFlippingWrapper = ({
         transform:
           isCardFlipped.value ||
           (isRemoved.value && isFaceShowing_delayedOff.value)
-            ? `translate(${flipTransform.value.translateX}%, ${flipTransform.value.translateY}%) 
+            ? `translate(${
+                (flipTransform.value.translateX * boardLayout.colWidth) / 100
+              }px, ${
+                (flipTransform.value.translateY * boardLayout.rowHeight) / 100
+              }px) 
       rotateY(${flipTransform.value.rotateY}) 
       scale(${flipTransform.value.scale})`
             : "",
