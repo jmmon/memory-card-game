@@ -1,7 +1,7 @@
 import { formatTime, truncateMs } from "~/v3/utils/formatTime";
 
 export const GrayedAtZero = ({ val, text }: { val: number; text: string }) => (
-  <span class={`text-right ${val === 0 ? "text-slate-400" : ""}`}>
+  <span class={`text-right ${val === 0 ? "text-slate-400" : "text-slate-100"}`}>
     {val}
     <span class={`text-right text-slate-400`}>{text}</span>
   </span>
@@ -18,7 +18,7 @@ export const FormattedTime = ({
   const limitedMs = truncateMs(Number(ms), limit);
 
   return (
-    <span class="text-left">
+    <span class="text-slate-100 text-left">
       <GrayedAtZero val={minutes} text="m" /> {seconds}
       <span class="text-xs text-slate-400">{limitedMs}s</span>
     </span>

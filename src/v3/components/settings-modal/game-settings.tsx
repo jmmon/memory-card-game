@@ -244,7 +244,7 @@ export default component$(
           <summary class="text-slate-100 p-2 border border-slate-200 bg-slate-700 rounded hover:bg-slate-500 cursor-pointer w-max mx-auto">
             Help
           </summary>
-          <ul class="text-left list-disc grid gap-2 w-full">
+          <ul class="text-slate-100 text-left list-disc grid gap-2 w-full">
             <li>Select cards by clicking on them.</li>
             <li>
               Cards are matched when the two selected cards have the same number
