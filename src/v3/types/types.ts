@@ -149,7 +149,7 @@ export type GameContext = {
     };
     scoresModal: {
       isShowing: boolean;
-      scores: Array<ScoreWithPercentiles>;
+      scores: Array<ScoreWithPercentiles | Score>;
     };
   };
   shuffleCardPositions: QRL<() => void>;

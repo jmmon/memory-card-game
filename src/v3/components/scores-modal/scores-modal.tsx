@@ -16,13 +16,11 @@ import PixelAvatar from "../pixel-avatar/pixel-avatar";
 import serverDbService from "~/v3/services/db.service";
 import { timestampToMs, truncateMs } from "~/v3/utils/formatTime";
 import Tabulation from "../tabulation//tabulation";
-import { type Signal } from "@builder.io/qwik";
-import {
-  type ScoreWithPercentiles,
-  type SortDirection,
-  type DeckSizesDictionary,
-  type ScoreColumn,
-  type SortColumnWithDirection,
+import type {
+  ScoreWithPercentiles,
+  DeckSizesDictionary,
+  ScoreColumn,
+  SortColumnWithDirection,
 } from "~/v3/types/types";
 
 /* TODO: set up for multiple deckSizes
@@ -47,43 +45,43 @@ import {
  * - then we can know the length of the total set
  * - and we can count how many land under our score
  * - that way we can calculate the percentile for this score
-*
-* Performance:
-* Should I save some of this data in a secondaory table? scoreCounts table?
-* - scoreCounts might be for a given deckSize
-* - scoreCounts[size: 6] = {
-*     totalScores: n, (increment when we add a new score of this deckSize)
-*     lessThanOurScoreMap: {
-*       [ourScore (e.g. our mismatches)]: m (count less than our score)
-*       // when add a score of this deckSize, take our mismatches.
-*       // For each entry where key:mismatches is GREATER THAN our mismatches,
-*       //  - add 1 to each value
-*     }
-*   }
-* e.g. we have scores for deckSize of 6:
-* totalScores = 12,
-* lessThanOurScoreMap: {
-* 1: 0, // if our score is 1, there are 0 less than this score
-* 2: 2,
-* 3: 4,
-* 4: 6, // if our score is 4, there are 6 scores less than this score
-* 5: 9, // if our score is 5, there are 9 scores less than this score
-* 6: 10,
-* 8: 11, // 11 are less than a score of 8, so a score of 8 is the 12th score
-* }
-* 
-* When adding a new score of deckSize 6: score.mismatches = 4
-* totalScores = 12 + 1,
-* lessThanOurScoreMap: {
-*   1: 0,
-*   2: 2,
-*   3: 4,
-*   4: 6, // -- our score
-*   5: 9 + 1, // we scored 4, so we have to increment any that land ABOVE our score
-*   6: 10 + 1,
-*   8: 11 + 1 // now the score of 8 is the 13th score, with 12 less than it
-* }
-*
+ *
+ * Performance:
+ * Should I save some of this data in a secondaory table? scoreCounts table?
+ * - scoreCounts might be for a given deckSize
+ * - scoreCounts[size: 6] = {
+ *     totalScores: n, (increment when we add a new score of this deckSize)
+ *     lessThanOurScoreMap: {
+ *       [ourScore (e.g. our mismatches)]: m (count less than our score)
+ *       // when add a score of this deckSize, take our mismatches.
+ *       // For each entry where key:mismatches is GREATER THAN our mismatches,
+ *       //  - add 1 to each value
+ *     }
+ *   }
+ * e.g. we have scores for deckSize of 6:
+ * totalScores = 12,
+ * lessThanOurScoreMap: {
+ * 1: 0, // if our score is 1, there are 0 less than this score
+ * 2: 2,
+ * 3: 4,
+ * 4: 6, // if our score is 4, there are 6 scores less than this score
+ * 5: 9, // if our score is 5, there are 9 scores less than this score
+ * 6: 10,
+ * 8: 11, // 11 are less than a score of 8, so a score of 8 is the 12th score
+ * }
+ *
+ * When adding a new score of deckSize 6: score.mismatches = 4
+ * totalScores = 12 + 1,
+ * lessThanOurScoreMap: {
+ *   1: 0,
+ *   2: 2,
+ *   3: 4,
+ *   4: 6, // -- our score
+ *   5: 9 + 1, // we scored 4, so we have to increment any that land ABOVE our score
+ *   6: 10 + 1,
+ *   8: 11 + 1 // now the score of 8 is the 13th score, with 12 less than it
+ * }
+ *
  * */
 
 const JAN_1_1970_STRING = "1970-01-01T00:00:00.000Z";
@@ -91,7 +89,7 @@ const DATE_JAN_1_1970 = new Date(JAN_1_1970_STRING);
 
 const PIXEL_AVATAR_SIZE = 44;
 
-const mapColTitleToObjKey: { [key: string]: ScoreColumn } = {
+const MAP_COL_TITLE_TO_OBJ_KEY: { [key: string]: ScoreColumn } = {
   initials: "initials",
   "deck-size": "deckSize",
   pairs: "pairs",
@@ -170,32 +168,32 @@ const sortFunctions: {
 };
 
 // TODO: this will be built into the query??
-const sortScores = (
-  scores: ScoreWithPercentiles[],
-  sortByColumnHistory: Array<SortColumnWithDirection>
-) => {
-  let result = [...scores];
-
-  result.sort((a, b) => {
-    let value = 0;
-    let nextKeyIndex = 0;
-    let { column, direction } = sortByColumnHistory[0];
-    // console.log({ sortByColumnHistory: sortByColumnHistory.value });
-    while (value === 0 && nextKeyIndex < sortByColumnHistory.length) {
-      const sortingInstructions = sortByColumnHistory[nextKeyIndex];
-      column = sortingInstructions.column;
-
-      value = sortFunctions[column](a, b);
-      // console.log({ value, key, fn });
-      nextKeyIndex++;
-    }
-    // console.log({ value });
-    return direction === "desc" ? value : 0 - value;
-  });
-
-  // console.log({ sortedResult: result });
-  return result;
-};
+// const sortScores = (
+//   scores: ScoreWithPercentiles[],
+//   sortByColumnHistory: Array<SortColumnWithDirection>
+// ) => {
+//   let result = [...scores];
+//
+//   result.sort((a, b) => {
+//     let value = 0;
+//     let nextKeyIndex = 0;
+//     let { column, direction } = sortByColumnHistory[0];
+//     // console.log({ sortByColumnHistory: sortByColumnHistory.value });
+//     while (value === 0 && nextKeyIndex < sortByColumnHistory.length) {
+//       const sortingInstructions = sortByColumnHistory[nextKeyIndex];
+//       column = sortingInstructions.column;
+//
+//       value = sortFunctions[column](a, b);
+//       // console.log({ value, key, fn });
+//       nextKeyIndex++;
+//     }
+//     // console.log({ value });
+//     return direction === "desc" ? value : 0 - value;
+//   });
+//
+//   // console.log({ sortedResult: result });
+//   return result;
+// };
 
 const MAX_SORT_COLUMN_HISTORY = 2;
 // const DEFAULT_SORT_BY_COLUMN_HISTORY = [
@@ -260,7 +258,7 @@ export default component$(() => {
     ] as string;
 
     // tweak some words to match the object keys
-    const clickedColumnTitle = mapColTitleToObjKey[clickedDataAttr];
+    const clickedColumnTitle = MAP_COL_TITLE_TO_OBJ_KEY[clickedDataAttr];
 
     const currentSortByColumn = queryStore.sortByColumnHistory[0];
 
@@ -391,11 +389,11 @@ export default component$(() => {
   }
 
 
-  table.scoreboard > thead.asc  {
+  table.scoreboard > thead th.asc  {
     --gradiant-start: var(--gradiant-dark);
     --gradiant-end: var(--gradiant-light);
   }
-  table.scoreboard > thead.desc  {
+  table.scoreboard > thead th.desc  {
     --gradiant-start: var(--gradiant-light);
     --gradiant-end: var(--gradiant-dark);
   }
@@ -439,7 +437,7 @@ export default component$(() => {
         gameContext.interface.scoresModal.isShowing = false;
       }}
       title="Scoreboard"
-      classes="flex"
+      containerClasses="flex"
     >
       <div class="flex flex-col w-min">
         <Tabulation
@@ -454,17 +452,25 @@ export default component$(() => {
             q:slot="scoreboard-tab0"
             class="scoreboard w-full  max-h-[90vh]"
           >
-            <thead
-              class={`${sortDirection.value} text-xs sm:text-sm md:text-md bg-slate-500`}
-            >
+            <thead class={` text-xs sm:text-sm md:text-md bg-slate-500`}>
               <tr>
                 {headersList.map((header) => {
                   const hyphenated = header.toLowerCase().replace(" ", "-");
+                  const key = MAP_COL_TITLE_TO_OBJ_KEY[header];
                   return (
                     <ScoreTableHeader
                       key={hyphenated}
                       title={header}
                       hyphenated={hyphenated}
+                      classes={
+                        queryStore.sortByColumnHistory.find(
+                          ({ column }) => column === key
+                        )?.direction ??
+                        DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY.find(
+                          ({ column }) => column === key
+                        )?.direction ??
+                        "desc"
+                      }
                       onClick$={
                         header === "Avatar"
                           ? undefined

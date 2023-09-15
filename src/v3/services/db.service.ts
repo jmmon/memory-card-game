@@ -1,15 +1,10 @@
 import { eq, inArray, asc, desc } from "drizzle-orm";
 import { db } from "../db/index";
 import { scores, scoreCounts } from "../db/index";
-import {
-  type NewScore,
-  type NewScoreCounts,
-  type ScoreCounts,
-} from "../db/types";
+import type { NewScore, NewScoreCounts, ScoreCounts } from "../db/types";
 import { server$ } from "@builder.io/qwik-city";
 import {
   LessThanOurScoreObj,
-  ScoreCountColumnOptions,
   SortColumnWithDirection,
 } from "../types/types";
 import { timestampToMs } from "../utils/formatTime";
@@ -57,14 +52,14 @@ const createScore = (newScore: NewScore) => {
   return db.insert(scores).values(newScore).returning();
 };
 
-const createScoreCounts = ({
-  deckSize,
-}: {
-  deckSize: number;
-}) =>
+const createScoreCounts = ({ deckSize }: { deckSize: number }) =>
   db
     .insert(scoreCounts)
-    .values({ deckSize, lessThanOurGameTimeMap: {}, lessThanOurMismatchesMap: {} })
+    .values({
+      deckSize,
+      lessThanOurGameTimeMap: {},
+      lessThanOurMismatchesMap: {},
+    })
     .returning();
 
 const updateScoreCounts = (
@@ -94,26 +89,26 @@ const updateLessThanOurMismatchesJson = (
   return newLessThanOurScoreJson;
 };
 
-const updateLessThanOurGameTimeJson = (ourGameTime: string, oldJson: LessThanOurScoreObj) => {
+const updateLessThanOurGameTimeJson = (
+  ourGameTime: string,
+  oldJson: LessThanOurScoreObj
+) => {
   const newLessThanOurScoreJson: LessThanOurScoreObj = {};
   Object.entries(oldJson).forEach(([gameTime, lessThanCount]) => {
     // DON'T MODIFY if LESS or EQUAL to ours
     if (timestampToMs(gameTime) <= timestampToMs(ourGameTime)) {
       newLessThanOurScoreJson[gameTime] = lessThanCount as number;
     } else {
-      newLessThanOurScoreJson[gameTime] =
-        (lessThanCount as number) + 1;
+      newLessThanOurScoreJson[gameTime] = (lessThanCount as number) + 1;
     }
   });
   return newLessThanOurScoreJson;
-}
+};
 
 // in the end, we will end up with 52 - 6 = 46 / 2 + 1 = 24 different deckSizes
 // and we have two different columns for each deckSize
 // so in total, up to 24 * 2 = 48 entries in this table
-const addScoreToCounts = async (
-  score: NewScore,
-) => {
+const addScoreToCounts = async (score: NewScore) => {
   const deckSize = score.deckSize as number;
   let foundOneScoreCounts = (
     (await db
@@ -131,7 +126,8 @@ const addScoreToCounts = async (
       lessThanOurMismatchesMap: {
         [score.mismatches as number]: 0, // when creating, 0 other scores are LESS THAN our mismatch score
       },
-      lessThanOurGameTimeMap: { // TODO: this will end up creating TONS of entries, one for every gameTime. I guess that's okay for now??
+      lessThanOurGameTimeMap: {
+        // TODO: this will end up creating TONS of entries, one for every gameTime. I guess that's okay for now??
         [score.gameTime as string]: 0, // when creating, 0 other scores are LESS THAN our gameTime score
       },
       scores: [score],
@@ -165,7 +161,6 @@ const serverDbService = {
   addScoreToCounts: server$(addScoreToCounts),
 };
 
-
 /*
  * ORRRRR
  * I have the scores saved by deck size, and related to the ScoreCounts table
@@ -185,13 +180,13 @@ const serverDbService = {
  *   // Alternately, could make a tree structure e.g.:
  *   lessThanOurGameTimeMap: { // for gameTime percentiles
  *     [gameTimeHours: string]: {
-   *     lessThanThisTime: t // t === how many scores have less gameTimeHours than ours
-   *     [gameTimeMinutes: string]: {
-     *     lessThanThisTime: t // t === how many scores have less gameTimeMinutes than ours
-     *     [gameTimeSeconds: string]: {
-       *     [gameTimeMilliseconds: string]: t // t === how many scores have less gameTime than ours
-     *     }
-   *     }
+ *     lessThanThisTime: t // t === how many scores have less gameTimeHours than ours
+ *     [gameTimeMinutes: string]: {
+ *     lessThanThisTime: t // t === how many scores have less gameTimeMinutes than ours
+ *     [gameTimeSeconds: string]: {
+ *     [gameTimeMilliseconds: string]: t // t === how many scores have less gameTime than ours
+ *     }
+ *     }
  *     }
  *   }
  *   // I don't think the tree structure would reduce the number of entries...

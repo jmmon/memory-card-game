@@ -20,6 +20,7 @@ export const useTimer = ({
   const state = useStore({
     status: "STOPPED",
     time: 0,
+    timeDs: 0,
     last: 0,
     isStarted: false,
     isPaused: false,
@@ -86,6 +87,8 @@ export const useTimer = ({
         state.last === 0 || now - state.last > 500 ? now : state.last;
       state.time += now - last;
       state.last = now;
+
+      state.timeDs = Math.round(state.time / 100) * 100;
     };
 
     if (status === "RUNNING") {
