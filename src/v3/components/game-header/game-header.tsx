@@ -225,7 +225,7 @@ export const TimerHeaderComponent = component$(() => {
             : ""
         }
       >
-        <FormattedTime timeMs={gameContext.timer.state.runningTime} limit={2} />
+        <FormattedTime timeMs={gameContext.timer.state.time} limit={2} />
 
       </span>
     </code>
