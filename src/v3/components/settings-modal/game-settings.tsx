@@ -97,7 +97,7 @@ export default component$(
             <SettingsRow>
               <div class="w-full flex justify-between tooltip">
                 <label>Played Time:</label>
-                <FormattedTime timeMs={gameContext.timer.state.runningTime} />
+                <FormattedTime timeMs={gameContext.timer.state.time} />
                 <span class="tooltiptext">
                   Total un-paused play time for this round.
                 </span>

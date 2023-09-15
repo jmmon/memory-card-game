@@ -1,48 +1,44 @@
-import { type QRL, $, useStore, useVisibleTask$ } from "@builder.io/qwik";
+import { $, useStore, useVisibleTask$ } from "@builder.io/qwik";
+
+import { type QRL } from "@builder.io/qwik";
 
 type UseTimerOpts = {
   onPause: QRL<() => void>;
   onStart: QRL<() => void>;
   onStop: QRL<() => void>;
   onReset: QRL<() => void>;
+  onResume: QRL<() => void>;
   isPaused: boolean;
 };
+
 export const useTimer = ({
   onPause,
   onStart,
   onStop,
   onReset,
+  onResume,
 }: Partial<UseTimerOpts> = {}) => {
   const state = useStore({
     status: "STOPPED",
-    start: 0, // local start time (for this session)
-    end: 0, // local end time
-    total: 0, // total game time
+    time: 0,
+    last: 0,
     isStarted: false,
     isPaused: false,
     isEnded: false,
-    runningTime: 0,
     blink: false,
   });
 
   const start = $(() => {
-    state.start = Date.now();
-    state.end = 0;
     state.isPaused = false;
     state.isStarted = true;
     state.status = "RUNNING"; // tracked by task
-    console.log({ state });
 
     if (typeof onStart !== "undefined") onStart();
   });
 
   const stop = $(() => {
     state.isEnded = true;
-    state.end = Date.now();
-    state.total += state.end - state.start;
-    state.start = 0;
     state.status = "STOPPED";
-    console.log({ state });
 
     if (typeof onStop !== "undefined") onStop();
   });
@@ -51,80 +47,69 @@ export const useTimer = ({
     state.isPaused = false;
     if (!state.isStarted || state.isEnded) return;
 
-    state.start = Date.now();
-    state.end = 0;
     state.isPaused = false;
     state.isStarted = true;
     state.status = "RUNNING"; // tracked by task
-    console.log({ state });
+    if (typeof onResume !== "undefined") onResume();
   });
 
   const pause = $(() => {
     state.isPaused = true;
     if (!state.isStarted || state.isEnded) return;
 
-    state.end = Date.now();
-    state.total += state.end - state.start;
-    state.start = 0;
     state.status = "STOPPED";
-
     if (typeof onPause !== "undefined") onPause();
   });
 
   const reset = $(() => {
-    state.total = 0;
-    state.start = 0;
-    state.end = 0;
+    state.last = 0;
     state.isStarted = false;
     state.isEnded = false;
     state.isPaused = false;
     state.status = "STOPPED";
-    console.log({ state });
 
     if (typeof onReset !== "undefined") onReset();
   });
 
-  // onMount:
+  // onMount and on stopping and starting the timer
   useVisibleTask$((taskCtx) => {
     const status = taskCtx.track(() => state.status);
-    console.log({ state });
 
-    // no need to set up interval if not started
+    // resume and pause have no effect if not started
     if (!state.isStarted) return;
-
-    // when stopping,
-    const updateRunningTime = (
-      { isStopped }: { isStopped?: boolean } = { isStopped: false }
-    ) => {
-      state.runningTime = isStopped
-        ? state.total
-        : state.total + (Date.now() - state.start);
-      console.log({runningTimeMs: state.runningTime});
-    };
 
     let intervalId: ReturnType<typeof setInterval> | null = null;
     let blinkId: ReturnType<typeof setInterval> | null = null;
 
+    const updateRunningTime = () => {
+      const now = Date.now();
+      const last =
+        state.last === 0 || now - state.last > 500 ? now : state.last;
+      state.time += now - last;
+      state.last = now;
+    };
+
     if (status === "RUNNING") {
+      // wrap in fn because typescript
       intervalId = setInterval(() => {
-        // wrap in fn because typescript
         updateRunningTime();
       }, 95);
+
       updateRunningTime(); // run immediately also
     } else if (status === "STOPPED") {
-      updateRunningTime({ isStopped: true }); // make sure it's synched with total
-
       if (state.isPaused) {
         blinkId = setInterval(() => {
           state.blink = !state.blink;
-        }, 1000);
-        state.blink = true;
+        }, 800);
+        state.blink = false;
       }
     }
 
     taskCtx.cleanup(() => {
       if (intervalId) clearInterval(intervalId);
+      intervalId = null;
       if (blinkId) clearInterval(blinkId);
+      blinkId = null;
     });
   });
 

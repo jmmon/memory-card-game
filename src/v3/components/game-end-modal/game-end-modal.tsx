@@ -109,24 +109,34 @@ export default component$(() => {
       }}
     >
       <div class="flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%]">
-        <div class="flex flex-col md:flex-row gap-1 md:gap-2 py-[2%] px-[4%]">
-          <PixelAvatar
-            classes="inline-block flex-shrink-0 mx-auto"
-            width={50}
-            height={50}
-            rows={10}
-            cols={10}
-            text={identifier}
-            colorFrom={initials}
-            coloredSquaresStrokeWidth={0}
-            colorOptions={{
-              saturation: {
-                min: 0,
-                max: 100,
-              },
-              lightness: { min: 25, max: 75 },
-            }}
-          />
+        <SettingsRow>
+          <div class="flex flex-grow justify-between">
+            <span>Pairs:</span>
+            <span>
+              {gameContext.game.successfulPairs.length}/
+              {gameContext.settings.deck.size / 2}
+            </span>
+          </div>
+        </SettingsRow>
+        <SettingsRow>
+          <div class="flex flex-grow justify-between">
+            <span>Mismatches:</span>
+            <span>
+              {gameContext.game.mismatchPairs.length}
+              {gameContext.settings.maxAllowableMismatches !== -1
+                ? `/${gameContext.settings.deck.size / 2} `
+                : ""}
+            </span>
+          </div>
+        </SettingsRow>
+        <SettingsRow>
+          <div class="flex flex-grow justify-between">
+            <span>Time:</span>
+            <span>
+              <FormattedTime timeMs={gameContext.timer.state.time} limit={3}  />
+            </span>
+          </div>
+        </SettingsRow>
 
           <SettingsRow>
             <div class="flex flex-grow justify-between">
