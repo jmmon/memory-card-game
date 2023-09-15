@@ -7,12 +7,12 @@ const DEFAULT_CONTAINER_BG = "bg-slate-600";
 
 type ModalOptions = { detectClickOutside: boolean };
 
-const DEFAULT_OPTIONS = {detectClickOutside: true};
+const DEFAULT_OPTIONS = { detectClickOutside: true };
 export default component$(
   ({
     isShowing,
     hideModal$,
-    classes = "",
+    containerClasses = "",
     bgClasses = "backdrop-blur-sm",
     title,
     bgStyles,
@@ -20,13 +20,13 @@ export default component$(
   }: {
     isShowing: boolean;
     hideModal$: PropFunction<() => void>;
-    classes?: string;
+    containerClasses?: string;
     bgClasses?: string;
     bgStyles?: any;
     title: string;
     options?: Partial<ModalOptions>;
   }) => {
-    const containerClasses = DEFAULT_CONTAINER_BG + " " + classes;
+    containerClasses = DEFAULT_CONTAINER_BG + " " + containerClasses;
     const closeModal$ = $((e: QwikMouseEvent) => {
       if (!options.detectClickOutside) return;
       if ((e.target as HTMLElement).dataset.name === "background") {
@@ -54,9 +54,9 @@ export default component$(
           data-name="modal"
         >
           <ModalHeader hideModal$={hideModal$} title={title} />
-<div class="w-full h-full overflow-y-auto">
-          <Slot />
-</div>
+          <div class="w-full h-full overflow-y-auto">
+            <Slot />
+          </div>
         </div>
       </div>
     );
@@ -64,21 +64,19 @@ export default component$(
 );
 
 export const CloseButton = ({
-  hideModal$,
   text = "X",
+  hideModal$,
 }: {
   text?: string;
   hideModal$: PropFunction<() => void>;
-}) => {
-  return (
-    <button
-      class="ml-auto border-slate-400 border rounded-lg py-1.5 px-2 transition-all bg-slate-800/90 hover:bg-slate-600"
-      onClick$={hideModal$}
-    >
-      {text}
-    </button>
-  );
-};
+}) => (
+  <button
+    class="text-slate-600 hover:text-slate-400 ml-auto border-slate-400 border rounded-lg py-1.5 px-2 transition-all bg-slate-800/90 hover:bg-slate-600"
+    onClick$={hideModal$}
+  >
+    {text}
+  </button>
+);
 
 export const ModalHeader = ({
   hideModal$,

@@ -1,4 +1,5 @@
-import { type Signal, component$, useContext } from "@builder.io/qwik";
+import { component$, useContext } from "@builder.io/qwik";
+import type { Signal } from "@builder.io/qwik";
 import Button from "../button/button";
 import {
   Lock,
@@ -110,7 +111,7 @@ export default component$(
             </SettingsRow>
             <SettingsRow>
               <div class="w-full flex justify-between tooltip">
-                <label>Played Time:</label>
+                <label class="text-slate-100">Played Time:</label>
                 <FormattedTime timeMs={gameContext.timer.state.time} />
                 <span class="tooltiptext">
                   Total un-paused play time for this round.

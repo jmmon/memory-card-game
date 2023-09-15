@@ -1,10 +1,5 @@
-import {
-  $,
-  type QRL,
-  type Signal,
-  useSignal,
-  useVisibleTask$,
-} from "@builder.io/qwik";
+import { $, useSignal, useVisibleTask$ } from "@builder.io/qwik";
+import type { QRL, Signal } from "@builder.io/qwik";
 
 export const useTimeout = (
   action: QRL<() => void | any>,

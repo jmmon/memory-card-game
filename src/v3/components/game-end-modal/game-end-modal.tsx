@@ -28,7 +28,7 @@ export default component$(() => {
     >
       <div class="flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%]">
         <SettingsRow>
-          <div class="flex flex-grow justify-between">
+          <div class="text-slate-100 flex flex-grow justify-between">
             <span>Pairs:</span>
             <span>
               {gameContext.game.successfulPairs.length}/
@@ -37,7 +37,7 @@ export default component$(() => {
           </div>
         </SettingsRow>
         <SettingsRow>
-          <div class="flex flex-grow justify-between">
+          <div class="text-slate-100 flex flex-grow justify-between">
             <span>Mismatches:</span>
             <span>
               {gameContext.game.mismatchPairs.length}
@@ -48,17 +48,20 @@ export default component$(() => {
           </div>
         </SettingsRow>
         <SettingsRow>
-          <div class="flex flex-grow justify-between">
+          <div class="text-slate-100 flex flex-grow justify-between">
             <span>Time:</span>
             <span>
-              <FormattedTime timeMs={gameContext.timer.state.time} limit={3}  />
+              <FormattedTime timeMs={gameContext.timer.state.time} limit={3} />
             </span>
           </div>
         </SettingsRow>
 
         <SettingsRow>
           <div class="flex flex-grow gap-[2%] items-center tooltip w-full">
-            <label class="w-4/12 text-left" for="deck-card-count-end-game">
+            <label
+              class="text-slate-100 w-4/12 text-left"
+              for="deck-card-count-end-game"
+            >
               Deck Card Count:
             </label>
             <input
@@ -87,8 +90,12 @@ export default component$(() => {
 
             gameContext.interface.endOfGameModal.isShowing = false;
           }}
-        >Play Again</Button>
-        <Button onClick$={hideModal$} >Close</Button>
+        >
+          Play Again
+        </Button>
+        <Button onClick$={hideModal$} >
+          Close
+        </Button>
       </div>
     </Modal>
   );

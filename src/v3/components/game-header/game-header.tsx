@@ -102,27 +102,31 @@ export default component$(
               <span class={`w-8/12 flex-grow flex-shrink-0 text-right`}>
                 pairs:
               </span>
-              <span class={`w-4/12 flex-grow flex-shrink-0 text-left`}>
-                {gameContext.game.successfulPairs.length}/
-                {gameContext.settings.deck.size / 2}{" "}
+              <span
+                class={`text-slate-100 w-4/12 flex-grow flex-shrink-0 text-left`}
+              >
+                {gameContext.game.successfulPairs.length}
+                <span class="text-slate-400">
+                  /{gameContext.settings.deck.size / 2}
+                </span>
               </span>
             </div>
 
             <div
               class={`rounded mismatch ${
-animateMismatch.value
-                  ? SCORE_ANIMATION_CLASSES
-                  : ""
+                animateMismatch.value ? SCORE_ANIMATION_CLASSES : ""
               } flex gap-2 ${CODE_TEXT_DARK}`}
             >
               <span class="w-8/12 flex-grow flex-shrink-0 text-right">
                 mismatches:
               </span>
-              <span class="w-4/12 flex-grow flex-shrink-0 text-left">
+              <span class="text-slate-100 w-4/12 flex-grow flex-shrink-0 text-left">
                 {gameContext.game.mismatchPairs.length}
-                {gameContext.settings.maxAllowableMismatches === -1
-                  ? ""
-                  : `/${gameContext.settings.maxAllowableMismatches}`}
+                <span class="text-slate-400">
+                  {gameContext.settings.maxAllowableMismatches === -1
+                    ? ""
+                    : `/${gameContext.settings.maxAllowableMismatches}`}
+                </span>
               </span>
             </div>
           </code>
@@ -226,7 +230,6 @@ export const TimerHeaderComponent = component$(() => {
         }
       >
         <FormattedTime timeMs={gameContext.timer.state.time} limit={2} />
-
       </span>
     </code>
   );
