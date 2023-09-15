@@ -11,7 +11,7 @@ export function useDebounce<T>(
     signal.value = newValue;
   });
   const setDelay = $((num: number) => {
-    delay.value = num;
+    delay.value = Math.max(0, num);
   });
 
   // track value changes to restart the timer
@@ -57,7 +57,7 @@ export function useDebounce2<T>(
   return {
     delay,
     setDelay: $((newDelay: number) => {
-      delay.value = newDelay;
+      delay.value = Math.max(0, newDelay);
     }),
     debounced,
   };

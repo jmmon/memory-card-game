@@ -31,8 +31,7 @@ export const CARD_SHUFFLE_PAUSE_DURATION = 50;
 // animation duration
 export const CARD_SHUFFLE_ACTIVE_DURATION = 350;
 
-const MINIMUM_CARD_VIEW_TIME = 500;
-const MINIMUM_BETWEEN_CARDS = 500;
+const MINIMUM_TIME_BETWEEN_CLICKS = 500;
 
 export default component$(
   ({ containerRef }: { containerRef: Signal<HTMLElement | undefined> }) => {
@@ -42,8 +41,6 @@ export default component$(
     const lastDeckSize = useSignal(gameContext.settings.deck.size);
     const lastRefresh = useSignal(gameContext.settings.resizeBoard);
 
-    const flippedTime = useSignal(-1);
-    const unflippedTime = useSignal(-1);
     const lastClick = useSignal(-1);
 
     const handleAddToSuccessfulPairsIfMatching = $(async () => {
@@ -87,15 +84,17 @@ export default component$(
       }
     });
 
+    const unflipCard = $(async () => {
+      if (gameContext.game.selectedCardIds.length === 2) {
+        await handleAddToSuccessfulPairsIfMatching();
+      }
+      gameContext.game.flippedCardId = -1;
+      lastClick.value = Date.now();
+    });
+
     const unflipDebounce = useDebounce<number>(
-      $(() => {
-        if (gameContext.game.selectedCardIds.length === 2) {
-          handleAddToSuccessfulPairsIfMatching();
-        }
-        gameContext.game.flippedCardId = -1;
-        unflippedTime.value = Date.now();
-      }),
-      MINIMUM_CARD_VIEW_TIME
+      unflipCard,
+      MINIMUM_TIME_BETWEEN_CLICKS
     );
 
     const runUnflipDebounce = $((time: number) => {
@@ -103,11 +102,9 @@ export default component$(
       unflipDebounce.setValue(-1);
     });
 
-    const handleClickCard = $((cardId: number) => {
-      // to prevent card from returning super quick
-      console.log("handleClickCard", { cardId });
-
-      flippedTime.value = Date.now();
+    // runs when the clicked item is a card
+    const handleClickUnflippedCard = $((cardId: number) => {
+      console.log("handleClickUnflippedCard", { cardId });
 
       const newSelected = v3CardUtils.handleAddCardToSelected(
         [...gameContext.game.selectedCardIds],
@@ -124,31 +121,73 @@ export default component$(
 
         // check immediately for the final pair
         if (isFinalPair) {
-          // appStore.createTimestamp({ paused: true });
           gameContext.game.flippedCardId = cardId;
           gameContext.timer.pause();
-          runUnflipDebounce(MINIMUM_CARD_VIEW_TIME * 1.5);
+          runUnflipDebounce(MINIMUM_TIME_BETWEEN_CLICKS);
           return;
         }
       }
 
       // flip it either way
       gameContext.game.flippedCardId = cardId;
+      lastClick.value = Date.now();
     });
 
-    const clickDebounce = useDebounce<number>(
-      $((clickedId) => {
-        handleClickCard(Number(clickedId));
-      }),
-      MINIMUM_CARD_VIEW_TIME
+    const handleClickCard = $(
+      (isCardFlipped: boolean, isClickedOnCard: boolean, clickedId: number) => {
+        // unflip card if flipped
+        if (isCardFlipped) {
+          unflipCard();
+        }
+        // card is not flipped
+        else if (isClickedOnCard) {
+          // initialize game timer on first click
+          if (!gameContext.timer.state.isStarted) {
+            gameContext.startGame();
+          }
+
+          // runClickUnflippedCardDebounce(clickedId);
+          handleClickUnflippedCard(clickedId);
+        }
+      }
     );
 
-    const runClickDebounce = $((clickedId: number) => {
-      clickDebounce.setDelay(
-        MINIMUM_BETWEEN_CARDS - (Date.now() - unflippedTime.value)
-      );
-      clickDebounce.setValue(clickedId);
-    });
+    const clickCardDebounce = useDebounce<{
+      isCardFlipped: boolean;
+      isClickedOnCard: boolean;
+      clickedId: number;
+    }>(
+      $((values) => {
+        const { isCardFlipped, isClickedOnCard, clickedId } = values as {
+          isCardFlipped: boolean;
+          isClickedOnCard: boolean;
+          clickedId: number;
+        };
+        handleClickCard(isCardFlipped, isClickedOnCard, clickedId as number);
+      }),
+      MINIMUM_TIME_BETWEEN_CLICKS
+    );
+
+    const runClickCardDebounce = $(
+      ({
+        isCardFlipped,
+        isClickedOnCard,
+        clickedId,
+      }: {
+        isCardFlipped: boolean;
+        isClickedOnCard: boolean;
+        clickedId: number;
+      }) => {
+        clickCardDebounce.setDelay(
+          MINIMUM_TIME_BETWEEN_CLICKS - (Date.now() - lastClick.value)
+        );
+        clickCardDebounce.setValue({
+          isCardFlipped,
+          isClickedOnCard,
+          clickedId,
+        });
+      }
+    );
 
     const handleClickBoard$ = $((e: QwikMouseEvent) => {
       const isCardFlipped = gameContext.game.flippedCardId !== -1;
@@ -160,25 +199,11 @@ export default component$(
 
       if (!isClickedOnCard && !isCardFlipped) return;
 
-      // else, we care about the click
-      // gameContext.timer.resume(); // resume if it were paused
-      lastClick.value = Date.now();
-
-      // unflip card if flipped
-      if (isCardFlipped) {
-        runUnflipDebounce(
-          MINIMUM_CARD_VIEW_TIME - (Date.now() - flippedTime.value)
-        );
-      }
-      // card is not flipped
-      else if (isClickedOnCard) {
-        // initialize game timer on first click
-        if (!gameContext.timer.state.isStarted) {
-          gameContext.startGame();
-        }
-
-        runClickDebounce(clickedId);
-      }
+      runClickCardDebounce({
+        isCardFlipped,
+        isClickedOnCard,
+        clickedId: clickedId as number,
+      });
     });
 
     // auto pause after some inactivity
@@ -206,7 +231,7 @@ export default component$(
       $((e) => {
         if ((e as KeyboardEvent).key === "Escape") {
           runUnflipDebounce(
-            MINIMUM_CARD_VIEW_TIME - (Date.now() - flippedTime.value)
+            MINIMUM_TIME_BETWEEN_CLICKS - (Date.now() - lastClick.value)
           );
         }
       })
@@ -246,13 +271,6 @@ export default component$(
       })
     );
 
-    const calcAndResizeBoard = $(() =>
-      gameContext.calculateAndResizeBoard(
-        boardRef.value as HTMLDivElement,
-        containerRef.value as HTMLDivElement
-      )
-    );
-
     const adjustDeckSize = $((newDeckSize: number) => {
       lastDeckSize.value = newDeckSize;
 
@@ -270,7 +288,11 @@ export default component$(
       if (gameContext.boardLayout.isLocked) {
         return;
       }
-      calcAndResizeBoard();
+
+      gameContext.calculateAndResizeBoard(
+        boardRef.value as HTMLDivElement,
+        containerRef.value as HTMLDivElement
+      );
     });
 
     /* ================================
@@ -278,7 +300,6 @@ export default component$(
      * - RUNS ON MOUNT
      * - also when "resize" flip-flops, or when deck.size changes
      * ================================ */
-
     useVisibleTask$(
       async (taskCtx) => {
         const newDeckSize = taskCtx.track(() => gameContext.settings.deck.size);
@@ -301,13 +322,20 @@ export default component$(
         if (isBoardRefreshed) {
           console.log("~~ uvt$ refreshBoard");
           lastRefresh.value = newRefresh;
-          calcAndResizeBoard();
+          gameContext.calculateAndResizeBoard(
+            boardRef.value as HTMLDivElement,
+            containerRef.value as HTMLDivElement
+          );
           return;
         }
 
         // runs on mount only
         console.log("~~ uvt$ should be only on mount!");
-        await calcAndResizeBoard();
+
+        await gameContext.calculateAndResizeBoard(
+          boardRef.value as HTMLDivElement,
+          containerRef.value as HTMLDivElement
+        );
         gameContext.initializeDeck();
       },
       { strategy: "document-idle" }
