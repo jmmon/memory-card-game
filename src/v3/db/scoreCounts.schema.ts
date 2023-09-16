@@ -4,8 +4,9 @@ import {
   serial,
   json,
 } from "drizzle-orm/pg-core";
-import {type LessThanOurScoreObj } from "../types/types";
-// import {ulid} from 'ulid';
+import type {LessThanOurScoreObj } from "../types/types";
+// import { relations } from "drizzle-orm";
+// import { scores } from "./scores.schema";
 
 /*
  * How to calculate percentiles?
@@ -63,4 +64,13 @@ export const scoreCounts = pgTable("scoreCounts", {
   deckSize: integer("deckSize"),
   lessThanOurMismatchesMap: json("lessThanOurMismatchesMap").$type<LessThanOurScoreObj>(),
   lessThanOurGameTimeMap: json("lessThanOurMismatchesMap").$type<LessThanOurScoreObj>(),
+  totalScores: integer('totalScores'),
 });
+
+
+
+// // each scoreCounts has many scores
+// export const scoreCountsRelations = relations(scoreCounts, ({many}) => ({
+//   scores: many(scores),
+// }))
+//

@@ -449,7 +449,7 @@ export default component$(() => {
           )}
         >
           <table
-            q:slot="scoreboard-tab0"
+            q: slot="scoreboard-tab0"
             class="scoreboard w-full  max-h-[90vh]"
           >
             <thead class={` text-xs sm:text-sm md:text-md bg-slate-500`}>
@@ -457,20 +457,21 @@ export default component$(() => {
                 {headersList.map((header) => {
                   const hyphenated = header.toLowerCase().replace(" ", "-");
                   const key = MAP_COL_TITLE_TO_OBJ_KEY[header];
+                  const classes = queryStore.sortByColumnHistory.find(
+                    ({ column }) => column === key
+                  )?.direction ??
+                    (
+                      DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY.find(
+                        ({ column }) => column === key
+                      )?.direction ??
+                      "desc"
+                    )
                   return (
                     <ScoreTableHeader
                       key={hyphenated}
                       title={header}
                       hyphenated={hyphenated}
-                      classes={
-                        queryStore.sortByColumnHistory.find(
-                          ({ column }) => column === key
-                        )?.direction ??
-                        DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY.find(
-                          ({ column }) => column === key
-                        )?.direction ??
-                        "desc"
-                      }
+                      classes={classes}
                       onClick$={
                         header === "Avatar"
                           ? undefined
@@ -490,7 +491,7 @@ export default component$(() => {
           {Object.keys(getDeckBySizeSignal.value).map(
             (_, i) =>
               i !== 0 && (
-                <div q:slot={`scoreboard-tab${i}`} key={i}>
+                <div q: slot={`scoreboard-tab${i}`} key={i}>
                   test
                 </div>
               )

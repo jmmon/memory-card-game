@@ -1,164 +1,205 @@
-import { eq, inArray, asc, desc } from "drizzle-orm";
-import { db } from "../db/index";
-import { scores, scoreCounts } from "../db/index";
-import type { NewScore, Score, NewScoreCounts, ScoreCounts } from "../db/types";
+import type { Score, ScoreCounts } from "../db/types";
 import { server$ } from "@builder.io/qwik-city";
 import {
   LessThanOurScoreObj,
+  ScoreWithPercentiles,
   SortColumnWithDirection,
 } from "../types/types";
-import { timestampToMs } from "../utils/formatTime";
+import { DATE_JAN_1_1970 } from "../components/scores-modal/scores-modal";
+import { ScoreQueryProps } from "./types";
+import { DEFAULT_QUERY_PROPS } from "./constants";
 
-// submitWin(data): submits the win and calculates and returns your percentile scores
+import scoreService from "./score.service";
+import scoreCountsService from "./scoreCounts.service";
 
-// getCategory(deckSize): returns list of scores matching deck size
-// getAllScores(): returns all scores
-//
-const getAllScores = () => db.select().from(scores);
+/*
+ * These functions are wrapped with server$() before exported, so
+ * they will always execute on the server, since they are db calls.
+ * They can be called directly from the exported object from the client.
+ * */
 
-const buildOrderBy = (sortByColumnHistory: Array<SortColumnWithDirection>) => {
-  const strKeyScores = scores as typeof scores & { [key: string]: any };
-  return sortByColumnHistory.map(({ column, direction }) =>
-    direction === "asc" ? asc(strKeyScores[column]) : desc(strKeyScores[column])
-  );
-};
-
-const queryScores = ({
-  pageNumber,
-  resultsPerPage = 10,
-  deckSizesFilter,
-  sortByColumnHistory,
+const calculatePercentile = ({
+  total,
+  lessThanCount,
 }: {
-  pageNumber: number;
-  resultsPerPage?: number;
-  deckSizesFilter: number[];
-  sortByColumnHistory: Array<SortColumnWithDirection>;
-}) =>
-  db
-    .select()
-    .from(scores)
-    // grab scores with deckSize in our array of deckSizes
-    .where(inArray(scores.deckSize, deckSizesFilter))
-    // sort using multiple sort column priorities
-    .orderBy(...buildOrderBy(sortByColumnHistory))
-    .limit(resultsPerPage)
-    .offset((pageNumber - 1) * resultsPerPage);
-
-const getScoresByDeckSize = (deckSize: number) =>
-  getAllScores().where(eq(scores.deckSize, deckSize));
-
-const createScore = (newScore: NewScore) => {
-  if (!newScore.createdAt) newScore.createdAt = new Date();
-  return db.insert(scores).values(newScore).returning();
+  total: number;
+  lessThanCount: number;
+}) => {
+  const percentile = (lessThanCount / total) * 100;
+  return Math.round(percentile * 10) / 10;
 };
 
-const createScoreCounts = ({ deckSize }: { deckSize: number }) =>
-  db
-    .insert(scoreCounts)
-    .values({
-      deckSize,
-      lessThanOurGameTimeMap: {},
-      lessThanOurMismatchesMap: {},
-    })
-    .returning();
+const calculatePercentilesForOneScore = ({
+  total,
+  ltGameTimeCt,
+  ltMismatchesCt,
+}: {
+  total: number;
+  ltGameTimeCt: number;
+  ltMismatchesCt: number;
+}) => ({
+  timePercentile: calculatePercentile({ total, lessThanCount: ltGameTimeCt }),
+  mismatchPercentile: calculatePercentile({
+    total,
+    lessThanCount: ltMismatchesCt,
+  }),
+});
 
-const updateScoreCounts = (
-  prevScoreCounts: ScoreCounts,
-  update: NewScoreCounts
-) =>
-  db
-    .update(scoreCounts)
-    .set(update)
-    .where(eq(scoreCounts.id, prevScoreCounts.id))
-    .returning();
-
-const updateLessThanOurMismatchesJson = (
-  ourScore: number,
-  oldJson: LessThanOurScoreObj
+const calculatePercentilesForScores = (
+  scores: Score[],
+  counts: ScoreCounts
 ) => {
-  const newLessThanOurScoreJson: LessThanOurScoreObj = {};
-  Object.entries(oldJson).forEach(([scoreCount, lessThanCount]) => {
-    // DON'T MODIFY if LESS or EQUAL to ours
-    if (Number(scoreCount) <= ourScore) {
-      newLessThanOurScoreJson[Number(scoreCount)] = lessThanCount as number;
-    } else {
-      newLessThanOurScoreJson[Number(scoreCount)] =
-        (lessThanCount as number) + 1;
-    }
-  });
-  return newLessThanOurScoreJson;
-};
+  const ltMismatchesObj =
+    counts.lessThanOurMismatchesMap as LessThanOurScoreObj;
+  const ltGameTimeObj = counts.lessThanOurGameTimeMap as LessThanOurScoreObj;
+  const total = counts.totalScores as number;
 
-const updateLessThanOurGameTimeJson = (
-  ourGameTime: string,
-  oldJson: LessThanOurScoreObj
-) => {
-  const newLessThanOurScoreJson: LessThanOurScoreObj = {};
-  Object.entries(oldJson).forEach(([gameTime, lessThanCount]) => {
-    // DON'T MODIFY if LESS or EQUAL to ours
-    if (timestampToMs(gameTime) <= timestampToMs(ourGameTime)) {
-      newLessThanOurScoreJson[gameTime] = lessThanCount as number;
-    } else {
-      newLessThanOurScoreJson[gameTime] = (lessThanCount as number) + 1;
-    }
-  });
-  return newLessThanOurScoreJson;
-};
-
-// in the end, we will end up with 52 - 6 = 46 / 2 + 1 = 24 different deckSizes
-// and we have two different columns for each deckSize
-// so in total, up to 24 * 2 = 48 entries in this table
-const addScoreToCounts = async (score: NewScore) => {
-  const deckSize = score.deckSize as number;
-  let foundOneScoreCounts = (
-    (await db
-      .select()
-      .from(scoreCounts)
-      .where(eq(scoreCounts.deckSize, deckSize))) as ScoreCounts[]
-  )[0];
-
-  console.log({ foundOneScoreCounts }); // What does the JSON field look like??
-
-  if (!foundOneScoreCounts) {
-    // creating a new scoreCounts
-    const newScoreCounts = {
-      deckSize,
-      lessThanOurMismatchesMap: {
-        [score.mismatches as number]: 0, // when creating, 0 other scores are LESS THAN our mismatch score
-      },
-      lessThanOurGameTimeMap: {
-        // TODO: this will end up creating TONS of entries, one for every gameTime. I guess that's okay for now??
-        [score.gameTime as string]: 0, // when creating, 0 other scores are LESS THAN our gameTime score
-      },
-      scores: [score],
-    };
-    return createScoreCounts(newScoreCounts);
-  } else {
-    // update lessThanOurScoreJson: for all keys greater than our score, increment the values by 1
-    const newLessThanOurMismatches = updateLessThanOurMismatchesJson(
-      score.mismatches as number,
-      foundOneScoreCounts.lessThanOurMismatchesMap as LessThanOurScoreObj
-    );
-    const newLessThanOurGameTime = updateLessThanOurGameTimeJson(
-      score.gameTime as string,
-      foundOneScoreCounts.lessThanOurGameTimeMap as LessThanOurScoreObj
-    );
-
-    const update = {
-      lessThanOurMismatchesMap: newLessThanOurMismatches,
-      lessThanOurGameTimeMap: newLessThanOurGameTime,
-      scores: [...foundOneScoreCounts.scores, score],
-    };
-    return updateScoreCounts(foundOneScoreCounts, update);
+  const scoresWithPercentiles = [];
+  for (let i = 0; i < scores.length; i++) {
+    scoresWithPercentiles.push({
+      ...scores[i],
+      ...calculatePercentilesForOneScore({
+        total,
+        ltGameTimeCt: ltGameTimeObj[scores[i].gameTime as string],
+        ltMismatchesCt: ltMismatchesObj[scores[i].mismatches as number],
+      }),
+    });
   }
+
+  return scoresWithPercentiles as ScoreWithPercentiles[];
 };
+
+const sortFunctions: {
+  [key: string]: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => number;
+} = {
+  initials: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
+    const value = ((b.initials as string) ?? "").localeCompare(
+      (a.initials as string) ?? ""
+    );
+    return value;
+  },
+  deckSize: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
+    const value = ((b.deckSize as number) ?? 0) - ((a.deckSize as number) ?? 0);
+    return value;
+  },
+  pairs: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
+    const value = ((b.pairs as number) ?? 0) - ((a.pairs as number) ?? 0);
+    return value;
+  },
+  timePercentile: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
+    const value =
+      ((b.timePercentile as number) ?? 0) - ((a.timePercentile as number) ?? 0);
+    return value;
+  },
+  mismatchPercentile: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
+    const value =
+      ((b.mismatchPercentile as number) ?? 0) -
+      ((a.mismatchPercentile as number) ?? 0);
+    return value;
+  },
+  createdAt: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
+    const value =
+      (b.createdAt ?? DATE_JAN_1_1970).getTime() -
+      (a.createdAt ?? DATE_JAN_1_1970).getTime();
+    return value;
+  },
+};
+
+const sortScores = (
+  scores: ScoreWithPercentiles[],
+  sortByColumnHistory: Array<SortColumnWithDirection>
+) => {
+  let result = [...scores];
+
+  result.sort((a, b) => {
+    let value = 0;
+    let nextKeyIndex = 0;
+    let { column, direction } = sortByColumnHistory[0];
+    // console.log({ sortByColumnHistory: sortByColumnHistory.value });
+    while (value === 0 && nextKeyIndex < sortByColumnHistory.length) {
+      const sortingInstructions = sortByColumnHistory[nextKeyIndex];
+      column = sortingInstructions.column;
+
+      value = sortFunctions[column](a, b);
+      // console.log({ value, key, fn });
+      nextKeyIndex++;
+    }
+    // console.log({ value });
+    return direction === "desc" ? value : 0 - value;
+  });
+
+  // console.log({ sortedResult: result });
+  return result;
+};
+
+/* TODO:
+ * this should look up the scoreCounts by deckSize
+ * and then calculate percentiles for all the scores,
+ * so everything is set for the frontend
+ * */
+const queryScoresAndCalculatePercentiles = async ({
+  pageNumber = DEFAULT_QUERY_PROPS.pageNumber,
+  resultsPerPage = DEFAULT_QUERY_PROPS.resultsPerPage,
+  deckSizesFilter = DEFAULT_QUERY_PROPS.deckSizesFilter,
+  sortByColumnHistory = DEFAULT_QUERY_PROPS.sortByColumnHistory,
+}: Partial<ScoreQueryProps>) => {
+  const [resCounts, resScores] = await Promise.allSettled([
+    scoreCountsService.query({
+      deckSizesFilter,
+    }),
+    scoreService.query({
+      pageNumber,
+      resultsPerPage,
+      deckSizesFilter,
+      sortByColumnHistory,
+    }),
+  ]);
+
+  if (resScores.status === "fulfilled" && resCounts.status === "fulfilled") {
+    const scores = resScores?.value as Score[];
+    const counts = resCounts?.value[0] as ScoreCounts;
+
+    const scoresWithPercentiles = calculatePercentilesForScores(scores, counts);
+    return sortScores(scoresWithPercentiles, sortByColumnHistory);
+  }
+
+  const rejectedRes = [resScores, resCounts].filter(
+    (res) => res.status === "rejected"
+  );
+  const message = "Error querying for " + rejectedRes.join(" and ");
+  console.log({ message });
+  return [];
+  // throw new Error(message);
+};
+
+// const serverify = (obj: { [key: string]: () => Promise<any> }) =>
+//   Object.fromEntries(
+//     Object.entries(obj).map(([key, fn]) => [key, server$(fn)])
+//   );
 
 const serverDbService = {
-  getAllScores: server$(getAllScores),
-  getScoresByDeckSize: server$(getScoresByDeckSize),
-  createScore: server$(createScore),
-  queryScores: server$(queryScores),
-  addScoreToCounts: server$(addScoreToCounts),
+  scores: {
+    query: server$(scoreService.query),
+    getByDeckSize: server$(scoreService.getByDeckSize),
+    create: server$(scoreService.create),
+    getAll: server$(scoreService.getAll),
+    queryWithPercentiles: server$(queryScoresAndCalculatePercentiles),
+  },
+  scoreCounts: {
+    query: server$(scoreCountsService.query),
+    getDeckSizes: server$(scoreCountsService.getDeckSizes),
+    create: server$(scoreCountsService.create),
+    getByDeckSize: server$(scoreCountsService.getByDeckSize),
+    updateById: server$(scoreCountsService.updateById),
+    addScoreToCountsById: server$(scoreCountsService.addScoreToCountsById),
+    updateByDeckSize: server$(scoreCountsService.updateByDeckSize),
+    // /*
+    //  * the main way to add a score: also updates the scoreCounts
+    //  *  - creates Score
+    //  *  - creates or updates ScoreCounts
+    //  * */
+    saveScore: server$(scoreCountsService.saveScore),
+  },
 };
 
 /*
@@ -212,6 +253,5 @@ const serverDbService = {
  *
  * getScoresByDeckSize => calculate percentiles and return ScoreWithPercentiles?
  * */
-
 
 export default serverDbService;

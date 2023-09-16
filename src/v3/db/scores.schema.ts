@@ -1,4 +1,7 @@
-import { sql } from "drizzle-orm";
+import {
+  // relations,
+  sql,
+} from "drizzle-orm";
 
 import {
   integer,
@@ -8,6 +11,7 @@ import {
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
+// import { scoreCounts } from "./scoreCounts.schema";
 // import {ulid} from 'ulid';
 
 /* scoreModel: {
@@ -40,8 +44,16 @@ export const scores = pgTable("scores", {
   initials: varchar("initials", { length: 32 }), // some optional inputted string??
   color: varchar("color", { length: 32 }), // hsl(xxx, xxx%, xxx%)
   pixels: varchar("pixels", { length: 256 }), // binary
-  scoreCounts: integer('scoreCounts'),
+  // scoreCounts: integer("scoreCounts"),
 });
+//
+// // each score has one scoreCounts
+// export const scoresRelations = relations(scores, ({ one }) => ({
+//   scoreCounts: one(scoreCounts, {
+//     fields: [scores.id],
+//     references: [scoreCounts.id],
+//   }),
+// }));
 
 /*
  * Store the avatar info in the db:
