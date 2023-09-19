@@ -62,8 +62,8 @@ import type {LessThanOurScoreObj } from "../types/types";
 export const scoreCounts = pgTable("scoreCounts", {
   id: serial("id").primaryKey(),
   deckSize: integer("deckSize"),
-  lessThanOurMismatchesMap: json("lessThanOurMismatchesMap").$type<LessThanOurScoreObj>(),
-  lessThanOurGameTimeMap: json("lessThanOurMismatchesMap").$type<LessThanOurScoreObj>(),
+  worseThanOurMismatchesMap: json("worseThanOurMismatchesMap").$type<LessThanOurScoreObj>(),
+  worseThanOurGameTimeMap: json("worseThanOurGameTimeMap").$type<LessThanOurScoreObj>(),
   totalScores: integer('totalScores'),
 });
 

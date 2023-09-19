@@ -55,7 +55,7 @@ const SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD =
     START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE -
   START_SHAKE_ANIMATION_EAGER_MS;
 
-export const DEFAULT_CARD_COUNT = 18;
+export const DEFAULT_CARD_COUNT = 6;
 
 export const CONTAINER_PADDING_PERCENT = 1.5;
 
@@ -240,9 +240,7 @@ const INITIAL_STATE = {
     }
     this.timer.start();
 
-    console.log("getting all scores...");
-    const scores = await serverDbService.getAllScores();
-    console.log({ scores });
+    // this.fetchScores();
   }),
   endGame: $(async function (this: TGameContext, isWin: boolean) {
     this.timer.stop();
@@ -262,7 +260,7 @@ const INITIAL_STATE = {
     //   initials: "joe",
     // });
 
-    this.fetchScores();
+    // this.fetchScores();
   }),
 
   resetGame: $(async function (
@@ -282,7 +280,7 @@ const INITIAL_STATE = {
 
   fetchScores: $(async function (this: TGameContext) {
     console.log("getting all scores...");
-    const scores = await serverDbService.getAllScores() as Score[];
+    const scores = await serverDbService.scores.getAll() as Score[];
     this.interface.scoresModal.scores = scores;
     console.log({ scores });
   }),

@@ -1,4 +1,4 @@
-import type { Score, ScoreCounts } from "../db/types";
+import type { NewScore, Score, ScoreCounts } from "../db/types";
 import { server$ } from "@builder.io/qwik-city";
 import {
   LessThanOurScoreObj,
@@ -26,6 +26,7 @@ const calculatePercentile = ({
   lessThanCount: number;
 }) => {
   const percentile = (lessThanCount / total) * 100;
+  if (isNaN(percentile)) return 0;
   return Math.round(percentile * 10) / 10;
 };
 
@@ -38,7 +39,7 @@ const calculatePercentilesForOneScore = ({
   ltGameTimeCt: number;
   ltMismatchesCt: number;
 }) => ({
-  timePercentile: calculatePercentile({ total, lessThanCount: ltGameTimeCt }),
+  timePercentile: calculatePercentile({ total, lessThanCount:  ltGameTimeCt }),
   mismatchPercentile: calculatePercentile({
     total,
     lessThanCount: ltMismatchesCt,
@@ -49,10 +50,12 @@ const calculatePercentilesForScores = (
   scores: Score[],
   counts: ScoreCounts
 ) => {
+  console.log({ counts, scores });
   const ltMismatchesObj =
-    counts.lessThanOurMismatchesMap as LessThanOurScoreObj;
-  const ltGameTimeObj = counts.lessThanOurGameTimeMap as LessThanOurScoreObj;
+    counts.worseThanOurMismatchesMap as LessThanOurScoreObj;
+  const ltGameTimeObj = counts.worseThanOurGameTimeMap as LessThanOurScoreObj;
   const total = counts.totalScores as number;
+  console.log({ ltMismatchesObj, ltGameTimeObj, total });
 
   const scoresWithPercentiles = [];
   for (let i = 0; i < scores.length; i++) {
@@ -143,29 +146,30 @@ const queryScoresAndCalculatePercentiles = async ({
   deckSizesFilter = DEFAULT_QUERY_PROPS.deckSizesFilter,
   sortByColumnHistory = DEFAULT_QUERY_PROPS.sortByColumnHistory,
 }: Partial<ScoreQueryProps>) => {
-  const [resCounts, resScores] = await Promise.allSettled([
-    scoreCountsService.query({
-      deckSizesFilter,
-    }),
+  const [resScores, resCounts] = await Promise.allSettled([
     scoreService.query({
       pageNumber,
       resultsPerPage,
       deckSizesFilter,
       sortByColumnHistory,
     }),
+    scoreCountsService.getByDeckSize(deckSizesFilter),
   ]);
 
   if (resScores.status === "fulfilled" && resCounts.status === "fulfilled") {
     const scores = resScores?.value as Score[];
     const counts = resCounts?.value[0] as ScoreCounts;
+    console.log({ scores, counts, resCounts });
 
     const scoresWithPercentiles = calculatePercentilesForScores(scores, counts);
     return sortScores(scoresWithPercentiles, sortByColumnHistory);
+  } else {
+    console.log({ resScores, resCounts });
   }
 
-  const rejectedRes = [resScores, resCounts].filter(
-    (res) => res.status === "rejected"
-  );
+  const rejectedRes = [resScores, resCounts]
+    .filter((res) => res.status === "rejected")
+    .map((each) => JSON.stringify(each, null, 2));
   const message = "Error querying for " + rejectedRes.join(" and ");
   console.log({ message });
   return [];
@@ -179,13 +183,24 @@ const queryScoresAndCalculatePercentiles = async ({
 
 const serverDbService = {
   scores: {
+    clear: server$(scoreService.clear),
     query: server$(scoreService.query),
     getByDeckSize: server$(scoreService.getByDeckSize),
     create: server$(scoreService.create),
     getAll: server$(scoreService.getAll),
     queryWithPercentiles: server$(queryScoresAndCalculatePercentiles),
   },
+  saveNewScore: server$(async (score: NewScore) => {
+    const newScore = await scoreService.create(score);
+    const newScoreCounts = await scoreCountsService.saveScore(
+      newScore as Score
+    );
+    // console.log({newScore, newScoreCounts});
+    return { newScore, newScoreCounts };
+  }),
+
   scoreCounts: {
+    clear: server$(scoreCountsService.clear),
     query: server$(scoreCountsService.query),
     getDeckSizes: server$(scoreCountsService.getDeckSizes),
     create: server$(scoreCountsService.create),
@@ -193,6 +208,7 @@ const serverDbService = {
     updateById: server$(scoreCountsService.updateById),
     addScoreToCountsById: server$(scoreCountsService.addScoreToCountsById),
     updateByDeckSize: server$(scoreCountsService.updateByDeckSize),
+    getAll: server$(scoreCountsService.getAll),
     // /*
     //  * the main way to add a score: also updates the scoreCounts
     //  *  - creates Score
@@ -200,6 +216,9 @@ const serverDbService = {
     //  * */
     saveScore: server$(scoreCountsService.saveScore),
   },
+  clearData: server$(async () =>
+    await Promise.all([scoreCountsService.clear(), scoreService.clear()])
+  ),
 };
 
 /*

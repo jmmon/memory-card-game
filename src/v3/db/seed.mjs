@@ -129,6 +129,33 @@ const getRandomMirroredPixels = () => {
   };
   const getAllScores = () => db.select().from(scores);
 
+  const generateScore = (deckSize) => {
+    const userId = getRandomBytes();
+    const initials = getRandomInitials();
+    const pixels = getRandomMirroredPixels();
+    const mismatches = Math.max(
+      0,
+      Math.round(
+        2 ** (deckSize / 6) +
+          (Math.random() > 0.5 ? 1 : -1) * (Math.random() * (deckSize / 2))
+      )
+    );
+
+    const newScore = {
+      deckSize,
+      gameTime: `${
+        deckSize * 1000 + Math.round(Math.random() * 100000)
+      } millisecond`,
+      mismatches,
+      userId,
+      initials,
+      pairs: deckSize / 2,
+      color: stringToColor(initials),
+      pixels,
+    };
+    return newScore;
+  };
+
   const createManyScores = ({
     minDeckSize = 6,
     maxDeckSize = 24,
@@ -142,30 +169,7 @@ const getRandomMirroredPixels = () => {
       deckSize += stepBetweenDeckSizes
     ) {
       for (let i = 0; i < countPerDeckSize; i++) {
-        const userId = getRandomBytes();
-        const initials = getRandomInitials();
-        const pixels = getRandomMirroredPixels();
-        const mismatches = Math.max(
-          0,
-          Math.round(
-            2 ** (deckSize / 6) +
-              (Math.random() > 0.5 ? 1 : -1) * (Math.random() * (deckSize / 2))
-          )
-        );
-
-        const newScore = {
-          deckSize,
-          gameTime: `${
-            deckSize * 1000 + Math.round(Math.random() * 100000)
-          } millisecond`,
-          mismatches,
-          userId,
-          initials,
-          pairs: deckSize / 2,
-          color: stringToColor(initials),
-          pixels,
-        };
-
+        const newScore = generateScore(deckSize);
         console.log({ newScore });
 
         const newScorePromise = createScore(newScore);
@@ -191,4 +195,4 @@ const getRandomMirroredPixels = () => {
     console.log(err);
     process.exit(0);
   }
-})();
+})()

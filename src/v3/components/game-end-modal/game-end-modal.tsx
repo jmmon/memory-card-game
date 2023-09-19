@@ -30,7 +30,7 @@ export function bufferToHexString(byteArray: Uint8Array) {
   return hexCodes.join("");
 }
 
-export const serverGetHash = server$(function (
+export const serverGetHash = server$(function(
   message: string,
   bytes: number = DEFAULT_HASH_LENGTH_BYTES
 ) {
@@ -90,7 +90,7 @@ export default component$(() => {
     };
 
     console.log("saving score...", { newScore });
-    const saved = await serverDbService.createScore(newScore);
+    const saved = await serverDbService.scores.create(newScore);
     console.log("saved!", { saved });
     await gameContext.fetchScores();
     gameContext.interface.scoresModal.isShowing = true;
@@ -110,7 +110,18 @@ export default component$(() => {
     >
       <div class="flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%]">
         <SettingsRow>
-          <div class="text-slate-100 flex flex-grow justify-between">
+          <div class="flex flex-grow justify-between">
+            <span>Time:</span>
+            <span>
+              <FormattedTime
+                timeMs={gameContext.timer.state.timeDs}
+                limit={3}
+              />
+            </span>
+          </div>
+        </SettingsRow>
+        <SettingsRow>
+          <div class="flex flex-grow justify-between">
             <span>Pairs:</span>
             <span>
               {gameContext.game.successfulPairs.length}/
@@ -119,7 +130,7 @@ export default component$(() => {
           </div>
         </SettingsRow>
         <SettingsRow>
-          <div class="text-slate-100 flex flex-grow justify-between">
+          <div class="flex flex-grow justify-between">
             <span>Mismatches:</span>
             <span>
               {gameContext.game.mismatchPairs.length}
@@ -129,22 +140,57 @@ export default component$(() => {
             </span>
           </div>
         </SettingsRow>
+      </div>
+
+      <hr />
+
+      <div class="flex py-[2%] px-[4%]">
         <SettingsRow>
-          <div class="text-slate-100 flex flex-grow justify-between">
-            <span>Time:</span>
-            <span>
-              <FormattedTime timeMs={gameContext.timer.state.timeDs} limit={1} />
-            </span>
+          <div class="flex flex-col gap-1 items-center w-full">
+            <label class="w-full flex justify-center gap-2">
+              Initials:
+              <input
+                type="text"
+                class="ml-2 text-center w-[5ch] bg-slate-800 text-slate-100"
+                maxLength={3}
+                onInput$={(e) => {
+                  initials.value = (
+                    e.target as HTMLInputElement
+                  ).value.toUpperCase();
+                }}
+                onFocus$={selectFieldOnFocus$}
+                value={initials.value}
+              />
+            </label>
+            <label class="text-xs w-full">
+              Identifier:
+              <input
+                type="text"
+                class="block w-full bg-slate-800 text-slate-100"
+                onFocus$={selectFieldOnFocus$}
+                bind: value={identifier}
+              />
+            </label>
+            <Button classes="" onClick$={getNewHash$}>
+              Generate Random Identifier
+            </Button>
           </div>
         </SettingsRow>
+      </div>
 
+      <div class="flex py-[2%] px-[4%]">
+        <Button classes="mx-auto bg-green-600" onClick$={saveScore$}>
+          Save Score
+        </Button>
+      </div>
+
+      <hr />
+
+      <div class="flex py-[2%] px-[4%]">
         <SettingsRow>
           <div class="flex flex-grow gap-[2%] items-center tooltip w-full">
-            <label
-              class="text-slate-100 w-4/12 text-left"
-              for="deck-card-count-end-game"
-            >
-              Deck Card Count:
+            <label class="w-4/12 text-left" for="deck-card-count-end-game">
+              Card Count:
             </label>
             <input
               name="deck-card-count-end-game"
@@ -154,13 +200,16 @@ export default component$(() => {
               min={gameContext.settings.deck.MINIMUM_CARDS}
               max={gameContext.settings.deck.MAXIMUM_CARDS}
               step="2"
-              bind:value={cardCount}
+              bind: value={cardCount}
             />
             <span class="tooltiptext">
               {cardCount.value} - Number of cards in the deck.
             </span>
           </div>
         </SettingsRow>
+      </div>
+
+      <div class="flex py-[2%] px-[4%]">
         <Button
           onClick$={() => {
             gameContext.resetGame({

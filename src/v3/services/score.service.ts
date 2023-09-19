@@ -18,6 +18,8 @@ const buildOrderBySqlString = (
     .join(" ");
 };
 
+const clearScoresTable = () => db.delete(scores);
+
 // const logging = (fn: () => any) => {
 //   const result = fn()
 //   console.log({logging: result});
@@ -52,12 +54,13 @@ const queryScores = ({
 const getScoresByDeckSize = (deckSize: number) =>
   getAllScores().where(eq(scores.deckSize, deckSize));
 
-const createScore = (newScore: NewScore) => {
+const createScore = async (newScore: NewScore) => {
   if (!newScore.createdAt) newScore.createdAt = new Date();
-  return db.insert(scores).values(newScore).returning();
+  return (await db.insert(scores).values(newScore).returning())[0];
 };
 
 const scoreService = {
+  clear: clearScoresTable,
   query: queryScores,
   getByDeckSize: getScoresByDeckSize,
   create: createScore,

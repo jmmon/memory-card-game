@@ -7,8 +7,6 @@ export type ScoreQueryProps = {
   sortByColumnHistory: Array<SortColumnWithDirection>;
 };
 export type CountsQueryProps = {
-  pageNumber: number;
-  resultsPerPage: number;
   deckSizesFilter: number[];
   sortDirection: SortDirection;
 };
