@@ -9,7 +9,7 @@ import {
 import ImageBackFace from "~/media/cards/_backWhite.png?jsx";
 import { GameContext } from "~/v3/context/gameContext";
 import v3CardUtils, { CARD_RATIO_VS_CONTAINER } from "~/v3/utils/cardUtils";
-import { CARD_FLIP_ANIMATION_DURATION, CARD_RATIO } from "../board/board";
+import { CARD_RATIO } from "../board/board";
 import PlayingCardComponents from "../playing-card-components";
 import type { BoardLayout, Coords, Card } from "~/v3/types/types";
 import type { Signal } from "@builder.io/qwik";
@@ -43,50 +43,6 @@ export default component$(({ card }: { card: Card }) => {
   const isCardFlipped = useComputed$(
     () => gameContext.game.flippedCardId === card.id
   );
-
-  // show and hide the back face, so the backs of cards can't be inspected when face-down
-  const isFaceShowing = useSignal(false);
-  // When pair is matched, instead of unflipping the card, wait this duration and then disappear the two cards
-  const isFaceShowing_delayedOff = useSignal(false);
-
-  const isReturned = useSignal(true);
-
-  // when card is flipped, control timers for isFaceShowing and isFaceShowing_delayedOff
-  // when showing the back side, partway through we reveal the back side.
-  // when going back to the board, partway through we hide the back side.
-  useTask$((taskCtx) => {
-    taskCtx.track(() => isCardFlipped.value);
-
-    let undersideRevealDelayTimer: ReturnType<typeof setTimeout>;
-    let flippedDelayTimer: ReturnType<typeof setTimeout>;
-    let returnedTimer: ReturnType<typeof setTimeout>;
-
-    if (isCardFlipped.value) {
-      // when showing card
-      isFaceShowing.value = true;
-      isFaceShowing_delayedOff.value = true;
-      isReturned.value = false;
-    } else {
-      // when hiding card, keep the underside visible for a while
-      undersideRevealDelayTimer = setTimeout(() => {
-        isFaceShowing.value = isCardFlipped.value;
-      }, CARD_FLIP_ANIMATION_DURATION * CARD_HIDE_UNDERSIDE_AFTER_PERCENT);
-
-      flippedDelayTimer = setTimeout(() => {
-        isFaceShowing_delayedOff.value = isCardFlipped.value;
-      }, CARD_FLIPPED_DELAYED_OFF_DURATION_MS);
-
-      returnedTimer = setTimeout(() => {
-        isReturned.value = !isCardFlipped.value;
-      }, CARD_FLIP_ANIMATION_DURATION);
-    }
-
-    taskCtx.cleanup(() => {
-      clearTimeout(undersideRevealDelayTimer);
-      clearTimeout(flippedDelayTimer);
-      clearTimeout(returnedTimer);
-    });
-  });
 
   /* SHUFFLE CARDS TRANSFORM
    * - transforms based off how to get from 0,0 to newCoords
@@ -161,15 +117,15 @@ export default component$(({ card }: { card: Card }) => {
                   ? 0
                   : flipTransform.value.translateY / 50
               )) /
-              2
+            2
           ) +
           // extra z-index for cards being flipped
           (isCardFlipped.value
             ? 120 // applies while card is first clicked
             : // : isFaceShowing.value || isFaceShowing_delayedOff.value || !isReturned.value
-            isFaceShowing.value
-            ? 60 // applies when flipping down
-            : 0), // applies otherwise (when face down);
+            isCardFlipped.value && gameContext.game.isFaceShowing
+              ? 60 // applies when flipping down
+              : 0), // applies otherwise (when face down);
         transform: shuffleTransform.value,
       }}
       data-label="card-slot-container"
@@ -189,19 +145,17 @@ export default component$(({ card }: { card: Card }) => {
         <div
           data-id={card.id}
           data-label="card"
-          class={`box-border w-full border border-slate-50/25 bg-transparent transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
-            isThisRemoved.value &&
-            gameContext.game.flippedCardId !== card.id &&
-            gameContext.game.flippedCardId !== card.pairId
+          class={`box-border w-full border border-slate-50/25 bg-transparent transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${isThisRemoved.value &&
+              gameContext.game.flippedCardId !== card.id &&
+              gameContext.game.flippedCardId !== card.pairId
               ? "opacity-0 scale-[110%] pointer-events-none"
               : "opacity-100 cursor-pointer"
-          } ${
-            isThisMismatched.value &&
-            gameContext.game.isShaking &&
-            gameContext.game.flippedCardId !== card.id
+            } ${isThisMismatched.value &&
+              gameContext.game.isShaking &&
+              gameContext.game.flippedCardId !== card.id
               ? "shake-card"
               : ""
-          }
+            }
           `}
           style={{
             borderRadius: gameContext.cardLayout.roundedCornersPx + "px",
@@ -213,10 +167,8 @@ export default component$(({ card }: { card: Card }) => {
           <CardFlippingWrapper
             isSelected={isSelected}
             card={card}
+isRemoved={isThisRemoved}
             isCardFlipped={isCardFlipped}
-            isFaceShowing={isFaceShowing}
-            isRemoved={isThisRemoved}
-            isFaceShowing_delayedOff={isFaceShowing_delayedOff}
             flipTransform={flipTransform}
             roundedCornersPx={gameContext.cardLayout.roundedCornersPx}
             boardLayout={gameContext.boardLayout}
@@ -227,27 +179,24 @@ export default component$(({ card }: { card: Card }) => {
   );
 });
 
-export const CardFlippingWrapper = ({
+export const CardFlippingWrapper = component$(({
   card,
   isSelected,
   isCardFlipped,
-  isRemoved,
-  isFaceShowing_delayedOff,
   flipTransform,
   roundedCornersPx,
-  isFaceShowing,
   boardLayout,
+  isRemoved,
 }: {
   card: Card;
   isSelected: Signal<boolean>;
   isCardFlipped: Signal<boolean>;
-  isFaceShowing: Signal<boolean>;
-  isRemoved: Signal<boolean>;
-  isFaceShowing_delayedOff: Signal<boolean>;
   flipTransform: Signal<FlipTransform>;
   roundedCornersPx: number;
   boardLayout: BoardLayout;
+  isRemoved: Signal<boolean>;
 }) => {
+  const gameContext = useContext(GameContext);
   return (
     <div
       data-id={card.id}
@@ -255,14 +204,12 @@ export const CardFlippingWrapper = ({
       style={{
         transform:
           isCardFlipped.value ||
-          (isRemoved.value && isFaceShowing_delayedOff.value)
-            ? `translate(${
-                (flipTransform.value.translateX * boardLayout.colWidth) / 100
-              }px, ${
-                (flipTransform.value.translateY * boardLayout.rowHeight) / 100
-              }px) 
-      rotateY(${flipTransform.value.rotateY}) 
-      scale(${flipTransform.value.scale})`
+            (isRemoved.value && gameContext.game.isFaceShowing_delayedOff)
+            ? `translate(${(flipTransform.value.translateX * boardLayout.colWidth) / 100
+            }px, ${(flipTransform.value.translateY * boardLayout.rowHeight) / 100
+            }px) 
+rotateY(${flipTransform.value.rotateY}) 
+scale(${flipTransform.value.scale})`
             : "",
         borderRadius: roundedCornersPx + "px",
         boxShadow: isSelected.value
@@ -277,11 +224,11 @@ export const CardFlippingWrapper = ({
       <CardView
         card={card}
         roundedCornersPx={roundedCornersPx}
-        isFaceShowing={isFaceShowing}
+        isFaceShowing={gameContext.game.isFaceShowing}
       />
     </div>
   );
-};
+});
 
 // holds the front and back of card
 const CardView = component$(
@@ -292,7 +239,7 @@ const CardView = component$(
   }: {
     card: Card;
     roundedCornersPx: number;
-    isFaceShowing: Signal<boolean>;
+    isFaceShowing: boolean;
   }) => {
     const gameContext = useContext(GameContext);
 
@@ -305,7 +252,7 @@ const CardView = component$(
           width={gameContext.cardLayout.width * CARD_RATIO_VS_CONTAINER}
           height={gameContext.cardLayout.height * CARD_RATIO_VS_CONTAINER}
         >
-          {isFaceShowing.value && (
+          {isFaceShowing && (
             <div
               style={{ width: "100%" }}
               dangerouslySetInnerHTML={PlayingCardComponents[card.text]}

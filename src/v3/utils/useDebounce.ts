@@ -5,9 +5,9 @@ export function useDebounce<T>(
   action: QRL<(newValue?: T) => void>,
   _delay: number = 500
 ) {
-  const signal = useSignal<T>();
+  const signal = useSignal<T | undefined>();
   const delay = useSignal(_delay);
-  const setValue = $((newValue: T) => {
+  const setValue = $((newValue: T | undefined) => {
     signal.value = newValue;
   });
   const setDelay = $((num: number) => {
@@ -21,7 +21,9 @@ export function useDebounce<T>(
     if (signal.value === undefined) return;
 
     const timer = setTimeout(() => {
+      console.log('running debounce action');
       action(signal.value as T);
+      setValue(undefined)
     }, Math.max(0, delay.value));
 
     taskCtx.cleanup(() => clearTimeout(timer));

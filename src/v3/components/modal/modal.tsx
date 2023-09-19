@@ -54,7 +54,7 @@ export default component$(
           data-name="modal"
         >
           <ModalHeader hideModal$={hideModal$} title={title} />
-          <div class="w-full h-full overflow-y-auto">
+          <div class="w-full h-full ">
             <Slot />
           </div>
         </div>

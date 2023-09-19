@@ -88,7 +88,7 @@ export default component$(
           <TimerHeaderComponent />
           <Button
             onClick$={async () => {
-              await gameContext.fetchScores();
+              // await gameContext.fetchScores();
               gameContext.interface.scoresModal.isShowing = true;
             }}
           >

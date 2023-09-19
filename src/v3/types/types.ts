@@ -114,7 +114,6 @@ export type CardLayout = {
 };
 
 export type GameData = {
-  isStarted: boolean;
   isSaved: boolean;
   flippedCardId: number;
   selectedCardIds: number[];
@@ -125,6 +124,10 @@ export type GameData = {
   isShaking: boolean;
   isLoading: boolean;
   shufflingState: number;
+  isFlipped: boolean;
+  isFaceShowing: boolean;
+  isFaceShowing_delayedOff: boolean;
+  isReturned: boolean;
 };
 
 export type GameContext = {

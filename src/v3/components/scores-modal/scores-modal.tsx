@@ -146,6 +146,7 @@ type QueryStore = {
   pageNumber: number;
   resultsPerPage: number;
   totalResults: number;
+  totalPages: number;
 };
 
 export default component$(() => {
@@ -160,8 +161,9 @@ export default component$(() => {
     ),
     deckSizesFilter: [gameContext.settings.deck.size], // default to our deck.size
     pageNumber: 1,
-    resultsPerPage: 50,
+    resultsPerPage: 10,
     totalResults: 0,
+    totalPages: 0,
   },
     { deep: true }
   );
@@ -187,9 +189,8 @@ export default component$(() => {
   }>({
     all: 0,
   });
-  const calculatedPages = useSignal<number[]>([]);
 
-  const queryScores = $(
+  const queryAndSaveScores = $(
     async () => {
       isLoading.value = true;
 
@@ -201,8 +202,8 @@ export default component$(() => {
       //     : queryStore.deckSizesFilter,
       //   sortByColumnHistory: queryStore.sortByColumnHistory
       // });
-
-      const { scores, totals } = await serverDbService.scores.queryWithPercentiles({
+      //
+      const scoresPromise = serverDbService.scores.queryWithPercentiles({
         pageNumber: queryStore.pageNumber,
         resultsPerPage: queryStore.resultsPerPage,
         deckSizesFilter: queryStore.deckSizesFilter.length === 0
@@ -211,25 +212,33 @@ export default component$(() => {
         sortByColumnHistory: queryStore.sortByColumnHistory
       });
 
+      const scoreCountsPromise = serverDbService.scoreCounts.getDeckSizes()
+
+      const [scoresRes, scoreCounts] = await Promise.all([
+        scoresPromise,
+        scoreCountsPromise
+      ])
+
+      const { scores, totals } = scoresRes
+      deckSizeList.value = scoreCounts;
       const totalCount = Object.values(totals)
         .reduce((accum, cur) => accum += cur, 0)
 
-      console.log({ totalCount });
+      console.log({ totalCount, scores, deckSizeList: deckSizeList.value });
 
       scoreTotals.value = {
         ...totals,
         all: totalCount
       };
 
-      calculatedPages.value = Array(Math.ceil(
+      queryStore.totalPages = Math.ceil(
         totalCount / queryStore.resultsPerPage
-      ))
-        .fill(0)
-        .map((_, i) => i)
+      );
+
+      sortedScores.value = [...scores];
 
       console.log('finished querying scores');
-      sortedScores.value = [...scores];
-      isLoading.value = false;
+      return { scores }
     }
   );
 
@@ -258,23 +267,9 @@ export default component$(() => {
         ...queryStore.sortByColumnHistory,
       ].slice(0, MAX_SORT_COLUMN_HISTORY);
     }
-    queryScores();
+    queryAndSaveScores();
   });
 
-  useTask$(async ({ track }) => {
-    track(() => gameContext.interface.scoresModal.isShowing);
-    if (!gameContext.interface.scoresModal.isShowing) return;
-
-    isLoading.value = true;
-    console.log(await serverDbService.scoreCounts.getAll());
-
-    // fetch the list of all deckSizes we have scores of
-    deckSizeList.value = await serverDbService.scoreCounts.getDeckSizes();
-
-    queryScores();
-    isLoading.value = false;
-    console.log("done loading");
-  });
 
   const onChangeResultsPerPage$ = $((e: QwikChangeEvent) => {
     const selectedResultsPerPage = Number((e.target as HTMLSelectElement).value)
@@ -286,7 +281,7 @@ export default component$(() => {
       // re-select the top because it shows everything
       selectValue.value = 'default';
       (e.target as HTMLSelectElement).value = 'default';
-      queryScores();
+      queryAndSaveScores();
     }
   });
 
@@ -327,10 +322,24 @@ export default component$(() => {
       selectValue.value = 'default';
       (e.target as HTMLSelectElement).value = 'default';
 
-      queryScores();
+      queryAndSaveScores();
     }
   );
 
+  /* 
+  * onMount, onShow modal
+  * */
+  useTask$(async ({ track }) => {
+    track(() => gameContext.interface.scoresModal.isShowing);
+    if (!gameContext.interface.scoresModal.isShowing) return;
+
+    isLoading.value = true;
+
+    await queryAndSaveScores(),
+
+      isLoading.value = false;
+    console.log("done loading");
+  });
 
   useStyles$(`
   table {
@@ -448,9 +457,9 @@ export default component$(() => {
       <div class="flex flex-col w-min">
         {/* TODO: instead of Select + Options, use a dropdown with checkboxes 
             (could be disabled for those deckSizes we haven't seen yet) */}
-        <div class="flex">
+        <div class="flex justify-between bg-slate-700 items-center gap-2 h-[2rem] p-1">
           <select
-            class="bg-slate-800"
+            class="bg-slate-800 flex-grow"
             value={selectValue.value}
             onChange$={onChangeSelect}
           >
@@ -467,54 +476,56 @@ export default component$(() => {
             onChange$={onChangeResultsPerPage$}
             listOfOptions={Array(10).fill(null).map((_, i) => (i + 1) * 5)}
           />
-
         </div>
 
-        <table
-          q: slot="scoreboard-tab0"
-          class="scoreboard w-full  max-h-[90vh]"
+        <div class="w-full h-full overflow-y-auto"
+          style={{ maxHeight: `calc(70vh - 5rem)` }}
         >
-          <thead class={` text-xs sm:text-sm md:text-md bg-slate-500`}>
-            <tr>
-              {headersList.map((header) => {
-                const hyphenated = hyphenateTitle(header);
-                const key = MAP_COL_TITLE_TO_OBJ_KEY[header];
-                const findFn = ({ column }: SortColumnWithDirection) => column === key;
-                const classes = queryStore.sortByColumnHistory.find(
-                  findFn
-                )?.direction ??
-                  (
-                    DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY.find(
-                      findFn
-                    )?.direction ??
-                    "desc"
-                  )
-                return (
-                  <ScoreTableHeader
-                    key={hyphenated}
-                    title={header}
-                    hyphenated={hyphenated}
-                    classes={classes}
-                    onClick$={
-                      header === "Avatar"
-                        ? undefined
-                        : handleClickColumnHeader
-                    }
-                  />
-                );
-              })}
-            </tr>
-          </thead>
-          <tbody>
-            {sortedScores.value.map((score) => (
-              <ScoreRow key={score.id} score={score} />
-            ))}
-          </tbody>
-        </table>
+          <table
+            q: slot="scoreboard-tab0"
+            class="scoreboard w-full "
+          >
+            <thead class={` text-xs sm:text-sm md:text-md bg-slate-500`}>
+              <tr>
+                {headersList.map((header) => {
+                  const hyphenated = hyphenateTitle(header);
+                  const key = MAP_COL_TITLE_TO_OBJ_KEY[header];
+                  const findFn = ({ column }: SortColumnWithDirection) => column === key;
+                  const classes = queryStore.sortByColumnHistory.find(
+                    findFn
+                  )?.direction ??
+                    (
+                      DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY.find(
+                        findFn
+                      )?.direction ??
+                      "desc"
+                    )
+                  return (
+                    <ScoreTableHeader
+                      key={hyphenated}
+                      title={header}
+                      hyphenated={hyphenated}
+                      classes={classes}
+                      onClick$={
+                        header === "Avatar"
+                          ? undefined
+                          : handleClickColumnHeader
+                      }
+                    />
+                  );
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {sortedScores.value.map((score) => (
+                <ScoreRow key={score.id} score={score} />
+              ))}
+            </tbody>
+          </table>
+        </div>
         <TablePagingFooter
           queryStore={queryStore}
-          pages={calculatedPages.value}
-          queryScores={queryScores}
+          queryScores={queryAndSaveScores}
         />
       </div>
     </Modal>
@@ -548,54 +559,62 @@ const SelectEl = component$(({
 
 const TablePagingFooter = component$(({
   queryStore,
-  pages,
   queryScores,
 }: {
   queryStore: QueryStore;
-  pages: number[];
-  queryScores: PropFunction<() => void>;
+  queryScores: PropFunction<() => any>;
 }) => {
-  console.log({ pages });
   const buttons = useStore({
     first: true,
     prev: true,
     next: true,
     last: true,
     maxPageButtons: 7,
+    prevPage: queryStore.pageNumber,
   })
-  // eg 3
+
   const remainingPageButtonSlots = useSignal(buttons.maxPageButtons);
   const remainingPageButtons = useSignal<number[]>([]);
 
   const calculateRemainingPageButtons = $(() => {
-    const currentIndex = pages.indexOf(queryStore.pageNumber);
+    const currentIndex = queryStore.pageNumber - 1; // 0-based page number
 
-    const half = Math.round(remainingPageButtonSlots.value / 2)
-    const start = pages.slice(Math.max(1, currentIndex - (half)), currentIndex)
-    const end = pages.slice(currentIndex, Math.min(pages.length, currentIndex + (half)))
-    const total = start.concat(end);
+    // const half = ((buttons.prevPage < queryStore.pageNumber)
+    //   ? Math.floor(remainingPageButtonSlots.value / 2)
+    //   : Math.ceil(remainingPageButtonSlots.value / 2)) - 1
 
-    return total;
+    const half = 
+       Math.round(remainingPageButtonSlots.value / 2)
+    // const bonus = (queryStore.pageNumber > buttons.prevPage) ? 1 : queryStore.pageNumber < buttons.prevPage ? -1 : 0;
+    const bonus = 0;
+      
+    // const start = pages.slice(Math.max(1, currentIndex - (half)), currentIndex)
+    // const end = pages.slice(currentIndex, Math.min(pages.length, currentIndex + (half)))
+    // const total = start.concat(end);
+    const startIndex = Math.max(0, currentIndex - half  - (bonus));
+    const endIndex = Math.min(queryStore.totalPages, currentIndex + half - (bonus) );
+
+    return Array(endIndex - startIndex).fill(0).map((_, i) => startIndex + i + 1);
   });
 
   useTask$(async ({ track }) => {
-    track(() => [queryStore.pageNumber, queryStore.totalResults]);
+    track(() => [queryStore.pageNumber, queryStore.totalPages, queryStore.totalResults]);
 
-    // if (queryStore.pageNumber > 1) {
-    //   buttons.first = true;
-    //   buttons.prev = true;
-    // } else {
-    //   buttons.first = false;
-    //   buttons.prev = false;
-    // }
-    //
-    // if (queryStore.pageNumber < pages.length) {
-    //   buttons.last = true;
-    //   buttons.next = true;
-    // } else {
-    //   buttons.last = false;
-    //   buttons.next = false;
-    // }
+    if (queryStore.pageNumber > 1) {
+      buttons.first = true;
+      buttons.prev = true;
+    } else {
+      buttons.first = false;
+      buttons.prev = false;
+    }
+
+    if (queryStore.pageNumber < queryStore.totalPages) {
+      buttons.last = true;
+      buttons.next = true;
+    } else {
+      buttons.last = false;
+      buttons.next = false;
+    }
 
     remainingPageButtonSlots.value = buttons.maxPageButtons - Object.values(
       buttons
@@ -604,30 +623,51 @@ const TablePagingFooter = component$(({
     remainingPageButtons.value = await calculateRemainingPageButtons();
   })
 
-  return (
-    <div class="flex justify-between w-full h-full" onClick$={(e: QwikMouseEvent) => {
+  const onClick$ = $(
+    (e: QwikMouseEvent) => {
       const label = (e.target as HTMLButtonElement).dataset['label']?.split('-') ?? [0, 0];
       let pageNumber = queryStore.pageNumber;
       pageNumber = (
         label[0] === 'page' ? Number(label[2]) :
           label[0] === 'first' ? 1
             : label[0] === 'previous' ? (pageNumber - 1 < 1 ? 1 : pageNumber - 1)
-              : label[0] === 'next' ? (pageNumber + 1 > pages.length ? pages.length : pageNumber + 1)
-                : label[0] === 'last' ? pages.length : queryStore.pageNumber
+              : label[0] === 'next' ? (pageNumber + 1 > queryStore.totalPages ? queryStore.totalPages : pageNumber + 1)
+                : label[0] === 'last' ? queryStore.totalPages : queryStore.pageNumber
       );
       console.log('clicked page number button:', { label, pageNumber });
+      buttons.prevPage = queryStore.pageNumber;
       queryStore.pageNumber = pageNumber;
+
       queryScores();
-    }}>
-      {buttons.first && <button class="inline bg-slate-100 text-slate-900 p-1" data-label="first-page">{"<<"}</button>}
-      {buttons.prev && <button class="inline bg-slate-100 text-slate-900 p-1" data-label="previous-page">{"<"}</button>}
+    }
+  )
+  const baseButtonStyles = 'bg-slate-100 text-slate-800 p-1 inline';
+  return (
+    <div class="flex flex-col h-[3rem]">
+      <div
+        class="flex justify-between w-max gap-2 mx-auto h-full p-1 flex-grow-0"
+        onClick$={onClick$}
+      >
+        {buttons.first && <button class={baseButtonStyles} data-label="first-page">{"<<"}</button>}
+        {buttons.prev && <button class={baseButtonStyles} data-label="previous-page">{"<"}</button>}
 
-      {remainingPageButtons.value.map((number) => (
-        <button class="inline bg-slate-100 text-slate-900 p-1" data-label={`page-number-${number}`}>{number}</button>
-      ))}
+        {remainingPageButtons.value.map((number) => (
+          <button
+            class={`${baseButtonStyles} ${number === queryStore.pageNumber ? 'bg-slate-500 text-slate-600' : ''}`}
+            data-label={`page-number-${number}`}
+            disabled={number === queryStore.pageNumber}
+          >
+            {number}
+          </button>
+        ))}
 
-      {buttons.next && <button class="inline bg-slate-100 text-slate-900 p-1" data-label="next-page">{">"}</button>}
-      {buttons.last && <button class="inline bg-slate-100 text-slate-900 p-1" data-label="last-page">{">>"}</button>}
+        {buttons.next && <button class={baseButtonStyles} data-label="next-page">{">"}</button>}
+        {buttons.last && <button class={baseButtonStyles} data-label="last-page">{">>"}</button>}
+      </div>
+      <div class="flex-grow">
+        Total Pages: {queryStore.totalPages}
+      </div>
+
     </div>
   );
 });

@@ -60,7 +60,6 @@ export const DEFAULT_CARD_COUNT = 18;
 export const CONTAINER_PADDING_PERCENT = 1.5;
 
 const INITIAL_GAME_STATE: GameData = {
-  isStarted: false,
   isSaved: false,
   cards: [],
   mismatchPair: "",
@@ -71,6 +70,10 @@ const INITIAL_GAME_STATE: GameData = {
   mismatchPairs: [],
   isLoading: true,
   shufflingState: 0,
+  isFlipped: false,
+  isFaceShowing: false,
+  isFaceShowing_delayedOff: false,
+isReturned: true,
 };
 
 const INITIAL_STATE = {
@@ -153,7 +156,7 @@ const INITIAL_STATE = {
       isWin: false,
     },
     scoresModal: {
-      isShowing: true,
+      isShowing: false,
       scores: [],
     },
   },
@@ -187,6 +190,7 @@ const INITIAL_STATE = {
     const cards = deckShuffledByPairs.slice(0, this.settings.deck.size);
     this.game.cards = cards;
   }),
+
   initializeDeck: $(async function(this: TGameContext) {
     await this.sliceDeck();
     this.startShuffling();
@@ -243,6 +247,7 @@ const INITIAL_STATE = {
 
     // this.fetchScores();
   }),
+
   endGame: $(async function(this: TGameContext, isWin: boolean) {
     this.timer.stop();
     this.interface.endOfGameModal.isWin = isWin;
@@ -284,6 +289,7 @@ const INITIAL_STATE = {
     const scores = await serverDbService.scores.getAll() as Score[];
     this.interface.scoresModal.scores = scores;
     console.log({ scores });
+    return scores;
   }),
 };
 

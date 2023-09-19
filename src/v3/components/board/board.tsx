@@ -7,9 +7,13 @@ import {
   useOnWindow,
   useSignal,
   useStyles$,
+  useTask$,
   useVisibleTask$,
 } from "@builder.io/qwik";
-import Card from "../card/card";
+import Card, {
+  CARD_FLIPPED_DELAYED_OFF_DURATION_MS,
+  CARD_HIDE_UNDERSIDE_AFTER_PERCENT,
+} from "../card/card";
 import { GameContext } from "~/v3/context/gameContext";
 import type { Pair } from "~/v3/types/types";
 import v3CardUtils from "~/v3/utils/cardUtils";
@@ -37,6 +41,8 @@ export default component$(
   ({ containerRef }: { containerRef: Signal<HTMLElement | undefined> }) => {
     const gameContext = useContext(GameContext);
     const boardRef = useSignal<HTMLDivElement>();
+
+    const allowClicks = useSignal(true);
 
     const lastDeckSize = useSignal(gameContext.settings.deck.size);
     const lastRefresh = useSignal(gameContext.settings.resizeBoard);
@@ -85,7 +91,9 @@ export default component$(
     });
 
     const unflipCard = $(async () => {
+      console.log("unflipCard");
       if (gameContext.game.selectedCardIds.length === 2) {
+        console.log("selectedCardids.length of 2");
         await handleAddToSuccessfulPairsIfMatching();
       }
       gameContext.game.flippedCardId = -1;
@@ -98,7 +106,9 @@ export default component$(
     );
 
     const runUnflipDebounce = $((time: number) => {
-      unflipDebounce.setDelay(time);
+      // unflipDebounce.setDelay(
+      //   time
+      // );
       unflipDebounce.setValue(-1);
     });
 
@@ -110,31 +120,49 @@ export default component$(
         [...gameContext.game.selectedCardIds],
         cardId
       );
-
-      if (newSelected.length !== gameContext.game.selectedCardIds.length) {
-        gameContext.game.selectedCardIds = newSelected;
-
-        const isFinalPair =
-          newSelected.length === 2 &&
-          gameContext.game.successfulPairs.length ===
-            gameContext.settings.deck.size / 2 - 1;
-
-        // check immediately for the final pair
-        if (isFinalPair) {
-          gameContext.game.flippedCardId = cardId;
-          gameContext.timer.pause();
-          runUnflipDebounce(MINIMUM_TIME_BETWEEN_CLICKS);
-          return;
-        }
-      }
+      console.log({
+        newSelected,
+        oldSelected: gameContext.game.selectedCardIds,
+      });
 
       // flip it either way
       gameContext.game.flippedCardId = cardId;
       lastClick.value = Date.now();
+
+      // if we selected a new ard
+      if (newSelected.length !== gameContext.game.selectedCardIds.length) {
+        gameContext.game.selectedCardIds = newSelected;
+
+        // if (newSelected.length === 2) {
+        //   console.log("have 2 cards selected, should unflip card");
+        //   runUnflipDebounce(MINIMUM_TIME_BETWEEN_CLICKS);
+        // }
+
+        const isFinalPair =
+          newSelected.length === 2 &&
+          gameContext.game.successfulPairs.length ===
+          gameContext.settings.deck.size / 2 - 1;
+
+        // check immediately for the final pair
+        if (isFinalPair) {
+          gameContext.timer.pause();
+          runUnflipDebounce(MINIMUM_TIME_BETWEEN_CLICKS);
+        }
+      }
     });
 
-    const handleClickCard = $(
-      (isCardFlipped: boolean, isClickedOnCard: boolean, clickedId: number) => {
+    const clickCardDebounce = useDebounce<{
+      isCardFlipped: boolean;
+      isClickedOnCard: boolean;
+      clickedId: number;
+    }>(
+      $((values) => {
+        const { isCardFlipped, isClickedOnCard, clickedId } = values as {
+          isCardFlipped: boolean;
+          isClickedOnCard: boolean;
+          clickedId: number;
+        };
+
         // unflip card if flipped
         if (isCardFlipped) {
           unflipCard();
@@ -149,21 +177,6 @@ export default component$(
           // runClickUnflippedCardDebounce(clickedId);
           handleClickUnflippedCard(clickedId);
         }
-      }
-    );
-
-    const clickCardDebounce = useDebounce<{
-      isCardFlipped: boolean;
-      isClickedOnCard: boolean;
-      clickedId: number;
-    }>(
-      $((values) => {
-        const { isCardFlipped, isClickedOnCard, clickedId } = values as {
-          isCardFlipped: boolean;
-          isClickedOnCard: boolean;
-          clickedId: number;
-        };
-        handleClickCard(isCardFlipped, isClickedOnCard, clickedId as number);
       }),
       MINIMUM_TIME_BETWEEN_CLICKS
     );
@@ -180,6 +193,7 @@ export default component$(
       }) => {
         clickCardDebounce.setDelay(
           MINIMUM_TIME_BETWEEN_CLICKS - (Date.now() - lastClick.value)
+          // MINIMUM_TIME_BETWEEN_CLICKS
         );
         clickCardDebounce.setValue({
           isCardFlipped,
@@ -197,8 +211,15 @@ export default component$(
 
       const isClickedOnCard = !!clickedId;
 
+      // clicked on board while card is not flipped, do nothing
       if (!isClickedOnCard && !isCardFlipped) return;
 
+      // TODO: if card is flipped return unless card is returned to board
+      // const isWaitingForCardToReturn =
+      //   !gameContext.game.isReturned && gameContext.game.flippedCardId === -1;
+      // if (isWaitingForCardToReturn) return;
+
+      // either: click on card or click while card is flipped ( so we unflip it)
       runClickCardDebounce({
         isCardFlipped,
         isClickedOnCard,
@@ -374,9 +395,8 @@ export default component$(
       .card-shuffle-transform {
         transition-property: transform;
         transition-timing-function: cubic-bezier(0.40, 1.3, 0.62, 1.045);
-        transition-duration: ${
-          CARD_SHUFFLE_PAUSE_DURATION + CARD_SHUFFLE_ACTIVE_DURATION
-        }ms;
+        transition-duration: ${CARD_SHUFFLE_PAUSE_DURATION + CARD_SHUFFLE_ACTIVE_DURATION
+      }ms;
       }
 
       .shake-card {
@@ -416,9 +436,47 @@ export default component$(
       }
     `);
 
+    // when card is flipped, control timers for isFaceShowing and isFaceShowing_delayedOff
+    // when showing the back side, partway through we reveal the back side.
+    // when going back to the board, partway through we hide the back side.
+    useTask$((taskCtx) => {
+      const id = taskCtx.track(() => gameContext.game.flippedCardId);
+      const isCardFlipped = id !== -1;
+
+      let undersideRevealDelayTimer: ReturnType<typeof setTimeout>;
+      let flippedDelayTimer: ReturnType<typeof setTimeout>;
+      let returnedTimer: ReturnType<typeof setTimeout>;
+
+      if (isCardFlipped) {
+        // when showing card
+        gameContext.game.isFaceShowing = true;
+        gameContext.game.isFaceShowing_delayedOff = true;
+        gameContext.game.isReturned = false;
+      } else {
+        // when hiding card, keep the underside visible for a while
+        undersideRevealDelayTimer = setTimeout(() => {
+          gameContext.game.isFaceShowing = isCardFlipped;
+        }, CARD_FLIP_ANIMATION_DURATION * CARD_HIDE_UNDERSIDE_AFTER_PERCENT);
+
+        flippedDelayTimer = setTimeout(() => {
+          gameContext.game.isFaceShowing_delayedOff = isCardFlipped;
+        }, CARD_FLIPPED_DELAYED_OFF_DURATION_MS);
+
+        returnedTimer = setTimeout(() => {
+          gameContext.game.isReturned = !isCardFlipped;
+        }, CARD_FLIP_ANIMATION_DURATION);
+      }
+
+      taskCtx.cleanup(() => {
+        clearTimeout(undersideRevealDelayTimer);
+        clearTimeout(flippedDelayTimer);
+        clearTimeout(returnedTimer);
+      });
+    });
+
     return (
       <div
-        class="relative max-h-full max-w-full w-full h-full items-center "
+        class={`relative max-h-full max-w-full w-full h-full items-center`}
         ref={boardRef}
         onClick$={handleClickBoard$}
         data-label="board"
