@@ -39,7 +39,7 @@ const calculatePercentilesForOneScore = ({
   ltGameTimeCt: number;
   ltMismatchesCt: number;
 }) => ({
-  timePercentile: calculatePercentile({ total, lessThanCount:  ltGameTimeCt }),
+  timePercentile: calculatePercentile({ total, lessThanCount: ltGameTimeCt }),
   mismatchPercentile: calculatePercentile({
     total,
     lessThanCount: ltMismatchesCt,
@@ -50,12 +50,12 @@ const calculatePercentilesForScores = (
   scores: Score[],
   counts: ScoreCounts
 ) => {
-  console.log({ counts, scores });
+  // console.log({ counts, scores });
   const ltMismatchesObj =
     counts.worseThanOurMismatchesMap as LessThanOurScoreObj;
   const ltGameTimeObj = counts.worseThanOurGameTimeMap as LessThanOurScoreObj;
   const total = counts.totalScores as number;
-  console.log({ ltMismatchesObj, ltGameTimeObj, total });
+  // console.log({ ltMismatchesObj, ltGameTimeObj, total });
 
   const scoresWithPercentiles = [];
   for (let i = 0; i < scores.length; i++) {
@@ -157,12 +157,25 @@ const queryScoresAndCalculatePercentiles = async ({
   ]);
 
   if (resScores.status === "fulfilled" && resCounts.status === "fulfilled") {
-    const scores = resScores?.value as Score[];
-    const counts = resCounts?.value[0] as ScoreCounts;
-    console.log({ scores, counts, resCounts });
+    const allScores = resScores?.value as Score[];
+    const counts = resCounts?.value as ScoreCounts[];
 
-    const scoresWithPercentiles = calculatePercentilesForScores(scores, counts);
-    return sortScores(scoresWithPercentiles, sortByColumnHistory);
+    let allScoresWithPercentiles: ScoreWithPercentiles[] = [];
+
+    for (let i = 0; i < counts.length; i++) {
+      const thisCounts = counts[i];
+      const scores = allScores.filter(
+        (score) => score.deckSize === thisCounts.deckSize
+      );
+      const scoresWithPercentiles = calculatePercentilesForScores(
+        scores,
+        thisCounts
+      );
+      allScoresWithPercentiles = allScoresWithPercentiles.concat(scoresWithPercentiles);
+      // console.log({ scores, thisCounts });
+    }
+
+    return sortScores(allScoresWithPercentiles, sortByColumnHistory);
   } else {
     console.log({ resScores, resCounts });
   }
@@ -175,11 +188,6 @@ const queryScoresAndCalculatePercentiles = async ({
   return [];
   // throw new Error(message);
 };
-
-// const serverify = (obj: { [key: string]: () => Promise<any> }) =>
-//   Object.fromEntries(
-//     Object.entries(obj).map(([key, fn]) => [key, server$(fn)])
-//   );
 
 const serverDbService = {
   scores: {
@@ -216,8 +224,9 @@ const serverDbService = {
     //  * */
     saveScore: server$(scoreCountsService.saveScore),
   },
-  clearData: server$(async () =>
-    await Promise.all([scoreCountsService.clear(), scoreService.clear()])
+  clearData: server$(
+    async () =>
+      await Promise.all([scoreCountsService.clear(), scoreService.clear()])
   ),
 };
 

@@ -4,7 +4,6 @@ import {
   QwikChangeEvent,
   QwikMouseEvent,
   component$,
-  useComputed$,
   useContext,
   useSignal,
   useStore,
@@ -13,14 +12,12 @@ import {
 } from "@builder.io/qwik";
 import Modal from "../modal/modal";
 import { GameContext } from "~/v3/context/gameContext";
-import { Score } from "~/v3/db/types";
 import PixelAvatar from "../pixel-avatar/pixel-avatar";
 import serverDbService from "~/v3/services/db.service";
-import { timestampToMs, truncateMs } from "~/v3/utils/formatTime";
+import { truncateMs } from "~/v3/utils/formatTime";
 // import Tabulation from "../tabulation//tabulation";
 import type {
   ScoreWithPercentiles,
-  DeckSizesDictionary,
   ScoreColumn,
   SortColumnWithDirection,
 } from "~/v3/types/types";
@@ -193,7 +190,7 @@ resultsPerPage: 50,
         deckSizesFilter: queryStore.deckSizesFilter.length === 0 ? [gameContext.settings.deck.size] : queryStore.deckSizesFilter,
         sortByColumnHistory: queryStore.sortByColumnHistory
       });
-      console.log('finished querying scores:', { scores });
+      console.log('finished querying scores');
       sortedScores.value = scores;
       isLoading.value = false;
     }
