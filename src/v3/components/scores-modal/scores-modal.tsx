@@ -210,8 +210,10 @@ export default component$(() => {
           : queryStore.deckSizesFilter,
         sortByColumnHistory: queryStore.sortByColumnHistory
       });
+
       const totalCount = Object.values(totals)
         .reduce((accum, cur) => accum += cur, 0)
+
       console.log({ totalCount });
 
       scoreTotals.value = {
@@ -226,7 +228,7 @@ export default component$(() => {
         .map((_, i) => i)
 
       console.log('finished querying scores');
-      sortedScores.value = scores;
+      sortedScores.value = [...scores];
       isLoading.value = false;
     }
   );
@@ -505,13 +507,14 @@ export default component$(() => {
           </thead>
           <tbody>
             {sortedScores.value.map((score) => (
-              <ScoreRow key={score.userId} score={score} />
+              <ScoreRow key={score.id} score={score} />
             ))}
           </tbody>
         </table>
         <TablePagingFooter
           queryStore={queryStore}
           pages={calculatedPages.value}
+          queryScores={queryScores}
         />
       </div>
     </Modal>
@@ -546,9 +549,11 @@ const SelectEl = component$(({
 const TablePagingFooter = component$(({
   queryStore,
   pages,
+  queryScores,
 }: {
   queryStore: QueryStore;
   pages: number[];
+  queryScores: PropFunction<() => void>;
 }) => {
   console.log({ pages });
   const buttons = useStore({
@@ -565,9 +570,9 @@ const TablePagingFooter = component$(({
   const calculateRemainingPageButtons = $(() => {
     const currentIndex = pages.indexOf(queryStore.pageNumber);
 
-    const half = Math.ceil(remainingPageButtonSlots.value / 2)
+    const half = Math.round(remainingPageButtonSlots.value / 2)
     const start = pages.slice(Math.max(1, currentIndex - (half)), currentIndex)
-    const end = pages.slice(currentIndex, Math.max(pages.length, currentIndex + (half)))
+    const end = pages.slice(currentIndex, Math.min(pages.length, currentIndex + (half)))
     const total = start.concat(end);
 
     return total;
@@ -612,6 +617,7 @@ const TablePagingFooter = component$(({
       );
       console.log('clicked page number button:', { label, pageNumber });
       queryStore.pageNumber = pageNumber;
+      queryScores();
     }}>
       {buttons.first && <button class="inline bg-slate-100 text-slate-900 p-1" data-label="first-page">{"<<"}</button>}
       {buttons.prev && <button class="inline bg-slate-100 text-slate-900 p-1" data-label="previous-page">{"<"}</button>}
