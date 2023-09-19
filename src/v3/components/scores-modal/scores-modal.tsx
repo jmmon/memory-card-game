@@ -168,6 +168,11 @@ export default component$(() => {
     { deep: true }
   );
 
+  useTask$(({ track }) => {
+    track(() => gameContext.settings.deck.size)
+    queryStore.deckSizesFilter = [gameContext.settings.deck.size];
+  });
+
   // map deck sizes to fetched scores -- needed after improvement??
   // const getDeckBySizeSignal = useSignal<DeckSizesDictionary>({});
   const deckSizeList = useSignal<number[]>([]);
@@ -583,16 +588,16 @@ const TablePagingFooter = component$(({
     //   ? Math.floor(remainingPageButtonSlots.value / 2)
     //   : Math.ceil(remainingPageButtonSlots.value / 2)) - 1
 
-    const half = 
-       Math.round(remainingPageButtonSlots.value / 2)
+    const half =
+      Math.round(remainingPageButtonSlots.value / 2)
     // const bonus = (queryStore.pageNumber > buttons.prevPage) ? 1 : queryStore.pageNumber < buttons.prevPage ? -1 : 0;
     const bonus = 0;
-      
+
     // const start = pages.slice(Math.max(1, currentIndex - (half)), currentIndex)
     // const end = pages.slice(currentIndex, Math.min(pages.length, currentIndex + (half)))
     // const total = start.concat(end);
-    const startIndex = Math.max(0, currentIndex - half  - (bonus));
-    const endIndex = Math.min(queryStore.totalPages, currentIndex + half - (bonus) );
+    const startIndex = Math.max(0, currentIndex - half - (bonus));
+    const endIndex = Math.min(queryStore.totalPages, currentIndex + half - (bonus));
 
     return Array(endIndex - startIndex).fill(0).map((_, i) => startIndex + i + 1);
   });
@@ -704,46 +709,74 @@ const ScoreTableHeader = component$(
 
 
 
-const TIME_LABEL_COLOR = "text-slate-300";
+const TIME_LABEL_COLOR = "text-slate-400/90";
+// const GameTime = component$(({ gameTime }: { gameTime: string }) => {
+//   console.log('gameTime component:', { gameTime });
+//   const [hours, minutes, seconds] = gameTime.split(":").map((n) => Number(n));
+//   const haveHours = hours !== 0;
+//   const haveMinutes = minutes !== 0;
+//   // pad seconds so we can get full 3 digit milliseconds
+//   const [truncSeconds, ms] = String(seconds.toFixed(3)).split(".");
+//   const limitedMs = truncateMs(Number(ms ?? 0), 1);
+//
+//   return (
+//     <>
+//       {haveHours ? (
+//         <>
+//           <span>{hours}</span>
+//           <span class={TIME_LABEL_COLOR}>h</span>
+//         </>
+//       ) : (
+//         ""
+//       )}
+//
+//       {haveMinutes ? (
+//         <>
+//           {haveHours ? (
+//             <span class="ml-1">{String(minutes).padStart(2, "0")}</span>
+//           ) : (
+//             <span>{minutes}</span>
+//           )}
+//           <span class={TIME_LABEL_COLOR}>m</span>
+//         </>
+//       ) : (
+//         ""
+//       )}
+//
+//       <>
+//         {haveMinutes ? (
+//           <span class="ml-1">{truncSeconds.padStart(2, "0")}</span>
+//         ) : (
+//           <span>{Number(truncSeconds)}</span>
+//         )}
+//         <span class={`text-xs ${TIME_LABEL_COLOR}`}>
+//           {Number(limitedMs) > 0 ? limitedMs : ''}s
+//         </span>
+//       </>
+//     </>
+//   );
+// });
 const GameTime = component$(({ gameTime }: { gameTime: string }) => {
+  console.log('gameTime component:', { gameTime });
   const [hours, minutes, seconds] = gameTime.split(":").map((n) => Number(n));
   const haveHours = hours !== 0;
   const haveMinutes = minutes !== 0;
-  const [truncSeconds, ms] = String(seconds).split(".");
-  const limitedMs = truncateMs(Number(ms ?? 0), 3);
+  // pad seconds so we can get full 3 digit milliseconds
+  const [truncSeconds, ms] = String(seconds.toFixed(3)).split(".");
+  const limitedMs = truncateMs(Number(ms ?? 0), 1);
 
   return (
     <>
-      {haveHours ? (
-        <>
-          <span>{hours}</span>
-          <span class={TIME_LABEL_COLOR}>h</span>
-        </>
-      ) : (
-        ""
-      )}
-
-      {haveMinutes ? (
-        <>
-          {haveHours ? (
-            <span class="ml-1">{String(minutes).padStart(2, "0")}</span>
-          ) : (
-            <span>{minutes}</span>
-          )}
-          <span class={TIME_LABEL_COLOR}>m</span>
-        </>
-      ) : (
-        ""
-      )}
-
-      <>
-        {haveMinutes ? (
-          <span class="ml-1">{truncSeconds.padStart(2, "0")}</span>
-        ) : (
-          <span>{Number(truncSeconds)}</span>
-        )}
-        <span class={`text-xs ${TIME_LABEL_COLOR}`}>{limitedMs}s</span>
-      </>
+      <span class={haveHours ? '' : `text-xs ${TIME_LABEL_COLOR}`}>{String(hours).padStart(2, "0")}</span>
+      <span class={`${haveHours ? '' : 'text-xs'} mx-[1px] ${TIME_LABEL_COLOR}`}>:</span>
+      <span class={haveMinutes ? '' : `text-xs ${TIME_LABEL_COLOR}`}>{String(minutes).padStart(2, "0")}</span>
+      <span class={`${haveMinutes ? '' : 'text-xs'} mx-[1px] ${TIME_LABEL_COLOR}`}>:</span>
+      <span>{String(truncSeconds).padStart(2, "0")}</span>
+      {
+        (Number(limitedMs) > 0) ? (<>
+          <span class={`text-xs ${TIME_LABEL_COLOR}`}>{String(limitedMs)}</span>
+        </>) : ''
+      }
     </>
   );
 });

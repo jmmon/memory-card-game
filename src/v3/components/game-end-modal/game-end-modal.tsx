@@ -139,8 +139,7 @@ export default component$(() => {
 
   return (
     <Modal
-      // isShowing={gameContext.interface.endOfGameModal.isShowing}
-      isShowing={true}
+      isShowing={gameContext.interface.endOfGameModal.isShowing}
       hideModal$={hideModal$}
       title={
         gameContext.interface.endOfGameModal.isWin ? "You Win!" : "Game Over"

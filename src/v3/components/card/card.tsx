@@ -40,8 +40,12 @@ export default component$(({ card }: { card: Card }) => {
   );
 
   // is our card the flipped card?
-  const isCardFlipped = useComputed$(
+  const isThisCardFlipped = useComputed$(
     () => gameContext.game.flippedCardId === card.id
+  );
+
+  const isThisCardSelected = useComputed$(() =>
+    gameContext.game.selectedCardIds.includes(card.id)
   );
 
   /* SHUFFLE CARDS TRANSFORM
@@ -90,9 +94,6 @@ export default component$(({ card }: { card: Card }) => {
     coords.value = newCoords;
   });
 
-  const isSelected = useComputed$(() =>
-    gameContext.game.selectedCardIds.includes(card.id)
-  );
 
   // if flipTrasnform.value.translateX > 0, we're moving to the right. We should be higher z-index since we are on the left. And vice versa.
   // if tarnslateY > 0, we're moving down. We should be higher z-index since we are on the top. And vice versa.
@@ -117,15 +118,15 @@ export default component$(({ card }: { card: Card }) => {
                   ? 0
                   : flipTransform.value.translateY / 50
               )) /
-            2
+              2
           ) +
           // extra z-index for cards being flipped
-          (isCardFlipped.value
+          (isThisCardFlipped.value
             ? 120 // applies while card is first clicked
             : // : isFaceShowing.value || isFaceShowing_delayedOff.value || !isReturned.value
-            isCardFlipped.value && gameContext.game.isFaceShowing
-              ? 60 // applies when flipping down
-              : 0), // applies otherwise (when face down);
+            isThisCardFlipped.value && gameContext.game.isFaceShowing
+            ? 60 // applies when flipping down
+            : 0), // applies otherwise (when face down);
         transform: shuffleTransform.value,
       }}
       data-label="card-slot-container"
@@ -145,17 +146,19 @@ export default component$(({ card }: { card: Card }) => {
         <div
           data-id={card.id}
           data-label="card"
-          class={`box-border w-full border border-slate-50/25 bg-transparent transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${isThisRemoved.value &&
-              gameContext.game.flippedCardId !== card.id &&
-              gameContext.game.flippedCardId !== card.pairId
+          class={`box-border w-full border border-slate-50/25 bg-transparent transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
+            isThisRemoved.value &&
+            gameContext.game.flippedCardId !== card.id &&
+            gameContext.game.flippedCardId !== card.pairId
               ? "opacity-0 scale-[110%] pointer-events-none"
               : "opacity-100 cursor-pointer"
-            } ${isThisMismatched.value &&
-              gameContext.game.isShaking &&
-              gameContext.game.flippedCardId !== card.id
+          } ${
+            isThisMismatched.value &&
+            gameContext.game.isShaking &&
+            gameContext.game.flippedCardId !== card.id
               ? "shake-card"
               : ""
-            }
+          }
           `}
           style={{
             borderRadius: gameContext.cardLayout.roundedCornersPx + "px",
@@ -165,10 +168,10 @@ export default component$(({ card }: { card: Card }) => {
           }}
         >
           <CardFlippingWrapper
-            isSelected={isSelected}
+            isThisCardSelected={isThisCardSelected}
             card={card}
-isRemoved={isThisRemoved}
-            isCardFlipped={isCardFlipped}
+            isThisRemoved={isThisRemoved}
+            isThisCardFlipped={isThisCardFlipped}
             flipTransform={flipTransform}
             roundedCornersPx={gameContext.cardLayout.roundedCornersPx}
             boardLayout={gameContext.boardLayout}
@@ -179,56 +182,60 @@ isRemoved={isThisRemoved}
   );
 });
 
-export const CardFlippingWrapper = component$(({
-  card,
-  isSelected,
-  isCardFlipped,
-  flipTransform,
-  roundedCornersPx,
-  boardLayout,
-  isRemoved,
-}: {
-  card: Card;
-  isSelected: Signal<boolean>;
-  isCardFlipped: Signal<boolean>;
-  flipTransform: Signal<FlipTransform>;
-  roundedCornersPx: number;
-  boardLayout: BoardLayout;
-  isRemoved: Signal<boolean>;
-}) => {
-  const gameContext = useContext(GameContext);
-  return (
-    <div
-      data-id={card.id}
-      class={`flex flex-col items-center justify-center w-full bg-transparent card-flip relative text-center`}
-      style={{
-        transform:
-          isCardFlipped.value ||
-            (isRemoved.value && gameContext.game.isFaceShowing_delayedOff)
-            ? `translate(${(flipTransform.value.translateX * boardLayout.colWidth) / 100
-            }px, ${(flipTransform.value.translateY * boardLayout.rowHeight) / 100
-            }px) 
-rotateY(${flipTransform.value.rotateY}) 
-scale(${flipTransform.value.scale})`
+export const CardFlippingWrapper = component$(
+  ({
+    card,
+    isThisCardSelected,
+    isThisCardFlipped,
+    flipTransform,
+    roundedCornersPx,
+    boardLayout,
+    isThisRemoved,
+  }: {
+    card: Card;
+    isThisCardSelected: Signal<boolean>;
+    isThisCardFlipped: Signal<boolean>;
+    flipTransform: Signal<FlipTransform>;
+    roundedCornersPx: number;
+    boardLayout: BoardLayout;
+    isThisRemoved: Signal<boolean>;
+  }) => {
+    const gameContext = useContext(GameContext);
+    return (
+      <div
+        data-id={card.id}
+        class={`flex flex-col items-center justify-center w-full bg-transparent card-flip relative text-center`}
+        style={{
+          transform:
+            isThisCardFlipped.value ||
+            (isThisRemoved.value && gameContext.game.isFaceShowing_delayedOff)
+              ? `translate(${
+                  (flipTransform.value.translateX * boardLayout.colWidth) / 100
+                }px, ${
+                  (flipTransform.value.translateY * boardLayout.rowHeight) / 100
+                }px) 
+            rotateY(${flipTransform.value.rotateY}) 
+            scale(${flipTransform.value.scale})`
+              : "",
+          borderRadius: roundedCornersPx + "px",
+          boxShadow: isThisCardSelected.value
+            ? `0 0 ${roundedCornersPx}px ${roundedCornersPx}px var(--success-color)`
             : "",
-        borderRadius: roundedCornersPx + "px",
-        boxShadow: isSelected.value
-          ? `0 0 ${roundedCornersPx}px ${roundedCornersPx}px var(--success-color)`
-          : "",
-        background: "var(--success-color)",
+          background: "var(--success-color)",
 
-        height: "auto",
-        aspectRatio: CARD_RATIO,
-      }}
-    >
-      <CardView
-        card={card}
-        roundedCornersPx={roundedCornersPx}
-        isFaceShowing={gameContext.game.isFaceShowing}
-      />
-    </div>
-  );
-});
+          height: "auto",
+          aspectRatio: CARD_RATIO,
+        }}
+      >
+        <CardView
+          card={card}
+          roundedCornersPx={roundedCornersPx}
+          isFaceShowing={gameContext.game.isFaceShowing}
+        />
+      </div>
+    );
+  }
+);
 
 // holds the front and back of card
 const CardView = component$(
@@ -290,8 +297,6 @@ const CardFace = component$(
         data-label="card-front"
         style={{
           borderRadius: roundedCornersPx + "px",
-          // width: width + "px",
-          // height: height + "px",
           width: "100%",
           height: "auto",
           aspectRatio: CARD_RATIO,

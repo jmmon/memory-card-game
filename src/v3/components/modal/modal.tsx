@@ -10,7 +10,7 @@ type ModalOptions = { detectClickOutside: boolean };
 const DEFAULT_OPTIONS = { detectClickOutside: true };
 export default component$(
   ({
-    isShowing,
+    isShowing = true,
     hideModal$,
     containerClasses = "",
     bgClasses = "backdrop-blur-sm",
@@ -18,7 +18,7 @@ export default component$(
     bgStyles,
     options = DEFAULT_OPTIONS,
   }: {
-    isShowing: boolean;
+    isShowing?: boolean;
     hideModal$: PropFunction<() => void>;
     containerClasses?: string;
     bgClasses?: string;
