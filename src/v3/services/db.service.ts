@@ -11,6 +11,7 @@ import { DEFAULT_QUERY_PROPS } from "./constants";
 
 import scoreService from "./score.service";
 import scoreCountsService from "./scoreCounts.service";
+import { DEFAULT_CARD_COUNT } from "../components/game/game";
 
 /*
  * These functions are wrapped with server$() before exported, so
@@ -161,6 +162,7 @@ const queryScoresAndCalculatePercentiles = async ({
     const counts = resCounts?.value as ScoreCounts[];
 
     let allScoresWithPercentiles: ScoreWithPercentiles[] = [];
+    let totals: { [key: number]: number } = {};
 
     for (let i = 0; i < counts.length; i++) {
       const thisCounts = counts[i];
@@ -171,11 +173,18 @@ const queryScoresAndCalculatePercentiles = async ({
         scores,
         thisCounts
       );
-      allScoresWithPercentiles = allScoresWithPercentiles.concat(scoresWithPercentiles);
-      // console.log({ scores, thisCounts });
+      allScoresWithPercentiles = allScoresWithPercentiles.concat(
+        scoresWithPercentiles
+      );
+
+      totals[thisCounts.deckSize ?? DEFAULT_CARD_COUNT] =
+        thisCounts.totalScores ?? 0;
     }
 
-    return sortScores(allScoresWithPercentiles, sortByColumnHistory);
+    return {
+      scores: sortScores(allScoresWithPercentiles, sortByColumnHistory),
+      totals,
+    };
   } else {
     console.log({ resScores, resCounts });
   }
@@ -185,7 +194,7 @@ const queryScoresAndCalculatePercentiles = async ({
     .map((each) => JSON.stringify(each, null, 2));
   const message = "Error querying for " + rejectedRes.join(" and ");
   console.log({ message });
-  return [];
+  return { scores: [], totals: {} };
   // throw new Error(message);
 };
 

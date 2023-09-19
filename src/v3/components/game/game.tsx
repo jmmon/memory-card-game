@@ -52,15 +52,16 @@ const START_SHAKE_ANIMATION_EAGER_MS = 250;
 const START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE = 0.75;
 const SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD =
   CARD_FLIP_ANIMATION_DURATION *
-    START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE -
+  START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE -
   START_SHAKE_ANIMATION_EAGER_MS;
 
-export const DEFAULT_CARD_COUNT = 6;
+export const DEFAULT_CARD_COUNT = 18;
 
 export const CONTAINER_PADDING_PERCENT = 1.5;
 
 const INITIAL_GAME_STATE: GameData = {
   isStarted: false,
+  isSaved: false,
   cards: [],
   mismatchPair: "",
   isShaking: false,
@@ -157,14 +158,14 @@ const INITIAL_STATE = {
     },
   },
 
-  shuffleCardPositions: $(function (this: TGameContext) {
+  shuffleCardPositions: $(function(this: TGameContext) {
     // shuffle and set new positions, save old positions
     const newCards = deckUtils.shuffleCardPositions(this.game.cards);
     console.log("shuffleCardPositions:", { newCards });
     this.game.cards = newCards;
   }),
 
-  startShuffling: $(function (
+  startShuffling: $(function(
     this: TGameContext,
     count: number = CARD_SHUFFLE_ROUNDS
   ) {
@@ -174,24 +175,24 @@ const INITIAL_STATE = {
     this.interface.settingsModal.isShowing = false;
   }),
 
-  stopShuffling: $(function (this: TGameContext) {
+  stopShuffling: $(function(this: TGameContext) {
     this.game.shufflingState = 0;
     this.game.isLoading = false;
   }),
 
-  sliceDeck: $(function (this: TGameContext) {
+  sliceDeck: $(function(this: TGameContext) {
     const deckShuffledByPairs = deckUtils.sliceRandomPairsFromDeck([
       ...this.settings.deck.fullDeck,
     ]);
     const cards = deckShuffledByPairs.slice(0, this.settings.deck.size);
     this.game.cards = cards;
   }),
-  initializeDeck: $(async function (this: TGameContext) {
+  initializeDeck: $(async function(this: TGameContext) {
     await this.sliceDeck();
     this.startShuffling();
   }),
 
-  calculateAndResizeBoard: $(function (
+  calculateAndResizeBoard: $(function(
     this: TGameContext,
     boardRef: HTMLDivElement,
     containerRef: HTMLDivElement
@@ -209,16 +210,16 @@ const INITIAL_STATE = {
     };
   }),
 
-  showSettings: $(function (this: TGameContext) {
+  showSettings: $(function(this: TGameContext) {
     this.timer.pause();
     this.interface.settingsModal.isShowing = true;
   }),
-  hideSettings: $(function (this: TGameContext) {
+  hideSettings: $(function(this: TGameContext) {
     this.interface.settingsModal.isShowing = false;
     this.timer.resume();
   }),
 
-  isGameEnded: $(function (this: TGameContext) {
+  isGameEnded: $(function(this: TGameContext) {
     // TODO:
     // implement other modes, like max mismatches
     const isEnded =
@@ -234,7 +235,7 @@ const INITIAL_STATE = {
     return { isEnded, isWin };
   }),
 
-  startGame: $(async function (this: TGameContext) {
+  startGame: $(async function(this: TGameContext) {
     if (this.timer.state.isStarted) {
       this.timer.reset();
     }
@@ -242,7 +243,7 @@ const INITIAL_STATE = {
 
     // this.fetchScores();
   }),
-  endGame: $(async function (this: TGameContext, isWin: boolean) {
+  endGame: $(async function(this: TGameContext, isWin: boolean) {
     this.timer.stop();
     this.interface.endOfGameModal.isWin = isWin;
     this.interface.endOfGameModal.isShowing = true;
@@ -263,7 +264,7 @@ const INITIAL_STATE = {
     // this.fetchScores();
   }),
 
-  resetGame: $(async function (
+  resetGame: $(async function(
     this: TGameContext,
     settings?: Partial<GameSettings>
   ) {
@@ -278,7 +279,7 @@ const INITIAL_STATE = {
     this.initializeDeck();
   }),
 
-  fetchScores: $(async function (this: TGameContext) {
+  fetchScores: $(async function(this: TGameContext) {
     console.log("getting all scores...");
     const scores = await serverDbService.scores.getAll() as Score[];
     this.interface.scoresModal.scores = scores;
@@ -346,7 +347,7 @@ export default component$(() => {
     useComputed$(() => gameContext.game.mismatchPair !== ""),
     SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD,
     SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD +
-      CARD_SHAKE_ANIMATION_DURATION
+    CARD_SHAKE_ANIMATION_DURATION
   );
 
   /* ============================
@@ -385,7 +386,7 @@ export default component$(() => {
         window.onpagehide =
         window.onfocus =
         window.onblur =
-          onchange;
+        onchange;
     }
 
     function onchange(evt: any) {
@@ -444,7 +445,7 @@ export default component$(() => {
           window.onpagehide =
           window.onfocus =
           window.onblur =
-            null;
+          null;
       }
     });
   });
@@ -482,9 +483,8 @@ export default component$(() => {
       {/* </InverseModal> */}
 
       <div
-        class={`flex flex-col flex-grow justify-between w-full h-full p-[${CONTAINER_PADDING_PERCENT}%] gap-1 ${
-          gameContext.boardLayout.isLocked ? "overflow-x-auto" : ""
-        }`}
+        class={`flex flex-col flex-grow justify-between w-full h-full p-[${CONTAINER_PADDING_PERCENT}%] gap-1 ${gameContext.boardLayout.isLocked ? "overflow-x-auto" : ""
+          }`}
         ref={containerRef}
       >
         <GameHeader
@@ -507,13 +507,11 @@ const LoadingPage = component$(
   ({ isShowing, blur = true }: { isShowing: boolean; blur?: boolean }) => (
     <>
       <div
-        class={`${
-          isShowing
-            ? `${
-                blur ? "backdrop-blur-[2px]" : ""
-              } opacity-100 z-50 pointer-events-auto`
+        class={`${isShowing
+            ? `${blur ? "backdrop-blur-[2px]" : ""
+            } opacity-100 z-50 pointer-events-auto`
             : "z-[-1] pointer-events-none opacity-0"
-        } text-slate-200 transition-all bg-black bg-opacity-20 absolute top-0 left-0 text-4xl w-full flex-grow h-full flex justify-center items-center `}
+          } text-slate-200 transition-all bg-black bg-opacity-20 absolute top-0 left-0 text-4xl w-full flex-grow h-full flex justify-center items-center `}
       >
         Loading...
       </div>

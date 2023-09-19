@@ -60,6 +60,7 @@ export const serverGetHash = server$(function(
 export default component$(() => {
   const gameContext = useContext(GameContext);
   const defaultHash = useDefaultHash();
+  const data = useSignal('');
 
   // for adjusting deck size before restarting
   const cardCount = useSignal<string>(String(gameContext.settings.deck.size));
@@ -79,7 +80,10 @@ export default component$(() => {
     e.target.select();
   });
 
+
   const saveScore$ = $(async () => {
+    if (gameContext.game.isSaved) return;
+    const [pixels, color] = data.value.split('.');
     const newScore: NewScore = {
       deckSize: gameContext.settings.deck.size,
       gameTime: `${gameContext.timer.state.timeDs} millisecond`,
@@ -87,13 +91,25 @@ export default component$(() => {
       pairs: gameContext.game.successfulPairs.length,
       userId: identifier.value,
       initials: initials.value,
+      color,
+      pixels,
     };
 
-    console.log("saving score...", { newScore });
-    const saved = await serverDbService.scores.create(newScore);
-    console.log("saved!", { saved });
-    await gameContext.fetchScores();
-    gameContext.interface.scoresModal.isShowing = true;
+    try {
+      console.log("saving score...", { newScore });
+      const saved = await serverDbService.saveNewScore(newScore);
+
+      if (!saved.newScore || !saved.newScoreCounts) {
+        throw new Error("Could not save score");
+      }
+
+      gameContext.game.isSaved = true;
+      console.log("saved!", { saved });
+      gameContext.interface.scoresModal.isShowing = true;
+    } catch (err) {
+      console.error(err);
+    }
+
   });
 
   return (
@@ -115,7 +131,7 @@ export default component$(() => {
             <span>
               <FormattedTime
                 timeMs={gameContext.timer.state.timeDs}
-                limit={3}
+                limit={1}
               />
             </span>
           </div>
@@ -142,46 +158,66 @@ export default component$(() => {
         </SettingsRow>
       </div>
 
-      <hr />
+      <hr class={gameContext.game.isSaved ? 'hidden' : ''}/>
 
-      <div class="flex py-[2%] px-[4%]">
-        <SettingsRow>
-          <div class="flex flex-col gap-1 items-center w-full">
-            <label class="w-full flex justify-center gap-2">
-              Initials:
-              <input
-                type="text"
-                class="ml-2 text-center w-[5ch] bg-slate-800 text-slate-100"
-                maxLength={3}
-                onInput$={(e) => {
-                  initials.value = (
-                    e.target as HTMLInputElement
-                  ).value.toUpperCase();
-                }}
-                onFocus$={selectFieldOnFocus$}
-                value={initials.value}
-              />
-            </label>
-            <label class="text-xs w-full">
-              Identifier:
-              <input
-                type="text"
-                class="block w-full bg-slate-800 text-slate-100"
-                onFocus$={selectFieldOnFocus$}
-                bind: value={identifier}
-              />
-            </label>
-            <Button classes="" onClick$={getNewHash$}>
-              Generate Random Identifier
-            </Button>
-          </div>
-        </SettingsRow>
-      </div>
+      <div class={`w-full h-full ${gameContext.game.isSaved ? 'hidden' : ''}`}>
+        <div class="w-full flex justify-center py-[2%] px-[4%]">
+          <PixelAvatar
+            text={identifier}
+            colorFrom={initials}
+            outputTo$={({ pixels, color }) => { data.value = `${pixels}.${color}` }}
+          />
+        </div>
+        <div class="flex py-[2%] px-[4%]">
+          <SettingsRow>
+            <div class="flex flex-col gap-1 items-center w-full">
+              <label class="w-full flex justify-center gap-2">
+                Initials:
+                <input
+                  disabled={gameContext.game.isSaved}
+                  type="text"
+                  class="ml-2 text-center w-[5ch] bg-slate-800 text-slate-100"
+                  maxLength={3}
+                  onInput$={(e) => {
+                    initials.value = (
+                      e.target as HTMLInputElement
+                    ).value.toUpperCase();
+                  }}
+                  onFocus$={selectFieldOnFocus$}
+                  value={initials.value}
+                />
+              </label>
+              <label class="text-xs w-full">
+                Identifier:
+                <input
+                  disabled={gameContext.game.isSaved}
+                  type="text"
+                  class="block w-full bg-slate-800 text-slate-100"
+                  onFocus$={selectFieldOnFocus$}
+                  bind: value={identifier}
+                />
+              </label>
+              <Button
+                classes=""
+                onClick$={getNewHash$}
+                disabled={gameContext.game.isSaved}
+              >
+                Generate Random Identifier
+              </Button>
+            </div>
+          </SettingsRow>
+        </div>
 
-      <div class="flex py-[2%] px-[4%]">
-        <Button classes="mx-auto bg-green-600" onClick$={saveScore$}>
-          Save Score
-        </Button>
+        <div class="flex py-[2%] px-[4%]">
+          <Button
+            classes="mx-auto bg-green-600 hover:bg-green-400 disabled:bg-green-700"
+            onClick$={saveScore$}
+            disabled={gameContext.game.isSaved}
+          >
+            Save Score
+          </Button>
+        </div>
+
       </div>
 
       <hr />

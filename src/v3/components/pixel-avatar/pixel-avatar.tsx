@@ -222,6 +222,7 @@ interface PixelAvatarProps {
   colorFrom?: Signal<string>;
   color?: string;
   pixels?: string;
+  outputTo$?: ({ pixels, color }: { pixels: string; color: string }) => void;
 }
 
 export default component$(
@@ -239,6 +240,7 @@ export default component$(
     colorFrom,
     color,
     pixels,
+    outputTo$,
   }: PixelAvatarProps) => {
     const data = useSignal({
       pixels: "",
@@ -253,10 +255,10 @@ export default component$(
     });
 
     useTask$(async ({ track }) => {
-      track(() => [color, pixels, text?.value, colorFrom?.value, ]);
+      track(() => [color, pixels, text?.value, colorFrom?.value]);
 
       let generatedPixels, generatedColor;
-      let textToUseForPixels = text?.value ?? '';
+      let textToUseForPixels = text?.value ?? "";
 
       if (color) {
         generatedColor = color;
@@ -312,6 +314,9 @@ export default component$(
 
       // if isMoreColored !== forceLighter  we can use color for base and white for blocks
       // if isMoreColored == forceLighter  we can use white for base and color for blocks
+      if (outputTo$ !== undefined) {
+        outputTo$({ pixels: generatedPixels, color: generatedColor });
+      }
     });
 
     return (

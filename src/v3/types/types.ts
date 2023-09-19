@@ -115,6 +115,7 @@ export type CardLayout = {
 
 export type GameData = {
   isStarted: boolean;
+  isSaved: boolean;
   flippedCardId: number;
   selectedCardIds: number[];
   successfulPairs: Pair[];
