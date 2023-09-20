@@ -1,18 +1,32 @@
 import { RequestHandler } from "@builder.io/qwik-city";
 import runSeed from "~/v3/services/seed";
 
-export const onGet: RequestHandler = async ({ query, json }) => {
-  await runSeed({ totalDeckSizes: 24, scoresPerDeckSize: 2 });
-  // console.log(requestEvent.url.searchParams);
+export const onGet: RequestHandler = async (requestEvent) => {
+  const obj: Record<string, string> = {};
 
-  // const obj: Record<string, string> = {};
-  // query.forEach((k, v) => obj[k] = v);
+  // console.log(requestEvent.url.toString());
+  requestEvent.query.forEach((v, k) => {
+    // console.log({k,v});
+    obj[k] = v;
+  });
 
-  json(200, {
+  const opts = {
+    totalDeckSizes: Number(obj.totalDeckSizes) ?? 10,
+    scoresPerDeckSize: Number(obj.scoresPerDeckSize) ?? 10
+  }
+
+  const start = Date.now();
+  // console.log({opts});
+
+  await runSeed(opts);
+
+  requestEvent.json(200, {
     status: 200,
     body: {
+      time: ((Date.now() - start) / 1000) + 'ms',
       finished: true,
-      // searchParams: obj,
+      searchParams: obj,
+      opts,
     },
   });
 };
