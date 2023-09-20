@@ -89,6 +89,16 @@ export const DATE_JAN_1_1970 = new Date(JAN_1_1970_STRING);
 
 const PIXEL_AVATAR_SIZE = 44;
 
+const HEADER_LIST = [
+  "Avatar",
+  "Initials",
+  "Deck Size",
+  "Pairs",
+  "Game Time",
+  "Mismatches",
+  "Date",
+];
+
 const MAP_COL_TITLE_TO_OBJ_KEY: { [key: string]: ScoreColumn } = {
   initials: "initials",
   "deck-size": "deckSize",
@@ -131,14 +141,7 @@ const DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY = Object.values(
   DEFAULT_SORT_BY_COLUMNS_MAP
 );
 
-
 const MAX_SORT_COLUMN_HISTORY = 2;
-// const DEFAULT_SORT_BY_COLUMN_HISTORY = [
-//   "deckSize",
-//   "timePercentile",
-//   "mismatchPercentile",
-// ];
-// const DEFAULT_SORT_DIRECTION: SortDirection = "desc";
 
 type QueryStore = {
   sortByColumnHistory: SortColumnWithDirection[];
@@ -173,20 +176,7 @@ export default component$(() => {
     queryStore.deckSizesFilter = [gameContext.settings.deck.size];
   });
 
-  // map deck sizes to fetched scores -- needed after improvement??
-  // const getDeckBySizeSignal = useSignal<DeckSizesDictionary>({});
   const deckSizeList = useSignal<number[]>([]);
-
-  /*
-* // array of sort-by-columns, so we can sort by a primary and secondary key
-  const sortByColumnHistory = useSignal(
-    DEFAULT_SORT_BY_COLUMN_HISTORY.slice(0, MAX_SORT_COLUMN_HISTORY)
-  );
-  // direction of the sortColumn
-  const sortDirection = useSignal<SortDirection>(DEFAULT_SORT_DIRECTION);
-  // array of deck sizes to show in the scores list 
- */
-
   const sortedScores = useSignal<ScoreWithPercentiles[]>([]);
   const scoreTotals = useSignal<{
     [key: number]: number;
@@ -199,15 +189,6 @@ export default component$(() => {
     async () => {
       isLoading.value = true;
 
-      // console.log('started querying scores', {
-      //   pageNumber: queryStore.pageNumber,
-      //   resultsPerPage: queryStore.resultsPerPage,
-      //   deckSizesFilter: queryStore.deckSizesFilter.length === 0
-      //     ? [gameContext.settings.deck.size]
-      //     : queryStore.deckSizesFilter,
-      //   sortByColumnHistory: queryStore.sortByColumnHistory
-      // });
-      //
       const scoresPromise = serverDbService.scores.queryWithPercentiles({
         pageNumber: queryStore.pageNumber,
         resultsPerPage: queryStore.resultsPerPage,
@@ -217,7 +198,8 @@ export default component$(() => {
         sortByColumnHistory: queryStore.sortByColumnHistory
       });
 
-      const scoreCountsPromise = serverDbService.scoreCounts.getDeckSizes()
+      // fetch all deck sizes for our dropdown
+      const scoreCountsPromise = serverDbService.scoreCounts.getDeckSizes();
 
       const [scoresRes, scoreCounts] = await Promise.all([
         scoresPromise,
@@ -225,7 +207,9 @@ export default component$(() => {
       ])
 
       const { scores, totals } = scoresRes
+
       deckSizeList.value = scoreCounts;
+
       const totalCount = Object.values(totals)
         .reduce((accum, cur) => accum += cur, 0)
 
@@ -440,15 +424,6 @@ export default component$(() => {
   }
   `);
 
-  const headersList = [
-    "Avatar",
-    "Initials",
-    "Deck Size",
-    "Pairs",
-    "Game Time",
-    "Mismatches",
-    "Date",
-  ];
 
   return (
     <Modal
@@ -492,7 +467,7 @@ export default component$(() => {
           >
             <thead class={` text-xs sm:text-sm md:text-md bg-slate-500`}>
               <tr>
-                {headersList.map((header) => {
+                {HEADER_LIST.map((header) => {
                   const hyphenated = hyphenateTitle(header);
                   const key = MAP_COL_TITLE_TO_OBJ_KEY[header];
                   const findFn = ({ column }: SortColumnWithDirection) => column === key;
@@ -582,24 +557,15 @@ const TablePagingFooter = component$(({
   const remainingPageButtons = useSignal<number[]>([]);
 
   const calculateRemainingPageButtons = $(() => {
-    const currentIndex = queryStore.pageNumber - 1; // 0-based page number
+    const currentPage = queryStore.pageNumber;
 
-    // const half = ((buttons.prevPage < queryStore.pageNumber)
-    //   ? Math.floor(remainingPageButtonSlots.value / 2)
-    //   : Math.ceil(remainingPageButtonSlots.value / 2)) - 1
+    const bonus =
+      Math.floor((remainingPageButtonSlots.value - 1) / 2)
 
-    const half =
-      Math.round(remainingPageButtonSlots.value / 2)
-    // const bonus = (queryStore.pageNumber > buttons.prevPage) ? 1 : queryStore.pageNumber < buttons.prevPage ? -1 : 0;
-    const bonus = 0;
+    const startPage = Math.max(1, currentPage - bonus);
+    const endPage = Math.min(queryStore.totalPages, currentPage + bonus) + 1;
 
-    // const start = pages.slice(Math.max(1, currentIndex - (half)), currentIndex)
-    // const end = pages.slice(currentIndex, Math.min(pages.length, currentIndex + (half)))
-    // const total = start.concat(end);
-    const startIndex = Math.max(0, currentIndex - half - (bonus));
-    const endIndex = Math.min(queryStore.totalPages, currentIndex + half - (bonus));
-
-    return Array(endIndex - startIndex).fill(0).map((_, i) => startIndex + i + 1);
+    return Array(endPage - startPage).fill(0).map((_, i) => startPage + i);
   });
 
   useTask$(async ({ track }) => {
