@@ -4,7 +4,6 @@ import {
   useContext,
   useSignal,
   QwikFocusEvent,
-  useComputed$,
   useOnWindow,
 } from "@builder.io/qwik";
 import { server$ } from "@builder.io/qwik-city";
@@ -18,9 +17,9 @@ import { useDefaultHash } from "~/routes/game";
 import PixelAvatar from "../pixel-avatar/pixel-avatar";
 import { NewScore } from "~/v3/db/types";
 import serverDbService from "~/v3/services/db.service";
-const DEFAULT_HASH_LENGTH_BYTES = 32;
+import CONSTANTS from "~/v3/utils/constants";
 
-const getRandomBytes = server$((bytes: number = DEFAULT_HASH_LENGTH_BYTES) => {
+const getRandomBytes = server$((bytes: number = CONSTANTS.GAME.HASH_LENGTH_BYTES) => {
   return crypto.randomBytes(bytes).toString("hex");
 });
 
@@ -34,7 +33,7 @@ export function bufferToHexString(byteArray: Uint8Array) {
 
 export const serverGetHash = server$(function(
   message: string,
-  bytes: number = DEFAULT_HASH_LENGTH_BYTES
+  bytes: number = CONSTANTS.GAME.HASH_LENGTH_BYTES
 ) {
   return crypto
     .createHash("sha256")
@@ -42,23 +41,6 @@ export const serverGetHash = server$(function(
     .digest("hex")
     .substring(0, bytes);
 });
-
-// export async function clientGetHash(
-//   message: string,
-//   bytes: number = DEFAULT_HASH_LENGTH_BYTES
-// ) {
-//   let encoder = new TextEncoder();
-//   let data = encoder.encode(message);
-//   return window.crypto.subtle
-//     .digest("SHA-256", data)
-//     .then((res) => bufferToHexString(new Uint8Array(res)))
-//     .then((hex) => hex.substring(0, bytes));
-//   // return bufferToHexString(
-//   //   await window.crypto.subtle
-//   //     .digest("SHA-256", data)
-//   // ).substring(0, bytes);
-// }
-
 
 const computeAvatarSize = (val: number) =>
   Math.max(40,

@@ -2,33 +2,14 @@ import {
   $,
   component$,
   useComputed$,
-  useContextProvider,
+  useContext,
   useSignal,
-  useStore,
   useVisibleTask$,
 } from "@builder.io/qwik";
-import V3Board, {
-  CARD_FLIP_ANIMATION_DURATION,
-  CARD_SHAKE_ANIMATION_DURATION,
-  CARD_SHUFFLE_ACTIVE_DURATION,
-  CARD_SHUFFLE_PAUSE_DURATION,
-} from "../board/board";
 import { GameContext } from "../../context/gameContext";
 import SettingsModal from "../settings-modal/settings-modal";
 import GameHeader from "../game-header/game-header";
 import GameEndModal from "../game-end-modal/game-end-modal";
-import type {
-  GameData,
-  GameSettings,
-  GameContext as TGameContext,
-} from "~/v3/types/types";
-import { formattedDeck } from "~/v3/utils/cards";
-import deckUtils from "~/v3/utils/deckUtils";
-import {
-  calculateBoardDimensions,
-  calculateLayouts,
-} from "~/v3/utils/boardUtils";
-import { useTimer } from "~/v3/utils/useTimer";
 import {
   useDelayedTimeout,
   useInterval,
@@ -36,274 +17,15 @@ import {
 } from "~/v3/utils/useTimeout";
 import FaceCardSymbols from "../playing-card-components/face-card-symbols";
 import CardSymbols from "../playing-card-components/card-symbols";
-import serverDbService from "~/v3/services/db.service";
 import ScoresModal from "../scores-modal/scores-modal";
-import { Score } from "~/v3/db/types";
-// import dbService from "../services/db.service";
-// import InverseModal from "../inverse-modal/inverse-modal";
-
-const AUTO_SHUFFLE_INTERVAL = 10000;
-const AUTO_SHUFFLE_DELAY = 10000;
-
-export const CARD_SHUFFLE_ROUNDS = 5;
-
-// higher means shake starts sooner
-const START_SHAKE_ANIMATION_EAGER_MS = 250;
-const START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE = 0.75;
-const SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD =
-  CARD_FLIP_ANIMATION_DURATION *
-  START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE -
-  START_SHAKE_ANIMATION_EAGER_MS;
-
-export const DEFAULT_CARD_COUNT = 18;
-
-export const CONTAINER_PADDING_PERCENT = 1.5;
-
-const INITIAL_GAME_STATE: GameData = {
-  isSaved: false,
-  cards: [],
-  mismatchPair: "",
-  isShaking: false,
-  flippedCardId: -1,
-  selectedCardIds: [],
-  successfulPairs: [],
-  mismatchPairs: [],
-  isLoading: true,
-  shufflingState: 0,
-  isFlipped: false,
-  isFaceShowing: false,
-  isFaceShowing_delayedOff: false,
-isReturned: true,
-};
-
-const INITIAL_STATE = {
-  boardLayout: {
-    width: 291.07,
-    height: 281.81,
-    area: 291.07 * 281.81,
-    columns: 5,
-    rows: 4,
-    isLocked: false, // prevent recalculation of board layout
-    colWidth: 291.07 / 5,
-    rowHeight: 281.81 / 4,
-  },
-
-  cardLayout: {
-    width: 50.668,
-    height: 70.3955,
-    roundedCornersPx: 2.533,
-    area: 50.668 * 70.3955,
-    colGapPercent: 0,
-    rowGapPercent: 0,
-  },
-  game: INITIAL_GAME_STATE,
-
-  settings: {
-    cardFlipAnimationDuration: 800,
-
-    /* ===================
-     * NOT IMPLEMENTED
-     * =================== */
-    maxAllowableMismatches: -1,
-
-    /* shuffle board after x mismatches
-     *  0 = off
-     *  1+ = every n mismatches
-     * */
-    shuffleBoardAfterMismatches: 0,
-    /* shuffle board after successful pair */
-    shuffleBoardAfterPair: false,
-    /* shuffle board after success OR mismatch */
-    shuffleBoardAfterRound: false,
-
-    /* shuffle picked cards after placed back down after mismatch */
-    shufflePickedAfterMismatch: false,
-
-    /* recalculate board dimensions (eliminate empty spaces) on pair, on mismatch
-     * */
-    reorgnanizeBoardOnPair: false,
-    reorgnanizeBoardOnMismatch: false,
-    /* ===================
-     * end NOT IMPLEMENTED
-     * =================== */
-
-    resizeBoard: false,
-
-    deck: {
-      size: DEFAULT_CARD_COUNT,
-      isLocked: false,
-      MINIMUM_CARDS: 6,
-      MAXIMUM_CARDS: 52,
-      fullDeck: formattedDeck,
-    },
-
-    interface: {
-      showSelectedIds: false,
-      showDimensions: false,
-    },
-  },
-  interface: {
-    successAnimation: false,
-    mismatchAnimation: false,
-    inverseSettingsModal: {
-      isShowing: false,
-    },
-    settingsModal: {
-      isShowing: false,
-    },
-    endOfGameModal: {
-      isShowing: false,
-      isWin: false,
-    },
-    scoresModal: {
-      isShowing: false,
-      scores: [],
-    },
-  },
-
-  shuffleCardPositions: $(function(this: TGameContext) {
-    // shuffle and set new positions, save old positions
-    const newCards = deckUtils.shuffleCardPositions(this.game.cards);
-    console.log("shuffleCardPositions:", { newCards });
-    this.game.cards = newCards;
-  }),
-
-  startShuffling: $(function(
-    this: TGameContext,
-    count: number = CARD_SHUFFLE_ROUNDS
-  ) {
-    this.shuffleCardPositions();
-    this.game.shufflingState = count - 1;
-    this.game.isLoading = true;
-    this.interface.settingsModal.isShowing = false;
-  }),
-
-  stopShuffling: $(function(this: TGameContext) {
-    this.game.shufflingState = 0;
-    this.game.isLoading = false;
-  }),
-
-  sliceDeck: $(function(this: TGameContext) {
-    const deckShuffledByPairs = deckUtils.sliceRandomPairsFromDeck([
-      ...this.settings.deck.fullDeck,
-    ]);
-    const cards = deckShuffledByPairs.slice(0, this.settings.deck.size);
-    this.game.cards = cards;
-  }),
-
-  initializeDeck: $(async function(this: TGameContext) {
-    await this.sliceDeck();
-    this.startShuffling();
-  }),
-
-  calculateAndResizeBoard: $(function(
-    this: TGameContext,
-    boardRef: HTMLDivElement,
-    containerRef: HTMLDivElement
-  ) {
-    const newBoard = calculateBoardDimensions(containerRef, boardRef);
-    const { cardLayout, boardLayout } = calculateLayouts(
-      newBoard.width,
-      newBoard.height,
-      this.settings.deck.size
-    );
-    this.cardLayout = cardLayout;
-    this.boardLayout = {
-      ...this.boardLayout,
-      ...boardLayout,
-    };
-  }),
-
-  showSettings: $(function(this: TGameContext) {
-    this.timer.pause();
-    this.interface.settingsModal.isShowing = true;
-  }),
-  hideSettings: $(function(this: TGameContext) {
-    this.interface.settingsModal.isShowing = false;
-    this.timer.resume();
-  }),
-
-  isGameEnded: $(function(this: TGameContext) {
-    // TODO:
-    // implement other modes, like max mismatches
-    const isEnded =
-      this.game.successfulPairs.length === this.settings.deck.size / 2;
-    console.log({ isEnded });
-
-    if (!isEnded) return { isEnded };
-
-    const isWin =
-      this.game.successfulPairs.length === this.settings.deck.size / 2;
-
-    console.log({ isEnded, isWin });
-    return { isEnded, isWin };
-  }),
-
-  startGame: $(async function(this: TGameContext) {
-    if (this.timer.state.isStarted) {
-      this.timer.reset();
-    }
-    this.timer.start();
-
-    // this.fetchScores();
-  }),
-
-  endGame: $(async function(this: TGameContext, isWin: boolean) {
-    this.timer.stop();
-    this.interface.endOfGameModal.isWin = isWin;
-    this.interface.endOfGameModal.isShowing = true;
-
-    // TODO: run this as a completion modal
-    // allow user to input their initials
-    // allow them to input email  (not saved to db, but hashed for UUID)
-    // combine both email + username to create UUID? or have two separate identifiers?
-    // might be cool if use the same email but different initials and the color matches
-    // dbService.createScore({
-    //   deckSize: this.settings.deck.size,
-    //   gameTime: `${this.timer.state.runningTime} millisecond`,
-    //   mismatches: this.game.mismatchPairs.length,
-    //   userId: (Math.random() * 1000000).toFixed(0),
-    //   initials: "joe",
-    // });
-
-    // this.fetchScores();
-  }),
-
-  resetGame: $(async function(
-    this: TGameContext,
-    settings?: Partial<GameSettings>
-  ) {
-    if (settings) {
-      this.settings = {
-        ...this.settings,
-        ...settings,
-      };
-    }
-    this.game = INITIAL_GAME_STATE;
-    await this.timer.reset();
-    this.initializeDeck();
-  }),
-
-  fetchScores: $(async function(this: TGameContext) {
-    console.log("getting all scores...");
-    const scores = await serverDbService.scores.getAll() as Score[];
-    this.interface.scoresModal.scores = scores;
-    console.log({ scores });
-    return scores;
-  }),
-};
+import Board from "../board/board";
+import CONSTANTS from "~/v3/utils/constants";
+import InverseModal from "../inverse-modal/inverse-modal";
+import GameSettings from "../settings-modal/game-settings";
+import { iGameSettings } from "~/v3/types/types";
 
 export default component$(() => {
-  const timer = useTimer();
-  console.log("game render");
-  const gameContext = useStore<TGameContext>(
-    {
-      ...INITIAL_STATE,
-      timer: timer,
-    },
-    { deep: true }
-  );
-  useContextProvider(GameContext, gameContext);
+  const gameContext = useContext(GameContext);
   const containerRef = useSignal<HTMLElement>();
 
   /* ================================
@@ -318,8 +40,8 @@ export default component$(() => {
       () =>
         !gameContext.timer.state.isStarted && !gameContext.timer.state.isEnded
     ),
-    AUTO_SHUFFLE_INTERVAL,
-    AUTO_SHUFFLE_DELAY
+    CONSTANTS.GAME.AUTO.SHUFFLE_INTERVAL,
+    CONSTANTS.GAME.AUTO.SHUFFLE_DELAY
   );
 
   /* ================================
@@ -334,7 +56,8 @@ export default component$(() => {
       if (gameContext.game.shufflingState <= 0) gameContext.stopShuffling();
     }),
     useComputed$(() => gameContext.game.shufflingState > 0),
-    CARD_SHUFFLE_PAUSE_DURATION + CARD_SHUFFLE_ACTIVE_DURATION
+    CONSTANTS.CARD.ANIMATIONS.SHUFFLE_PAUSE +
+    CONSTANTS.CARD.ANIMATIONS.SHUFFLE_ACTIVE
   );
 
   /* ================================
@@ -351,9 +74,9 @@ export default component$(() => {
       gameContext.game.mismatchPair = "";
     }),
     useComputed$(() => gameContext.game.mismatchPair !== ""),
-    SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD,
-    SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD +
-    CARD_SHAKE_ANIMATION_DURATION
+    CONSTANTS.CARD.ANIMATIONS.SHAKE_DELAY_AFTER_STARTING_RETURN,
+    CONSTANTS.CARD.ANIMATIONS.SHAKE_DELAY_AFTER_STARTING_RETURN +
+    CONSTANTS.CARD.ANIMATIONS.SHAKE
   );
 
   /* ============================
@@ -456,41 +179,63 @@ export default component$(() => {
     });
   });
 
+  const newSettings = useSignal<iGameSettings>({
+    ...gameContext.settings,
+  });
   return (
     <>
       {/* SVG card symbols */}
       <CardSymbols />
       <FaceCardSymbols />
 
-      {/* <InverseModal */}
-      {/*   isShowing={appStore.interface.inverseSettingsModal.isShowing} */}
-      {/*   hideModal$={() => { */}
-      {/*     appStore.createTimestamp({paused: false}); */}
-      {/*     appStore.interface.inverseSettingsModal.isShowing = false; */}
-      {/*   }} */}
-      {/*   title="Settings" */}
-      {/* > */}
-      {/*   <div */}
-      {/*     q:slot="mainContent" */}
-      {/*     class={`flex flex-col flex-grow justify-between w-full h-full p-[${CONTAINER_PADDING_PERCENT}%] gap-1 ${ */}
-      {/*       appStore.boardLayout.isLocked ? "overflow-x-auto" : "" */}
-      {/*     }`} */}
-      {/*     ref={containerRef} */}
-      {/*   > */}
-      {/*     <GameHeader */}
-      {/*       showSettings$={() => { */}
-      {/*         appStore.interface.inverseSettingsModal.isShowing = true; */}
-      {/*       }} */}
-      {/*     /> */}
-      {/**/}
-      {/*     <V3Board containerRef={containerRef} /> */}
-      {/*   </div> */}
-      {/*   <SettingsContent q:slot="revealedContent" /> */}
-      {/* </InverseModal> */}
+      <InverseModal
+        isShowing={gameContext.interface.settingsModal.isShowing}
+        hideModal$={() => {
+          newSettings.value = gameContext.settings;
+          gameContext.hideSettings();
+        }}
+        title="Settings"
+        direction="left"
+settingsClasses="bg-slate-700"
+      >
+        <div
+          q: slot="mainContent"
+          class={`flex flex-col flex-grow justify-between w-full h-full p-[${CONSTANTS.GAME.BOARD_PADDING_PERCENT
+            }%] gap-1 ${gameContext.boardLayout.isLocked ? "overflow-x-auto" : ""
+            }`}
+          style={{
+            background: `var(--qwik-dark-background)`,
+            color: `var(--qwik-dark-text)`,
+          }}
+          ref={containerRef}
+        >
+          <GameHeader
+            showSettings$={() => {
+              gameContext.showSettings();
+            }}
+          />
+
+          <Board containerRef={containerRef} />
+        </div>
+        <div
+          class="flex justify-center w-full h-full"
+          style={{
+            background: `var(--qwik-dark-background)`,
+            color: `var(--qwik-dark-text)`,
+          }}
+          q: slot="revealedContent"
+        >
+          <GameSettings settings={newSettings}
+            q: slot="revealedContent"
+          />
+        </div>
+      </InverseModal>
+      {/* 
 
       <div
-        class={`flex flex-col flex-grow justify-between w-full h-full p-[${CONTAINER_PADDING_PERCENT}%] gap-1 ${gameContext.boardLayout.isLocked ? "overflow-x-auto" : ""
-          }`}
+        class={`flex flex-col flex-grow justify-between w-full h-full p-[${CONSTANTS.GAME.BOARD_PADDING_PERCENT}%] gap-1 ${
+          gameContext.boardLayout.isLocked ? "overflow-x-auto" : ""
+        }`}
         ref={containerRef}
       >
         <GameHeader
@@ -498,11 +243,12 @@ export default component$(() => {
             gameContext.showSettings();
           }}
         />
-        <V3Board containerRef={containerRef} />
+        <Board containerRef={containerRef} />
       </div>
+*/}
 
       <LoadingPage isShowing={gameContext.game.isLoading} />
-      <SettingsModal />
+      {/* <SettingsModal /> */}
       <GameEndModal />
       <ScoresModal />
     </>

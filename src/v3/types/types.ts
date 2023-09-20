@@ -66,7 +66,7 @@ export type SortDirection = "asc" | "desc";
 /* =====================================================
  * Game Context and Settings
  * ===================================================== */
-export type GameSettings = {
+export type iGameSettings = {
   cardFlipAnimationDuration: number;
   maxAllowableMismatches: number;
 
@@ -93,7 +93,7 @@ export type GameSettings = {
   };
 };
 
-export type BoardLayout = {
+export type iBoardLayout = {
   width: number;
   height: number;
   columns: number;
@@ -104,7 +104,7 @@ export type BoardLayout = {
   colWidth: number;
 };
 
-export type CardLayout = {
+export type iCardLayout = {
   width: number;
   height: number;
   area: number;
@@ -113,7 +113,7 @@ export type CardLayout = {
   rowGapPercent: number;
 };
 
-export type GameData = {
+export type iGameData = {
   isSaved: boolean;
   flippedCardId: number;
   selectedCardIds: number[];
@@ -130,13 +130,13 @@ export type GameData = {
   isReturned: boolean;
 };
 
-export type GameContext = {
-  boardLayout: BoardLayout;
-  cardLayout: CardLayout;
+export type iGameContext = {
+  boardLayout: iBoardLayout;
+  cardLayout: iCardLayout;
 
-  game: GameData;
+  game: iGameData;
 
-  settings: GameSettings;
+  settings: iGameSettings;
 
   interface: {
     successAnimation: boolean;
@@ -158,7 +158,7 @@ export type GameContext = {
   };
   shuffleCardPositions: QRL<() => void>;
   sliceDeck: QRL<() => void>;
-  resetGame: QRL<(settings?: Partial<GameSettings>) => void>;
+  resetGame: QRL<(settings?: Partial<iGameSettings>) => void>;
   isGameEnded: QRL<
     () =>
       | { isEnded: false }

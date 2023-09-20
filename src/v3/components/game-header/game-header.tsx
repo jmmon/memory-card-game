@@ -11,6 +11,7 @@ import Button from "../button/button";
 import { GameContext } from "~/v3/context/gameContext";
 import { useTimeout } from "~/v3/utils/useTimeout";
 import { FormattedTime } from "../formatted-time/formatted-time";
+import CONSTANTS from "~/v3/utils/constants";
 
 const CODE_PADDING = "px-1.5 md:px-3 lg:px-4";
 const CODE_TEXT_LIGHT = "text-slate-200";
@@ -21,7 +22,6 @@ const DECIMALS = 1;
 const roundToDecimals = (number: number, decimals: number = DECIMALS) =>
   Math.round(number * 10 ** decimals) / 10 ** decimals;
 
-const COUNTER_ANIMATE_DURATION = 400;
 
 const SCORE_ANIMATION_CLASSES = "animate text-slate-100";
 
@@ -34,7 +34,7 @@ export default component$(
         gameContext.interface.successAnimation = false;
       }),
       useComputed$(() => gameContext.interface.successAnimation),
-      COUNTER_ANIMATE_DURATION
+      CONSTANTS.GAME.SUCCESS_COUNTER_ANIMATE_DURATION
     );
 
     useTimeout(
@@ -42,13 +42,13 @@ export default component$(
         gameContext.interface.mismatchAnimation = false;
       }),
       useComputed$(() => gameContext.interface.mismatchAnimation),
-      COUNTER_ANIMATE_DURATION
+      CONSTANTS.GAME.MISMATCH_COUNTER_ANIMATE_DURATION
     );
 
     useStylesScoped$(`
       .success, .mismatch {
         transition: all ${
-          COUNTER_ANIMATE_DURATION * 0.8
+          CONSTANTS.GAME.SUCCESS_COUNTER_ANIMATE_DURATION * 0.8
         }ms cubic-bezier(0.2,1.29,0.42,1.075);
       /*   transition: all 0.2s ease-in-out; */
       }
@@ -95,7 +95,9 @@ export default component$(
             Scores
           </Button>
         </HeaderSection>
-        <Button onClick$={showSettings$}><span class="text-slate-100">Settings</span></Button>
+        <Button onClick$={showSettings$}>
+          <span class="text-slate-100">Settings</span>
+        </Button>
         <HeaderSection>
           <code
             class={`bg-slate-800 ${CODE_TEXT_LIGHT} flex flex-col w-[11em] gap-1 ${CODE_PADDING}`}

@@ -10,39 +10,18 @@ import {
   useTask$,
   useVisibleTask$,
 } from "@builder.io/qwik";
-import Card, {
-  CARD_FLIPPED_DELAYED_OFF_DURATION_MS,
-  CARD_HIDE_UNDERSIDE_AFTER_PERCENT,
-} from "../card/card";
 import { GameContext } from "~/v3/context/gameContext";
 import type { Pair } from "~/v3/types/types";
 import v3CardUtils from "~/v3/utils/cardUtils";
 import { useDebounce } from "~/v3/utils/useDebounce";
 import { useTimeout } from "~/v3/utils/useTimeout";
-import { CONTAINER_PADDING_PERCENT } from "../game/game";
-import { calculateLayouts } from "~/v3/utils/boardUtils";
-
-export const CARD_RATIO = 2.5 / 3.5; // w / h
-export const CORNERS_WIDTH_RATIO = 1 / 20;
-
-const AUTO_PAUSE_DELAY_MS = 10000;
-
-export const CARD_FLIP_ANIMATION_DURATION = 700;
-export const CARD_SHAKE_ANIMATION_DURATION = 600;
-
-// after initial instant transform, wait this long before starting animation
-export const CARD_SHUFFLE_PAUSE_DURATION = 50;
-// animation duration
-export const CARD_SHUFFLE_ACTIVE_DURATION = 350;
-
-const MINIMUM_TIME_BETWEEN_CLICKS = 500;
+import CONSTANTS from "~/v3/utils/constants";
+import Card from "../card/card";
 
 export default component$(
   ({ containerRef }: { containerRef: Signal<HTMLElement | undefined> }) => {
     const gameContext = useContext(GameContext);
     const boardRef = useSignal<HTMLDivElement>();
-
-    const allowClicks = useSignal(true);
 
     const lastDeckSize = useSignal(gameContext.settings.deck.size);
     const lastRefresh = useSignal(gameContext.settings.resizeBoard);
@@ -102,13 +81,11 @@ export default component$(
 
     const unflipDebounce = useDebounce<number>(
       unflipCard,
-      MINIMUM_TIME_BETWEEN_CLICKS
+      CONSTANTS.GAME.MINIMUM_TIME_BETWEEN_CLICKS
     );
 
     const runUnflipDebounce = $((time: number) => {
-      // unflipDebounce.setDelay(
-      //   time
-      // );
+      unflipDebounce.setDelay(time);
       unflipDebounce.setValue(-1);
     });
 
@@ -141,12 +118,12 @@ export default component$(
         const isFinalPair =
           newSelected.length === 2 &&
           gameContext.game.successfulPairs.length ===
-          gameContext.settings.deck.size / 2 - 1;
+            gameContext.settings.deck.size / 2 - 1;
 
         // check immediately for the final pair
         if (isFinalPair) {
           gameContext.timer.pause();
-          runUnflipDebounce(MINIMUM_TIME_BETWEEN_CLICKS);
+          runUnflipDebounce(CONSTANTS.GAME.MINIMUM_TIME_BETWEEN_CLICKS);
         }
       }
     });
@@ -178,7 +155,7 @@ export default component$(
           handleClickUnflippedCard(clickedId);
         }
       }),
-      MINIMUM_TIME_BETWEEN_CLICKS
+      CONSTANTS.GAME.MINIMUM_TIME_BETWEEN_CLICKS
     );
 
     const runClickCardDebounce = $(
@@ -192,7 +169,8 @@ export default component$(
         clickedId: number;
       }) => {
         clickCardDebounce.setDelay(
-          MINIMUM_TIME_BETWEEN_CLICKS - (Date.now() - lastClick.value)
+          CONSTANTS.GAME.MINIMUM_TIME_BETWEEN_CLICKS -
+            (Date.now() - lastClick.value)
           // MINIMUM_TIME_BETWEEN_CLICKS
         );
         clickCardDebounce.setValue({
@@ -240,7 +218,7 @@ export default component$(
           !gameContext.timer.state.isEnded &&
           lastClick.value !== -1
       ),
-      AUTO_PAUSE_DELAY_MS,
+      CONSTANTS.GAME.AUTO.PAUSE_DELAY_MS,
       true
     );
 
@@ -252,7 +230,8 @@ export default component$(
       $((e) => {
         if ((e as KeyboardEvent).key === "Escape") {
           runUnflipDebounce(
-            MINIMUM_TIME_BETWEEN_CLICKS - (Date.now() - lastClick.value)
+            CONSTANTS.GAME.MINIMUM_TIME_BETWEEN_CLICKS -
+              (Date.now() - lastClick.value)
           );
         }
       })
@@ -266,29 +245,10 @@ export default component$(
       $(() => {
         if (gameContext.boardLayout.isLocked) return;
 
-        const container = containerRef.value as HTMLElement; // or use window instead of container/game?
-        const board = boardRef.value as HTMLElement;
-
-        const boardRect = board.getBoundingClientRect();
-        const boardTop = boardRect.top;
-        const boardBottomLimit =
-          (container.offsetHeight * (100 - CONTAINER_PADDING_PERCENT)) / 100; // account for padding on bottom
-        const boardHeight = boardBottomLimit - boardTop;
-
-        const boardWidth =
-          (container.offsetWidth * (100 - CONTAINER_PADDING_PERCENT * 2)) / 100; // account for padding on sides
-
-        const { cardLayout, boardLayout } = calculateLayouts(
-          boardWidth,
-          boardHeight,
-          gameContext.settings.deck.size
+        gameContext.calculateAndResizeBoard(
+          containerRef.value as HTMLDivElement,
+          boardRef.value as HTMLDivElement
         );
-
-        gameContext.cardLayout = cardLayout;
-        gameContext.boardLayout = {
-          ...gameContext.boardLayout,
-          ...boardLayout,
-        };
       })
     );
 
@@ -389,18 +349,20 @@ export default component$(
 /*         transition-timing-function: cubic-bezier(0.35, 1.2, 0.60, 1.045); */
         transition-timing-function: cubic-bezier(0.20, 1.285, 0.32, 1.075);
         transform-style: preserve-3d;
-        transition-duration: ${CARD_FLIP_ANIMATION_DURATION}ms;
+        transition-duration: ${CONSTANTS.CARD.ANIMATIONS.FLIP}ms;
       }
 
       .card-shuffle-transform {
         transition-property: transform;
         transition-timing-function: cubic-bezier(0.40, 1.3, 0.62, 1.045);
-        transition-duration: ${CARD_SHUFFLE_PAUSE_DURATION + CARD_SHUFFLE_ACTIVE_DURATION
-      }ms;
+        transition-duration: ${
+          CONSTANTS.CARD.ANIMATIONS.SHUFFLE_PAUSE +
+          CONSTANTS.CARD.ANIMATIONS.SHUFFLE_ACTIVE
+        }ms;
       }
 
       .shake-card {
-        animation: shake-card ${CARD_SHAKE_ANIMATION_DURATION}ms;
+        animation: shake-card ${CONSTANTS.CARD.ANIMATIONS.SHAKE}ms;
       }
 
       @keyframes shake-card {
@@ -456,15 +418,15 @@ export default component$(
         // when hiding card, keep the underside visible for a while
         undersideRevealDelayTimer = setTimeout(() => {
           gameContext.game.isFaceShowing = isCardFlipped;
-        }, CARD_FLIP_ANIMATION_DURATION * CARD_HIDE_UNDERSIDE_AFTER_PERCENT);
+        }, CONSTANTS.CARD.ANIMATIONS.FLIP * CONSTANTS.CARD.ANIMATIONS.HIDE_UNDERSIDE_AFTER_RETURN_PERCENT_COMPLETE);
 
         flippedDelayTimer = setTimeout(() => {
           gameContext.game.isFaceShowing_delayedOff = isCardFlipped;
-        }, CARD_FLIPPED_DELAYED_OFF_DURATION_MS);
+        }, CONSTANTS.CARD.ANIMATIONS.FLIP_DELAYED_OFF);
 
         returnedTimer = setTimeout(() => {
           gameContext.game.isReturned = !isCardFlipped;
-        }, CARD_FLIP_ANIMATION_DURATION);
+        }, CONSTANTS.CARD.ANIMATIONS.FLIP);
       }
 
       taskCtx.cleanup(() => {

@@ -1,5 +1,5 @@
-import { CARD_RATIO } from "../components/board/board";
-import type { BoardLayout, CardLayout, Coords, Pair, ShuffleTransform, Card } from "../types/types";
+import type { iBoardLayout, iCardLayout, Coords, Pair, ShuffleTransform, Card } from "../types/types";
+import CONSTANTS from "./constants";
 
 /*
  * compared to board, how big will the enlarged card (flipped card) be?
@@ -56,7 +56,7 @@ const getXYFromPosition = (position: number, columnCount: number) => ({
  * from origin:[0,0] to destination:newCoords
  * */
 const generateShuffleTranslateTransformPercent = (
-  cardLayout: CardLayout,
+  cardLayout: iCardLayout,
   newCoords: Coords
 ) => {
   const colGap =
@@ -70,12 +70,12 @@ const generateShuffleTranslateTransformPercent = (
 };
 
 const generateScaleTransformToCenter = (
-  boardLayout: BoardLayout,
-  cardLayout: CardLayout
+  boardLayout: iBoardLayout,
+  cardLayout: iCardLayout
 ) => {
   const boardRatio = boardLayout.width / boardLayout.height;
 
-  const isWidthTheLimitingDimension = boardRatio < CARD_RATIO;
+  const isWidthTheLimitingDimension = boardRatio < CONSTANTS.CARD.RATIO;
   // console.log({ boardRatio, isWidthTheLimitingDimension, CARD_RATIO });
 
   if (isWidthTheLimitingDimension) {
@@ -105,8 +105,8 @@ const generateTranslateTransformToCenter = (
  * numOfColsToTransverseMax e.g. 6cols => 2.5, 8cols => 3.5, 7cols => 3
  * */
 const generateFlipTranslateTransform = (
-  boardLayout: BoardLayout,
-  cardLayout: CardLayout,
+  boardLayout: iBoardLayout,
+  cardLayout: iCardLayout,
   newCoords: Coords
 ) => {
   const isOnLeftSide = newCoords.x < boardLayout.columns / 2;

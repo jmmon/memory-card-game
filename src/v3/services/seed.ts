@@ -3,7 +3,8 @@ import scoreService from "./score.service";
 import serverDbService from "./db.service";
 import { server$ } from "@builder.io/qwik-city";
 import scoreCountsService from "./scoreCounts.service";
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+let timeout: ReturnType<typeof setTimeout> | null = null;
+const delay = (ms: number) => new Promise((resolve) => timeout = setTimeout(resolve, ms));
 
 const DEFAULT_HASH_LENGTH_BYTES = 32;
 
@@ -95,7 +96,7 @@ const getRandomMirroredPixels = () => {
   return resultPixelsArray.join("");
 };
 
-const generateScore = (deckSize: number) => {
+const generateScoreData = (deckSize: number) => {
   const userId = getRandomBytes();
   const initials = getRandomInitials();
   const pixels = getRandomMirroredPixels();
@@ -133,14 +134,18 @@ const createManyScores = async ({
     deckSize <= maxDeckSize;
     deckSize += stepBetweenDeckSizes
   ) {
-    console.log("deckSize:", deckSize);
+    // console.log("deckSize:", deckSize);
     for (let i = 0; i < scoresPerDeckSize; i++) {
-      const newScore = generateScore(deckSize);
-      // console.log(i + ": " + JSON.stringify({ newScore }));
+      const newScoreData = generateScoreData(deckSize);
 
-      const newScorePromise = await serverDbService.saveNewScore(newScore);
-      console.log("saved new score:", JSON.stringify({ newScorePromise }));
-      await delay(100);
+      const newScorePromise = await serverDbService.saveNewScore(newScoreData);
+      console.log("\nsaved new score:", JSON.stringify({ newScorePromise }));
+
+      await delay(20);
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+      }
     }
   }
 };
@@ -153,12 +158,13 @@ const runSeed = async function ({
   scoresPerDeckSize: number;
 }) {
   try {
+    await serverDbService.clearData();
+
     const minDeckSize = 6;
     const maxDeckSize = 52;
     const maxDecksAvailable = (maxDeckSize - minDeckSize) / 2 + 1; // e.g. 24
     const stepBetweenDeckSizes = Math.floor(maxDecksAvailable / totalDeckSizes) * 2;
 
-    await serverDbService.clearData();
     await createManyScores({
       minDeckSize,
       maxDeckSize,

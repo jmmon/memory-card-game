@@ -1,5 +1,4 @@
-import { CARD_RATIO, CORNERS_WIDTH_RATIO } from "../components/board/board";
-import { CONTAINER_PADDING_PERCENT } from "../components/game/game";
+import CONSTANTS from "./constants";
 
 export const calculateBoardDimensions = (
   container: HTMLElement,
@@ -11,11 +10,11 @@ export const calculateBoardDimensions = (
   const boardRect = board.getBoundingClientRect();
   const boardTop = boardRect.top;
   const boardBottomLimit =
-    (container.offsetHeight * (100 - CONTAINER_PADDING_PERCENT)) / 100; // account for padding on bottom
+    (container.offsetHeight * (100 - CONSTANTS.GAME.BOARD_PADDING_PERCENT)) / 100; // account for padding on bottom
   const boardHeight = boardBottomLimit - boardTop;
 
   const boardWidth =
-    (container.offsetWidth * (100 - CONTAINER_PADDING_PERCENT * 2)) / 100; // account for padding on sides
+    (container.offsetWidth * (100 - CONSTANTS.GAME.BOARD_PADDING_PERCENT * 2)) / 100; // account for padding on sides
 
   return { width: boardWidth, height: boardHeight };
 };
@@ -32,19 +31,19 @@ export const calculateLayouts = (
   const maxAreaPerCard = boardArea / deckSize; // to get approx cols/rows
 
   // width first approach
-  const maxWidthPerCard = Math.sqrt(maxAreaPerCard * CARD_RATIO);
+  const maxWidthPerCard = Math.sqrt(maxAreaPerCard * CONSTANTS.CARD.RATIO);
   const columns = Math.floor(boardWidth / maxWidthPerCard);
   const rows = Math.ceil(deckSize / columns);
 
   // max height per card is restricted by number of rows:
   const newCardHeight = boardHeight / rows;
-  const newCardWidth = newCardHeight * CARD_RATIO;
+  const newCardWidth = newCardHeight * CONSTANTS.CARD.RATIO;
   const cardArea = newCardWidth * newCardHeight;
 
   const cardLayout = {
     width: newCardWidth,
     height: newCardHeight,
-    roundedCornersPx: CORNERS_WIDTH_RATIO * newCardWidth,
+    roundedCornersPx: CONSTANTS.CARD.CORNERS_WIDTH_RATIO * newCardWidth,
     area: cardArea,
     // half of this value should be on either edge, full value in the gaps
     // as percent of card width

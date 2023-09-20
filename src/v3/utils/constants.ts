@@ -1,29 +1,47 @@
+const CARD = {
+  COUNT: 18,
+  RATIO: 2.5 / 3.5,
+  CORNERS_WIDTH_RATIO: 1 / 20,
+  ANIMATIONS: {
+    FLIP: 700,
+    SHAKE: 600,
+    START_SHAKE_EAGER_MS: 250,
+    START_SHAKE_AFTER_RETURN_PERCENT_COMPLETE: 0.75,
+    SHUFFLE_PAUSE: 50,
+    SHUFFLE_ACTIVE: 350,
+    SHAKE_DELAY_AFTER_STARTING_RETURN: 0,
+    HIDE_UNDERSIDE_AFTER_RETURN_PERCENT_COMPLETE: 0.9,
+    FLIP_DELAYED_OFF: 250,
+  },
+};
+
+CARD.ANIMATIONS.SHAKE_DELAY_AFTER_STARTING_RETURN =
+  CARD.ANIMATIONS.FLIP *
+    CARD.ANIMATIONS.START_SHAKE_AFTER_RETURN_PERCENT_COMPLETE -
+  CARD.ANIMATIONS.START_SHAKE_EAGER_MS;
+
+const GAME = {
+  AUTO: {
+    PAUSE_DELAY_MS: 10 * 1000,
+    SHUFFLE_DELAY: 10 * 1000,
+    SHUFFLE_INTERVAL: 10 * 1000,
+  },
+
+  BOARD_PADDING_PERCENT: 1.5,
+  HASH_LENGTH_BYTES: 32,
+
+  MINIMUM_TIME_BETWEEN_CLICKS: 500,
+
+  SHUFFLE_ROUNDS: 5,
+  SUCCESS_COUNTER_ANIMATE_DURATION: 400,
+  MISMATCH_COUNTER_ANIMATE_DURATION: 0,
+};
+
+GAME.MISMATCH_COUNTER_ANIMATE_DURATION = GAME.SUCCESS_COUNTER_ANIMATE_DURATION;
+
 const CONSTANTS = {
-  animations: {
-    cardFlip: 600,
-    cardShake: 600,
-    cardShuffle: 350,
-    cardShufflePause: 50,
-    cardViewTimeMin: 500,
-    cardViewTimeMax: 500,
-    cardHideUndersideAfterTimeRatio: 0.9,
-    cardEndGameDisplayTimeMin: 250,
-    autoShuffleInterval: 10 * 1000,
-    autoShuffleDelay: 10 * 1000,
-    cardShakeEagerStartMs: 150,
-    cardShakeStartAtFlipDownCompleteness: 0.8,
-  },
-
-  card: {
-    ratio: 2.5 / 3.5,
-    cornersWidthRatio: 1 / 20,
-    shuffleRounds: 5,
-  },
-
-  game: {
-    autoPauseDelayMs: 10 * 1000,
-    defaultDeckSize: 18,
-  },
+  CARD,
+  GAME,
 }
 
-export { CONSTANTS };
+export default CONSTANTS;

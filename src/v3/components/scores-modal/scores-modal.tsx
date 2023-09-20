@@ -658,6 +658,7 @@ const TablePagingFooter = component$(({
 
         {remainingPageButtons.value.map((number) => (
           <button
+            key={number}
             class={`${baseButtonStyles} ${number === queryStore.pageNumber ? 'bg-slate-500 text-slate-600' : ''}`}
             data-label={`page-number-${number}`}
             disabled={number === queryStore.pageNumber}

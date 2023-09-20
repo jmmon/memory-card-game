@@ -11,7 +11,7 @@ import { DEFAULT_QUERY_PROPS } from "./constants";
 
 import scoreService from "./score.service";
 import scoreCountsService from "./scoreCounts.service";
-import { DEFAULT_CARD_COUNT } from "../components/game/game";
+import CONSTANTS from "../utils/constants";
 
 /*
  * These functions are wrapped with server$() before exported, so
@@ -119,7 +119,7 @@ const sortScores = (
     let value = 0;
     let nextKeyIndex = 0;
     let { column, direction } = sortByColumnHistory[0];
-    // console.log({ sortByColumnHistory: sortByColumnHistory.value });
+
     while (value === 0 && nextKeyIndex < sortByColumnHistory.length) {
       const sortingInstructions = sortByColumnHistory[nextKeyIndex];
       column = sortingInstructions.column;
@@ -157,45 +157,44 @@ const queryScoresAndCalculatePercentiles = async ({
     scoreCountsService.getByDeckSize(deckSizesFilter),
   ]);
 
-  if (resScores.status === "fulfilled" && resCounts.status === "fulfilled") {
-    const allScores = resScores?.value as Score[];
-    const counts = resCounts?.value as ScoreCounts[];
-
-    let allScoresWithPercentiles: ScoreWithPercentiles[] = [];
-    let totals: { [key: number]: number } = {};
-
-    for (let i = 0; i < counts.length; i++) {
-      const thisCounts = counts[i];
-      const scores = allScores.filter(
-        (score) => score.deckSize === thisCounts.deckSize
-      );
-      const scoresWithPercentiles = calculatePercentilesForScores(
-        scores,
-        thisCounts
-      );
-      allScoresWithPercentiles = allScoresWithPercentiles.concat(
-        scoresWithPercentiles
-      );
-
-      totals[thisCounts.deckSize ?? DEFAULT_CARD_COUNT] =
-        thisCounts.totalScores ?? 0;
-    }
-
-    return {
-      scores: sortScores(allScoresWithPercentiles, sortByColumnHistory),
-      totals,
-    };
-  } else {
+  if (resScores.status !== "fulfilled" || resCounts.status !== "fulfilled") {
     console.log({ resScores, resCounts });
+    const rejectedRes = [resScores, resCounts]
+      .filter((res) => res.status === "rejected")
+      .map((each) => JSON.stringify(each, null, 2));
+    const message = "Error querying for " + rejectedRes.join(" and ");
+    console.log({ message });
+    return { scores: [], totals: {} };
   }
 
-  const rejectedRes = [resScores, resCounts]
-    .filter((res) => res.status === "rejected")
-    .map((each) => JSON.stringify(each, null, 2));
-  const message = "Error querying for " + rejectedRes.join(" and ");
-  console.log({ message });
-  return { scores: [], totals: {} };
-  // throw new Error(message);
+  const allScores = resScores?.value as Score[];
+  const counts = resCounts?.value as ScoreCounts[];
+
+  let allScoresWithPercentiles: ScoreWithPercentiles[] = [];
+  let totals: { [key: number]: number } = {};
+
+  for (let i = 0; i < counts.length; i++) {
+    const thisCounts = counts[i];
+    const scores = allScores.filter(
+      (score) => score.deckSize === thisCounts.deckSize
+    );
+    const scoresWithPercentiles = calculatePercentilesForScores(
+      scores,
+      thisCounts
+    );
+    allScoresWithPercentiles = allScoresWithPercentiles.concat(
+      scoresWithPercentiles
+    );
+
+    totals[thisCounts.deckSize ?? CONSTANTS.CARD.COUNT] =
+      thisCounts.totalScores ?? 0;
+  }
+
+  return {
+    scores: sortScores(allScoresWithPercentiles, sortByColumnHistory),
+    totals,
+  };
+
 };
 
 const serverDbService = {
@@ -233,9 +232,10 @@ const serverDbService = {
     //  * */
     saveScore: server$(scoreCountsService.saveScore),
   },
-  clearData: server$(
-    async () =>
-      await Promise.all([scoreCountsService.clear(), scoreService.clear()])
+  clearData: server$(async () => {
+    await scoreCountsService.clear(); await scoreService.clear();
+    // Promise.all([scoreCountsService.clear(), scoreService.clear()])
+  }
   ),
 };
 

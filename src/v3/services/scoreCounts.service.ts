@@ -354,25 +354,12 @@ const addScoreToExistingCounts = async (
     foundOneScoreCounts.worseThanOurGameTimeMap as LessThanOurScoreObj
   );
 
-  console.log({
-    oldMismatches: foundOneScoreCounts.worseThanOurMismatchesMap,
-    updatedLessThanMismatches: updatedWorseThanMismatches,
-    oldGameTime: foundOneScoreCounts.worseThanOurGameTimeMap,
-    updatedLessThanGameTime: updatedWorseThanGameTime,
-  });
-
-  const scoreCount = await updateScoreCountsById(foundOneScoreCounts.id, {
+  return updateScoreCountsById(foundOneScoreCounts.id, {
     deckSize: foundOneScoreCounts.deckSize,
     worseThanOurMismatchesMap: updatedWorseThanMismatches,
     worseThanOurGameTimeMap: updatedWorseThanGameTime,
     totalScores: (foundOneScoreCounts.totalScores as number) + 1,
   });
-
-  console.log(
-    "~~ after adding score to existing scoreCounts:",
-    JSON.stringify({ scoreCount })
-  );
-  return scoreCount;
 };
 
 // in the end, we will end up with 52 - 6 = 46 / 2 + 1 = 24 different deckSizes
@@ -383,20 +370,13 @@ const saveScoreToCounts = async (score: Score) => {
 
   if (foundOneScoreCounts === undefined) {
     // creating a new scoreCounts
-    const newScoreCounts = await createScoreCounts(score);
-    console.log("creating new:" + JSON.stringify({ newScoreCounts }));
-    return newScoreCounts;
+    return createScoreCounts(score);
   } else {
-    console.log("found existing: id: " + foundOneScoreCounts.id); // What does the JSON field look like??
     // update worseThanOurScoreJson: for all keys greater than our score, increment the values by 1
-    const updatedScoreCounts = await addScoreToExistingCounts(
+    return addScoreToExistingCounts(
       foundOneScoreCounts,
       score
     );
-    console.log(
-      "~~updated existing: " + JSON.stringify({ updatedScoreCounts })
-    );
-    return updatedScoreCounts;
   }
 };
 

@@ -8,7 +8,7 @@ import {
   SettingsRow,
   DeckSizeSlider,
 } from "./settings-modal";
-import type { GameSettings } from "~/v3/types/types";
+import type { iGameSettings } from "~/v3/types/types";
 import { GameContext } from "~/v3/context/gameContext";
 import { FormattedTime } from "../formatted-time/formatted-time";
 
@@ -20,7 +20,7 @@ import { FormattedTime } from "../formatted-time/formatted-time";
 // shuffle pause time,
 
 export default component$(
-  ({ settings }: { settings: Signal<GameSettings> }) => {
+  ({ settings }: { settings: Signal<iGameSettings> }) => {
     const gameContext = useContext(GameContext);
 
     return (
@@ -28,7 +28,7 @@ export default component$(
         <div class="flex-grow flex justify-evenly items-center">
           <div class="justify-center flex gap-[2%] items-center tooltip">
             <Button onClick$={() => gameContext.startShuffling(5)}>
-<span class="text-slate-100">Shuffle Deck</span>
+              <span class="text-slate-100">Shuffle Deck</span>
             </Button>
             <span class="tooltiptext">Shuffle the card positions.</span>
           </div>
@@ -98,7 +98,10 @@ export default component$(
             <SettingsRow>
               <div class="w-full flex justify-between tooltip">
                 <label class="text-slate-100">Played Time:</label>
-                <FormattedTime timeMs={gameContext.timer.state.timeDs} limit={1} />
+                <FormattedTime
+                  timeMs={gameContext.timer.state.timeDs}
+                  limit={1}
+                />
                 <span class="tooltiptext">
                   Total un-paused play time for this round.
                 </span>
@@ -205,13 +208,15 @@ export default component$(
           <div class="justify-center flex  gap-[2%] items-center tooltip">
             <Button
               onClick$={() => {
-// only resetting timer... should reset the cards as well
+                // only resetting timer... should reset the cards as well
                 gameContext.resetGame();
               }}
             >
-<span class="text-slate-100">Reset Game</span>
+              <span class="text-slate-100">Reset Game</span>
             </Button>
-            <span class="tooltiptext">Reset the game, keeping current settings.</span>
+            <span class="tooltiptext">
+              Reset the game, keeping current settings.
+            </span>
           </div>
         </div>
         <div class="flex-grow flex justify-evenly items-center">
@@ -221,7 +226,7 @@ export default component$(
                 gameContext.resetGame(settings.value);
               }}
             >
-<span class="text-slate-100">Save & Restart</span>
+              <span class="text-slate-100">Save & Restart</span>
             </Button>
             <span class="tooltiptext">Save current settings and restart.</span>
           </div>

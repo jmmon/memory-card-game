@@ -9,17 +9,10 @@ import {
 import ImageBackFace from "~/media/cards/_backWhite.png?jsx";
 import { GameContext } from "~/v3/context/gameContext";
 import v3CardUtils, { CARD_RATIO_VS_CONTAINER } from "~/v3/utils/cardUtils";
-import { CARD_RATIO } from "../board/board";
 import PlayingCardComponents from "../playing-card-components";
-import type { BoardLayout, Coords, Card } from "~/v3/types/types";
+import type { iBoardLayout, Coords, Card } from "~/v3/types/types";
 import type { Signal } from "@builder.io/qwik";
-
-// underside shows immediately, but hides after this far during return transition
-export const CARD_HIDE_UNDERSIDE_AFTER_PERCENT = 0.9;
-
-// if matching, delay return animation by this amount
-// e.g. time allowed for card to vanish (before it would return to board)
-export const CARD_FLIPPED_DELAYED_OFF_DURATION_MS = 250;
+import CONSTANTS from "~/v3/utils/constants";
 
 type FlipTransform = {
   translateX: number;
@@ -100,7 +93,7 @@ export default component$(({ card }: { card: Card }) => {
   // (middle should have the lowest z-index)
   return (
     <div
-      class={`card-shuffle-transform absolute top-0 left-0 aspect-[${CARD_RATIO}] flex flex-col justify-center`}
+      class={`card-shuffle-transform absolute top-0 left-0 aspect-[${CONSTANTS.CARD.RATIO}] flex flex-col justify-center`}
       style={{
         width: gameContext.cardLayout.width + "px",
         height: gameContext.cardLayout.height + "px",
@@ -133,13 +126,13 @@ export default component$(({ card }: { card: Card }) => {
       data-position={card.position}
     >
       <div
-        class={`aspect-[${CARD_RATIO}] border border-slate-50/10 mx-auto bg-transparent`}
+        class={`aspect-[${CONSTANTS.CARD.RATIO}] border border-slate-50/10 mx-auto bg-transparent`}
         style={{
           borderRadius: gameContext.cardLayout.roundedCornersPx + "px",
           width: CARD_RATIO_VS_CONTAINER * 100 + "%",
           // height: CARD_RATIO_VS_CONTAINER * 100 + "%",
           height: "auto",
-          aspectRatio: CARD_RATIO,
+          aspectRatio: CONSTANTS.CARD.RATIO,
         }}
         data-label="card-outline"
       >
@@ -164,7 +157,7 @@ export default component$(({ card }: { card: Card }) => {
             borderRadius: gameContext.cardLayout.roundedCornersPx + "px",
             perspective: CARD_RATIO_VS_CONTAINER * 100 + "vw",
             height: "auto",
-            aspectRatio: CARD_RATIO,
+            aspectRatio: CONSTANTS.CARD.RATIO,
           }}
         >
           <CardFlippingWrapper
@@ -197,7 +190,7 @@ export const CardFlippingWrapper = component$(
     isThisCardFlipped: Signal<boolean>;
     flipTransform: Signal<FlipTransform>;
     roundedCornersPx: number;
-    boardLayout: BoardLayout;
+    boardLayout: iBoardLayout;
     isThisRemoved: Signal<boolean>;
   }) => {
     const gameContext = useContext(GameContext);
@@ -224,7 +217,7 @@ export const CardFlippingWrapper = component$(
           background: "var(--success-color)",
 
           height: "auto",
-          aspectRatio: CARD_RATIO,
+          aspectRatio: CONSTANTS.CARD.RATIO,
         }}
       >
         <CardView
@@ -299,7 +292,7 @@ const CardFace = component$(
           borderRadius: roundedCornersPx + "px",
           width: "100%",
           height: "auto",
-          aspectRatio: CARD_RATIO,
+          aspectRatio: CONSTANTS.CARD.RATIO,
         }}
       >
         <Slot />
