@@ -1,4 +1,4 @@
-import { Signal, component$, useSignal, useTask$ } from "@builder.io/qwik";
+import { PropFunction, QRL, Signal, component$, useSignal, useTask$ } from "@builder.io/qwik";
 import { isServer } from "@builder.io/qwik/build";
 import crypto from "crypto";
 import { stringToColor } from "~/v3/utils/avatarUtils";
@@ -222,7 +222,7 @@ interface PixelAvatarProps {
   colorFrom?: Signal<string>;
   color?: string;
   pixels?: string;
-  outputTo$?: ({ pixels, color }: { pixels: string; color: string }) => void;
+  outputTo$?: PropFunction<({ pixels, color }: { pixels: string; color: string }) => void>;
 }
 
 export default component$(

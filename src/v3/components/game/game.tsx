@@ -188,49 +188,48 @@ export default component$(() => {
       <CardSymbols />
       <FaceCardSymbols />
 
-      <InverseModal
-        isShowing={gameContext.interface.settingsModal.isShowing}
-        hideModal$={() => {
-          newSettings.value = gameContext.settings;
-          gameContext.hideSettings();
-        }}
-        title="Settings"
-        direction="left"
-settingsClasses="bg-slate-700"
-      >
-        <div
-          q: slot="mainContent"
-          class={`flex flex-col flex-grow justify-between w-full h-full p-[${CONSTANTS.GAME.BOARD_PADDING_PERCENT
-            }%] gap-1 ${gameContext.boardLayout.isLocked ? "overflow-x-auto" : ""
-            }`}
-          style={{
-            background: `var(--qwik-dark-background)`,
-            color: `var(--qwik-dark-text)`,
-          }}
-          ref={containerRef}
-        >
-          <GameHeader
-            showSettings$={() => {
-              gameContext.showSettings();
-            }}
-          />
-
-          <Board containerRef={containerRef} />
-        </div>
-        <div
-          class="flex justify-center w-full h-full"
-          style={{
-            background: `var(--qwik-dark-background)`,
-            color: `var(--qwik-dark-text)`,
-          }}
-          q: slot="revealedContent"
-        >
-          <GameSettings settings={newSettings}
-            q: slot="revealedContent"
-          />
-        </div>
-      </InverseModal>
-      {/* 
+{/*       <InverseModal */}
+{/*         isShowing={gameContext.interface.settingsModal.isShowing} */}
+{/*         hideModal$={() => { */}
+{/*           newSettings.value = gameContext.settings; */}
+{/*           gameContext.hideSettings(); */}
+{/*         }} */}
+{/*         title="Settings" */}
+{/*         direction="left" */}
+{/* settingsClasses="bg-slate-700" */}
+{/*       > */}
+{/*         <div */}
+{/*           q: slot="mainContent" */}
+{/*           class={`flex flex-col flex-grow justify-between w-full h-full p-[${CONSTANTS.GAME.BOARD_PADDING_PERCENT */}
+{/*             }%] gap-1 ${gameContext.boardLayout.isLocked ? "overflow-x-auto" : "" */}
+{/*             }`} */}
+{/*           style={{ */}
+{/*             background: `var(--qwik-dark-background)`, */}
+{/*             color: `var(--qwik-dark-text)`, */}
+{/*           }} */}
+{/*           ref={containerRef} */}
+{/*         > */}
+{/*           <GameHeader */}
+{/*             showSettings$={() => { */}
+{/*               gameContext.showSettings(); */}
+{/*             }} */}
+{/*           /> */}
+{/**/}
+{/*           <Board containerRef={containerRef} /> */}
+{/*         </div> */}
+{/*         <div */}
+{/*           class="flex justify-center w-full h-full" */}
+{/*           style={{ */}
+{/*             background: `var(--qwik-dark-background)`, */}
+{/*             color: `var(--qwik-dark-text)`, */}
+{/*           }} */}
+{/*           q: slot="revealedContent" */}
+{/*         > */}
+{/*           <GameSettings settings={newSettings} */}
+{/*             q: slot="revealedContent" */}
+{/*           /> */}
+{/*         </div> */}
+{/*       </InverseModal> */}
 
       <div
         class={`flex flex-col flex-grow justify-between w-full h-full p-[${CONSTANTS.GAME.BOARD_PADDING_PERCENT}%] gap-1 ${
@@ -245,10 +244,9 @@ settingsClasses="bg-slate-700"
         />
         <Board containerRef={containerRef} />
       </div>
-*/}
 
       <LoadingPage isShowing={gameContext.game.isLoading} />
-      {/* <SettingsModal /> */}
+      <SettingsModal />
       <GameEndModal />
       <ScoresModal />
     </>
