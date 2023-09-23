@@ -65,11 +65,11 @@ export const LinkLi = ({
 );
 
 export const head: DocumentHead = {
-  title: "Welcome to Qwik",
+  title: "Memory Card Game - joemoulton.dev",
   meta: [
     {
       name: "description",
-      content: "Qwik site description",
+      content: "Match like colors and numbers to win! Made with Qwik.js",
     },
   ],
 };
