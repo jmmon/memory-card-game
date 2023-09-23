@@ -1,7 +1,8 @@
 import type {
   PropFunction,
   QwikChangeEvent,
-  QwikMouseEvent} from "@builder.io/qwik";
+  QwikMouseEvent
+} from "@builder.io/qwik";
 import {
   $,
   component$,
@@ -23,7 +24,7 @@ import type {
   SortColumnWithDirection,
 } from "~/v3/types/types";
 
-const hyphenateTitle = (text: string) => text.toLowerCase().replace(" ", "-");
+const hyphenateTitle = (text: string)=> text.toLowerCase().replace(" ", "-");
 /* TODO: set up for multiple deckSizes
  * Opt 1: have all the fetching and sorting logic in the modal, and it passes the data down to the tables.
  * - However, how do we control the sorting? Could sort it inside each table
@@ -166,261 +167,286 @@ export default component$(() => {
     deckSizesFilter: [gameContext.settings.deck.size], // default to our deck.size
     pageNumber: 1,
     resultsPerPage: 10,
-    totalResults: 0,
+        totalResults: 0,
     totalPages: 0,
   },
-    { deep: true }
-  );
+    { deep: true } 
+  ); 
 
-  useTask$(({ track }) => {
+useTask$(({ track }) => {    
+
     track(() => gameContext.settings.deck.size)
     queryStore.deckSizesFilter = [gameContext.settings.deck.size];
-  });
+});
 
   const deckSizeList = useSignal<number[]>([]);
-  const sortedScores = useSignal<ScoreWithPercentiles[]>([]);
-  const scoreTotals = useSignal<{
-    [key: number]: number;
+const sortedScores = useSignal<ScoreWithPercentiles[]>([]);
+  const scoreTot als = useSignal<{ 
+    mber]: number;
     all: number;
-  }>({
-    all: 0,
+  }> ({
+  
+    all:  0,
   });
-
+   
   const queryAndSaveScores = $(
     async () => {
+      if (process.env.FEATURE_FLAG_SCORES_DISABLED === 'true') {
+        console.log('FEATURE_FLAG: Scores DISABLED');
+        return {
+          scores: []
+        }
+      }
       isLoading.value = true;
 
       const scoresPromise = serverDbService.scores.queryWithPercentiles({
         pageNumber: queryStore.pageNumber,
-        resultsPerPage: queryStore.resultsPerPage,
+        resultsPerPage: queryStore.resu ltsPe,
         deckSizesFilter: queryStore.deckSizesFilter.length === 0
           ? [gameContext.settings.deck.size]
           : queryStore.deckSizesFilter,
         sortByColumnHistory: queryStore.sortByColumnHistory
-      });
-
+        });
+        
       // fetch all deck sizes for our dropdown
       const scoreCountsPromise = serverDbService.scoreCounts.getDeckSizes();
 
       const [scoresRes, scoreCounts] = await Promise.all([
-        scoresPromise,
-        scoreCountsPromise
-      ])
+          scoresPromise,
+        scoreCountsPromise 
+          ])
 
-      const { scores, totals } = scoresRes
-
-      deckSizeList.value = scoreCounts;
+          scores, totals } = scoresRes
+          
+          deckSizeList.value = scoreCounts; 
 
       const totalCount = Object.values(totals)
         .reduce((accum, cur) => accum += cur, 0)
-
-      console.log({ totalCount, scores, deckSizeList: deckSizeList.value });
-
-      scoreTotals.value = {
-        ...totals,
-        all: totalCount
-      };
-
-      queryStore.totalPages = Math.ceil(
+                 
+                  otalCount, scores, deckSizeList: deckSizeList.value });
+ 
+                scoreTotals.value = {
+        ...totals, 
+                  otalCount
+                  
+                  
+      queryStore.totalPages = Mat
+                eil(
         totalCount / queryStore.resultsPerPage
       );
+                  
 
-      sortedScores.value = [...scores];
+sortedScores.value = [...scores];
+                  
+      console.log('finished queryi
+                        return { scores }                    
 
-      console.log('finished querying scores');
-      return { scores }
-    }
-  );
+                  } 
+  ); 
 
-
+                
   const handleClickColumnHeader = $(async (e: QwikMouseEvent) => {
-    isLoading.value = true;
-    // console.log({ e });
-    const clickedDataAttr = (e.target as HTMLButtonElement).dataset[
-      "sortColumn"
-    ] as string;
+    isLoading. value = true;
+ e });
+                  const clickedDataAttr = (e.target as HTMLButtonElement).datas
+           
+                      
+                  ] as string;
+                   
+                  tweak some words to match the object keys            
+         
+                     const clickedColumnTitle = MAP_COL_TITLE_TO_OBJ_KEY[clickedDataAttr];
+                      
+                      const currentSortByColumn = queryStore.sortByColumnHistory[0];
 
-    // tweak some words to match the object keys
-    const clickedColumnTitle = MAP_COL_TITLE_TO_OBJ_KEY[clickedDataAttr];
-
-    const currentSortByColumn = queryStore.sortByColumnHistory[0];
-
-    if (currentSortByColumn.column === clickedColumnTitle) {
+                      if (currentSortByColumn.column === clickedColumnTitle) {
       // same column
-      const newDirection =
+                        const newDirection =
         currentSortByColumn.direction === "asc" ? "desc" : "asc";
-      queryStore.sortByColumnHistory[0].direction = newDirection;
-    } else {
-      // set new column & direction
-      queryStore.sortByColumnHistory = [
-        DEFAULT_SORT_BY_COLUMNS_MAP[clickedColumnTitle],
-        ...queryStore.sortByColumnHistory,
-      ].slice(0, MAX_SORT_COLUMN_HISTORY);
-    }
-    queryAndSaveScores();
-  });
-
-
-  const onChangeResultsPerPage$ = $((e: QwikChangeEvent) => {
-    const selectedResultsPerPage = Number((e.target as HTMLSelectElement).value)
-    console.log({ selectedDeckSize: selectedResultsPerPage });
+                     qu yStore.sortByColumnHistory[0].direction = newDirection;
+                      } else {
+                        // set new column & direction
+                        queryStore.sortByColumnHistory = [
+                          DEFAULT_SORT_BY_COLUMNS_MAP[clickedColumnTitle],
+                          ...queryStore.sortByColumnHistory,
+                        ].slice(0, MAX_SORT_COLUMN_HISTORY);
+                      }
+                      queryAndSaveScores();
+                    });
+                      
+                  
+                      nst onChangeResultsPerPage$ = $((e: QwikChangeEvent) => {
+                      const selectedResultsPerPage = Number((e.target as HTMLSelectElement).value)
+    console.log({ selec tedDeckSize: selectedResultsPerPage });
 
     // handle top option to toggle all
-    if (!isNaN(selectedResultsPerPage)) {
-      queryStore.resultsPerPage = selectedResultsPerPage;
-      // re-select the top because it shows everything
+                        if (!isNaN(selectedResultsPerPage)) {
+                      qu eryStore.resultsPerPage = selectedResultsPerPage;
+                        // re-select the top because it shows everything
       selectValue.value = 'default';
-      (e.target as HTMLSelectElement).value = 'default';
-      queryAndSaveScores();
-    }
-  });
-
-
-  const onChangeSelect = $(
-    (e: QwikChangeEvent) => {
-      console.log('select changed');
-
-      const selectedDeckSize = Number((e.target as HTMLSelectElement).value)
-      console.log({ selectedDeckSize });
-
+                      (e.target as HTMLSelectElement).value = 'default';
+                        Sc e();
+                      }
+                    }); 
+                      
+                    
+                    const onChangeSelect = $(  
+                    (e: QwikChangeEvent) => {
+                         console.log('select changed');  
+     
+      const selectedDeckSize = Number((e.target as  t ).value)
+      con sole.log({ selectedDeckSize });
+                
       // handle top option to toggle all
-      if (selectedDeckSize === -1) {
+                if (selectedDeckSize === -1) { 
         const midway = deckSizeList.value.length / 2;
 
         // if we have fewer than midway selected, we select all. Else, we select our own deckSize
-        if (queryStore.deckSizesFilter.length <= midway) {
-          queryStore.deckSizesFilter = [...deckSizeList.value];
-        } else {
-          queryStore.deckSizesFilter = [gameContext.settings.deck.size];
+        i f  (queryStore.deckSizesFilter.l e th <= midway) {
+                qeryStore.deckSizesFilter = [...deckSizeList.value];
+                } else { 
+                   e r ySto r e.de c kSizesFilter =[gameContext.settings.deck.size];
         }
-
-      } else {
-        const indexIfExists = queryStore.deckSizesFilter.indexOf(selectedDeckSize);
-
-        if (indexIfExists !== -1) {
-          queryStore.deckSizesFilter = queryStore.deckSizesFilter.filter(
-            (size) => size !== selectedDeckSize
-          )
-          console.log('~~ existed');
-        } else {
-          queryStore.deckSizesFilter = [...queryStore.deckSizesFilter, selectedDeckSize];
-          console.log('~~ NOT existed');
-        }
-      }
-
-      // re-select the top because it shows everything
-      selectValue.value = 'default';
+                  
+      } else {      
+                  exIfEx
+                    ists  = queryStore.deckSizesFilter.indexOf(selectedDeckSize);
+                      
+        if (indexIfExists !== -1) 
+                queryStore.deckSizesFilter = queryStore.deckSizesFilter.filter( 
+            (
+              s ize) => size !== selectedDeckSize 
+                  )
+                  console.log('~~ existed');
+              } else { 
+          
+                      queryStore.deckSizesFilter = [...queryStore.deckSizesFilter, selectedDeckSize];
+                  console.log('~~ NO T existed'); 
+         }
+       } 
+            
+               - select the top because it shows everything
+          se
+        l  =  ' d efault'; 
       (e.target as HTMLSelectElement).value = 'default';
-
+        
       queryAndSaveScores();
     }
   );
 
   /* 
-  * onMount, onShow modal
-  * */
-  useTask$(async ({ track }) => {
+  * onMount, onShow modal 
+            
+          sync ({ track }) => { 
     track(() => gameContext.interface.scoresModal.isShowing);
-    if (!gameContext.interface.scoresModal.isShowing) return;
+    i f (!g a m eContext.i nterface.scoresModal.isShowing) return;
 
-    isLoading.value = true;
+          isLoadin g .value = true;  
+                          
 
-    await queryAndSaveScores(),
+          await queryAndSaveScores(),       
+                
 
-      isLoading.value = false;
-    console.log("done loading");
-  });
+                   isLoading.value = false;
+                ole.log("done loading");
+                });
+          
 
-  useStyles$(`
+  useStyles$(` 
   table {
     overflow: hidden;
   }
-
-  table.scoreboard thead {
-    overflow: hidden;
-    border: 1px solid #222;
-    z-index: -1;
-  }
-  table.scoreboard tbody {
-    z-index: 1;
-  }
-
-  table.scoreboard th.rotate {
-    height: 6em;
-    white-space: nowrap;
-  }
-
+       
+    
+      table.scoreboard thead {
+        overflow: hidden;
+        border: 1px solid #222;
+        z-index: -1;
+      }
+      table.scoreboard tbody {
+      dex: 1;
+        
+        
+        ble.scoreboard th.rotate {
+        heigh 
+        white-space: nowrap;
+        
+      
   /* Magic Numbers.. might need tweaking */
-   table.scoreboard th.rotate > div {
-    width: 2em;
+      .scoreboard th.rotate > div {
+        wid ;
     transform-origin: left top;
-    transform:
+        transform:          
+
       translate(-0.1em, calc(4.5em - 10px))
       rotate(-45deg);
   }
-
+            
   table.scoreboard th.rotate > div > button {
-    /* clear regular button border */
+          /* cl ular button border */
     border: none;
     border-radius: 0;
-    background: none;
-
+          background: none;
+        
     transition: all 0.1s ease-in-out;
-  }
-
+  } 
+          
   table.scoreboard th.rotate > div > div,
-  table.scoreboard th.rotate > div > button {
-    border-top: 1px solid #222;
-    text-align: left;
-    /* width needed to make the border stretch to the top */
-    width: 9.5em;
-    /* x padding does not mess with the border, yay! */
+          ble.scoreboardtate > div > button {
+            rder-top: 1px solid #222;
+            xt-align: le 
+            /* width needed to make the border stretch to the top */
+              : 9.5em; 
+          /* x padding does not mess with the border, yay! */
     padding: 0em 2em;
-
-  }
-  table.scoreboard {
-    --gradiant-dark: #aaa;
-    --gradiant-light: #fff;
-  }
-  table.scoreboard th.rotate > div > * > span {
+          
+          
+          e.scoreboard { 
+          --gr a diant-dark: #aaa;
+            radiant-light: 
+            } 
+          table.scoreboard th.rotate > div > * > span {
     /* for when text is not gradiant */
-    color: var(--gradiant-dark);
-    pointer-events: none;
-    font-weight: 900;
+            color: v ar(--gradiant-dark);
+          pointer-events: none;
+    font-weight: 90 
     text-shadow: 1px 1px 3px #000;
-  }
-
-
+          }
+        
+          
   table.scoreboard > thead th.asc  {
     --gradiant-start: var(--gradiant-dark);
-    --gradiant-end: var(--gradiant-light);
-  }
-  table.scoreboard > thead th.desc  {
+          grad d: var(--gradiant-light);
+            
+              bl e .scoreboard > thead th.desc  {
     --gradiant-start: var(--gradiant-light);
-    --gradiant-end: var(--gradiant-dark);
+            gradiant-end: var(--gradiant-dark);
   }
   table.scoreboard th.rotate > div > button:hover > span {
      background: linear-gradient(to right, var(--gradiant-start), var(--gradiant-end));
-      -webkit-background-clip: text;
+        -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-    text-shadow: none;
-  }
+        te o ne;    
+      } 
+      
 
-  table.scoreboard td + td {
-    border-left: 1px solid #444;
-  }
+          table.scoreboard td + td {   
+    border-l444; 
+  }  
+
+ 
 
   table.scoreboard tbody tr > :not(:first-child) {
-    padding: 0 0.5em;
-    font-weight: 600;
+    padding: em;
+  font - weight: 600; 
     text-shadow: 1px 1px 3px #000;
   }
 
-  table.scoreboard {
-    min-width: max-content;
-    background: #000;
-  }
-  table.scoreboard tfoot {
+  table.scoreboard {   
+min - widt a x-content;
+  background: #000;
+  } 
+  table.scoreboard  tfoot {
     height: 2rem;
   }
   `);
@@ -435,36 +461,36 @@ export default component$(() => {
       title="Scoreboard"
       containerClasses="flex"
     >
-      <div class="flex flex-col w-min">
-        {/* TODO: instead of Select + Options, use a dropdown with checkboxes 
-            (could be disabled for those deckSizes we haven't seen yet) */}
-        <div class="flex justify-between bg-slate-700 items-center gap-2 h-[2rem] p-1">
-          <select
-            class="bg-slate-800 flex-grow"
-            value={selectValue.value}
-            onChange$={onChangeSelect}
-          >
-            <option value="default">{queryStore.deckSizesFilter.join(', ')}</option>
-            <option value={-1}>Toggle All</option>
-            {deckSizeList.value.map((deckSize) => (
-              <option key={deckSize} value={deckSize} class="bg-slate-800">
+      <div class="flex flex-col w-min" >  
+            {/* TODO: instead of Select + Options, use a dropdown with checkboxes 
+                (could be disabled for those deckSizes we haven't seen yet) */}
+            <div class="flex justify-between bg-slate-700 items-center gap-2 h-[2rem] p-1">
+              <select
+                class="bg-slate-800 flex-grow"
+                value={selectValue.value}
+                onChange$={onChangeSelect}
+              >
+                <option value="default">{queryStore.deckSizesFilter.join(', ')}</option>
+                <option value={-1}>Toggle All</option>
+                {deckSizeList.value.map((deckSize) => (
+        <option key={deckSize} value={deckSize} class="bg-slate-800">
                 {String(deckSize)}
-              </option>
-            ))}
-          </select>
-          <SelectEl
+              </option>    
+              ))}
+            </select>
+  <SelectEl 
             value={queryStore.resultsPerPage}
             onChange$={onChangeResultsPerPage$}
-            listOfOptions={Array(10).fill(null).map((_, i) => (i + 1) * 5)}
-          />
-        </div>
-
+       listOfOptions={Array(10).fill(null).map((_, i) => (i + 1) * 5)}
+            />
+          </div>
+   
         <div class="w-full h-full overflow-y-auto"
           style={{ maxHeight: `calc(70vh - 5rem)` }}
         >
           <table
-            q: slot="scoreboard-tab0"
-            class="scoreboard w-full "
+             q: slot = "scoreboard-tab0"
+            class = "scoreboard  w-full "
           >
             <thead class={` text-xs sm:text-sm md:text-md bg-slate-500`}>
               <tr>
@@ -473,17 +499,18 @@ export default component$(() => {
                   const key = MAP_COL_TITLE_TO_OBJ_KEY[header];
                   const findFn = ({ column }: SortColumnWithDirection) => column === key;
                   const classes = queryStore.sortByColumnHistory.find(
-                    findFn
-                  )?.direction ??
+                findFn
+                        )?.direction ??
                     (
-                      DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY.find(
+                      DEFAULT_SORT_BY_COLUMNS_WTH_DIRECTION_HISRY
+.f i nd(  
                         findFn
                       )?.direction ??
-                      "desc"
-                    )
-                  return (
-                    <ScoreTableHeader
-                      key={hyphenated}
+                "desc"
+              )
+         eturn (
+              <ScoreTableHeader
+                key={hyphenated}
                       title={header}
                       hyphenated={hyphenated}
                       classes={classes}
@@ -494,12 +521,14 @@ export default component$(() => {
                       }
                     />
                   );
-                })}
-              </tr>
-            </thead>
+            })}
+       
+           </tr>
+             </thead>
             <tbody>
               {sortedScores.value.map((score) => (
-                <ScoreRow key={score.id} score={score} />
+                           <ScoreR o ey={sco
+          re.id} score={score} />
               ))}
             </tbody>
           </table>
@@ -527,7 +556,7 @@ const SelectEl = component$(({
       class="bg-slate-800"
       value={value}
       onChange$={onChange$}
-    >
+    >        
       <option value="default">{String(value)}</option>
       {listOfOptions.map((num) => (
         <option key={num} value={num} class="bg-slate-800">

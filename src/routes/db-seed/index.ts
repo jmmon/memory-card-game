@@ -2,6 +2,11 @@ import type { RequestHandler } from "@builder.io/qwik-city";
 import runSeed from "~/v3/services/seed";
 
 export const onGet: RequestHandler = async (requestEvent) => {
+  if (process.env.FEATURE_FLAG_SCORES_DISABLED === 'true') requestEvent.json(300, {body: {
+    message: 'Scores disabled',
+  }});
+  return;
+
   const obj: Record<string, string> = {};
 
   // console.log(requestEvent.url.toString());

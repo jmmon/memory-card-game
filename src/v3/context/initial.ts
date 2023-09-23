@@ -221,6 +221,10 @@ export const INITIAL_STATE = {
   }),
 
   fetchScores: $(async function (this: iGameContext) {
+    if (process.env.FEATURE_FLAG_SCORES_DISABLED === "true") {
+      console.log("FEATURE_FLAG: Scores DISABLED");
+      return;
+    }
     console.log("getting all scores...");
     const scores = (await serverDbService.scores.getAll()) as Score[];
     this.interface.scoresModal.scores = scores;
