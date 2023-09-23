@@ -1,5 +1,5 @@
 import { $ } from "@builder.io/qwik";
-import { iGameData } from "../types/types";
+import type { iGameData } from "../types/types";
 import CONSTANTS from "../utils/constants";
 import { formattedDeck } from "../utils/cards";
 import type { iGameSettings, iGameContext } from "../types/types";
@@ -9,7 +9,7 @@ import {
   calculateLayouts,
 } from "../utils/boardUtils";
 import serverDbService from "../services/db.service";
-import { Score } from "../db/types";
+import type { Score } from "../db/types";
 
 const INITIAL_GAME_STATE: iGameData = {
   isSaved: false,
@@ -26,6 +26,7 @@ const INITIAL_GAME_STATE: iGameData = {
   isFaceShowing: false,
   isFaceShowing_delayedOff: false,
   isReturned: true,
+  isEnded: false,
 };
 
 export const INITIAL_STATE = {
@@ -36,8 +37,8 @@ export const INITIAL_STATE = {
     columns: 5,
     rows: 4,
     isLocked: false, // prevent recalculation of board layout
-    colWidth: 291.07 / 5,
-    rowHeight: 281.81 / 4,
+    colWidth: 291.07 / 5, // width / cols
+    rowHeight: 281.81 / 4, // height / rows
   },
 
   cardLayout: {

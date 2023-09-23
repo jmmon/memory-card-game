@@ -20,9 +20,9 @@ import CardSymbols from "../playing-card-components/card-symbols";
 import ScoresModal from "../scores-modal/scores-modal";
 import Board from "../board/board";
 import CONSTANTS from "~/v3/utils/constants";
-import InverseModal from "../inverse-modal/inverse-modal";
-import GameSettings from "../settings-modal/game-settings";
-import { iGameSettings } from "~/v3/types/types";
+// import InverseModal from "../inverse-modal/inverse-modal";
+// import GameSettings from "../settings-modal/game-settings";
+import type { iGameSettings } from "~/v3/types/types";
 
 export default component$(() => {
   const gameContext = useContext(GameContext);
@@ -179,9 +179,10 @@ export default component$(() => {
     });
   });
 
-  const newSettings = useSignal<iGameSettings>({
-    ...gameContext.settings,
-  });
+  // const newSettings = useSignal<iGameSettings>({
+  //   ...gameContext.settings,
+  // });
+
   return (
     <>
       {/* SVG card symbols */}

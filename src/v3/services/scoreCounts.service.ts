@@ -32,7 +32,7 @@ const getDeckSizeList = () =>
     .from(scoreCounts)
     .orderBy(sql`"deckSize" asc`) // sort by deckSize
     .execute()
-    .then((set) => set.map((each) => each?.deckSize)) // map to number[]
+    .then((set) => set.map((each) => each.deckSize)) // map to number[]
     .then((deckSizes) => deckSizes.filter((each) => each !== null) as number[]); // filter null
 
 const createScoreCounts = async (score: Score) => {
@@ -364,9 +364,9 @@ const addScoreToExistingCounts = async (
 
 // in the end, we will end up with 52 - 6 = 46 / 2 + 1 = 24 different deckSizes
 const saveScoreToCounts = async (score: Score) => {
-  let foundOneScoreCounts = (
+  const foundOneScoreCounts = (
     await getScoreCountsByDeckSize([score.deckSize as number])
-  )?.[0] as ScoreCounts;
+  )[0] as ScoreCounts | undefined;
 
   if (foundOneScoreCounts === undefined) {
     // creating a new scoreCounts

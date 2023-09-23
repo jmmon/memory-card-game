@@ -1,4 +1,4 @@
-import { Slot, component$, $, useStyles$ } from "@builder.io/qwik";
+import { Slot, component$, useStyles$ } from "@builder.io/qwik";
 
 const getKey = (setName: string, i: number) => {
   return `${setName}-tab${i}`;

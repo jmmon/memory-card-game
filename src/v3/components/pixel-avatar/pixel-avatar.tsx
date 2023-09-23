@@ -1,4 +1,5 @@
-import { PropFunction, QRL, Signal, component$, useSignal, useTask$ } from "@builder.io/qwik";
+import type { PropFunction, Signal } from "@builder.io/qwik";
+import { component$, useSignal, useTask$ } from "@builder.io/qwik";
 import { isServer } from "@builder.io/qwik/build";
 import crypto from "crypto";
 import { stringToColor } from "~/v3/utils/avatarUtils";
@@ -12,9 +13,9 @@ const DEFAULT_COLOR_OPTIONS = {
 };
 
 export function bufferToHexString(buffer: ArrayBuffer) {
-  let byteArray = new Uint8Array(buffer);
+  const byteArray = new Uint8Array(buffer);
 
-  let hexCodes = [...byteArray].map((value) => {
+  const hexCodes = [...byteArray].map((value) => {
     return value.toString(16).padStart(2, "0");
   });
 
@@ -49,7 +50,6 @@ function calculateBaseChange(hex: string, targetMinimumStringLength: number) {
   const initialBase = 16;
   let toDivideBaseBy = Math.ceil(targetMinimumStringLength / hex.length);
   let newBase = initialBase;
-  let newAvailableLength = hex.length;
 
   while (toDivideBaseBy > 1) {
     if (newBase === 2) {
@@ -57,7 +57,6 @@ function calculateBaseChange(hex: string, targetMinimumStringLength: number) {
     }
     newBase /= 2;
     toDivideBaseBy /= 2;
-    newAvailableLength *= 2;
   }
 
   return newBase;
@@ -100,12 +99,12 @@ export function getPixels(
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
       const halfway = Math.ceil(cols / 2);
-      let J = j >= halfway ? cols - 1 - j : j;
-      let charFromHash = hash.charAt(i * halfway + J);
+      const J = j >= halfway ? cols - 1 - j : j;
+      const charFromHash = hash.charAt(i * halfway + J);
       if (base === 2) {
         pixels += charFromHash;
       } else {
-        let shouldFill = parseInt(charFromHash, base) % 2;
+        const shouldFill = parseInt(charFromHash, base) % 2;
         pixels += shouldFill ? "0" : "1";
       }
     }
@@ -175,7 +174,7 @@ export const Pixel = component$(
     cols,
     coloredSquaresStrokeWidth,
   }: PixelProps) => {
-    const isThisPixelBlank = (pixel === "0") !== data.value.shouldBeInversed;
+    // const isThisPixelBlank = (pixel === "0") !== data.value.shouldBeInversed;
 
     // if (isBlank) return null;
     const isThisPixelColored = pixel === "1";
@@ -222,7 +221,9 @@ interface PixelAvatarProps {
   colorFrom?: Signal<string>;
   color?: string;
   pixels?: string;
-  outputTo$?: PropFunction<({ pixels, color }: { pixels: string; color: string }) => void>;
+  outputTo$?: PropFunction<
+    ({ pixels, color }: { pixels: string; color: string }) => void
+  >;
 }
 
 export default component$(
@@ -232,7 +233,7 @@ export default component$(
     width = 100,
     height = 100,
     text,
-    forceLighter = "nochange",
+    // forceLighter = "nochange",
     coloredSquaresStrokeWidth = 0,
     eachBlockSizePx = 20,
     classes = "",
@@ -336,7 +337,7 @@ export default component$(
             data-total={meta.value.totalPixels}
             data-avg={meta.value.avg}
           >
-            {data.value?.pixels.split("").map((pixel, index) => (
+            {data.value.pixels.split("").map((pixel, index) => (
               <Pixel
                 key={`${index}:${pixel}`}
                 pixel={pixel}

@@ -82,7 +82,7 @@ const getRandomMirroredPixels = () => {
     .fill(0)
     .map(() => (Math.random() > 0.5 ? 1 : 0));
 
-  let resultPixelsArray = [];
+  const resultPixelsArray = [];
   for (let i = 0; i < pixelsHalfCount; i += pixelsHalfCount / dimensions) {
     const thisSlice = halfPixels.slice(i, i + pixelsHalfCount / dimensions);
     const forward = thisSlice.join("");

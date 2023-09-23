@@ -1,12 +1,12 @@
 import type { NewScore, Score, ScoreCounts } from "../db/types";
 import { server$ } from "@builder.io/qwik-city";
-import {
+import type {
   LessThanOurScoreObj,
   ScoreWithPercentiles,
   SortColumnWithDirection,
 } from "../types/types";
 import { DATE_JAN_1_1970 } from "../components/scores-modal/scores-modal";
-import { ScoreQueryProps } from "./types";
+import type { ScoreQueryProps } from "./types";
 import { DEFAULT_QUERY_PROPS } from "./constants";
 
 import scoreService from "./score.service";
@@ -77,28 +77,26 @@ const sortFunctions: {
   [key: string]: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => number;
 } = {
   initials: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
-    const value = ((b.initials as string) ?? "").localeCompare(
-      (a.initials as string) ?? ""
-    );
+    const value = (b.initials ?? "").localeCompare(a.initials ?? "");
     return value;
   },
   deckSize: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
-    const value = ((b.deckSize as number) ?? 0) - ((a.deckSize as number) ?? 0);
+    const value = (b.deckSize ?? 0) - (a.deckSize ?? 0);
     return value;
   },
   pairs: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
-    const value = ((b.pairs as number) ?? 0) - ((a.pairs as number) ?? 0);
+    const value = (b.pairs ?? 0) - (a.pairs  ?? 0);
     return value;
   },
   timePercentile: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
     const value =
-      ((b.timePercentile as number) ?? 0) - ((a.timePercentile as number) ?? 0);
+      (b.timePercentile  ?? 0) - (a.timePercentile  ?? 0);
     return value;
   },
   mismatchPercentile: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
     const value =
-      ((b.mismatchPercentile as number) ?? 0) -
-      ((a.mismatchPercentile as number) ?? 0);
+      (b.mismatchPercentile ?? 0) -
+      (a.mismatchPercentile ?? 0);
     return value;
   },
   createdAt: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
@@ -113,12 +111,13 @@ const sortScores = (
   scores: ScoreWithPercentiles[],
   sortByColumnHistory: Array<SortColumnWithDirection>
 ) => {
-  let result = [...scores];
+  const result = [...scores];
 
   result.sort((a, b) => {
     let value = 0;
     let nextKeyIndex = 0;
-    let { column, direction } = sortByColumnHistory[0];
+    let { column } = sortByColumnHistory[0];
+    const { direction } = sortByColumnHistory[0];
 
     while (value === 0 && nextKeyIndex < sortByColumnHistory.length) {
       const sortingInstructions = sortByColumnHistory[nextKeyIndex];
@@ -167,11 +166,11 @@ const queryScoresAndCalculatePercentiles = async ({
     return { scores: [], totals: {} };
   }
 
-  const allScores = resScores?.value as Score[];
-  const counts = resCounts?.value as ScoreCounts[];
+  const allScores = resScores.value as Score[];
+  const counts = resCounts.value as ScoreCounts[];
 
   let allScoresWithPercentiles: ScoreWithPercentiles[] = [];
-  let totals: { [key: number]: number } = {};
+  const totals: { [key: number]: number } = {};
 
   for (let i = 0; i < counts.length; i++) {
     const thisCounts = counts[i];
@@ -194,7 +193,6 @@ const queryScoresAndCalculatePercentiles = async ({
     scores: sortScores(allScoresWithPercentiles, sortByColumnHistory),
     totals,
   };
-
 };
 
 const serverDbService = {
@@ -233,10 +231,10 @@ const serverDbService = {
     saveScore: server$(scoreCountsService.saveScore),
   },
   clearData: server$(async () => {
-    await scoreCountsService.clear(); await scoreService.clear();
+    await scoreCountsService.clear();
+    await scoreService.clear();
     // Promise.all([scoreCountsService.clear(), scoreService.clear()])
-  }
-  ),
+  }),
 };
 
 /*

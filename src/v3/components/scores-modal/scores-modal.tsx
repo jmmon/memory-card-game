@@ -1,8 +1,9 @@
-import {
-  $,
+import type {
   PropFunction,
   QwikChangeEvent,
-  QwikMouseEvent,
+  QwikMouseEvent} from "@builder.io/qwik";
+import {
+  $,
   component$,
   useContext,
   useSignal,

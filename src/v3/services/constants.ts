@@ -1,4 +1,4 @@
-import { SortColumnWithDirection, SortDirection } from "../types/types";
+import type { SortColumnWithDirection, SortDirection } from "../types/types";
 import CONSTANTS from "../utils/constants";
 
 export const DEFAULT_QUERY_PROPS = {

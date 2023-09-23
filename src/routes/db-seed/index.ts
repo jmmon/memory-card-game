@@ -1,4 +1,4 @@
-import { RequestHandler } from "@builder.io/qwik-city";
+import type { RequestHandler } from "@builder.io/qwik-city";
 import runSeed from "~/v3/services/seed";
 
 export const onGet: RequestHandler = async (requestEvent) => {
@@ -11,8 +11,8 @@ export const onGet: RequestHandler = async (requestEvent) => {
   });
 
   const opts = {
-    totalDeckSizes: Number(obj.totalDeckSizes) ?? 10,
-    scoresPerDeckSize: Number(obj.scoresPerDeckSize) ?? 10
+    totalDeckSizes: Number(obj.totalDeckSize ?? 10),
+    scoresPerDeckSize: Number(obj.scoresPerDeckSize ?? 10)
   }
 
   const start = Date.now();

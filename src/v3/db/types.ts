@@ -1,4 +1,4 @@
-import {
+import type {
   scores,
   scoreCounts,
 } from "./index";

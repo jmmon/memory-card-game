@@ -1,6 +1,6 @@
 import type { QRL } from "@builder.io/qwik";
 import type { useTimer } from "../utils/useTimer";
-import { Score } from "../db/types";
+import type { Score } from "../db/types";
 
 // for mapping our current score to find how many other scores are less than it
 export type LessThanOurScoreObj = { [key: number | string]: number };
@@ -128,6 +128,7 @@ export type iGameData = {
   isFaceShowing: boolean;
   isFaceShowing_delayedOff: boolean;
   isReturned: boolean;
+  isEnded: boolean;
 };
 
 export type iGameContext = {

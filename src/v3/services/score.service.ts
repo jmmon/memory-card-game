@@ -1,9 +1,9 @@
 import { eq, inArray, sql } from "drizzle-orm";
 import { db, scores } from "../db";
-import { SortColumnWithDirection } from "../types/types";
+import type { SortColumnWithDirection } from "../types/types";
 import { DEFAULT_QUERY_PROPS } from "./constants";
-import { ScoreQueryProps } from "./types";
-import { NewScore } from "../db/types";
+import type { ScoreQueryProps } from "./types";
+import type { NewScore } from "../db/types";
 
 // getCategory(deckSize): returns list of scores matching deck size
 const getAllScores = () => db.select().from(scores);
