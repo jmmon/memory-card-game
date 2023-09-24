@@ -306,14 +306,14 @@ export default component$(() => {
 
   return (
     <Modal
-      isShowing={gameContext.interface.scoresModal.isShowing}
+      //isShowing={gameContext.interface.scoresModal.isShowing}
       hideModal$={() => {
         gameContext.interface.scoresModal.isShowing = false;
       }}
       title="Scoreboard"
       containerClasses="flex"
     >
-      <div class="flex flex-col w-min">
+      <div class="flex flex-col w-min overflow-auto">
         {/* TODO: instead of Select + Options, use a dropdown with checkboxes 
             (could be disabled for those deckSizes we haven't seen yet) */}
         <select
