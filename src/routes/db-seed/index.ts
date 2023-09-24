@@ -2,10 +2,14 @@ import type { RequestHandler } from "@builder.io/qwik-city";
 import runSeed from "~/v3/services/seed";
 
 export const onGet: RequestHandler = async (requestEvent) => {
-  if (process.env.FEATURE_FLAG_SCORES_DISABLED === 'true') requestEvent.json(300, {body: {
-    message: 'Scores disabled',
-  }});
-  return;
+  if (process.env.FEATURE_FLAG_SCORES_DISABLED === "true") {
+    requestEvent.json(300, {
+      body: {
+        message: "Scores disabled",
+      },
+    });
+    return;
+  }
 
   const obj: Record<string, string> = {};
 
@@ -17,8 +21,8 @@ export const onGet: RequestHandler = async (requestEvent) => {
 
   const opts = {
     totalDeckSizes: Number(obj.totalDeckSize ?? 10),
-    scoresPerDeckSize: Number(obj.scoresPerDeckSize ?? 10)
-  }
+    scoresPerDeckSize: Number(obj.scoresPerDeckSize ?? 10),
+  };
 
   const start = Date.now();
   // console.log({opts});
@@ -28,7 +32,7 @@ export const onGet: RequestHandler = async (requestEvent) => {
   requestEvent.json(200, {
     status: 200,
     body: {
-      time: ((Date.now() - start) / 1000) + 'ms',
+      time: (Date.now() - start) / 1000 + "ms",
       finished: true,
       searchParams: obj,
       opts,

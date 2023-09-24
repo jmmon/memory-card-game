@@ -1,7 +1,8 @@
 import type {
   PropFunction,
   QwikChangeEvent,
-  QwikMouseEvent} from "@builder.io/qwik";
+  QwikMouseEvent
+} from "@builder.io/qwik";
 import {
   $,
   component$,
@@ -22,6 +23,7 @@ import type {
   ScoreColumn,
   SortColumnWithDirection,
 } from "~/v3/types/types";
+import { server$ } from "@builder.io/qwik-city";
 
 const hyphenateTitle = (text: string) => text.toLowerCase().replace(" ", "-");
 
@@ -128,10 +130,11 @@ export default component$(() => {
 
   const queryAndSaveScores = $(
     async () => {
-      if (process.env.FEATURE_FLAG_SCORES_DISABLED === 'true') {
-console.log('FEATURE_FLAG: Scores DISABLED');
-return {scores: []}
-}
+      const isScoresDisabled = await (server$(() => { return (process.env.FEATURE_FLAG_SCORES_DISABLED === 'true') }))();
+      if (isScoresDisabled) {
+        console.log('FEATURE_FLAG: Scores DISABLED');
+        return { scores: [] }
+      }
       isLoading.value = true;
 
       const scoresPromise = serverDbService.scores.queryWithPercentiles({
