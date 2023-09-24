@@ -1,9 +1,9 @@
-import {
-  $,
+import type {
   PropFunction,
   QwikChangeEvent,
-  QwikMouseEvent,
-  Slot,
+  QwikMouseEvent} from "@builder.io/qwik";
+import {
+  $,
   component$,
   useContext,
   useSignal,
@@ -16,6 +16,7 @@ import { GameContext } from "~/v3/context/gameContext";
 import PixelAvatar from "../pixel-avatar/pixel-avatar";
 import serverDbService from "~/v3/services/db.service";
 import { truncateMs } from "~/v3/utils/formatTime";
+// import Tabulation from "../tabulation//tabulation";
 import type {
   ScoreWithPercentiles,
   ScoreColumn,
@@ -28,6 +29,16 @@ export const JAN_1_1970_STRING = "1970-01-01T00:00:00.000Z";
 export const DATE_JAN_1_1970 = new Date(JAN_1_1970_STRING);
 
 const PIXEL_AVATAR_SIZE = 44;
+
+const HEADER_LIST = [
+  "Avatar",
+  "Initials",
+  "Deck Size",
+  "Pairs",
+  "Game Time",
+  "Mismatches",
+  "Date",
+];
 
 const MAP_COL_TITLE_TO_OBJ_KEY: { [key: string]: ScoreColumn } = {
   initials: "initials",
@@ -71,58 +82,104 @@ const DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY = Object.values(
   DEFAULT_SORT_BY_COLUMNS_MAP
 );
 
-
 const MAX_SORT_COLUMN_HISTORY = 2;
-
-const genColHistoryFindFn = (key: ScoreColumn) => ({ column }: SortColumnWithDirection) => column === key;
 
 type QueryStore = {
   sortByColumnHistory: SortColumnWithDirection[];
   deckSizesFilter: number[];
   pageNumber: number;
   resultsPerPage: number;
-}
+  totalResults: number;
+  totalPages: number;
+};
 
 export default component$(() => {
   const gameContext = useContext(GameContext);
   const isLoading = useSignal(true);
   const selectValue = useSignal('default');
 
-  const queryStore = useStore<QueryStore>(
-    {
-      sortByColumnHistory: DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY.slice(
-        0,
-        MAX_SORT_COLUMN_HISTORY
-      ),
-      deckSizesFilter: [gameContext.settings.deck.size],
-      pageNumber: 1,
-      resultsPerPage: 50,
-    },
+  const queryStore = useStore<QueryStore>({
+    sortByColumnHistory: DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY.slice(
+      0,
+      MAX_SORT_COLUMN_HISTORY
+    ),
+    deckSizesFilter: [gameContext.settings.deck.size], // default to our deck.size
+    pageNumber: 1,
+    resultsPerPage: 10,
+    totalResults: 0,
+    totalPages: 0,
+  },
     { deep: true }
   );
 
-  const deckSizeList = useSignal<number[]>([]);
+  useTask$(({ track }) => {
+    track(() => gameContext.settings.deck.size)
+    queryStore.deckSizesFilter = [gameContext.settings.deck.size];
+  });
 
+  const deckSizeList = useSignal<number[]>([]);
   const sortedScores = useSignal<ScoreWithPercentiles[]>([]);
-  const queryScores = $(
+  const scoreTotals = useSignal<{
+    [key: number]: number;
+    all: number;
+  }>({
+    all: 0,
+  });
+
+  const queryAndSaveScores = $(
     async () => {
+      if (process.env.FEATURE_FLAG_SCORES_DISABLED === 'true') {
+console.log('FEATURE_FLAG: Scores DISABLED');
+return {scores: []}
+}
       isLoading.value = true;
-      const query = {
+
+      const scoresPromise = serverDbService.scores.queryWithPercentiles({
         pageNumber: queryStore.pageNumber,
         resultsPerPage: queryStore.resultsPerPage,
-        deckSizesFilter: queryStore.deckSizesFilter.length === 0 ? [gameContext.settings.deck.size] : queryStore.deckSizesFilter,
+        deckSizesFilter: queryStore.deckSizesFilter.length === 0
+          ? [gameContext.settings.deck.size]
+          : queryStore.deckSizesFilter,
         sortByColumnHistory: queryStore.sortByColumnHistory
+      });
+
+      // fetch all deck sizes for our dropdown
+      const scoreCountsPromise = serverDbService.scoreCounts.getDeckSizes();
+
+      const [scoresRes, scoreCounts] = await Promise.all([
+        scoresPromise,
+        scoreCountsPromise
+      ])
+
+      const { scores, totals } = scoresRes
+
+      deckSizeList.value = scoreCounts;
+
+      const totalCount = Object.values(totals)
+        .reduce((accum, cur) => accum += cur, 0)
+
+      console.log({ totalCount, scores, deckSizeList: deckSizeList.value });
+
+      scoreTotals.value = {
+        ...totals,
+        all: totalCount
       };
 
-      const { scores } = await serverDbService.scores.queryWithPercentiles(query);
-      sortedScores.value = scores;
+      queryStore.totalPages = Math.ceil(
+        totalCount / queryStore.resultsPerPage
+      );
 
-      isLoading.value = false;
+      sortedScores.value = [...scores];
+
+      console.log('finished querying scores');
+      return { scores }
     }
   );
 
+
   const handleClickColumnHeader = $(async (e: QwikMouseEvent) => {
     isLoading.value = true;
+    // console.log({ e });
     const clickedDataAttr = (e.target as HTMLButtonElement).dataset[
       "sortColumn"
     ] as string;
@@ -133,6 +190,7 @@ export default component$(() => {
     const currentSortByColumn = queryStore.sortByColumnHistory[0];
 
     if (currentSortByColumn.column === clickedColumnTitle) {
+      // same column
       const newDirection =
         currentSortByColumn.direction === "asc" ? "desc" : "asc";
       queryStore.sortByColumnHistory[0].direction = newDirection;
@@ -143,37 +201,24 @@ export default component$(() => {
         ...queryStore.sortByColumnHistory,
       ].slice(0, MAX_SORT_COLUMN_HISTORY);
     }
-
-    queryScores();
+    queryAndSaveScores();
   });
 
-  /* 
-  * fetches deck sizes and scores when showing modal
-  * */
-  useTask$(async ({ track }) => {
-    track(() => gameContext.interface.scoresModal.isShowing);
-    if (!gameContext.interface.scoresModal.isShowing) return;
 
-    isLoading.value = true;
-    try {
-      const scoreCounts = await serverDbService.scoreCounts.getAll()
-      console.log(scoreCounts);
+  const onChangeResultsPerPage$ = $((e: QwikChangeEvent) => {
+    const selectedResultsPerPage = Number((e.target as HTMLSelectElement).value)
+    console.log({ selectedDeckSize: selectedResultsPerPage });
 
-      // fetch the list of all deckSizes we have scores of
-      const list = scoreCounts.map(sc => sc.deckSize as number);
-
-      // set to show all deckSizes by default
-      deckSizeList.value = list;
-      queryStore.deckSizesFilter = list;
-
-      await queryScores();
-    } catch (err) {
-      console.error(err);
-
-    } finally {
-      isLoading.value = false;
+    // handle top option to toggle all
+    if (!isNaN(selectedResultsPerPage)) {
+      queryStore.resultsPerPage = selectedResultsPerPage;
+      // re-select the top because it shows everything
+      selectValue.value = 'default';
+      (e.target as HTMLSelectElement).value = 'default';
+      queryAndSaveScores();
     }
   });
+
 
   const onChangeSelect = $(
     (e: QwikChangeEvent) => {
@@ -182,26 +227,53 @@ export default component$(() => {
       const selectedDeckSize = Number((e.target as HTMLSelectElement).value)
       console.log({ selectedDeckSize });
 
-      if (isNaN(selectedDeckSize)) return;
+      // handle top option to toggle all
+      if (selectedDeckSize === -1) {
+        const midway = deckSizeList.value.length / 2;
 
-      const indexIfExists = queryStore.deckSizesFilter.indexOf(selectedDeckSize);
+        // if we have fewer than midway selected, we select all. Else, we select our own deckSize
+        if (queryStore.deckSizesFilter.length <= midway) {
+          queryStore.deckSizesFilter = [...deckSizeList.value];
+        } else {
+          queryStore.deckSizesFilter = [gameContext.settings.deck.size];
+        }
 
-      if (indexIfExists !== -1) {
-        queryStore.deckSizesFilter = queryStore.deckSizesFilter.filter(
-          (size) => size !== selectedDeckSize
-        )
-        console.log('~~ existed');
       } else {
-        queryStore.deckSizesFilter = [...queryStore.deckSizesFilter, selectedDeckSize];
-        console.log('~~ NOT existed');
+        const indexIfExists = queryStore.deckSizesFilter.indexOf(selectedDeckSize);
+
+        if (indexIfExists !== -1) {
+          queryStore.deckSizesFilter = queryStore.deckSizesFilter.filter(
+            (size) => size !== selectedDeckSize
+          )
+          console.log('~~ existed');
+        } else {
+          queryStore.deckSizesFilter = [...queryStore.deckSizesFilter, selectedDeckSize];
+          console.log('~~ NOT existed');
+        }
       }
 
+      // re-select the top because it shows everything
       selectValue.value = 'default';
       (e.target as HTMLSelectElement).value = 'default';
 
-      queryScores();
+      queryAndSaveScores();
     }
   );
+
+  /* 
+  * onMount, onShow modal
+  * */
+  useTask$(async ({ track }) => {
+    track(() => gameContext.interface.scoresModal.isShowing);
+    if (!gameContext.interface.scoresModal.isShowing) return;
+
+    isLoading.value = true;
+
+    await queryAndSaveScores(),
+
+      isLoading.value = false;
+    console.log("done loading");
+  });
 
   useStyles$(`
   table {
@@ -292,106 +364,253 @@ export default component$(() => {
     min-width: max-content;
     background: #000;
   }
+  table.scoreboard tfoot {
+    height: 2rem;
+  }
   `);
 
-  const headersList = [
-    "Avatar",
-    "Initials",
-    "Deck Size",
-    "Pairs",
-    "Game Time",
-    "Mismatches",
-    "Date",
-  ];
 
   return (
     <Modal
-      //isShowing={gameContext.interface.scoresModal.isShowing}
+      isShowing={gameContext.interface.scoresModal.isShowing}
       hideModal$={() => {
         gameContext.interface.scoresModal.isShowing = false;
       }}
       title="Scoreboard"
       containerClasses="flex"
     >
-      <div class="flex flex-col w-min overflow-auto">
+      <div class="flex flex-col w-min">
         {/* TODO: instead of Select + Options, use a dropdown with checkboxes 
             (could be disabled for those deckSizes we haven't seen yet) */}
-        <select
-          class="bg-slate-800"
-          value={selectValue.value}
-          onChange$={onChangeSelect}>
-          <option value="default">{queryStore.deckSizesFilter.join(', ')}</option>
-          {deckSizeList.value.map((deckSize) => (
-            <option key={deckSize} value={deckSize} class="bg-slate-800">
-              {String(deckSize)}
-            </option>
-          ))}
-        </select>
-        <table
-          class="scoreboard w-full  max-h-[90vh]"
-        >
-          <thead class={` text-xs sm:text-sm md:text-md bg-slate-500`}>
-            <tr>
-              {headersList.map((header) => {
-                const findFn = genColHistoryFindFn(MAP_COL_TITLE_TO_OBJ_KEY[header]);
-                const classes = queryStore.sortByColumnHistory.find(
-                  findFn
-                )?.direction ??
-                  (
-                    DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY.find(
-                      findFn
-                    )?.direction ??
-                    "desc"
-                  );
-                const hyphenated = hyphenateTitle(header);
-                return (
-                  <ScoreTableHeader
-                    classes={classes}
-                    key={hyphenated}
-                    hyphenated={hyphenated}
-                    onClick$={
-                      header === "Avatar"
-                        ? undefined
-                        : handleClickColumnHeader
-                    }
-                  >
-                    <span>{header}</span>
-                  </ScoreTableHeader>
-                );
-              })}
-            </tr>
-          </thead>
-          <tbody>
-            {sortedScores.value.map((score) => (
-              <ScoreRow key={score.userId} score={score} />
+        <div class="flex justify-between bg-slate-700 items-center gap-2 h-[2rem] p-1">
+          <select
+            class="bg-slate-800 flex-grow"
+            value={selectValue.value}
+            onChange$={onChangeSelect}
+          >
+            <option value="default">{queryStore.deckSizesFilter.join(', ')}</option>
+            <option value={-1}>Toggle All</option>
+            {deckSizeList.value.map((deckSize) => (
+              <option key={deckSize} value={deckSize} class="bg-slate-800">
+                {String(deckSize)}
+              </option>
             ))}
-          </tbody>
-        </table>
+          </select>
+          <SelectEl
+            value={queryStore.resultsPerPage}
+            onChange$={onChangeResultsPerPage$}
+            listOfOptions={Array(10).fill(null).map((_, i) => (i + 1) * 5)}
+          />
+        </div>
+
+        <div class="w-full h-full overflow-y-auto"
+          style={{ maxHeight: `calc(70vh - 5rem)` }}
+        >
+          <table
+            q: slot="scoreboard-tab0"
+            class="scoreboard w-full "
+          >
+            <thead class={` text-xs sm:text-sm md:text-md bg-slate-500`}>
+              <tr>
+                {HEADER_LIST.map((header) => {
+                  const hyphenated = hyphenateTitle(header);
+                  const key = MAP_COL_TITLE_TO_OBJ_KEY[header];
+                  const findFn = ({ column }: SortColumnWithDirection) => column === key;
+                  const classes = queryStore.sortByColumnHistory.find(
+                    findFn
+                  )?.direction ??
+                    (
+                      DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY.find(
+                        findFn
+                      )?.direction ??
+                      "desc"
+                    )
+                  return (
+                    <ScoreTableHeader
+                      key={hyphenated}
+                      title={header}
+                      hyphenated={hyphenated}
+                      classes={classes}
+                      onClick$={
+                        header === "Avatar"
+                          ? undefined
+                          : handleClickColumnHeader
+                      }
+                    />
+                  );
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {sortedScores.value.map((score) => (
+                <ScoreRow key={score.id} score={score} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <TablePagingFooter
+          queryStore={queryStore}
+          queryScores={queryAndSaveScores}
+        />
       </div>
     </Modal>
   );
 });
 
+const SelectEl = component$(({
+  value,
+  onChange$,
+  listOfOptions,
+}: {
+  value: number;
+  onChange$: PropFunction<(e: QwikChangeEvent) => void>;
+  listOfOptions: Array<number>;
+}) => {
+  return (
+    <select
+      class="bg-slate-800"
+      value={value}
+      onChange$={onChange$}
+    >
+      <option value="default">{String(value)}</option>
+      {listOfOptions.map((num) => (
+        <option key={num} value={num} class="bg-slate-800">
+          {String(num)}
+        </option>
+      ))}
+    </select>
+  );
+});
+
+const TablePagingFooter = component$(({
+  queryStore,
+  queryScores,
+}: {
+  queryStore: QueryStore;
+  queryScores: PropFunction<() => any>;
+}) => {
+  const buttons = useStore({
+    first: true,
+    prev: true,
+    next: true,
+    last: true,
+    maxPageButtons: 7,
+    prevPage: queryStore.pageNumber,
+  })
+
+  const remainingPageButtonSlots = useSignal(buttons.maxPageButtons);
+  const remainingPageButtons = useSignal<number[]>([]);
+
+  const calculateRemainingPageButtons = $(() => {
+    const currentPage = queryStore.pageNumber;
+
+    const bonus =
+      Math.floor((remainingPageButtonSlots.value - 1) / 2)
+
+    const startPage = Math.max(1, currentPage - bonus);
+    const endPage = Math.min(queryStore.totalPages, currentPage + bonus) + 1;
+
+    return Array(endPage - startPage).fill(0).map((_, i) => startPage + i);
+  });
+
+  useTask$(async ({ track }) => {
+    track(() => [queryStore.pageNumber, queryStore.totalPages, queryStore.totalResults]);
+
+    if (queryStore.pageNumber > 1) {
+      buttons.first = true;
+      buttons.prev = true;
+    } else {
+      buttons.first = false;
+      buttons.prev = false;
+    }
+
+    if (queryStore.pageNumber < queryStore.totalPages) {
+      buttons.last = true;
+      buttons.next = true;
+    } else {
+      buttons.last = false;
+      buttons.next = false;
+    }
+
+    remainingPageButtonSlots.value = buttons.maxPageButtons - Object.values(
+      buttons
+    ).filter((v) => v === true).length;
+
+    remainingPageButtons.value = await calculateRemainingPageButtons();
+  })
+
+  const onClick$ = $(
+    (e: QwikMouseEvent) => {
+      const label = (e.target as HTMLButtonElement).dataset['label']?.split('-') ?? [0, 0];
+      let pageNumber = queryStore.pageNumber;
+      pageNumber = (
+        label[0] === 'page' ? Number(label[2]) :
+          label[0] === 'first' ? 1
+            : label[0] === 'previous' ? (pageNumber - 1 < 1 ? 1 : pageNumber - 1)
+              : label[0] === 'next' ? (pageNumber + 1 > queryStore.totalPages ? queryStore.totalPages : pageNumber + 1)
+                : label[0] === 'last' ? queryStore.totalPages : queryStore.pageNumber
+      );
+      console.log('clicked page number button:', { label, pageNumber });
+      buttons.prevPage = queryStore.pageNumber;
+      queryStore.pageNumber = pageNumber;
+
+      queryScores();
+    }
+  )
+  const baseButtonStyles = 'bg-slate-100 text-slate-800 p-1 inline';
+  return (
+    <div class="flex flex-col h-[3rem]">
+      <div
+        class="flex justify-between w-max gap-2 mx-auto h-full p-1 flex-grow-0"
+        onClick$={onClick$}
+      >
+        {buttons.first && <button class={baseButtonStyles} data-label="first-page">{"<<"}</button>}
+        {buttons.prev && <button class={baseButtonStyles} data-label="previous-page">{"<"}</button>}
+
+        {remainingPageButtons.value.map((number) => (
+          <button
+            key={number}
+            class={`${baseButtonStyles} ${number === queryStore.pageNumber ? 'bg-slate-500 text-slate-600' : ''}`}
+            data-label={`page-number-${number}`}
+            disabled={number === queryStore.pageNumber}
+          >
+            {number}
+          </button>
+        ))}
+
+        {buttons.next && <button class={baseButtonStyles} data-label="next-page">{">"}</button>}
+        {buttons.last && <button class={baseButtonStyles} data-label="last-page">{">>"}</button>}
+      </div>
+      <div class="flex-grow">
+        Total Pages: {queryStore.totalPages}
+      </div>
+
+    </div>
+  );
+});
+
 const ScoreTableHeader = component$(
   ({
-    classes = '',
+    title,
     hyphenated,
     onClick$,
+    classes = "",
   }: {
-    classes?: string,
+    title: string;
     hyphenated: string;
     onClick$?: PropFunction<(e: QwikMouseEvent) => void>;
+    classes?: string;
   }) => {
     return (
       <th class={`rotate ${classes}`}>
         <div>
           {onClick$ ? (
             <button onClick$={onClick$} data-sort-column={hyphenated}>
-              <Slot />
+              <span>{title}</span>
             </button>
           ) : (
             <div>
-              <Slot />
+              <span>{title}</span>
             </div>
           )}
         </div>
@@ -400,46 +619,76 @@ const ScoreTableHeader = component$(
   }
 );
 
-const TIME_LABEL_COLOR = "text-slate-300";
+
+
+const TIME_LABEL_COLOR = "text-slate-400/90";
+// const GameTime = component$(({ gameTime }: { gameTime: string }) => {
+//   console.log('gameTime component:', { gameTime });
+//   const [hours, minutes, seconds] = gameTime.split(":").map((n) => Number(n));
+//   const haveHours = hours !== 0;
+//   const haveMinutes = minutes !== 0;
+//   // pad seconds so we can get full 3 digit milliseconds
+//   const [truncSeconds, ms] = String(seconds.toFixed(3)).split(".");
+//   const limitedMs = truncateMs(Number(ms ?? 0), 1);
+//
+//   return (
+//     <>
+//       {haveHours ? (
+//         <>
+//           <span>{hours}</span>
+//           <span class={TIME_LABEL_COLOR}>h</span>
+//         </>
+//       ) : (
+//         ""
+//       )}
+//
+//       {haveMinutes ? (
+//         <>
+//           {haveHours ? (
+//             <span class="ml-1">{String(minutes).padStart(2, "0")}</span>
+//           ) : (
+//             <span>{minutes}</span>
+//           )}
+//           <span class={TIME_LABEL_COLOR}>m</span>
+//         </>
+//       ) : (
+//         ""
+//       )}
+//
+//       <>
+//         {haveMinutes ? (
+//           <span class="ml-1">{truncSeconds.padStart(2, "0")}</span>
+//         ) : (
+//           <span>{Number(truncSeconds)}</span>
+//         )}
+//         <span class={`text-xs ${TIME_LABEL_COLOR}`}>
+//           {Number(limitedMs) > 0 ? limitedMs : ''}s
+//         </span>
+//       </>
+//     </>
+//   );
+// });
 const GameTime = component$(({ gameTime }: { gameTime: string }) => {
+  console.log('gameTime component:', { gameTime });
   const [hours, minutes, seconds] = gameTime.split(":").map((n) => Number(n));
   const haveHours = hours !== 0;
   const haveMinutes = minutes !== 0;
-  const [truncSeconds, ms] = String(seconds).split(".");
-  const limitedMs = truncateMs(Number(ms ?? 0), 3);
+  // pad seconds so we can get full 3 digit milliseconds
+  const [truncSeconds, ms] = String(seconds.toFixed(3)).split(".");
+  const limitedMs = truncateMs(Number(ms ?? 0), 1);
 
   return (
     <>
-      {haveHours ? (
-        <>
-          <span>{hours}</span>
-          <span class={TIME_LABEL_COLOR}>h</span>
-        </>
-      ) : (
-        ""
-      )}
-
-      {haveMinutes ? (
-        <>
-          {haveHours ? (
-            <span class="ml-1">{String(minutes).padStart(2, "0")}</span>
-          ) : (
-            <span>{minutes}</span>
-          )}
-          <span class={TIME_LABEL_COLOR}>m</span>
-        </>
-      ) : (
-        ""
-      )}
-
-      <>
-        {haveMinutes ? (
-          <span class="ml-1">{truncSeconds.padStart(2, "0")}</span>
-        ) : (
-          <span>{Number(truncSeconds)}</span>
-        )}
-        <span class={`text-xs ${TIME_LABEL_COLOR}`}>{limitedMs}s</span>
-      </>
+      <span class={haveHours ? '' : `text-xs ${TIME_LABEL_COLOR}`}>{String(hours).padStart(2, "0")}</span>
+      <span class={`${haveHours ? '' : 'text-xs'} mx-[1px] ${TIME_LABEL_COLOR}`}>:</span>
+      <span class={haveMinutes ? '' : `text-xs ${TIME_LABEL_COLOR}`}>{String(minutes).padStart(2, "0")}</span>
+      <span class={`${haveMinutes ? '' : 'text-xs'} mx-[1px] ${TIME_LABEL_COLOR}`}>:</span>
+      <span>{String(truncSeconds).padStart(2, "0")}</span>
+      {
+        (Number(limitedMs) > 0) ? (<>
+          <span class={`text-xs ${TIME_LABEL_COLOR}`}>{String(limitedMs)}</span>
+        </>) : ''
+      }
     </>
   );
 });
