@@ -12,6 +12,8 @@ import { DEFAULT_QUERY_PROPS } from "./constants";
 import scoreService from "./score.service";
 import scoreCountsService from "./scoreCounts.service";
 import CONSTANTS from "../utils/constants";
+import { timestampToMs } from "../utils/formatTime";
+import { roundToDecimals } from "../components/game-header/game-header";
 
 /*
  * These functions are wrapped with server$() before exported, so
@@ -22,55 +24,100 @@ import CONSTANTS from "../utils/constants";
 const calculatePercentile = ({
   total,
   lessThanCount,
+  nextHighestLessThanCount,
 }: {
   total: number;
   lessThanCount: number;
+  nextHighestLessThanCount: number;
 }) => {
-  const percentile = (lessThanCount / total) * 100;
+  const avg = (lessThanCount + nextHighestLessThanCount) / 2;
+  const percentile = (avg / total) * 100;
   if (isNaN(percentile)) return 0;
-  return Math.round(percentile * 10) / 10;
+  return roundToDecimals(percentile, 2);
 };
 
-const calculatePercentilesForOneScore = ({
-  total,
-  ltGameTimeCt,
-  ltMismatchesCt,
-}: {
-  total: number;
-  ltGameTimeCt: number;
-  ltMismatchesCt: number;
-}) => ({
-  timePercentile: calculatePercentile({ total, lessThanCount: ltGameTimeCt }),
-  mismatchPercentile: calculatePercentile({
+const generateScoreWithPercentiles = (
+  score: Score,
+  entriesLtGameTimeObjSortedDesc: Array<[string, number]>,
+  entriesLtMismatchesObjSortedDesc: Array<[string, number]>,
+  ltGameTimeObjSortedDesc: LessThanOurScoreObj,
+  ltMismatchesObjSortedDesc: LessThanOurScoreObj,
+  total: number
+) => {
+  // get next lt game time count, so we can average between ours and the next better
+  const nextGameTimeIndex =
+    entriesLtGameTimeObjSortedDesc.findIndex(
+      ([gameTime]) => gameTime === (score.gameTime as string)
+    ) - 1;
+  const nextLtGameTimeCount =
+    entriesLtGameTimeObjSortedDesc?.[nextGameTimeIndex]?.[1] ?? total;
+
+  // get next lt mismatches count
+  const nextMismatchIndex =
+    entriesLtMismatchesObjSortedDesc.findIndex(
+      ([mismatches]) => Number(mismatches) === (score.mismatches as number)
+    ) - 1;
+  const nextLtMismatchCount =
+    entriesLtMismatchesObjSortedDesc?.[nextMismatchIndex]?.[1] ?? total;
+
+  const timePercentileObj = {
     total,
-    lessThanCount: ltMismatchesCt,
-  }),
-});
+    lessThanCount: ltGameTimeObjSortedDesc[score.gameTime as string],
+    nextHighestLessThanCount: nextLtGameTimeCount,
+  };
+  const thisTimePercentile = calculatePercentile(timePercentileObj);
+  // console.log({ timePercentileObj, thisTimePercentile });
+
+  // calculate mismatch percentile
+  const mismatchPercentileObj = {
+    total,
+    lessThanCount: ltMismatchesObjSortedDesc[score.mismatches as number],
+    nextHighestLessThanCount: nextLtMismatchCount,
+  };
+  const thisMismatchPercentile = calculatePercentile(mismatchPercentileObj);
+  // console.log({ mismatchPercentileObj, thisMismatchPercentile });
+
+  return {
+    ...score,
+    timePercentile: thisTimePercentile,
+    mismatchPercentile: thisMismatchPercentile,
+  } as ScoreWithPercentiles;
+};
 
 const calculatePercentilesForScores = (
   scores: Score[],
   counts: ScoreCounts
 ) => {
-  // console.log({ counts, scores });
-  const ltMismatchesObj =
-    counts.worseThanOurMismatchesMap as LessThanOurScoreObj;
-  const ltGameTimeObj = counts.worseThanOurGameTimeMap as LessThanOurScoreObj;
+  const entriesLtGameTimeObjSortedDesc = Object.entries(
+    counts.worseThanOurGameTimeMap as LessThanOurScoreObj
+  ).sort((a, b) => timestampToMs(a[0]) - timestampToMs(b[0]));
+
+  const ltGameTimeObjSortedDesc = Object.fromEntries(
+    entriesLtGameTimeObjSortedDesc
+  ) as LessThanOurScoreObj;
+
+  const entriesLtMismatchesObjSortedDesc = Object.entries(
+    counts.worseThanOurMismatchesMap as LessThanOurScoreObj
+  ).sort((a, b) => Number(a[0]) - Number(b[0]));
+
+  const ltMismatchesObjSortedDesc = Object.fromEntries(
+    entriesLtMismatchesObjSortedDesc
+  ) as LessThanOurScoreObj;
+
   const total = counts.totalScores as number;
-  // console.log({ ltMismatchesObj, ltGameTimeObj, total });
 
-  const scoresWithPercentiles = [];
-  for (let i = 0; i < scores.length; i++) {
-    scoresWithPercentiles.push({
-      ...scores[i],
-      ...calculatePercentilesForOneScore({
-        total,
-        ltGameTimeCt: ltGameTimeObj[scores[i].gameTime as string],
-        ltMismatchesCt: ltMismatchesObj[scores[i].mismatches as number],
-      }),
-    });
-  }
+  // console.log({ ltGameTimeObjSortedDesc, ltMismatchesObjSortedDesc, total });
 
-  return scoresWithPercentiles as ScoreWithPercentiles[];
+  return scores.map((score) =>
+    generateScoreWithPercentiles(
+      score,
+      entriesLtGameTimeObjSortedDesc,
+      entriesLtMismatchesObjSortedDesc,
+      ltGameTimeObjSortedDesc,
+      ltMismatchesObjSortedDesc,
+      total
+    )
+  );
 };
 
 const sortFunctions: {
@@ -85,18 +132,15 @@ const sortFunctions: {
     return value;
   },
   pairs: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
-    const value = (b.pairs ?? 0) - (a.pairs  ?? 0);
+    const value = (b.pairs ?? 0) - (a.pairs ?? 0);
     return value;
   },
   timePercentile: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
-    const value =
-      (b.timePercentile  ?? 0) - (a.timePercentile  ?? 0);
+    const value = (b.timePercentile ?? 0) - (a.timePercentile ?? 0);
     return value;
   },
   mismatchPercentile: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
-    const value =
-      (b.mismatchPercentile ?? 0) -
-      (a.mismatchPercentile ?? 0);
+    const value = (b.mismatchPercentile ?? 0) - (a.mismatchPercentile ?? 0);
     return value;
   },
   createdAt: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
@@ -124,22 +168,14 @@ const sortScores = (
       column = sortingInstructions.column;
 
       value = sortFunctions[column](a, b);
-      // console.log({ value, key, fn });
       nextKeyIndex++;
     }
-    // console.log({ value });
     return direction === "desc" ? value : 0 - value;
   });
 
-  // console.log({ sortedResult: result });
   return result;
 };
 
-/* TODO:
- * this should look up the scoreCounts by deckSize
- * and then calculate percentiles for all the scores,
- * so everything is set for the frontend
- * */
 const queryScoresAndCalculatePercentiles = async ({
   pageNumber = DEFAULT_QUERY_PROPS.pageNumber,
   resultsPerPage = DEFAULT_QUERY_PROPS.resultsPerPage,
@@ -168,10 +204,12 @@ const queryScoresAndCalculatePercentiles = async ({
 
   const allScores = resScores.value as Score[];
   const counts = resCounts.value as ScoreCounts[];
+  console.log('fresh from query:', {allScores});
 
   let allScoresWithPercentiles: ScoreWithPercentiles[] = [];
   const totals: { [key: number]: number } = {};
 
+  // run the calculations for each deck size
   for (let i = 0; i < counts.length; i++) {
     const thisCounts = counts[i];
     const scores = allScores.filter(
@@ -181,6 +219,7 @@ const queryScoresAndCalculatePercentiles = async ({
       scores,
       thisCounts
     );
+
     allScoresWithPercentiles = allScoresWithPercentiles.concat(
       scoresWithPercentiles
     );
@@ -236,57 +275,5 @@ const serverDbService = {
     // Promise.all([scoreCountsService.clear(), scoreService.clear()])
   }),
 };
-
-/*
- * ORRRRR
- * I have the scores saved by deck size, and related to the ScoreCounts table
- * I guess it's the same, except I would expand the scoreCounts schema to have an array of scores (of matching deckSize)
- * ...Scores...
- * ScoreCounts[] = {
- *    deckSize: 6 // or whatever
- *   lessThanOurMismatchesMap: { // for mismatches percentiles
- *     [mismatchCount: number]: m // m === how many scores have less mismatches than mismatchCount
- *   },
- *   lessThanOurGameTimeMap: { // for gameTime percentiles
- *     [gameTime: number]: t // t === how many scores have less gameTime than gameTime
- *   }
- *   // TODO: Could have this optimized?? Our gameTime is in the format of 00:00:00.000
- *   // Currently, we would be creating a new entry for every single different millisecond!
- *   // Alternately, could prune time to nearest tenth of second (rounded)?
- *   // Alternately, could make a tree structure e.g.:
- *   lessThanOurGameTimeMap: { // for gameTime percentiles
- *     [gameTimeHours: string]: {
- *     lessThanThisTime: t // t === how many scores have less gameTimeHours than ours
- *     [gameTimeMinutes: string]: {
- *     lessThanThisTime: t // t === how many scores have less gameTimeMinutes than ours
- *     [gameTimeSeconds: string]: {
- *     [gameTimeMilliseconds: string]: t // t === how many scores have less gameTime than ours
- *     }
- *     }
- *     }
- *   }
- *   // I don't think the tree structure would reduce the number of entries...
- *   // would it make it easier to query?
- *
- *   // scores: many(scores) // added below with relations()
- * }
- * const ScoreCountsRelations = relations(ScoreCounts, ({many}) => ({
- *   scores: many(Scores),
- * }))
- *
- * so then we would end up with up to 24 scoreCounts (one for each deckSize)
- * and we could find all scores from that deckSize
- *
- *
- *
- * When creating a new score, we need to update BOTH lessThanOurGameTimeMap and lessThanOurMismatchesMap
- * so it would be better to do this with one call, rather than doing two separate calls
- *
- * so create a score:
- *   add a new score
- *   update the ScoreCounts for this deckSize
- *
- * getScoresByDeckSize => calculate percentiles and return ScoreWithPercentiles?
- * */
 
 export default serverDbService;

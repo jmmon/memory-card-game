@@ -3,6 +3,7 @@ import scoreService from "./score.service";
 import serverDbService from "./db.service";
 import { server$ } from "@builder.io/qwik-city";
 import scoreCountsService from "./scoreCounts.service";
+
 let timeout: ReturnType<typeof setTimeout> | null = null;
 const delay = (ms: number) => new Promise((resolve) => timeout = setTimeout(resolve, ms));
 

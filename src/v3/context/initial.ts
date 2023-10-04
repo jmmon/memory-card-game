@@ -171,6 +171,7 @@ export const INITIAL_STATE = {
     this.timer.pause();
     this.interface.settingsModal.isShowing = true;
   }),
+
   hideSettings: $(function (this: iGameContext) {
     this.interface.settingsModal.isShowing = false;
     this.timer.resume();

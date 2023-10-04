@@ -17,6 +17,7 @@ import { useDebounce } from "~/v3/utils/useDebounce";
 import { useTimeout } from "~/v3/utils/useTimeout";
 import CONSTANTS from "~/v3/utils/constants";
 import Card from "../card/card";
+import { useWindowSize } from "~/v3/utils/useWindowSize";
 
 export default component$(
   ({ containerRef }: { containerRef: Signal<HTMLElement | undefined> }) => {

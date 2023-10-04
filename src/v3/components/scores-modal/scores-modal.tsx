@@ -1,12 +1,15 @@
 import type {
   PropFunction,
   QwikChangeEvent,
-  QwikMouseEvent
+  QwikMouseEvent,
+  Signal,
 } from "@builder.io/qwik";
 import {
   $,
   component$,
+  useComputed$,
   useContext,
+  useOnWindow,
   useSignal,
   useStore,
   useStyles$,
@@ -14,9 +17,7 @@ import {
 } from "@builder.io/qwik";
 import Modal from "../modal/modal";
 import { GameContext } from "~/v3/context/gameContext";
-import PixelAvatar from "../pixel-avatar/pixel-avatar";
 import serverDbService from "~/v3/services/db.service";
-import { truncateMs } from "~/v3/utils/formatTime";
 // import Tabulation from "../tabulation//tabulation";
 import type {
   ScoreWithPercentiles,
@@ -24,15 +25,15 @@ import type {
   SortColumnWithDirection,
 } from "~/v3/types/types";
 import { server$ } from "@builder.io/qwik-city";
-
-const hyphenateTitle = (text: string) => text.toLowerCase().replace(" ", "-");
+import { isServer } from "@builder.io/qwik/build";
+import ScoreTable from "./score-table";
 
 export const JAN_1_1970_STRING = "1970-01-01T00:00:00.000Z";
 export const DATE_JAN_1_1970 = new Date(JAN_1_1970_STRING);
 
 const PIXEL_AVATAR_SIZE = 44;
 
-const HEADER_LIST = [
+export const HEADER_LIST = [
   "Avatar",
   "Initials",
   "Deck Size",
@@ -42,7 +43,7 @@ const HEADER_LIST = [
   "Date",
 ];
 
-const MAP_COL_TITLE_TO_OBJ_KEY: { [key: string]: ScoreColumn } = {
+export const MAP_COL_TITLE_TO_OBJ_KEY: { [key: string]: ScoreColumn } = {
   initials: "initials",
   "deck-size": "deckSize",
   pairs: "pairs",
@@ -80,13 +81,13 @@ const DEFAULT_SORT_BY_COLUMNS_MAP: {
   },
 };
 
-const DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY = Object.values(
+export const DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY = Object.values(
   DEFAULT_SORT_BY_COLUMNS_MAP
 );
 
 const MAX_SORT_COLUMN_HISTORY = 2;
 
-type QueryStore = {
+export type QueryStore = {
   sortByColumnHistory: SortColumnWithDirection[];
   deckSizesFilter: number[];
   pageNumber: number;
@@ -98,24 +99,25 @@ type QueryStore = {
 export default component$(() => {
   const gameContext = useContext(GameContext);
   const isLoading = useSignal(true);
-  const selectValue = useSignal('default');
+  const selectValue = useSignal("default");
 
-  const queryStore = useStore<QueryStore>({
-    sortByColumnHistory: DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY.slice(
-      0,
-      MAX_SORT_COLUMN_HISTORY
-    ),
-    deckSizesFilter: [gameContext.settings.deck.size], // default to our deck.size
-    pageNumber: 1,
-    resultsPerPage: 10,
-    totalResults: 0,
-    totalPages: 0,
-  },
+  const queryStore = useStore<QueryStore>(
+    {
+      sortByColumnHistory: DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY.slice(
+        0,
+        MAX_SORT_COLUMN_HISTORY
+      ),
+      deckSizesFilter: [gameContext.settings.deck.size], // default to our deck.size
+      pageNumber: 1,
+      resultsPerPage: 10,
+      totalResults: 1,
+      totalPages: 1,
+    },
     { deep: true }
   );
 
   useTask$(({ track }) => {
-    track(() => gameContext.settings.deck.size)
+    track(() => gameContext.settings.deck.size);
     queryStore.deckSizesFilter = [gameContext.settings.deck.size];
   });
 
@@ -128,57 +130,72 @@ export default component$(() => {
     all: 0,
   });
 
-  const queryAndSaveScores = $(
-    async () => {
-      const isScoresDisabled = await (server$(() => { return (process.env.FEATURE_FLAG_SCORES_DISABLED === 'true') }))();
-      if (isScoresDisabled) {
-        console.log('FEATURE_FLAG: Scores DISABLED');
-        return { scores: [] }
-      }
-      isLoading.value = true;
+  const queryAndSaveScores = $(async () => {
+    const isScoresDisabled = await server$(() => {
+      return process.env.FEATURE_FLAG_SCORES_DISABLED === "true";
+    })();
+    if (isScoresDisabled) {
+      console.log("FEATURE_FLAG: Scores DISABLED");
+      return { scores: [] };
+    }
+    isLoading.value = true;
 
-      const scoresPromise = serverDbService.scores.queryWithPercentiles({
-        pageNumber: queryStore.pageNumber,
-        resultsPerPage: queryStore.resultsPerPage,
-        deckSizesFilter: queryStore.deckSizesFilter.length === 0
+    console.log({ queryStore });
+    const scoresPromise = serverDbService.scores.queryWithPercentiles({
+      pageNumber: queryStore.pageNumber,
+      resultsPerPage: queryStore.resultsPerPage,
+      deckSizesFilter:
+        queryStore.deckSizesFilter.length === 0
           ? [gameContext.settings.deck.size]
           : queryStore.deckSizesFilter,
-        sortByColumnHistory: queryStore.sortByColumnHistory
-      });
+      sortByColumnHistory: queryStore.sortByColumnHistory,
+    });
 
-      // fetch all deck sizes for our dropdown
-      const scoreCountsPromise = serverDbService.scoreCounts.getDeckSizes();
+    // fetch all deck sizes for our dropdown
+    const scoreCountsPromise = serverDbService.scoreCounts.getDeckSizes();
 
-      const [scoresRes, scoreCounts] = await Promise.all([
-        scoresPromise,
-        scoreCountsPromise
-      ])
+    const [scoresRes, scoreCounts] = await Promise.all([
+      scoresPromise,
+      scoreCountsPromise,
+    ]);
 
-      const { scores, totals } = scoresRes
+    const { scores, totals } = scoresRes;
 
-      deckSizeList.value = scoreCounts;
+    deckSizeList.value = scoreCounts;
 
-      const totalCount = Object.values(totals)
-        .reduce((accum, cur) => accum += cur, 0)
+    const totalCount = Object.values(totals).reduce(
+      (accum, cur) => (accum += cur),
+      0
+    );
 
-      console.log({ totalCount, scores, deckSizeList: deckSizeList.value });
+    console.log({ totalCount, scores, deckSizeList: deckSizeList.value });
 
-      scoreTotals.value = {
-        ...totals,
-        all: totalCount
-      };
+    scoreTotals.value = {
+      ...totals,
+      all: totalCount,
+    };
 
-      queryStore.totalPages = Math.ceil(
-        totalCount / queryStore.resultsPerPage
-      );
+    // calculate new page number we should place them on, eg match the centers
+    const newTotalPages = Math.ceil(totalCount / queryStore.resultsPerPage);
+    console.log({ newTotalPages });
+    const prevPagePercent =
+      queryStore.pageNumber / queryStore.totalPages > 1
+        ? 1
+        : queryStore.pageNumber / queryStore.totalPages;
+    console.log({ prevPagePercent });
+    const newPage =
+      queryStore.pageNumber === 1
+        ? 1
+        : Math.ceil(prevPagePercent * newTotalPages);
+    console.log({ newPage });
+    queryStore.totalPages = newTotalPages;
+    queryStore.pageNumber = newPage;
 
-      sortedScores.value = [...scores];
+    sortedScores.value = [...scores];
 
-      console.log('finished querying scores');
-      return { scores }
-    }
-  );
-
+    console.log("finished querying scores");
+    return { scores };
+  });
 
   const handleClickColumnHeader = $(async (e: QwikMouseEvent) => {
     isLoading.value = true;
@@ -207,79 +224,122 @@ export default component$(() => {
     queryAndSaveScores();
   });
 
+  const onChangeResultsPerPage$ = $(async (e: QwikChangeEvent) => {
+    const selectedResultsPerPage = Number(
+      (e.target as HTMLSelectElement).value
+    );
 
-  const onChangeResultsPerPage$ = $((e: QwikChangeEvent) => {
-    const selectedResultsPerPage = Number((e.target as HTMLSelectElement).value)
-    console.log({ selectedDeckSize: selectedResultsPerPage });
+    const now = Date.now();
+
+    console.log({ selectedDeckSize: selectedResultsPerPage, now });
 
     // handle top option to toggle all
     if (!isNaN(selectedResultsPerPage)) {
       queryStore.resultsPerPage = selectedResultsPerPage;
       // re-select the top because it shows everything
-      selectValue.value = 'default';
-      (e.target as HTMLSelectElement).value = 'default';
-      queryAndSaveScores();
+      selectValue.value = "default";
+      (e.target as HTMLSelectElement).value = "default";
+
+      await queryAndSaveScores();
+
+      const newNow = Date.now();
+      console.log(`~~ done with query:`, {
+        newNow,
+        now,
+        timeMs: newNow - now,
+      });
     }
   });
 
+  const onChangeSelect$ = $((e: QwikChangeEvent) => {
+    console.log("select changed");
 
-  const onChangeSelect = $(
-    (e: QwikChangeEvent) => {
-      console.log('select changed');
+    const selectedDeckSize = Number((e.target as HTMLSelectElement).value);
+    console.log({ selectedDeckSize });
 
-      const selectedDeckSize = Number((e.target as HTMLSelectElement).value)
-      console.log({ selectedDeckSize });
+    // handle top option to toggle all
+    if (selectedDeckSize === -1) {
+      const midway = deckSizeList.value.length / 2;
 
-      // handle top option to toggle all
-      if (selectedDeckSize === -1) {
-        const midway = deckSizeList.value.length / 2;
-
-        // if we have fewer than midway selected, we select all. Else, we select our own deckSize
-        if (queryStore.deckSizesFilter.length <= midway) {
-          queryStore.deckSizesFilter = [...deckSizeList.value];
-        } else {
-          queryStore.deckSizesFilter = [gameContext.settings.deck.size];
-        }
-
+      // if we have fewer than midway selected, we select all. Else, we select our own deckSize
+      if (queryStore.deckSizesFilter.length <= midway) {
+        queryStore.deckSizesFilter = [...deckSizeList.value];
       } else {
-        const indexIfExists = queryStore.deckSizesFilter.indexOf(selectedDeckSize);
-
-        if (indexIfExists !== -1) {
-          queryStore.deckSizesFilter = queryStore.deckSizesFilter.filter(
-            (size) => size !== selectedDeckSize
-          )
-          console.log('~~ existed');
-        } else {
-          queryStore.deckSizesFilter = [...queryStore.deckSizesFilter, selectedDeckSize];
-          console.log('~~ NOT existed');
-        }
+        queryStore.deckSizesFilter = [gameContext.settings.deck.size];
       }
+    } else {
+      const indexIfExists =
+        queryStore.deckSizesFilter.indexOf(selectedDeckSize);
 
-      // re-select the top because it shows everything
-      selectValue.value = 'default';
-      (e.target as HTMLSelectElement).value = 'default';
-
-      queryAndSaveScores();
+      if (indexIfExists !== -1) {
+        queryStore.deckSizesFilter = queryStore.deckSizesFilter.filter(
+          (size) => size !== selectedDeckSize
+        );
+        console.log("~~ existed");
+      } else {
+        queryStore.deckSizesFilter = [
+          ...queryStore.deckSizesFilter,
+          selectedDeckSize,
+        ];
+        console.log("~~ NOT existed");
+      }
     }
-  );
 
-  /* 
-  * onMount, onShow modal
-  * */
+    // re-select the top because it shows everything
+    selectValue.value = "default";
+    (e.target as HTMLSelectElement).value = "default";
+
+    queryAndSaveScores();
+  });
+
+  const size = useSignal(PIXEL_AVATAR_SIZE);
+
+  const resizePixelAvatar = $(() => {
+    if (!isServer) {
+      size.value =
+        window.innerWidth > 639
+          ? PIXEL_AVATAR_SIZE
+          : Math.round(PIXEL_AVATAR_SIZE * 0.8);
+      return;
+    }
+    size.value = PIXEL_AVATAR_SIZE;
+  });
+
+  /*
+   * onMount, onShow modal
+   * */
   useTask$(async ({ track }) => {
     track(() => gameContext.interface.scoresModal.isShowing);
     if (!gameContext.interface.scoresModal.isShowing) return;
 
+    resizePixelAvatar();
+
     isLoading.value = true;
 
-    await queryAndSaveScores(),
-
-      isLoading.value = false;
+    await queryAndSaveScores(), (isLoading.value = false);
     console.log("done loading");
   });
 
+  const windowSignal = useSignal<
+    Partial<typeof window> & { innerWidth: number; innerHeight: number }
+  >({
+    innerWidth: 500,
+    innerHeight: 400,
+  });
+
+  const resizeHandler = $(() => {
+    resizePixelAvatar();
+    windowSignal.value = {
+      innerWidth: window.innerWidth,
+      innerHeight: window.innerHeight,
+    };
+  });
+
+  useOnWindow("resize", resizeHandler);
+
   useStyles$(`
   table {
+position: relative;
     overflow: hidden;
   }
 
@@ -338,11 +398,11 @@ export default component$(() => {
   }
 
 
-  table.scoreboard > thead th.asc  {
+  table.scoreboard thead .asc  {
     --gradiant-start: var(--gradiant-dark);
     --gradiant-end: var(--gradiant-light);
   }
-  table.scoreboard > thead th.desc  {
+  table.scoreboard thead .desc  {
     --gradiant-start: var(--gradiant-light);
     --gradiant-end: var(--gradiant-dark);
   }
@@ -370,8 +430,12 @@ export default component$(() => {
   table.scoreboard tfoot {
     height: 2rem;
   }
-  `);
 
+  table.scoreboard tbody tr, 
+  table.scoreboard tbody tr .pixel-avatar {
+    transition: all 0.1s ease-in-out;
+  }
+  `);
 
   return (
     <Modal
@@ -380,374 +444,290 @@ export default component$(() => {
         gameContext.interface.scoresModal.isShowing = false;
       }}
       title="Scoreboard"
-      containerClasses="flex"
+      containerClasses="flex w-[80vw]"
     >
-      <div class="flex flex-col w-min">
+      <div class="flex flex-col max-w-full">
         {/* TODO: instead of Select + Options, use a dropdown with checkboxes 
             (could be disabled for those deckSizes we haven't seen yet) */}
-        <div class="flex justify-between bg-slate-700 items-center gap-2 h-[2rem] p-1">
-          <select
-            class="bg-slate-800 flex-grow"
-            value={selectValue.value}
-            onChange$={onChangeSelect}
-          >
-            <option value="default">{queryStore.deckSizesFilter.join(', ')}</option>
-            <option value={-1}>Toggle All</option>
-            {deckSizeList.value.map((deckSize) => (
-              <option key={deckSize} value={deckSize} class="bg-slate-800">
-                {String(deckSize)}
-              </option>
-            ))}
-          </select>
-          <SelectEl
-            value={queryStore.resultsPerPage}
-            onChange$={onChangeResultsPerPage$}
-            listOfOptions={Array(10).fill(null).map((_, i) => (i + 1) * 5)}
+        <TableDecksizeFilterHeader
+          selectValue={selectValue}
+          onChangeSelect$={onChangeSelect$}
+          queryStore={queryStore}
+          deckSizeList={deckSizeList}
+          windowSignal={windowSignal}
+        />
+
+        <div
+          class="w-full h-full overflow-y-auto"
+          style={{ maxHeight: `calc(70vh - 5rem)` }}
+        >
+          <ScoreTable
+            handleClickColumnHeader$={handleClickColumnHeader}
+            sortedScores={sortedScores}
+            size={size}
+            queryStore={queryStore}
           />
         </div>
 
-        <div class="w-full h-full overflow-y-auto"
-          style={{ maxHeight: `calc(70vh - 5rem)` }}
-        >
-          <table
-            q: slot="scoreboard-tab0"
-            class="scoreboard w-full "
-          >
-            <thead class={` text-xs sm:text-sm md:text-md bg-slate-500`}>
-              <tr>
-                {HEADER_LIST.map((header) => {
-                  const hyphenated = hyphenateTitle(header);
-                  const key = MAP_COL_TITLE_TO_OBJ_KEY[header];
-                  const findFn = ({ column }: SortColumnWithDirection) => column === key;
-                  const classes = queryStore.sortByColumnHistory.find(
-                    findFn
-                  )?.direction ??
-                    (
-                      DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY.find(
-                        findFn
-                      )?.direction ??
-                      "desc"
-                    )
-                  return (
-                    <ScoreTableHeader
-                      key={hyphenated}
-                      title={header}
-                      hyphenated={hyphenated}
-                      classes={classes}
-                      onClick$={
-                        header === "Avatar"
-                          ? undefined
-                          : handleClickColumnHeader
-                      }
-                    />
-                  );
-                })}
-              </tr>
-            </thead>
-            <tbody>
-              {sortedScores.value.map((score) => (
-                <ScoreRow key={score.id} score={score} />
-              ))}
-            </tbody>
-          </table>
-        </div>
         <TablePagingFooter
           queryStore={queryStore}
-          queryScores={queryAndSaveScores}
+          onChangeResultsPerPage$={onChangeResultsPerPage$}
+          queryScores$={queryAndSaveScores}
         />
       </div>
     </Modal>
   );
 });
 
-const SelectEl = component$(({
-  value,
-  onChange$,
-  listOfOptions,
-}: {
-  value: number;
-  onChange$: PropFunction<(e: QwikChangeEvent) => void>;
-  listOfOptions: Array<number>;
-}) => {
-  return (
+const SelectEl = component$(
+  ({
+    value,
+    onChange$,
+    listOfOptions,
+    classes = "",
+  }: {
+    value: number;
+    onChange$: PropFunction<(e: QwikChangeEvent) => void>;
+    listOfOptions: Array<number>;
+    classes?: string;
+  }) => (
     <select
-      class="bg-slate-800"
+      class={` bg-slate-800 ${classes}`}
       value={value}
       onChange$={onChange$}
     >
-      <option value="default">{String(value)}</option>
+      <option value={value}>{String(value)}</option>
       {listOfOptions.map((num) => (
         <option key={num} value={num} class="bg-slate-800">
           {String(num)}
         </option>
       ))}
     </select>
-  );
-});
-
-const TablePagingFooter = component$(({
-  queryStore,
-  queryScores,
-}: {
-  queryStore: QueryStore;
-  queryScores: PropFunction<() => any>;
-}) => {
-  const buttons = useStore({
-    first: true,
-    prev: true,
-    next: true,
-    last: true,
-    maxPageButtons: 7,
-    prevPage: queryStore.pageNumber,
-  })
-
-  const remainingPageButtonSlots = useSignal(buttons.maxPageButtons);
-  const remainingPageButtons = useSignal<number[]>([]);
-
-  const calculateRemainingPageButtons = $(() => {
-    const currentPage = queryStore.pageNumber;
-
-    const bonus =
-      Math.floor((remainingPageButtonSlots.value - 1) / 2)
-
-    const startPage = Math.max(1, currentPage - bonus);
-    const endPage = Math.min(queryStore.totalPages, currentPage + bonus) + 1;
-
-    return Array(endPage - startPage).fill(0).map((_, i) => startPage + i);
-  });
-
-  useTask$(async ({ track }) => {
-    track(() => [queryStore.pageNumber, queryStore.totalPages, queryStore.totalResults]);
-
-    if (queryStore.pageNumber > 1) {
-      buttons.first = true;
-      buttons.prev = true;
-    } else {
-      buttons.first = false;
-      buttons.prev = false;
-    }
-
-    if (queryStore.pageNumber < queryStore.totalPages) {
-      buttons.last = true;
-      buttons.next = true;
-    } else {
-      buttons.last = false;
-      buttons.next = false;
-    }
-
-    remainingPageButtonSlots.value = buttons.maxPageButtons - Object.values(
-      buttons
-    ).filter((v) => v === true).length;
-
-    remainingPageButtons.value = await calculateRemainingPageButtons();
-  })
-
-  const onClick$ = $(
-    (e: QwikMouseEvent) => {
-      const label = (e.target as HTMLButtonElement).dataset['label']?.split('-') ?? [0, 0];
-      let pageNumber = queryStore.pageNumber;
-      pageNumber = (
-        label[0] === 'page' ? Number(label[2]) :
-          label[0] === 'first' ? 1
-            : label[0] === 'previous' ? (pageNumber - 1 < 1 ? 1 : pageNumber - 1)
-              : label[0] === 'next' ? (pageNumber + 1 > queryStore.totalPages ? queryStore.totalPages : pageNumber + 1)
-                : label[0] === 'last' ? queryStore.totalPages : queryStore.pageNumber
-      );
-      console.log('clicked page number button:', { label, pageNumber });
-      buttons.prevPage = queryStore.pageNumber;
-      queryStore.pageNumber = pageNumber;
-
-      queryScores();
-    }
   )
-  const baseButtonStyles = 'bg-slate-100 text-slate-800 p-1 inline';
-  return (
-    <div class="flex flex-col h-[3rem]">
-      <div
-        class="flex justify-between w-max gap-2 mx-auto h-full p-1 flex-grow-0"
-        onClick$={onClick$}
-      >
-        {buttons.first && <button class={baseButtonStyles} data-label="first-page">{"<<"}</button>}
-        {buttons.prev && <button class={baseButtonStyles} data-label="previous-page">{"<"}</button>}
+);
 
-        {remainingPageButtons.value.map((number) => (
-          <button
-            key={number}
-            class={`${baseButtonStyles} ${number === queryStore.pageNumber ? 'bg-slate-500 text-slate-600' : ''}`}
-            data-label={`page-number-${number}`}
-            disabled={number === queryStore.pageNumber}
-          >
-            {number}
-          </button>
-        ))}
-
-        {buttons.next && <button class={baseButtonStyles} data-label="next-page">{">"}</button>}
-        {buttons.last && <button class={baseButtonStyles} data-label="last-page">{">>"}</button>}
-      </div>
-      <div class="flex-grow">
-        Total Pages: {queryStore.totalPages}
-      </div>
-
-    </div>
-  );
-});
-
-const ScoreTableHeader = component$(
+const DECK_SIZES_WIDTH = "3em";
+const TableDecksizeFilterHeader = component$(
   ({
-    title,
-    hyphenated,
-    onClick$,
-    classes = "",
+    selectValue,
+    onChangeSelect$,
+    queryStore,
+    deckSizeList,
+    windowSignal,
   }: {
-    title: string;
-    hyphenated: string;
-    onClick$?: PropFunction<(e: QwikMouseEvent) => void>;
-    classes?: string;
+    selectValue: Signal<string>;
+    onChangeSelect$: PropFunction<(e: QwikChangeEvent) => void>;
+    queryStore: QueryStore;
+    deckSizeList: Signal<number[]>;
+    windowSignal: Signal<
+      Partial<typeof window> & { innerWidth: number; innerHeight: number }
+    >;
   }) => {
+    const deckSizesFilterString = useComputed$(() => {
+      return queryStore.deckSizesFilter.join(",");
+    });
+    const deckSizesSelected = useComputed$(() =>
+      deckSizeList.value.filter((each) =>
+        queryStore.deckSizesFilter.includes(each)
+      )
+    );
+    const deckSizesUnselected = useComputed$(() =>
+      deckSizeList.value.filter(
+        (each) => !queryStore.deckSizesFilter.includes(each)
+      )
+    );
+    const widthCutoffLength = 100;
     return (
-      <th class={`rotate ${classes}`}>
-        <div>
-          {onClick$ ? (
-            <button onClick$={onClick$} data-sort-column={hyphenated}>
-              <span>{title}</span>
-            </button>
-          ) : (
-            <div>
-              <span>{title}</span>
-            </div>
-          )}
-        </div>
-      </th>
+      <div class="flex max-w-full overflow-hidden justify-between bg-slate-700 items-center gap-1 h-[2rem] p-1">
+        <select
+          class={` bg-slate-800 w-full text-xs md:text-sm lg:text-md justify-self-start `}
+          value={selectValue.value}
+          onChange$={onChangeSelect$}
+        >
+          <option value="default">
+            {deckSizesFilterString.value.length > widthCutoffLength
+              ? deckSizesFilterString.value.substring(
+                  0,
+                  widthCutoffLength - 3
+                ) + "..."
+              : deckSizesFilterString.value}
+          </option>
+          <option value={-1}>Toggle All</option>
+          {deckSizesSelected.value
+            .sort((a, b) => a - b)
+            .concat(deckSizesUnselected.value.sort((a, b) => a - b))
+            .map((deckSize) => (
+              <option
+                key={deckSize}
+                value={deckSize}
+                class={` bg-slate-800 ${
+                  queryStore.deckSizesFilter.includes(deckSize)
+                    ? "text-green-400 font-extrabold"
+                    : ""
+                }`}
+              >
+                {String(deckSize)}
+              </option>
+            ))}
+        </select>
+      </div>
     );
   }
 );
 
+const TablePagingFooter = component$(
+  ({
+    queryStore,
+    queryScores$,
+    onChangeResultsPerPage$,
+  }: {
+    queryStore: QueryStore;
+    queryScores$: PropFunction<() => any>;
+    onChangeResultsPerPage$: PropFunction<(e: QwikChangeEvent) => any>;
+  }) => {
+    const buttons = useStore({
+      first: true,
+      prev: true,
+      next: true,
+      last: true,
+      maxPageButtons: 7,
+      prevPage: queryStore.pageNumber,
+    });
 
+    const remainingPageButtonSlots = useSignal(buttons.maxPageButtons);
+    const remainingPageButtons = useSignal<number[]>([]);
 
-const TIME_LABEL_COLOR = "text-slate-400/90";
-// const GameTime = component$(({ gameTime }: { gameTime: string }) => {
-//   console.log('gameTime component:', { gameTime });
-//   const [hours, minutes, seconds] = gameTime.split(":").map((n) => Number(n));
-//   const haveHours = hours !== 0;
-//   const haveMinutes = minutes !== 0;
-//   // pad seconds so we can get full 3 digit milliseconds
-//   const [truncSeconds, ms] = String(seconds.toFixed(3)).split(".");
-//   const limitedMs = truncateMs(Number(ms ?? 0), 1);
-//
-//   return (
-//     <>
-//       {haveHours ? (
-//         <>
-//           <span>{hours}</span>
-//           <span class={TIME_LABEL_COLOR}>h</span>
-//         </>
-//       ) : (
-//         ""
-//       )}
-//
-//       {haveMinutes ? (
-//         <>
-//           {haveHours ? (
-//             <span class="ml-1">{String(minutes).padStart(2, "0")}</span>
-//           ) : (
-//             <span>{minutes}</span>
-//           )}
-//           <span class={TIME_LABEL_COLOR}>m</span>
-//         </>
-//       ) : (
-//         ""
-//       )}
-//
-//       <>
-//         {haveMinutes ? (
-//           <span class="ml-1">{truncSeconds.padStart(2, "0")}</span>
-//         ) : (
-//           <span>{Number(truncSeconds)}</span>
-//         )}
-//         <span class={`text-xs ${TIME_LABEL_COLOR}`}>
-//           {Number(limitedMs) > 0 ? limitedMs : ''}s
-//         </span>
-//       </>
-//     </>
-//   );
-// });
-const GameTime = component$(({ gameTime }: { gameTime: string }) => {
-  console.log('gameTime component:', { gameTime });
-  const [hours, minutes, seconds] = gameTime.split(":").map((n) => Number(n));
-  const haveHours = hours !== 0;
-  const haveMinutes = minutes !== 0;
-  // pad seconds so we can get full 3 digit milliseconds
-  const [truncSeconds, ms] = String(seconds.toFixed(3)).split(".");
-  const limitedMs = truncateMs(Number(ms ?? 0), 1);
+    const calculateRemainingPageButtons = $(() => {
+      const currentPage = queryStore.pageNumber;
 
-  return (
-    <>
-      <span class={haveHours ? '' : `text-xs ${TIME_LABEL_COLOR}`}>{String(hours).padStart(2, "0")}</span>
-      <span class={`${haveHours ? '' : 'text-xs'} mx-[1px] ${TIME_LABEL_COLOR}`}>:</span>
-      <span class={haveMinutes ? '' : `text-xs ${TIME_LABEL_COLOR}`}>{String(minutes).padStart(2, "0")}</span>
-      <span class={`${haveMinutes ? '' : 'text-xs'} mx-[1px] ${TIME_LABEL_COLOR}`}>:</span>
-      <span>{String(truncSeconds).padStart(2, "0")}</span>
-      {
-        (Number(limitedMs) > 0) ? (<>
-          <span class={`text-xs ${TIME_LABEL_COLOR}`}>{String(limitedMs)}</span>
-        </>) : ''
+      const bonus = Math.floor((remainingPageButtonSlots.value - 1) / 2);
+
+      const startPage = Math.max(1, currentPage - bonus);
+      const endPage = Math.min(queryStore.totalPages, currentPage + bonus) + 1;
+
+      return Array(endPage - startPage)
+        .fill(0)
+        .map((_, i) => startPage + i);
+    });
+
+    useTask$(async ({ track }) => {
+      track(() => [
+        queryStore.pageNumber,
+        queryStore.totalPages,
+        queryStore.totalResults,
+      ]);
+
+      if (queryStore.pageNumber > 1) {
+        buttons.first = true;
+        buttons.prev = true;
+      } else {
+        buttons.first = false;
+        buttons.prev = false;
       }
-    </>
-  );
-});
 
-const ROW_BG_COLOR_ALPHA = 0.8;
-const generateBgAlpha = (color: string) =>
-  color.slice(0, -2) + `${ROW_BG_COLOR_ALPHA})`;
+      if (queryStore.pageNumber < queryStore.totalPages) {
+        buttons.last = true;
+        buttons.next = true;
+      } else {
+        buttons.last = false;
+        buttons.next = false;
+      }
 
-const ScoreRow = component$(({ score }: { score: ScoreWithPercentiles }) => {
-  // console.log({ score });
+      remainingPageButtonSlots.value =
+        buttons.maxPageButtons -
+        Object.values(buttons).filter((v) => v === true).length;
 
-  return (
-    <tr
-      class="w-full h-full border border-slate-900 rounded-lg text-xs sm:text-sm md:text-md"
-      style={{
-        backgroundColor: generateBgAlpha(score.color as string),
-      }}
-    >
-      <td
-        class="flex justify-center"
-        style={{ width: `${PIXEL_AVATAR_SIZE}px` }}
-      >
-        <PixelAvatar
-          color={score.color as string}
-          pixels={score.pixels as string}
-          width={PIXEL_AVATAR_SIZE}
-          height={PIXEL_AVATAR_SIZE}
-          classes="border border-gray-100"
-        />
-      </td>
-      <td>{score.initials}</td>
-      <td>{score.deckSize}</td>
-      <td>{score.pairs}</td>
-      <td>
-        <span class="block">{score.timePercentile}%</span>
-        <span class="block">
-          <GameTime gameTime={score.gameTime as string} />
-        </span>
-      </td>
-      <td>
-        <span class="block">{score.mismatchPercentile}%</span>
-        <span class="block">{score.mismatches}</span>
-      </td>
-      <td>
-        <CreatedAt createdAt={score.createdAt ?? DATE_JAN_1_1970} />
-      </td>
-    </tr>
-  );
-});
+      remainingPageButtons.value = await calculateRemainingPageButtons();
+    });
 
-const CreatedAt = ({ createdAt }: { createdAt: Date }) => {
-  const [date, time] = createdAt.toLocaleString().split(", ");
-  return (
-    <>
-      <span class="block">{date}</span>
-      <span class="block whitespace-nowrap">{time}</span>
-    </>
-  );
-};
+    const onClick$ = $((e: QwikMouseEvent) => {
+      const label = (e.target as HTMLButtonElement).dataset["label"]?.split(
+        "-"
+      ) ?? [0, 0];
+      let pageNumber = queryStore.pageNumber;
+      pageNumber =
+        label[0] === "page"
+          ? Number(label[2])
+          : label[0] === "first"
+          ? 1
+          : label[0] === "previous"
+          ? pageNumber - 1 < 1
+            ? 1
+            : pageNumber - 1
+          : label[0] === "next"
+          ? pageNumber + 1 > queryStore.totalPages
+            ? queryStore.totalPages
+            : pageNumber + 1
+          : label[0] === "last"
+          ? queryStore.totalPages
+          : queryStore.pageNumber;
+      console.log("clicked page number button:", { label, pageNumber });
+      buttons.prevPage = queryStore.pageNumber;
+      queryStore.pageNumber = pageNumber;
+
+      queryScores$();
+    });
+    const baseButtonStyles = "bg-slate-800 text-slate-100 p-1 inline";
+    return (
+      <div class="flex flex-col h-[3rem]">
+        <div
+          class={` grid  w-full h-full p-1 flex-grow-0 `}
+          style={{
+            gridTemplateColumns: `${DECK_SIZES_WIDTH} 1fr ${DECK_SIZES_WIDTH}`,
+          }}
+          onClick$={onClick$}
+        >
+          <SelectEl
+            classes={`text-xs md:text-sm lg:text-md z-10 justify-self-start`}
+            value={queryStore.resultsPerPage}
+            onChange$={onChangeResultsPerPage$}
+            listOfOptions={[5, 10, 25, 50, 100]}
+          />
+          <div class="justify-center flex gap-2 w-full">
+            {buttons.first && (
+              <button class={baseButtonStyles} data-label="first-page">
+                {"<<"}
+              </button>
+            )}
+            {buttons.prev && (
+              <button class={baseButtonStyles} data-label="previous-page">
+                {"<"}
+              </button>
+            )}
+
+            {remainingPageButtons.value.map((number) => (
+              <button
+                key={number}
+                class={`${baseButtonStyles} ${
+                  number === queryStore.pageNumber
+                    ? "bg-slate-500 text-slate-600"
+                    : ""
+                }`}
+                data-label={`page-number-${number}`}
+                disabled={number === queryStore.pageNumber}
+              >
+                {number}
+              </button>
+            ))}
+
+            {buttons.next && (
+              <button class={baseButtonStyles} data-label="next-page">
+                {">"}
+              </button>
+            )}
+            {buttons.last && (
+              <button class={baseButtonStyles} data-label="last-page">
+                {">>"}
+              </button>
+            )}
+          </div>
+          <div
+            class={`w-[${DECK_SIZES_WIDTH}]`}
+            data-label="empty-spacer"
+          ></div>
+        </div>
+        <div class="flex-grow">Total Pages: {queryStore.totalPages}</div>
+      </div>
+    );
+  }
+);

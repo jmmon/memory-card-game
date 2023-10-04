@@ -19,7 +19,7 @@ const CODE_TEXT_DARK = "text-slate-400";
 
 const DECIMALS = 1;
 
-const roundToDecimals = (number: number, decimals: number = DECIMALS) =>
+export const roundToDecimals = (number: number, decimals: number = DECIMALS) =>
   Math.round(number * 10 ** decimals) / 10 ** decimals;
 
 

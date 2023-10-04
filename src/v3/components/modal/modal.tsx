@@ -8,6 +8,9 @@ const DEFAULT_CONTAINER_BG = "bg-slate-600";
 type ModalOptions = { detectClickOutside: boolean };
 
 const DEFAULT_OPTIONS = { detectClickOutside: true };
+
+const lowercaseHyphenate = (str: string) => str.toLowerCase().replace(/ /g, "-");
+
 export default component$(
   ({
     isShowing = true,
@@ -27,10 +30,11 @@ export default component$(
     options?: Partial<ModalOptions>;
   }) => {
     containerClasses = DEFAULT_CONTAINER_BG + " " + containerClasses;
+
     const closeModal$ = $((e: QwikMouseEvent) => {
       if (!options.detectClickOutside) return;
-      if ((e.target as HTMLElement).dataset.name === "background") {
-        hideModal$(); // fn to turn off boolean
+      if ((e.target as HTMLElement).dataset.id === "modal-background") {
+        hideModal$();
       }
     });
 
@@ -38,10 +42,11 @@ export default component$(
       <div
         class={`top-0 left-0 absolute w-full h-full bg-black flex justify-center items-center transition-all ${DURATION} ${
           isShowing
-            ? `pointer-events-auto ${bgClasses} z-[100] bg-opacity-30 `
+            ? `pointer-events-auto ${bgClasses} z-[200] bg-opacity-30 `
             : "pointer-events-none z-[-1] bg-opacity-0"
         }`}
-        data-name="background"
+        data-id="modal-background"
+        data-name={lowercaseHyphenate(title)}
         onClick$={closeModal$}
         style={bgStyles}
       >
@@ -51,7 +56,7 @@ export default component$(
               ? "pointer-events-auto z-[100]"
               : "pointer-events-none z-[-1]"
           } ${isShowing ? "opacity-100 scale-100" : "opacity-0 scale-[120%]"}`}
-          data-name="modal"
+          data-id="modal-container"
         >
           <ModalHeader hideModal$={hideModal$} title={title} />
           <div class="w-full h-full ">

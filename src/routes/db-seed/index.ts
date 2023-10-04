@@ -20,7 +20,7 @@ export const onGet: RequestHandler = async (requestEvent) => {
   });
 
   const opts = {
-    totalDeckSizes: Number(obj.totalDeckSize ?? 10),
+    totalDeckSizes: Number(obj.totalDeckSizes ?? 10),
     scoresPerDeckSize: Number(obj.scoresPerDeckSize ?? 10),
   };
 

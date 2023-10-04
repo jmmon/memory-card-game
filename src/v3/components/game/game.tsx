@@ -23,6 +23,7 @@ import CONSTANTS from "~/v3/utils/constants";
 // import InverseModal from "../inverse-modal/inverse-modal";
 // import GameSettings from "../settings-modal/game-settings";
 import type { iGameSettings } from "~/v3/types/types";
+import { useWatchWindowFocus } from "~/v3/utils/useWatchWindowFocus";
 
 export default component$(() => {
   const gameContext = useContext(GameContext);
@@ -57,7 +58,7 @@ export default component$(() => {
     }),
     useComputed$(() => gameContext.game.shufflingState > 0),
     CONSTANTS.CARD.ANIMATIONS.SHUFFLE_PAUSE +
-    CONSTANTS.CARD.ANIMATIONS.SHUFFLE_ACTIVE
+      CONSTANTS.CARD.ANIMATIONS.SHUFFLE_ACTIVE
   );
 
   /* ================================
@@ -76,107 +77,19 @@ export default component$(() => {
     useComputed$(() => gameContext.game.mismatchPair !== ""),
     CONSTANTS.CARD.ANIMATIONS.SHAKE_DELAY_AFTER_STARTING_RETURN,
     CONSTANTS.CARD.ANIMATIONS.SHAKE_DELAY_AFTER_STARTING_RETURN +
-    CONSTANTS.CARD.ANIMATIONS.SHAKE
+      CONSTANTS.CARD.ANIMATIONS.SHAKE
   );
 
   /* ============================
    * pause game when switching tabs
    * - set up listeners
    * ============================ */
-  useVisibleTask$(({ cleanup }) => {
-    console.log("setup visibilitychange listener");
-    let hidden = "hidden";
-    let state = 0;
 
-    // Standards:
-    if (hidden in document) {
-      document.addEventListener("visibilitychange", onchange);
-      state = 1;
-    } else if ((hidden = "mozHidden") in document) {
-      document.addEventListener("mozvisibilitychange", onchange);
-      state = 2;
-    } else if ((hidden = "webkitHidden") in document) {
-      document.addEventListener("webkitvisibilitychange", onchange);
-      state = 3;
-    } else if ((hidden = "msHidden") in document) {
-      document.addEventListener("msvisibilitychange", onchange);
-      state = 4;
-    }
-    // IE 9 and lower:
-    else if ("onfocusin" in document) {
-      (document as Document & { onfocusin: any; onfocusout: any }).onfocusin = (
-        document as Document & { onfocusin: any; onfocusout: any }
-      ).onfocusout = onchange;
-      state = 5;
-    }
-    // All others:
-    else {
-      window.onpageshow =
-        window.onpagehide =
-        window.onfocus =
-        window.onblur =
-        onchange;
-    }
-
-    function onchange(evt: any) {
-      console.log("onchange runs", { evt });
-      const v = "visible",
-        h = "hidden",
-        evtMap: { [key: string]: string } = {
-          focus: v,
-          focusin: v,
-          pageshow: v,
-          blur: h,
-          focusout: h,
-          pagehide: h,
-        };
-
-      evt = evt || window.event;
-      if (evt.type in evtMap) {
-        document.body.dataset["visibilitychange"] = evtMap[evt.type];
-      } else {
-        // @ts-ignore
-        document.body.dataset["visibilitychange"] = this[hidden]
-          ? "hidden"
-          : "visible";
-      }
-
-      if (document.body.dataset["visibilitychange"] === "hidden") {
-        gameContext.showSettings();
-      }
-    }
-
-    // set the initial state (but only if browser supports the Page Visibility API)
-    if ((document as Document & { [key: string]: any })[hidden] !== undefined) {
-      onchange({
-        type: (document as Document & { [key: string]: any })[hidden]
-          ? "blur"
-          : "focus",
-      });
-    }
-
-    cleanup(() => {
-      console.log("cleanup visibilitychange listener");
-      if (state === 1) {
-        document.removeEventListener("visibilitychange", onchange);
-      } else if (state === 2) {
-        document.removeEventListener("mozvisibilitychange", onchange);
-      } else if (state === 3) {
-        document.removeEventListener("webkitvisibilitychange", onchange);
-      } else if (state === 4) {
-        document.removeEventListener("msvisibilitychange", onchange);
-      } else if (state === 5) {
-        (document as Document & { onfocusin: any }).onfocusin = (
-          document as Document & { onfocusout: any }
-        ).onfocusout = null;
-      } else if (state === 0) {
-        window.onpageshow =
-          window.onpagehide =
-          window.onfocus =
-          window.onblur =
-          null;
-      }
-    });
+  useWatchWindowFocus({
+    onHidden: $(() => {
+      gameContext.showSettings();
+    }),
+    // onVisible: $(() => {}),
   });
 
   // const newSettings = useSignal<iGameSettings>({
@@ -189,53 +102,53 @@ export default component$(() => {
       <CardSymbols />
       <FaceCardSymbols />
 
-{/*       <InverseModal */}
-{/*         isShowing={gameContext.interface.settingsModal.isShowing} */}
-{/*         hideModal$={() => { */}
-{/*           newSettings.value = gameContext.settings; */}
-{/*           gameContext.hideSettings(); */}
-{/*         }} */}
-{/*         title="Settings" */}
-{/*         direction="left" */}
-{/* settingsClasses="bg-slate-700" */}
-{/*       > */}
-{/*         <div */}
-{/*           q: slot="mainContent" */}
-{/*           class={`flex flex-col flex-grow justify-between w-full h-full p-[${CONSTANTS.GAME.BOARD_PADDING_PERCENT */}
-{/*             }%] gap-1 ${gameContext.boardLayout.isLocked ? "overflow-x-auto" : "" */}
-{/*             }`} */}
-{/*           style={{ */}
-{/*             background: `var(--qwik-dark-background)`, */}
-{/*             color: `var(--qwik-dark-text)`, */}
-{/*           }} */}
-{/*           ref={containerRef} */}
-{/*         > */}
-{/*           <GameHeader */}
-{/*             showSettings$={() => { */}
-{/*               gameContext.showSettings(); */}
-{/*             }} */}
-{/*           /> */}
-{/**/}
-{/*           <Board containerRef={containerRef} /> */}
-{/*         </div> */}
-{/*         <div */}
-{/*           class="flex justify-center w-full h-full" */}
-{/*           style={{ */}
-{/*             background: `var(--qwik-dark-background)`, */}
-{/*             color: `var(--qwik-dark-text)`, */}
-{/*           }} */}
-{/*           q: slot="revealedContent" */}
-{/*         > */}
-{/*           <GameSettings settings={newSettings} */}
-{/*             q: slot="revealedContent" */}
-{/*           /> */}
-{/*         </div> */}
-{/*       </InverseModal> */}
+      {/*       <InverseModal */}
+      {/*         isShowing={gameContext.interface.settingsModal.isShowing} */}
+      {/*         hideModal$={() => { */}
+      {/*           newSettings.value = gameContext.settings; */}
+      {/*           gameContext.hideSettings(); */}
+      {/*         }} */}
+      {/*         title="Settings" */}
+      {/*         direction="left" */}
+      {/* settingsClasses="bg-slate-700" */}
+      {/*       > */}
+      {/*         <div */}
+      {/*           q: slot="mainContent" */}
+      {/*           class={`flex flex-col flex-grow justify-between w-full h-full p-[${CONSTANTS.GAME.BOARD_PADDING_PERCENT */}
+      {/*             }%] gap-1 ${gameContext.boardLayout.isLocked ? "overflow-x-auto" : "" */}
+      {/*             }`} */}
+      {/*           style={{ */}
+      {/*             background: `var(--qwik-dark-background)`, */}
+      {/*             color: `var(--qwik-dark-text)`, */}
+      {/*           }} */}
+      {/*           ref={containerRef} */}
+      {/*         > */}
+      {/*           <GameHeader */}
+      {/*             showSettings$={() => { */}
+      {/*               gameContext.showSettings(); */}
+      {/*             }} */}
+      {/*           /> */}
+      {/**/}
+      {/*           <Board containerRef={containerRef} /> */}
+      {/*         </div> */}
+      {/*         <div */}
+      {/*           class="flex justify-center w-full h-full" */}
+      {/*           style={{ */}
+      {/*             background: `var(--qwik-dark-background)`, */}
+      {/*             color: `var(--qwik-dark-text)`, */}
+      {/*           }} */}
+      {/*           q: slot="revealedContent" */}
+      {/*         > */}
+      {/*           <GameSettings settings={newSettings} */}
+      {/*             q: slot="revealedContent" */}
+      {/*           /> */}
+      {/*         </div> */}
+      {/*       </InverseModal> */}
 
       <div
-        class={`flex flex-col flex-grow justify-between w-full h-full p-[${CONSTANTS.GAME.BOARD_PADDING_PERCENT}%] gap-1 ${
-          gameContext.boardLayout.isLocked ? "overflow-x-auto" : ""
-        }`}
+        class={`flex flex-col flex-grow justify-between w-full h-full p-[${
+          CONSTANTS.GAME.BOARD_PADDING_PERCENT
+        }%] gap-1 ${gameContext.boardLayout.isLocked ? "overflow-x-auto" : ""}`}
         ref={containerRef}
       >
         <GameHeader
@@ -258,11 +171,13 @@ const LoadingPage = component$(
   ({ isShowing, blur = true }: { isShowing: boolean; blur?: boolean }) => (
     <>
       <div
-        class={`${isShowing
-            ? `${blur ? "backdrop-blur-[2px]" : ""
-            } opacity-100 z-50 pointer-events-auto`
+        class={`${
+          isShowing
+            ? `${
+                blur ? "backdrop-blur-[2px]" : ""
+              } opacity-100 z-50 pointer-events-auto`
             : "z-[-1] pointer-events-none opacity-0"
-          } text-slate-200 transition-all bg-black bg-opacity-20 absolute top-0 left-0 text-4xl w-full flex-grow h-full flex justify-center items-center `}
+        } text-slate-200 transition-all bg-black bg-opacity-20 absolute top-0 left-0 text-4xl w-full flex-grow h-full flex justify-center items-center `}
       >
         Loading...
       </div>

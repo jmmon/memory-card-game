@@ -25,8 +25,8 @@ export const scoreCounts = scoreCountsSchema;
 const client = postgres(connectionString);
 export const db = drizzle(client, {
   schema: {
-    ...scores,
-    ...scoreCounts,
+    scores,
+    scoreCounts,
     // ...scoresRelations,
     // ...scoreCountsRelations,
   },

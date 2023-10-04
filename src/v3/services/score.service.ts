@@ -1,9 +1,23 @@
-import { eq, inArray, sql } from "drizzle-orm";
+import { and, eq, gt, gte, inArray, sql } from "drizzle-orm";
 import { db, scores } from "../db";
 import type { SortColumnWithDirection } from "../types/types";
 import { DEFAULT_QUERY_PROPS } from "./constants";
 import type { ScoreQueryProps } from "./types";
-import type { NewScore } from "../db/types";
+import type { NewScore, Score } from "../db/types";
+import { DATE_JAN_1_1970 } from "../components/scores-modal/scores-modal";
+
+const sortFns = {
+  gameTime: (a: Score, b: Score) => {
+    const value =
+      (b.createdAt ?? DATE_JAN_1_1970).getTime() -
+      (a.createdAt ?? DATE_JAN_1_1970).getTime();
+    return value;
+  },
+  mismatches: (a: Score, b: Score) => {
+    const value = (b.mismatches ?? 0) - (a.mismatches ?? 0);
+    return value;
+  },
+}
 
 // getCategory(deckSize): returns list of scores matching deck size
 const getAllScores = () => db.select().from(scores);
@@ -12,9 +26,7 @@ const buildOrderBySqlString = (
   sortByColumnHistory: Array<SortColumnWithDirection>
 ) => {
   return sortByColumnHistory
-    .map(({ column, direction }) =>
-      direction === "asc" ? `"${column}" asc` : `"${column}" desc`
-    )
+    .map(({ column, direction }) => `"${column}" ${direction}`)
     .join(" ");
 };
 
@@ -26,7 +38,7 @@ const clearScoresTable = () => db.delete(scores);
 //   return result
 // }
 
-const queryScores = ({
+const queryScores = async ({
   pageNumber,
   resultsPerPage,
   deckSizesFilter,
@@ -38,17 +50,91 @@ const queryScores = ({
   sortByColumnHistory =
     sortByColumnHistory ?? DEFAULT_QUERY_PROPS.sortByColumnHistory;
 
-  return (
-    db
-      .select()
-      .from(scores)
-      // grab scores with deckSize in our array of deckSizes
-      .where(inArray(scores.deckSize, deckSizesFilter))
-      // sort using multiple sort column priorities
-      .orderBy(sql`${buildOrderBySqlString(sortByColumnHistory)}`)
-      .limit(resultsPerPage)
-      .offset((pageNumber - 1) * resultsPerPage)
-  );
+  const sqlOrderBy = sql`${buildOrderBySqlString(sortByColumnHistory)}`;
+  console.log({
+    pageNumber,
+    resultsPerPage,
+    deckSizesFilter,
+    sortByColumnHistory,
+    sqlOrderBy,
+  });
+
+  const test = await db.query.scores.findMany({
+    where: inArray(scores.deckSize, deckSizesFilter),
+    orderBy: sqlOrderBy,
+    // offset: (pageNumber - 1) * resultsPerPage,
+    // limit: resultsPerPage,
+  });
+  // console.log('query:', {test});
+  // const sortBy
+  return test.slice((pageNumber - 1) * resultsPerPage, pageNumber * resultsPerPage);
+
+  // return (
+  //   db
+  //     .select()
+  //     .from(scores)
+  //     // grab scores with deckSize in our array of deckSizes
+  //     .where(inArray(scores.deckSize, deckSizesFilter))
+  //     // sort using multiple sort column priorities
+  //     // .orderBy(sqlOrderBy)
+  //     .offset((pageNumber - 1) * resultsPerPage)
+  //     .limit(resultsPerPage)
+  // );
+};
+
+/*  TODO: figure out how to filter results properly
+ *  idea: fetch scoreCounts, then use these numbers to sort the scores query 
+ *  (when we are sorting by time/mismatches percentiles
+ *  
+ *  e.g. query the first 10 best mismatches from deckSize: 18
+ *  - get the scoreCounts for deckSize: 18
+ *  - sort by lessThan obj values, according to our query sorting params
+ *  - ** use only one sorting param to make it simpler?? **
+ *  - then we know the mismatces of the scores we want to get
+ *  - so then query scores for these mismatches, 
+ *  - then sort by something else? in case we get >10 scores
+ *  e.g. query the SECOND 10 best mismatches from deckSize: 18
+ *  - we will use an id cursor that will be the next in the list from the last query
+ *  - i.e. if last query ended  with 12 results, and it sent 10 (+ 1 for the pointer),
+ *      we use that pointer.id as where our next "page" will start
+ * */
+const queryScores2 = async ({
+  pointerId = -1,
+  resultsPerPage,
+  deckSizesFilter,
+  sortByColumnHistory,
+}: Partial<{
+    pointerId: number; 
+    resultsPerPage: number;
+    deckSizesFilter: number[];
+    sortByColumnHistory: SortColumnWithDirection[]
+  }>) => {
+  resultsPerPage = resultsPerPage ?? DEFAULT_QUERY_PROPS.resultsPerPage;
+  deckSizesFilter = deckSizesFilter ?? DEFAULT_QUERY_PROPS.deckSizesFilter;
+  sortByColumnHistory =
+    sortByColumnHistory ?? DEFAULT_QUERY_PROPS.sortByColumnHistory;
+
+  const sqlOrderBy = sql`${buildOrderBySqlString(sortByColumnHistory)}`;
+  console.log({
+    pointer: pointerId,
+    resultsPerPage,
+    deckSizesFilter,
+    sortByColumnHistory,
+    sqlOrderBy,
+  });
+
+  const queriedScores = await db
+    .select()
+    .from(scores)
+    // grab scores with deckSize in our array of deckSizes
+    .where(and(inArray(scores.deckSize, deckSizesFilter), gte(scores.id, pointerId)))
+    // sort using multiple sort column priorities
+    .orderBy(sqlOrderBy)
+    .limit(resultsPerPage + 1);
+
+  return { scores: queriedScores.slice(0, resultsPerPage),
+    nextPointer: queriedScores[resultsPerPage].id
+};
 };
 
 const getScoresByDeckSize = (deckSize: number) =>
@@ -62,6 +148,7 @@ const createScore = async (newScore: NewScore) => {
 const scoreService = {
   clear: clearScoresTable,
   query: queryScores,
+  query2: queryScores2,
   getByDeckSize: getScoresByDeckSize,
   create: createScore,
   getAll: getAllScores,
