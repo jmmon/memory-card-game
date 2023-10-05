@@ -104,7 +104,7 @@ export default component$(
 
     // runs when the clicked item is a card
     const handleClickUnflippedCard = $((cardId: number) => {
-      console.log("handleClickUnflippedCard", { cardId });
+      // console.log("handleClickUnflippedCard", { cardId });
 
       const newSelected = v3CardUtils.handleAddCardToSelected(
         [...gameContext.game.selectedCardIds],
@@ -311,16 +311,16 @@ export default component$(
 
         // detect if resize caused the task to run
         if (isDeckChanged) {
-          console.log("~~ uvt$ deckSize changed:", {
-            last: lastDeckSize.value,
-            new: newDeckSize,
-          });
+          // console.log("~~ uvt$ deckSize changed:", {
+          //   last: lastDeckSize.value,
+          //   new: newDeckSize,
+          // });
           adjustDeckSize(newDeckSize);
           return;
         }
 
         if (isBoardRefreshed) {
-          console.log("~~ uvt$ refreshBoard");
+          // console.log("~~ uvt$ refreshBoard");
           lastRefresh.value = newRefresh;
           gameContext.calculateAndResizeBoard(
             boardRef.value as HTMLDivElement,
@@ -330,7 +330,7 @@ export default component$(
         }
 
         // runs on mount only
-        console.log("~~ uvt$ should be only on mount!");
+        // console.log("~~ uvt$ should be only on mount!");
 
         await gameContext.calculateAndResizeBoard(
           boardRef.value as HTMLDivElement,

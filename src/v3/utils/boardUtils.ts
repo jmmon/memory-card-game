@@ -65,12 +65,12 @@ export const calculateLayouts = (
     rowHeight: boardHeight / rows,
   };
 
-  console.log({
-    boardLayout,
-    cardLayout,
-    columns,
-    rows,
-  });
+  // console.log({
+  //   boardLayout,
+  //   cardLayout,
+  //   columns,
+  //   rows,
+  // });
 
   return { cardLayout, boardLayout };
 };

@@ -1,29 +1,32 @@
 import type { Signal, PropFunction, QwikChangeEvent } from "@builder.io/qwik";
-import { component$, useContext, Slot, useSignal } from "@builder.io/qwik";
+import { $, component$, useContext, Slot, useSignal } from "@builder.io/qwik";
 import Modal from "../modal/modal";
 import GameSettings from "./game-settings";
 import { GameContext } from "~/v3/context/gameContext";
-import type { GameSettings as TGameSettings } from "~/v3/types/types";
+import type { iGameSettings } from "~/v3/types/types";
 
 export const COLUMN_GAP = "gap-0.5 md:gap-1";
 export const REQUIRES_RESTART = "Requires restart to take effect.";
 
 export default component$(() => {
   const gameContext = useContext(GameContext);
-
-  const newSettings = useSignal<TGameSettings>({
+  const unsavedSettings = useSignal<iGameSettings>({
     ...gameContext.settings,
   });
+
+  const hideModal$ = $(() => {
+    // resync when hiding modal
+    unsavedSettings.value = gameContext.settings;
+    gameContext.hideSettings();
+  });
+
   return (
     <Modal
       isShowing={gameContext.interface.settingsModal.isShowing}
-      hideModal$={() => {
-        newSettings.value = gameContext.settings;
-        gameContext.hideSettings();
-      }}
+      hideModal$={hideModal$}
       title="Game Settings"
     >
-      <GameSettings settings={newSettings} />
+      <GameSettings hideModal$={hideModal$} unsavedSettings={unsavedSettings} />
     </Modal>
   );
 });
@@ -88,7 +91,7 @@ export const Lock = component$(
 );
 
 export const DeckSizeSlider = component$<{
-  settings: Signal<TGameSettings>;
+  settings: Signal<iGameSettings>;
   isLocked?: boolean;
   for?: string;
 }>((props) => {

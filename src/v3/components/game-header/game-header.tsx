@@ -74,6 +74,13 @@ export default component$(
         gameContext.settings.shuffleBoardAfterMismatches;
       return gameContext.interface.mismatchAnimation && extraMismatchFeatures;
     });
+
+    // useTask$(({ track }) => {
+    //   const successes = track(() => gameContext.game.successfulPairs);
+    //   const mismatches = track(() => gameContext.game.mismatchPairs);
+    //   console.log('track in header:', { successes, mismatches });
+    // });
+
     return (
       <header
         class={`mx-auto text-center text-xs md:text-sm flex justify-around w-full h-min`}
@@ -87,7 +94,9 @@ export default component$(
           )}
           <TimerHeaderComponent />
         </HeaderSection>
-        <Button onClick$={showSettings$}><span class="text-slate-100">Settings</span></Button>
+        <Button onClick$={showSettings$}>
+          <span class="text-slate-100">Settings</span>
+        </Button>
         <HeaderSection>
           <code
             class={`bg-slate-800 ${CODE_TEXT_LIGHT} flex flex-col w-[11em] gap-1 ${CODE_PADDING}`}

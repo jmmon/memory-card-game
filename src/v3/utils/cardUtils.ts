@@ -1,4 +1,5 @@
 import { CARD_RATIO } from "../components/board/board";
+import { BOARD } from "../constants/board";
 import type { BoardLayout, CardLayout, Coords, Pair, ShuffleTransform, Card } from "../types/types";
 
 /*
@@ -6,7 +7,6 @@ import type { BoardLayout, CardLayout, Coords, Pair, ShuffleTransform, Card } fr
  * range: 0-1
  * */
 export const ENLARGED_CARD__SCALE_RATIO_VS_LIMITING_DIMENSION = 0.8;
-export const CARD_RATIO_VS_CONTAINER = 0.9;
 export const DEFAULT_SHUFFLE_TRANSFORM: ShuffleTransform = { x: 0, y: 0 };
 
 // find cardId inside pairs
@@ -81,11 +81,11 @@ const generateScaleTransformToCenter = (
   if (isWidthTheLimitingDimension) {
     const targetWidthPx =
       boardLayout.width * ENLARGED_CARD__SCALE_RATIO_VS_LIMITING_DIMENSION;
-    return targetWidthPx / (cardLayout.width * CARD_RATIO_VS_CONTAINER);
+    return targetWidthPx / (cardLayout.width * BOARD.CARD_RATIO_VS_CONTAINER);
   } else {
     const targetHeightPx =
       boardLayout.height * ENLARGED_CARD__SCALE_RATIO_VS_LIMITING_DIMENSION;
-    return targetHeightPx / (cardLayout.height * CARD_RATIO_VS_CONTAINER);
+    return targetHeightPx / (cardLayout.height * BOARD.CARD_RATIO_VS_CONTAINER);
   }
 };
 

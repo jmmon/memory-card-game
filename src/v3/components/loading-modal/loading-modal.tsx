@@ -1,5 +1,5 @@
 import { component$, $, useContext} from "@builder.io/qwik";
-import Modal from "../modal/modal";
+import Modal from "../templates/modal/modal";
 import { GameContext } from "~/v3/context/gameContext";
 
 export default component$(() => {

@@ -1,6 +1,7 @@
 import { component$, useStyles$ } from "@builder.io/qwik";
 import styles from "./styles.css?inline";
-import Game from "~/v3/components/game/game";
+import Game from "~/v3/components/atomic/pages/game/game";
+
 // import SubmitScoreModal from "~/v3/components/submit-score-modal/submit-score-modal";
 
 export default component$(() => {

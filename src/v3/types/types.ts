@@ -29,7 +29,7 @@ export type Card = {
   localSVG?: string;
 };
 
-export type GameSettings = {
+export type iGameSettings = {
   cardFlipAnimationDuration: number;
   maxAllowableMismatches: number;
 
@@ -89,13 +89,13 @@ export type GameData = {
   shufflingState: number;
 };
 
-export type GameContext = {
+export type iGameContext = {
   boardLayout: BoardLayout;
   cardLayout: CardLayout;
 
   game: GameData;
 
-  settings: GameSettings;
+  settings: iGameSettings;
 
   interface: {
     successAnimation: boolean;
@@ -113,7 +113,7 @@ export type GameContext = {
   };
   shuffleCardPositions: QRL<() => void>;
   sliceDeck: QRL<() => void>;
-  resetGame: QRL<(settings?: Partial<GameSettings>) => void>;
+  resetGame: QRL<(settings?: Partial<iGameSettings>) => void>;
   isGameEnded: QRL<
     () =>
       | { isEnded: false }

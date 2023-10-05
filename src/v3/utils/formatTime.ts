@@ -20,3 +20,6 @@ export const truncateMs = (ms: number, limit: number) => {
         .padStart(limit, "0")}`
     : "";
 };
+
+export const roundToDecimals = (number: number, decimals: number = 1) =>
+  Math.round(number * 10 ** decimals) / 10 ** decimals;

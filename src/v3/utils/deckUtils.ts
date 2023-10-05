@@ -87,10 +87,10 @@ function unbuildArrOfPairs(arrOfPairs: Array<Card[]>) {
 
 function sliceRandomPairsFromDeck(deck: Card[]) {
   const pairs = buildArrOfPairs(deck);
-  console.log("fn shuffleByPairs:", { deck, pairs });
+  // console.log("fn shuffleByPairs:", { deck, pairs });
   const shuffledDeckOfPairs = v3Shuffle_FY_algo(pairs);
   const shuffledPairs = unbuildArrOfPairs(shuffledDeckOfPairs);
-  console.log({ shuffledDeckOfPairs, shuffledPairs });
+  // console.log({ shuffledDeckOfPairs, shuffledPairs });
 
   return shuffledPairs;
 }

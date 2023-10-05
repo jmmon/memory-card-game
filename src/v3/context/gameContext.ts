@@ -1,4 +1,4 @@
 import { createContextId } from "@builder.io/qwik";
-import type { GameContext as TGameContext } from "../types/types";
+import type { iGameContext} from "../types/types";
 
-export const GameContext = createContextId<TGameContext>('GameContext');
+export const GameContext = createContextId<iGameContext>('GameContext');

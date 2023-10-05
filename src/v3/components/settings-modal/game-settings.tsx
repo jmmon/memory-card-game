@@ -1,16 +1,16 @@
-import { component$, useContext } from "@builder.io/qwik";
-import type { Signal } from "@builder.io/qwik";
+import { $, component$, useContext } from "@builder.io/qwik";
+import type { PropFunction, Signal } from "@builder.io/qwik";
 import Button from "../button/button";
 import {
-  Lock,
   COLUMN_GAP,
   REQUIRES_RESTART,
-  SettingsRow,
-  DeckSizeSlider,
 } from "./settings-modal";
-import type { GameSettings } from "~/v3/types/types";
+import type { iGameSettings } from "~/v3/types/types";
 import { GameContext } from "~/v3/context/gameContext";
 import { FormattedTime } from "../formatted-time/formatted-time";
+import ModalRow from "../atomic/atoms/modal-row/modal-row";
+import InputLock from "../atomic/atoms/input-lock/input-lock";
+import DeckSizeSlider from "../atomic/molecules/deck-size-slider/deck-size-slider";
 
 // animation settings:
 // e.g. flip card speed,
@@ -20,15 +20,27 @@ import { FormattedTime } from "../formatted-time/formatted-time";
 // shuffle pause time,
 
 export default component$(
-  ({ settings }: { settings: Signal<GameSettings> }) => {
+  ({
+    unsavedSettings,
+    hideModal$,
+  }: {
+    unsavedSettings: Signal<iGameSettings>;
+    hideModal$: PropFunction<() => void>;
+  }) => {
     const gameContext = useContext(GameContext);
+
+    const resetSettings = $(async (newSettings?: Signal<iGameSettings>) => {
+      await gameContext.resetGame(newSettings ? newSettings.value : undefined);
+      // resync and hide modal after new settings are saved
+      hideModal$();
+    });
 
     return (
       <div class="flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%]">
         <div class="flex-grow flex justify-evenly items-center">
           <div class="justify-center flex gap-[2%] items-center tooltip">
             <Button onClick$={() => gameContext.startShuffling(5)}>
-<span class="text-slate-100">Shuffle Deck</span>
+              <span class="text-slate-100">Shuffle Deck</span>
             </Button>
             <span class="tooltiptext">Shuffle the card positions.</span>
           </div>
@@ -51,8 +63,8 @@ export default component$(
         <div class={` flex flex-col md:flex-row justify-center ${COLUMN_GAP} `}>
           <div class={`flex-grow flex flex-col ${COLUMN_GAP}  items-center`}>
             {/* left column */}
-            <SettingsRow>
-              <Lock
+            <ModalRow>
+              <InputLock
                 text="Lock Board:"
                 tooltip="Prevent board layout from changing."
                 onChange$={(e) => {
@@ -61,33 +73,33 @@ export default component$(
                   ).checked;
                 }}
               />
-            </SettingsRow>
-            <SettingsRow>
-              <Lock
+            </ModalRow>
+            <ModalRow>
+              <InputLock
                 text="Lock Deck:"
                 tooltip={`Prevent deck size from changing. ${REQUIRES_RESTART}`}
                 onChange$={(e) => {
-                  settings.value = {
-                    ...settings.value,
+                  unsavedSettings.value = {
+                    ...unsavedSettings.value,
                     deck: {
-                      ...settings.value.deck,
+                      ...unsavedSettings.value.deck,
                       isLocked: (e.target as HTMLInputElement).checked,
                     },
                   };
                 }}
               />
-            </SettingsRow>
+            </ModalRow>
 
-            <SettingsRow>
+            <ModalRow>
               <DeckSizeSlider
-                settings={settings}
+                settings={unsavedSettings}
                 isLocked={gameContext.settings.deck.isLocked}
                 for="game-settings"
               />
-            </SettingsRow>
+            </ModalRow>
 
-            <SettingsRow>
-              <Lock
+            <ModalRow>
+              <InputLock
                 text="Show Selected Card Ids"
                 tooltip="Show unique card ids for currently selected cards"
                 onChange$={(e) => {
@@ -96,9 +108,9 @@ export default component$(
                   ).checked;
                 }}
               />
-            </SettingsRow>
-            <SettingsRow>
-              <Lock
+            </ModalRow>
+            <ModalRow>
+              <InputLock
                 text="Show Dimensions"
                 tooltip="Show board layout and window dimensions."
                 onChange$={(e) => {
@@ -108,8 +120,8 @@ export default component$(
                 }}
                 value={gameContext.settings.interface.showDimensions}
               />
-            </SettingsRow>
-            <SettingsRow>
+            </ModalRow>
+            <ModalRow>
               <div class="w-full flex justify-between tooltip">
                 <label class="text-slate-100">Played Time:</label>
                 <FormattedTime timeMs={gameContext.timer.state.time} />
@@ -117,7 +129,7 @@ export default component$(
                   Total un-paused play time for this round.
                 </span>
               </div>
-            </SettingsRow>
+            </ModalRow>
           </div>
 
           {/* right column */}
@@ -219,23 +231,24 @@ export default component$(
           <div class="justify-center flex  gap-[2%] items-center tooltip">
             <Button
               onClick$={() => {
-// only resetting timer... should reset the cards as well
-                gameContext.resetGame();
+                resetSettings();
               }}
             >
-<span class="text-slate-100">Reset Game</span>
+              <span class="text-slate-100">Reset Without Saving</span>
             </Button>
-            <span class="tooltiptext">Reset the game, keeping current settings.</span>
+            <span class="tooltiptext">
+              Reset the game, keeping current settings.
+            </span>
           </div>
         </div>
         <div class="flex-grow flex justify-evenly items-center">
           <div class="justify-center flex  gap-[2%] items-center tooltip">
             <Button
               onClick$={() => {
-                gameContext.resetGame(settings.value);
+                resetSettings(unsavedSettings);
               }}
             >
-<span class="text-slate-100">Save & Restart</span>
+              <span class="text-slate-100">Save & Restart</span>
             </Button>
             <span class="tooltiptext">Save current settings and restart.</span>
           </div>

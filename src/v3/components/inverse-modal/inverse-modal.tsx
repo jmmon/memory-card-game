@@ -1,6 +1,6 @@
 import type { PropFunction } from "@builder.io/qwik";
 import { Slot, component$, useStylesScoped$ } from "@builder.io/qwik";
-import { ModalHeader } from "../modal/modal";
+import { ModalHeader } from "../molecules/modal-header/modal-header";
 
 export default component$<{
   isShowing: boolean;

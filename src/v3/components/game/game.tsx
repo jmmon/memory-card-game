@@ -19,8 +19,8 @@ import GameHeader from "../game-header/game-header";
 import GameEndModal from "../game-end-modal/game-end-modal";
 import type {
   GameData,
-  GameSettings,
-  GameContext as TGameContext,
+  iGameSettings,
+  iGameContext as TGameContext,
 } from "~/v3/types/types";
 import { formattedDeck } from "~/v3/utils/cards";
 import deckUtils from "~/v3/utils/deckUtils";
@@ -34,9 +34,8 @@ import {
   useInterval,
   useTimeout,
 } from "~/v3/utils/useTimeout";
-import FaceCardSymbols from "../playing-card-components/face-card-symbols";
-import CardSymbols from "../playing-card-components/card-symbols";
-// import dbService from "../services/db.service";
+import FaceCardSymbols from "../playing-card-components/symbols/face-card-symbols";
+import CardSymbols from "../playing-card-components/symbols/card-symbols";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
 const AUTO_SHUFFLE_INTERVAL = 10000;
@@ -153,7 +152,7 @@ const INITIAL_STATE = {
   shuffleCardPositions: $(function (this: TGameContext) {
     // shuffle and set new positions, save old positions
     const newCards = deckUtils.shuffleCardPositions(this.game.cards);
-    console.log("shuffleCardPositions:", { newCards });
+    // console.log("shuffleCardPositions:", { newCards });
     this.game.cards = newCards;
   }),
 
@@ -235,24 +234,11 @@ const INITIAL_STATE = {
     this.timer.stop();
     this.interface.endOfGameModal.isWin = isWin;
     this.interface.endOfGameModal.isShowing = true;
-
-    // TODO: run this as a completion modal
-    // allow user to input their initials
-    // allow them to input email  (not saved to db, but hashed for UUID)
-    // combine both email + username to create UUID? or have two separate identifiers?
-    // might be cool if use the same email but different initials and the color matches
-    // dbService.createScore({
-    //   deckSize: this.settings.deck.size,
-    //   gameTime: `${this.timer.state.runningTime} millisecond`,
-    //   mismatches: this.game.mismatchPairs.length,
-    //   userId: (Math.random() * 1000000).toFixed(0),
-    //   initials: "joe",
-    // });
   }),
 
   resetGame: $(async function (
     this: TGameContext,
-    settings?: Partial<GameSettings>
+    settings?: Partial<iGameSettings>
   ) {
     if (settings) {
       this.settings = {
@@ -260,15 +246,15 @@ const INITIAL_STATE = {
         ...settings,
       };
     }
+
     this.game = INITIAL_GAME_STATE;
     await this.timer.reset();
-    this.initializeDeck();
+    await this.initializeDeck();
   }),
 };
 
 export default component$(() => {
   const timer = useTimer();
-  console.log("game render");
   const gameContext = useStore<TGameContext>(
     {
       ...INITIAL_STATE,
@@ -334,7 +320,6 @@ export default component$(() => {
    * - set up listeners
    * ============================ */
   useVisibleTask$(({ cleanup }) => {
-    console.log("setup visibilitychange listener");
     let hidden = "hidden";
     let state = 0;
 
@@ -369,7 +354,6 @@ export default component$(() => {
     }
 
     function onchange(evt: any) {
-      console.log("onchange runs", { evt });
       const v = "visible",
         h = "hidden",
         evtMap: { [key: string]: string } = {
@@ -406,7 +390,6 @@ export default component$(() => {
     }
 
     cleanup(() => {
-      console.log("cleanup visibilitychange listener");
       if (state === 1) {
         document.removeEventListener("visibilitychange", onchange);
       } else if (state === 2) {
