@@ -49,7 +49,52 @@ const INITIAL_GAME_STATE: GameData = {
   shufflingState: 0,
 };
 
-const INITIAL_STATE = {
+export const INITIAL_GAME_SETTINGS: iGameSettings = {
+  cardFlipAnimationDuration: 800,
+
+  /* ===================
+   * NOT IMPLEMENTED
+   * =================== */
+  maxAllowableMismatches: -1,
+
+  /* shuffle board after x mismatches
+   *  0 = off
+   *  1+ = every n mismatches
+   * */
+  shuffleBoardAfterMismatches: 0,
+  /* shuffle board after successful pair */
+  shuffleBoardAfterPair: false,
+  /* shuffle board after success OR mismatch */
+  shuffleBoardAfterRound: false,
+
+  /* shuffle picked cards after placed back down after mismatch */
+  shufflePickedAfterMismatch: false,
+
+  /* recalculate board dimensions (eliminate empty spaces) on pair, on mismatch
+   * */
+  reorgnanizeBoardOnPair: false,
+  reorgnanizeBoardOnMismatch: false,
+  /* ===================
+   * end NOT IMPLEMENTED
+   * =================== */
+
+  resizeBoard: false,
+
+  deck: {
+    size: GAME.DEFAULT_CARD_COUNT,
+    isLocked: false,
+    MINIMUM_CARDS: 6,
+    MAXIMUM_CARDS: 52,
+    fullDeck: formattedDeck,
+  },
+
+  interface: {
+    showSelectedIds: false,
+    showDimensions: false,
+  },
+};
+
+export const INITIAL_STATE = {
   boardLayout: {
     width: 291.07,
     height: 281.81,
@@ -69,52 +114,11 @@ const INITIAL_STATE = {
     colGapPercent: 0,
     rowGapPercent: 0,
   },
+
   game: { ...INITIAL_GAME_STATE },
 
-  settings: {
-    cardFlipAnimationDuration: 800,
+  settings: { ...INITIAL_GAME_SETTINGS },
 
-    /* ===================
-     * NOT IMPLEMENTED
-     * =================== */
-    maxAllowableMismatches: -1,
-
-    /* shuffle board after x mismatches
-     *  0 = off
-     *  1+ = every n mismatches
-     * */
-    shuffleBoardAfterMismatches: 0,
-    /* shuffle board after successful pair */
-    shuffleBoardAfterPair: false,
-    /* shuffle board after success OR mismatch */
-    shuffleBoardAfterRound: false,
-
-    /* shuffle picked cards after placed back down after mismatch */
-    shufflePickedAfterMismatch: false,
-
-    /* recalculate board dimensions (eliminate empty spaces) on pair, on mismatch
-     * */
-    reorgnanizeBoardOnPair: false,
-    reorgnanizeBoardOnMismatch: false,
-    /* ===================
-     * end NOT IMPLEMENTED
-     * =================== */
-
-    resizeBoard: false,
-
-    deck: {
-      size: GAME.DEFAULT_CARD_COUNT,
-      isLocked: false,
-      MINIMUM_CARDS: 6,
-      MAXIMUM_CARDS: 52,
-      fullDeck: formattedDeck,
-    },
-
-    interface: {
-      showSelectedIds: false,
-      showDimensions: false,
-    },
-  },
   interface: {
     successAnimation: false,
     mismatchAnimation: false,
@@ -252,7 +256,8 @@ const INITIAL_STATE = {
   }),
 };
 
-export default component$(() => {
+export default component$(({ settings }: { settings: iGameSettings }) => {
+  console.log({ settings });
   const timer = useTimer();
   const gameContext = useStore<iGameContext>(
     {

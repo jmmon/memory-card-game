@@ -30,6 +30,7 @@ export type Card = {
 };
 
 export type iGameSettings = {
+  [key: string]: any;
   cardFlipAnimationDuration: number;
   maxAllowableMismatches: number;
 
@@ -55,6 +56,8 @@ export type iGameSettings = {
     showDimensions: boolean;
   };
 };
+
+// export const iGameSettingsKeys =
 
 export type BoardLayout = {
   width: number;
