@@ -1,6 +1,12 @@
-import { CARD_RATIO } from "../components/board/board";
 import { BOARD } from "../constants/board";
-import type { BoardLayout, CardLayout, Coords, Pair, ShuffleTransform, Card } from "../types/types";
+import type {
+  BoardLayout,
+  CardLayout,
+  Coords,
+  Pair,
+  ShuffleTransform,
+  Card,
+} from "../types/types";
 
 /*
  * compared to board, how big will the enlarged card (flipped card) be?
@@ -10,11 +16,13 @@ export const ENLARGED_CARD__SCALE_RATIO_VS_LIMITING_DIMENSION = 0.8;
 export const DEFAULT_SHUFFLE_TRANSFORM: ShuffleTransform = { x: 0, y: 0 };
 
 // find cardId inside pairs
-function isCardInPairs(pairs: Pair[], cardId: number) {
-  return pairs.join(",").includes(String(cardId));
-}
+const isCardInPairs = (pairs: Pair[], cardId: number) =>
+  pairs.join(",").includes(String(cardId));
 
-function getIdIfNotRemoved(pairs: Pair[], clickedId: number):number | undefined {
+function getIdIfNotRemoved(
+  pairs: Pair[],
+  clickedId: number
+): number | undefined {
   // check if target is an empty slot
   const isRemoved = isCardInPairs(pairs, clickedId);
   if (isRemoved) return undefined;
@@ -23,9 +31,7 @@ function getIdIfNotRemoved(pairs: Pair[], clickedId: number):number | undefined 
 
 function handleAddCardToSelected(selected: number[], id: number) {
   const isSameCardClicked = selected.length === 1 && id === selected[0];
-
   if (isSameCardClicked) return selected;
-
   return [...selected, id];
 }
 
@@ -36,9 +42,8 @@ function checkMatch(cardA: Card | undefined, cardB: Card | undefined) {
   return cardA.pairId === cardB.id && cardB.pairId === cardA.id;
 }
 
-function findCardById(cards: Card[], id: number) {
-  return cards.find((card) => card.id === id);
-}
+const findCardById = (cards: Card[], id: number) =>
+  cards.find((card) => card.id === id);
 
 /*
  * getXYFromPosition
@@ -59,44 +64,44 @@ const generateShuffleTranslateTransformPercent = (
   cardLayout: CardLayout,
   newCoords: Coords
 ) => {
-  const colGap =
-    (1 / 2) * cardLayout.colGapPercent + newCoords.x * cardLayout.colGapPercent;
-  const rowGap =
-    (1 / 2) * cardLayout.rowGapPercent + newCoords.y * cardLayout.rowGapPercent;
+  const colGap = (newCoords.x + 0.5) * cardLayout.colGapPercent;
+  const rowGap = (newCoords.y + 0.5) * cardLayout.rowGapPercent;
 
   const x = newCoords.x * 100 + colGap;
   const y = newCoords.y * 100 + rowGap;
   return `translate(${x}%, ${y}%)`;
 };
 
-const generateScaleTransformToCenter = (
+const getScaleFromDimensions = (
+  boardDimension: number,
+  cardDimension: number
+) =>
+  (boardDimension * ENLARGED_CARD__SCALE_RATIO_VS_LIMITING_DIMENSION) /
+  (cardDimension * BOARD.CARD_RATIO_VS_CONTAINER);
+
+const generateScaleTransformPercentToCenter = (
   boardLayout: BoardLayout,
   cardLayout: CardLayout
 ) => {
   const boardRatio = boardLayout.width / boardLayout.height;
 
-  const isWidthTheLimitingDimension = boardRatio < CARD_RATIO;
+  const isWidthTheLimitingDimension = boardRatio < BOARD.CARD_RATIO;
   // console.log({ boardRatio, isWidthTheLimitingDimension, CARD_RATIO });
 
   if (isWidthTheLimitingDimension) {
-    const targetWidthPx =
-      boardLayout.width * ENLARGED_CARD__SCALE_RATIO_VS_LIMITING_DIMENSION;
-    return targetWidthPx / (cardLayout.width * BOARD.CARD_RATIO_VS_CONTAINER);
+    return getScaleFromDimensions(boardLayout.width, cardLayout.width);
   } else {
-    const targetHeightPx =
-      boardLayout.height * ENLARGED_CARD__SCALE_RATIO_VS_LIMITING_DIMENSION;
-    return targetHeightPx / (cardLayout.height * BOARD.CARD_RATIO_VS_CONTAINER);
+    return getScaleFromDimensions(boardLayout.height, cardLayout.height);
   }
 };
 
-const generateTranslateTransformToCenter = (
+const generateTranslateTransformPercentToCenter = (
   totalSlots: number,
-  currentPosition: number,
+  currentPosition: number
 ) => {
   const maximumSlotsToTransverse = (totalSlots - 1) / 2;
   const slotsToTransverse = maximumSlotsToTransverse - currentPosition;
-  const translatePercent = 100 * slotsToTransverse;
-  return translatePercent;
+  return 100 * slotsToTransverse;
 };
 
 /*
@@ -111,22 +116,27 @@ const generateFlipTranslateTransform = (
 ) => {
   const isOnLeftSide = newCoords.x < boardLayout.columns / 2;
 
-  const translateX = generateTranslateTransformToCenter(
+  const translateX = generateTranslateTransformPercentToCenter(
     boardLayout.columns,
-    newCoords.x,
+    newCoords.x
   );
 
-  const translateY = generateTranslateTransformToCenter(
+  const translateY = generateTranslateTransformPercentToCenter(
     boardLayout.rows,
-    newCoords.y,
+    newCoords.y
   );
 
-  const scale = generateScaleTransformToCenter(boardLayout, cardLayout);
+  const scale = generateScaleTransformPercentToCenter(boardLayout, cardLayout);
 
-  return {translateX, translateY, rotateY: isOnLeftSide ? "180deg" : "-180deg", scale}
+  return {
+    translateX,
+    translateY,
+    rotateY: isOnLeftSide ? "180deg" : "-180deg",
+    scale,
+  };
 };
 
-const v3CardUtils = {
+const cardUtils = {
   isCardInPairs,
   getIdIfNotRemoved,
   handleAddCardToSelected,
@@ -134,9 +144,7 @@ const v3CardUtils = {
   findCardById,
   getXYFromPosition,
   generateShuffleTranslateTransformPercent,
-  generateScaleTransformToCenter,
-  generateTranslateTransformToCenter,
   generateFlipTranslateTransform,
-}
+};
 
-export default v3CardUtils;
+export default cardUtils;

@@ -3,19 +3,18 @@ import type { Card } from "../types/types";
 const FULL_DECK_COUNT = 52;
 
 // generates 5 random numbers and concats them as a string
-function genId  (length = 5) {
-  return new Array(length)
+const genId = (length = 5) =>
+  new Array(length)
     .fill(0)
     .map((_, i) => {
       const num = Math.floor(Math.random() * 10);
-      // should prevent 0's from being the first digit, so all nums should be 5 digits
+      // for first digit, make sure it's not 0
       return i === 0 ? num || 1 : num;
     })
     .join("");
-}
 
 //backup generator
-function v3GenerateDeck (total: number = FULL_DECK_COUNT) {
+function v3GenerateDeck(total: number = FULL_DECK_COUNT) {
   const unshuffledCards: Card[] = [];
   // build cards, pair by pair
   for (let i = 0; i < total / 2; i++) {
@@ -48,8 +47,8 @@ function v3GenerateDeck (total: number = FULL_DECK_COUNT) {
 
 // this shuffles indices into the remaining array
 function v3Shuffle_FY_algo<T>(_array: T[]): T[] {
-  // walk backward
   const array = [..._array];
+  // walk backward
   for (let i = array.length - 1; i > 0; i--) {
     // pick random index from 'remaining' indices
     const j = Math.floor(Math.random() * (i + 1));
@@ -67,16 +66,27 @@ function v3Shuffle_FY_algo<T>(_array: T[]): T[] {
 
 // const buildPairType = (c1: V3Card, c2: V3Card) => `${c1.id}:${c2.id}`
 
-function buildArrOfPairs(deck: Card[]) {
-  const pairs = [];
-  for (let i = 0; i < deck.length; i += 2) {
-    const thisPair = [deck[i], deck[i + 1]];
-    pairs.push(thisPair);
-  }
-  return pairs;
+function refreshPairsId(pair: [Card, Card]) {
+  const newId = genId();
+  const id = Number(newId + "0");
+  const pairId = Number(newId + "1");
+  return pair.map((card, i) => ({
+    ...card,
+    id: i === 0 ? id : pairId,
+    pairId: i === 0 ? pairId : id,
+  })) as [Card, Card];
 }
 
-function unbuildArrOfPairs(arrOfPairs: Array<Card[]>) {
+function buildArrOfPairs(fullDeck: Card[]) {
+  const pairs = [];
+  for (let i = 0; i < fullDeck.length; i += 2) {
+    const thisPair = [fullDeck[i], fullDeck[i + 1]];
+    pairs.push(thisPair);
+  }
+  return pairs as Array<[Card, Card]>;
+}
+
+function unbuildArrOfPairs(arrOfPairs: Array<[Card, Card]>) {
   const deck = [];
   for (let i = 0; i < arrOfPairs.length; i++) {
     const thisPair = arrOfPairs[i];
@@ -85,10 +95,17 @@ function unbuildArrOfPairs(arrOfPairs: Array<Card[]>) {
   return deck;
 }
 
-function sliceRandomPairsFromDeck(deck: Card[]) {
-  const pairs = buildArrOfPairs(deck);
+function shuffleDeckAndRefreshIds(fullDeck: Card[]) {
+  const pairs = buildArrOfPairs(fullDeck);
+
+  // refresh card ids between games, hopefully fixes the render issue
+  // of cards missing after game reset
+  const withRefreshedIds = pairs.map((pair) => refreshPairsId(pair));
+
   // console.log("fn shuffleByPairs:", { deck, pairs });
-  const shuffledDeckOfPairs = v3Shuffle_FY_algo(pairs);
+
+  // shuffle the array of pairs
+  const shuffledDeckOfPairs = v3Shuffle_FY_algo(withRefreshedIds);
   const shuffledPairs = unbuildArrOfPairs(shuffledDeckOfPairs);
   // console.log({ shuffledDeckOfPairs, shuffledPairs });
 
@@ -98,7 +115,7 @@ function sliceRandomPairsFromDeck(deck: Card[]) {
 /*
  * assign new random positions to deck of cards, and sort  by position
  * */
-function shuffleCardPositions (cards: Card[]) {
+function shuffleCardPositions(cards: Card[]) {
   const randomOrder = v3Shuffle_FY_algo(
     new Array(cards.length).fill(0).map((_, i) => i)
   );
@@ -115,11 +132,11 @@ function shuffleCardPositions (cards: Card[]) {
 
 const deckUtils = {
   shuffleCardPositions,
-  sliceRandomPairsFromDeck,
+  shuffleDeckAndRefreshIds,
   v3Shuffle_FY_algo,
   genId,
   v3GenerateDeck,
-  FULL_DECK_COUNT
-}
+  FULL_DECK_COUNT,
+};
 
-export default deckUtils
+export default deckUtils;

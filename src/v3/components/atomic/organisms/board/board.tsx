@@ -11,7 +11,7 @@ import {
 } from "@builder.io/qwik";
 import { GameContext } from "~/v3/context/gameContext";
 import type { Pair } from "~/v3/types/types";
-import v3CardUtils from "~/v3/utils/cardUtils";
+import cardUtils from "~/v3/utils/cardUtils";
 import { useDebounce } from "~/v3/utils/useDebounce";
 import { useTimeout } from "~/v3/utils/useTimeout";
 import { calculateLayouts } from "~/v3/utils/boardUtils";
@@ -34,9 +34,9 @@ export default component$(
       const [cardId1, cardId2] = gameContext.game.selectedCardIds;
       const pair: Pair = `${cardId1}:${cardId2}`;
       // run checkMatch
-      const card1 = v3CardUtils.findCardById(gameContext.game.cards, cardId1);
-      const card2 = v3CardUtils.findCardById(gameContext.game.cards, cardId2);
-      const isMatch = v3CardUtils.checkMatch(card1, card2);
+      const card1 = cardUtils.findCardById(gameContext.game.cards, cardId1);
+      const card2 = cardUtils.findCardById(gameContext.game.cards, cardId2);
+      const isMatch = cardUtils.checkMatch(card1, card2);
 
       // console.log({ isMatch, card1, card2 });
 
@@ -93,7 +93,7 @@ export default component$(
     const handleClickUnflippedCard = $((cardId: number) => {
       // console.log("handleClickUnflippedCard", { cardId });
 
-      const newSelected = v3CardUtils.handleAddCardToSelected(
+      const newSelected = cardUtils.handleAddCardToSelected(
         [...gameContext.game.selectedCardIds],
         cardId
       );

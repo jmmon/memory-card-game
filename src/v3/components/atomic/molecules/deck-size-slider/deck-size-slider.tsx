@@ -1,5 +1,6 @@
-import { Signal, component$ } from "@builder.io/qwik";
+import { component$ } from "@builder.io/qwik";
 import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";
+import type { Signal } from "@builder.io/qwik";
 import type { iGameSettings } from "~/v3/types/types";
 
 export default component$<{

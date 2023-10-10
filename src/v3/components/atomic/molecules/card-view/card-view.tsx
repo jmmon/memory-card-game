@@ -1,4 +1,5 @@
-import { Signal, component$, useContext } from "@builder.io/qwik";
+import type { Signal} from "@builder.io/qwik";
+import { component$, useContext } from "@builder.io/qwik";
 import { GameContext } from "~/v3/context/gameContext";
 
 import ImageBackFace from "~/media/cards/_backWhite.png?jsx";

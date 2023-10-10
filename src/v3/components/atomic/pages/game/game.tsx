@@ -69,7 +69,7 @@ const INITIAL_STATE = {
     colGapPercent: 0,
     rowGapPercent: 0,
   },
-  game: INITIAL_GAME_STATE,
+  game: { ...INITIAL_GAME_STATE },
 
   settings: {
     cardFlipAnimationDuration: 800,
@@ -153,7 +153,7 @@ const INITIAL_STATE = {
   }),
 
   sliceDeck: $(function (this: iGameContext) {
-    const deckShuffledByPairs = deckUtils.sliceRandomPairsFromDeck([
+    const deckShuffledByPairs = deckUtils.shuffleDeckAndRefreshIds([
       ...this.settings.deck.fullDeck,
     ]);
     const cards = deckShuffledByPairs.slice(0, this.settings.deck.size);
@@ -221,16 +221,34 @@ const INITIAL_STATE = {
     this: iGameContext,
     settings?: Partial<iGameSettings>
   ) {
-    if (settings) {
+    if (settings !== undefined) {
       this.settings = {
         ...this.settings,
         ...settings,
       };
     }
 
-    this.game = INITIAL_GAME_STATE;
+    // this.game = INITIAL_GAME_STATE;
+    this.game.isStarted = INITIAL_GAME_STATE.isStarted;
+    this.game.isLoading = INITIAL_GAME_STATE.isLoading;
+    this.game.isShaking = INITIAL_GAME_STATE.isShaking;
+    this.game.shufflingState = INITIAL_GAME_STATE.shufflingState;
+    this.game.flippedCardId = INITIAL_GAME_STATE.flippedCardId;
+    this.game.mismatchPair = INITIAL_GAME_STATE.mismatchPair;
+
+    // this.game.cards = [...INITIAL_GAME_STATE.cards];
+    // this.game.mismatchPairs = [...INITIAL_GAME_STATE.mismatchPairs];
+    // this.game.successfulPairs = [...INITIAL_GAME_STATE.successfulPairs];
+    // this.game.selectedCardIds = [...INITIAL_GAME_STATE.selectedCardIds];
+
+    this.game.cards = INITIAL_GAME_STATE.cards;
+    this.game.mismatchPairs = INITIAL_GAME_STATE.mismatchPairs;
+    this.game.successfulPairs = INITIAL_GAME_STATE.successfulPairs;
+    this.game.selectedCardIds = INITIAL_GAME_STATE.selectedCardIds;
+
     await this.timer.reset();
     await this.initializeDeck();
+    // console.log("game reset");
   }),
 };
 

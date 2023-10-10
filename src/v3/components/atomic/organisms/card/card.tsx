@@ -6,7 +6,7 @@ import {
   useTask$,
 } from "@builder.io/qwik";
 import { GameContext } from "~/v3/context/gameContext";
-import v3CardUtils from "~/v3/utils/cardUtils";
+import cardUtils from "~/v3/utils/cardUtils";
 import type { BoardLayout, Coords, Card } from "~/v3/types/types";
 import type { Signal } from "@builder.io/qwik";
 import { BOARD } from "~/v3/constants/board";
@@ -30,7 +30,7 @@ export default component$(({ card }: { card: Card }) => {
   const gameContext = useContext(GameContext);
 
   const isThisRemoved = useComputed$(() =>
-    v3CardUtils.isCardInPairs(gameContext.game.successfulPairs, card.id)
+    cardUtils.isCardInPairs(gameContext.game.successfulPairs, card.id)
   );
 
   const isThisMismatched = useComputed$(() =>
@@ -113,18 +113,18 @@ export default component$(({ card }: { card: Card }) => {
       gameContext.boardLayout.columns,
     ]);
 
-    const newCoords = v3CardUtils.getXYFromPosition(
+    const newCoords = cardUtils.getXYFromPosition(
       card.position,
       gameContext.boardLayout.columns
     );
 
     shuffleTransform.value =
-      v3CardUtils.generateShuffleTranslateTransformPercent(
+      cardUtils.generateShuffleTranslateTransformPercent(
         gameContext.cardLayout,
         newCoords
       );
 
-    flipTransform.value = v3CardUtils.generateFlipTranslateTransform(
+    flipTransform.value = cardUtils.generateFlipTranslateTransform(
       gameContext.boardLayout,
       gameContext.cardLayout,
       newCoords

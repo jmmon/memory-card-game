@@ -1,4 +1,4 @@
-import { PropFunction } from "@builder.io/qwik";
+import type { PropFunction } from "@builder.io/qwik";
 
 export default ({
   text = "X",

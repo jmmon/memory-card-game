@@ -24,6 +24,7 @@ export default component$(
     const resetSettings = $(async (newSettings?: Signal<iGameSettings>) => {
       await gameContext.resetGame(newSettings ? newSettings.value : undefined);
       // resync and hide modal after new settings are saved
+console.log('game reset', gameContext);
       hideModal$();
     });
 
@@ -31,29 +32,19 @@ export default component$(
       <div class="flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%]">
         <div class="flex-grow flex justify-evenly items-center">
           <div class="justify-center flex gap-[2%] items-center tooltip">
-            <Button onClick$={() => gameContext.startShuffling(5)}>
+            <Button onClick$={gameContext.startShuffling}>
               <span class="text-slate-100">Shuffle Deck</span>
             </Button>
             <span class="tooltiptext">Shuffle the card positions.</span>
           </div>
-          {/* <div class="justify-center flex  gap-[2%] items-center tooltip"> */}
-          {/*   <Button */}
-          {/*     onClick$={() => { */}
-          {/*       gameContext.settings.resizeBoard = */}
-          {/*         !gameContext.settings.resizeBoard; */}
-          {/*       console.log(gameContext.settings.resizeBoard); */}
-          {/*     }} */}
-          {/*   > */}
-          {/*     Refresh Board */}
-          {/*   </Button> */}
-          {/*   <span class="tooltiptext"> */}
-          {/*     Force board dimensions to recalculate. */}
-          {/*   </span> */}
-          {/* </div> */}
         </div>
 
-        <div class={` flex flex-col md:flex-row justify-center ${settingsModalConstants.COLUMN_GAP} `}>
-          <div class={`flex-grow flex flex-col ${settingsModalConstants.COLUMN_GAP}  items-center`}>
+        <div
+          class={` flex flex-col md:flex-row justify-center ${settingsModalConstants.COLUMN_GAP} `}
+        >
+          <div
+            class={`flex-grow flex flex-col ${settingsModalConstants.COLUMN_GAP}  items-center`}
+          >
             {/* left column */}
             <ModalRow>
               <InputLock

@@ -1,7 +1,7 @@
 import { component$ } from "@builder.io/qwik";
 import PlayingCardComponents from "~/v3/components/playing-card-components";
-import CardSymbols from "~/v3/components/playing-card-components/card-symbols";
-import FaceCardSymbols from "~/v3/components/playing-card-components/face-card-symbols";
+import CardSymbols from "~/v3/components/playing-card-components/symbols/card-symbols";
+import FaceCardSymbols from "~/v3/components/playing-card-components/symbols/face-card-symbols";
 
 export default component$(() => {
   return (

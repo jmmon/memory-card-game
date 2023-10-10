@@ -31,6 +31,7 @@ export default component$(
     options?: Partial<ModalOptions>;
   }) => {
     containerClasses = DEFAULT_CONTAINER_BG + " " + containerClasses;
+
     const closeModal$ = $((e: QwikMouseEvent) => {
       if (!options.detectClickOutside) return;
       if ((e.target as HTMLElement).dataset.name === "background") {
@@ -42,7 +43,7 @@ export default component$(
       <div
         class={`top-0 left-0 absolute w-full h-full bg-black flex justify-center items-center transition-all ${DURATION} ${
           isShowing
-            ? `pointer-events-auto ${bgClasses} z-[100] bg-opacity-30 `
+            ? `pointer-events-auto ${bgClasses} z-[1000] bg-opacity-30 `
             : "pointer-events-none z-[-1] bg-opacity-0"
         }`}
         data-name="background"
@@ -52,9 +53,9 @@ export default component$(
         <div
           class={`min-w-[16rem] w-[50vw] max-w-[32rem] max-h-[90vh] relative mx-auto text-center ${containerClasses} rounded-lg lg:rounded-3xl flex flex-col gap-1 p-[1.5%] transition-all ${DURATION} ${
             isShowing
-              ? "pointer-events-auto z-[100]"
-              : "pointer-events-none z-[-1]"
-          } ${isShowing ? "opacity-100 scale-100" : "opacity-0 scale-[120%]"}`}
+              ? "pointer-events-auto z-[1000] opacity-100 scale-100"
+              : "pointer-events-none z-[-1] opacity-0 scale-[120%]"
+          }`}
           data-name="modal"
         >
           <ModalHeader hideModal$={hideModal$} title={title} />

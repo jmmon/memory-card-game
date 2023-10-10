@@ -62,6 +62,7 @@ export const useTimer = ({
 
   const reset = $(() => {
     state.last = 0;
+    state.time = 0;
     state.isStarted = false;
     state.isEnded = false;
     state.isPaused = false;

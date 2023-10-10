@@ -1,5 +1,5 @@
-import { CARD_RATIO, CORNERS_WIDTH_RATIO } from "../components/board/board";
-import { CONTAINER_PADDING_PERCENT } from "../components/game/game";
+import { BOARD } from "../constants/board";
+import { GAME } from "../constants/game";
 
 export const calculateBoardDimensions = (
   container: HTMLElement,
@@ -10,14 +10,17 @@ export const calculateBoardDimensions = (
 
   const boardRect = board.getBoundingClientRect();
   const boardTop = boardRect.top;
+
+  // account for padding on bottom
   const boardBottomLimit =
-    (container.offsetHeight * (100 - CONTAINER_PADDING_PERCENT)) / 100; // account for padding on bottom
-  const boardHeight = boardBottomLimit - boardTop;
+    (container.offsetHeight * (100 - GAME.CONTAINER_PADDING_PERCENT)) / 100;
+  const height = boardBottomLimit - boardTop;
 
-  const boardWidth =
-    (container.offsetWidth * (100 - CONTAINER_PADDING_PERCENT * 2)) / 100; // account for padding on sides
+  // account for padding on sides
+  const width =
+    (container.offsetWidth * (100 - GAME.CONTAINER_PADDING_PERCENT * 2)) / 100;
 
-  return { width: boardWidth, height: boardHeight };
+  return { width, height };
 };
 
 export const calculateLayouts = (
@@ -32,19 +35,19 @@ export const calculateLayouts = (
   const maxAreaPerCard = boardArea / deckSize; // to get approx cols/rows
 
   // width first approach
-  const maxWidthPerCard = Math.sqrt(maxAreaPerCard * CARD_RATIO);
+  const maxWidthPerCard = Math.sqrt(maxAreaPerCard * BOARD.CARD_RATIO);
   const columns = Math.floor(boardWidth / maxWidthPerCard);
   const rows = Math.ceil(deckSize / columns);
 
   // max height per card is restricted by number of rows:
   const newCardHeight = boardHeight / rows;
-  const newCardWidth = newCardHeight * CARD_RATIO;
+  const newCardWidth = newCardHeight * BOARD.CARD_RATIO;
   const cardArea = newCardWidth * newCardHeight;
 
   const cardLayout = {
     width: newCardWidth,
     height: newCardHeight,
-    roundedCornersPx: CORNERS_WIDTH_RATIO * newCardWidth,
+    roundedCornersPx: BOARD.CORNERS_WIDTH_RATIO * newCardWidth,
     area: cardArea,
     // half of this value should be on either edge, full value in the gaps
     // as percent of card width
