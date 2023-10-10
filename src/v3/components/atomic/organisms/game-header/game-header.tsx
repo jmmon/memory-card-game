@@ -17,10 +17,10 @@ export default component$(
         class={`mx-auto text-center text-xs md:text-sm flex justify-around w-full h-min`}
       >
         <HeaderSection classes="justify-around">
-          {gameContext.settings.interface.showSelectedIds && (
+          {gameContext.userSettings.interface.showSelectedIds && (
             <HeaderSelectedIds />
           )}
-          {gameContext.settings.interface.showDimensions && (
+          {gameContext.userSettings.interface.showDimensions && (
             <HeaderGameDimensions />
           )}
           <HeaderTimerDisplay />

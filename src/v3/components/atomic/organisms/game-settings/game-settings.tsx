@@ -1,5 +1,4 @@
-import { $, component$, useContext } from "@builder.io/qwik";
-import { GameContext } from "~/v3/context/gameContext";
+import { component$ } from "@builder.io/qwik";
 
 import Button from "../../atoms/button/button";
 import FormattedTime from "../../molecules/formatted-time/formatted-time";
@@ -8,36 +7,36 @@ import InputLock from "../../atoms/input-lock/input-lock";
 import DeckSizeSlider from "../../molecules/deck-size-slider/deck-size-slider";
 
 import type { PropFunction, Signal } from "@builder.io/qwik";
-import type { iGameSettings } from "~/v3/types/types";
+import type { iGameSettings, iUserSettings } from "~/v3/types/types";
 import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";
 
 export default component$(
   ({
-    unsavedSettings,
-    hideModal$,
+    unsavedUserSettings,
+    saveSettings$,
+    startShuffling$: startShuffling$,
+    gameTime,
+    gameSettings,
   }: {
-    unsavedSettings: Signal<iGameSettings>;
-    hideModal$: PropFunction<() => void>;
+    unsavedUserSettings: Signal<iUserSettings>;
+    saveSettings$: PropFunction<(newSettings?: Signal<iUserSettings>) => void>;
+    startShuffling$?: PropFunction<() => void>;
+    gameTime: number;
+    gameSettings: iGameSettings;
   }) => {
-    const gameContext = useContext(GameContext);
-
-    const resetSettings = $(async (newSettings?: Signal<iGameSettings>) => {
-      await gameContext.resetGame(newSettings ? newSettings.value : undefined);
-      // resync and hide modal after new settings are saved
-console.log('game reset', gameContext);
-      hideModal$();
-    });
-
     return (
       <div class="flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%]">
-        <div class="flex-grow flex justify-evenly items-center">
-          <div class="justify-center flex gap-[2%] items-center tooltip">
-            <Button onClick$={gameContext.startShuffling}>
-              <span class="text-slate-100">Shuffle Deck</span>
-            </Button>
-            <span class="tooltiptext">Shuffle the card positions.</span>
+
+        {startShuffling$ !== undefined && startShuffling$ !== null && (
+          <div class="flex-grow flex justify-evenly items-center">
+            <div class="justify-center flex gap-[2%] items-center tooltip">
+              <Button onClick$={startShuffling$}>
+                <span class="text-slate-100">Shuffle Deck</span>
+              </Button>
+              <span class="tooltiptext">Shuffle the card positions.</span>
+            </div>
           </div>
-        </div>
+        )}
 
         <div
           class={` flex flex-col md:flex-row justify-center ${settingsModalConstants.COLUMN_GAP} `}
@@ -51,9 +50,13 @@ console.log('game reset', gameContext);
                 text="Lock Board:"
                 tooltip="Prevent board layout from changing."
                 onChange$={(e) => {
-                  gameContext.boardLayout.isLocked = (
-                    e.target as HTMLInputElement
-                  ).checked;
+                  unsavedUserSettings.value = {
+                    ...unsavedUserSettings.value,
+                    board: {
+                      ...unsavedUserSettings.value.board,
+                      isLocked: (e.target as HTMLInputElement).checked,
+                    },
+                  };
                 }}
               />
             </ModalRow>
@@ -62,10 +65,10 @@ console.log('game reset', gameContext);
                 text="Lock Deck:"
                 tooltip={`Prevent deck size from changing. ${settingsModalConstants.REQUIRES_RESTART}`}
                 onChange$={(e) => {
-                  unsavedSettings.value = {
-                    ...unsavedSettings.value,
+                  unsavedUserSettings.value = {
+                    ...unsavedUserSettings.value,
                     deck: {
-                      ...unsavedSettings.value.deck,
+                      ...unsavedUserSettings.value.deck,
                       isLocked: (e.target as HTMLInputElement).checked,
                     },
                   };
@@ -75,8 +78,9 @@ console.log('game reset', gameContext);
 
             <ModalRow>
               <DeckSizeSlider
-                settings={unsavedSettings}
-                isLocked={gameContext.settings.deck.isLocked}
+                userSettings={unsavedUserSettings}
+                gameSettings={gameSettings}
+                isLocked={unsavedUserSettings.value.deck.isLocked}
                 for="game-settings"
               />
             </ModalRow>
@@ -86,9 +90,13 @@ console.log('game reset', gameContext);
                 text="Show Selected Card Ids"
                 tooltip="Show unique card ids for currently selected cards"
                 onChange$={(e) => {
-                  gameContext.settings.interface.showSelectedIds = (
-                    e.target as HTMLInputElement
-                  ).checked;
+                  unsavedUserSettings.value = {
+                    ...unsavedUserSettings.value,
+                    interface: {
+                      ...unsavedUserSettings.value.interface,
+                      showSelectedIds: (e.target as HTMLInputElement).checked,
+                    },
+                  };
                 }}
               />
             </ModalRow>
@@ -97,22 +105,28 @@ console.log('game reset', gameContext);
                 text="Show Dimensions"
                 tooltip="Show board layout and window dimensions."
                 onChange$={(e) => {
-                  gameContext.settings.interface.showDimensions = (
-                    e.target as HTMLInputElement
-                  ).checked;
+                  unsavedUserSettings.value = {
+                    ...unsavedUserSettings.value,
+                    interface: {
+                      ...unsavedUserSettings.value.interface,
+                      showDimensions: (e.target as HTMLInputElement).checked,
+                    },
+                  };
                 }}
-                value={gameContext.settings.interface.showDimensions}
+                value={unsavedUserSettings.value.interface.showDimensions}
               />
             </ModalRow>
-            <ModalRow>
-              <div class="w-full flex justify-between tooltip">
-                <label class="text-slate-100">Played Time:</label>
-                <FormattedTime timeMs={gameContext.timer.state.time} />
-                <span class="tooltiptext">
-                  Total un-paused play time for this round.
-                </span>
-              </div>
-            </ModalRow>
+            {gameTime !== 0 && (
+              <ModalRow>
+                <div class="w-full flex justify-between tooltip">
+                  <label class="text-slate-100">Played Time:</label>
+                  <FormattedTime timeMs={gameTime} />
+                  <span class="tooltiptext">
+                    Total un-paused play time for this round.
+                  </span>
+                </div>
+              </ModalRow>
+            )}
           </div>
 
           {/* right column */}
@@ -212,11 +226,7 @@ console.log('game reset', gameContext);
 
         <div class="flex-grow flex justify-evenly items-center">
           <div class="justify-center flex  gap-[2%] items-center tooltip">
-            <Button
-              onClick$={() => {
-                resetSettings();
-              }}
-            >
+            <Button onClick$={saveSettings$}>
               <span class="text-slate-100">Reset Without Saving</span>
             </Button>
             <span class="tooltiptext">
@@ -224,11 +234,12 @@ console.log('game reset', gameContext);
             </span>
           </div>
         </div>
+
         <div class="flex-grow flex justify-evenly items-center">
           <div class="justify-center flex  gap-[2%] items-center tooltip">
             <Button
               onClick$={() => {
-                resetSettings(unsavedSettings);
+                saveSettings$(unsavedUserSettings);
               }}
             >
               <span class="text-slate-100">Save & Restart</span>

@@ -30,10 +30,10 @@ export default component$(() => {
 
   const mismatchAnimation = useComputed$(() => {
     const extraMismatchFeatures =
-      gameContext.settings.maxAllowableMismatches !== -1 ||
-      gameContext.settings.reorgnanizeBoardOnMismatch ||
-      gameContext.settings.shufflePickedAfterMismatch ||
-      gameContext.settings.shuffleBoardAfterMismatches > 0;
+      gameContext.userSettings.maxAllowableMismatches !== -1 ||
+      gameContext.userSettings.reorgnanizeBoardOnMismatch ||
+      gameContext.userSettings.shufflePickedAfterMismatch ||
+      gameContext.userSettings.shuffleBoardAfterMismatches > 0;
     return gameContext.interface.mismatchAnimation && extraMismatchFeatures;
   });
 
@@ -66,15 +66,15 @@ export default component$(() => {
         animate={gameContext.interface.successAnimation}
         score={gameContext.game.successfulPairs.length}
         showMax={true}
-        max={gameContext.settings.deck.size / 2}
+        max={gameContext.userSettings.deck.size / 2}
         label="pairs"
       />
 
       <Score
         animate={mismatchAnimation.value}
         score={gameContext.game.mismatchPairs.length}
-        showMax={gameContext.settings.maxAllowableMismatches !== -1}
-        max={gameContext.settings.maxAllowableMismatches}
+        showMax={gameContext.userSettings.maxAllowableMismatches !== -1}
+        max={gameContext.userSettings.maxAllowableMismatches}
         label="mismatches"
       />
     </code>

@@ -1,5 +1,12 @@
 import type { QRL } from "@builder.io/qwik";
 import type { useTimer } from "../utils/useTimer";
+
+
+export type iObj = { [key: string]: any };
+export type iObjEntries = { [key: string]: any };
+
+export type iNestedObj = { [key: string]: string | iObj };
+
 export type Timer = ReturnType<typeof useTimer>;
 
 export type Coords = { x: number; y: number };
@@ -7,7 +14,6 @@ export type Coords = { x: number; y: number };
 export type ShuffleTransform = { x: number; y: number };
 
 export type Pair = `${number}:${number}`;
-
 
 export type PlayingCardSvgProps =
   | {
@@ -29,9 +35,9 @@ export type Card = {
   localSVG?: string;
 };
 
-export type iGameSettings = {
+// settings user will be able to change
+export type iUserSettings = {
   [key: string]: any;
-  cardFlipAnimationDuration: number;
   maxAllowableMismatches: number;
 
   shuffleBoardAfterMismatches: number;
@@ -42,22 +48,34 @@ export type iGameSettings = {
 
   reorgnanizeBoardOnPair: boolean;
   reorgnanizeBoardOnMismatch: boolean;
-  resizeBoard: boolean;
 
   deck: {
     size: number;
     isLocked: boolean;
-    MINIMUM_CARDS: number;
-    MAXIMUM_CARDS: number;
-    fullDeck: Card[];
   };
+
+  board: {
+    resize: boolean;
+    isLocked: boolean;
+  };
+
   interface: {
     showSelectedIds: boolean;
     showDimensions: boolean;
   };
 };
 
-// export const iGameSettingsKeys =
+// settings the user will not change
+export type iGameSettings = {
+  [key: string]: any;
+  cardFlipAnimationDuration: number;
+
+  deck: {
+    MINIMUM_CARDS: number;
+    MAXIMUM_CARDS: number;
+    fullDeck: Card[];
+  };
+};
 
 export type BoardLayout = {
   width: number;
@@ -65,7 +83,6 @@ export type BoardLayout = {
   columns: number;
   rows: number;
   area: number;
-  isLocked: boolean;
   rowHeight: number;
   colWidth: number;
 };
@@ -98,7 +115,8 @@ export type iGameContext = {
 
   game: GameData;
 
-  settings: iGameSettings;
+  userSettings: iUserSettings;
+  gameSettings: iGameSettings;
 
   interface: {
     successAnimation: boolean;
@@ -114,9 +132,10 @@ export type iGameContext = {
       isWin: boolean;
     };
   };
+
   shuffleCardPositions: QRL<() => void>;
   sliceDeck: QRL<() => void>;
-  resetGame: QRL<(settings?: Partial<iGameSettings>) => void>;
+  resetGame: QRL<(settings?: Partial<iUserSettings>) => void>;
   isGameEnded: QRL<
     () =>
       | { isEnded: false }

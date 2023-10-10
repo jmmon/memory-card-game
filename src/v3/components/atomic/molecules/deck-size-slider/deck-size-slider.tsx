@@ -1,12 +1,13 @@
 import { component$ } from "@builder.io/qwik";
 import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";
 import type { Signal } from "@builder.io/qwik";
-import type { iGameSettings } from "~/v3/types/types";
+import type { iGameSettings, iUserSettings } from "~/v3/types/types";
 
 export default component$<{
-  settings: Signal<iGameSettings>;
+  userSettings: Signal<iUserSettings>;
   isLocked?: boolean;
   for?: string;
+gameSettings: iGameSettings;
 }>((props) => {
   const name = `deck-size-slider${props.for ? "-" + props.for : ""}`;
   return (
@@ -19,15 +20,15 @@ export default component$<{
         id={name}
         class="flex-grow w-8/12"
         type="range"
-        min={props.settings.value.deck.MINIMUM_CARDS}
-        max={props.settings.value.deck.MAXIMUM_CARDS}
+        min={props.gameSettings.deck.MINIMUM_CARDS}
+        max={props.gameSettings.deck.MAXIMUM_CARDS}
         step="2"
-        value={props.settings.value.deck.size}
+        value={props.userSettings.value.deck.size}
         onInput$={(e: Event) => {
-          props.settings.value = {
-            ...props.settings.value,
+          props.userSettings.value = {
+            ...props.userSettings.value,
             deck: {
-              ...props.settings.value.deck,
+              ...props.userSettings.value.deck,
               size: Number((e.target as HTMLInputElement).value),
             },
           };
@@ -35,7 +36,7 @@ export default component$<{
         disabled={props.isLocked}
       />
       <span class="tooltiptext">
-        {props.settings.value.deck.size} - Number of cards in the deck.{" "}
+        {props.userSettings.value.deck.size} - Number of cards in the deck.{" "}
         {settingsModalConstants.REQUIRES_RESTART}
       </span>
     </div>

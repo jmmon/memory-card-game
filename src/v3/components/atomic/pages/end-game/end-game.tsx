@@ -10,11 +10,11 @@ export default component$(() => {
   const gameContext = useContext(GameContext);
 
   // for adjusting deck size before restarting
-  const cardCount = useSignal<string>(String(gameContext.settings.deck.size));
+  const cardCount = useSignal<string>(String(gameContext.userSettings.deck.size));
 
   const hideModal$ = $(() => {
     gameContext.interface.endOfGameModal.isShowing = false;
-    cardCount.value = String(gameContext.settings.deck.size);
+    cardCount.value = String(gameContext.userSettings.deck.size);
   });
 
   return (
@@ -35,7 +35,7 @@ export default component$(() => {
             <span>Pairs:</span>
             <span>
               {gameContext.game.successfulPairs.length}/
-              {gameContext.settings.deck.size / 2}
+              {gameContext.userSettings.deck.size / 2}
             </span>
           </div>
         </ModalRow>
@@ -44,8 +44,8 @@ export default component$(() => {
             <span>Mismatches:</span>
             <span>
               {gameContext.game.mismatchPairs.length}
-              {gameContext.settings.maxAllowableMismatches !== -1
-                ? `/${gameContext.settings.deck.size / 2} `
+              {gameContext.userSettings.maxAllowableMismatches !== -1
+                ? `/${gameContext.userSettings.deck.size / 2} `
                 : ""}
             </span>
           </div>
@@ -72,8 +72,8 @@ export default component$(() => {
               id="deck-card-count-end-game"
               class="flex-grow w-8/12"
               type="range"
-              min={gameContext.settings.deck.MINIMUM_CARDS}
-              max={gameContext.settings.deck.MAXIMUM_CARDS}
+              min={gameContext.gameSettings.deck.MINIMUM_CARDS}
+              max={gameContext.gameSettings.deck.MAXIMUM_CARDS}
               step="2"
               bind:value={cardCount}
             />
@@ -86,7 +86,7 @@ export default component$(() => {
           onClick$={() => {
             gameContext.resetGame({
               deck: {
-                ...gameContext.settings.deck,
+                ...gameContext.userSettings.deck,
                 size: Number(cardCount.value),
               },
             });

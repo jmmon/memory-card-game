@@ -25,8 +25,8 @@ export default component$(
     const gameContext = useContext(GameContext);
     const boardRef = useSignal<HTMLDivElement>();
 
-    const lastDeckSize = useSignal(gameContext.settings.deck.size);
-    const lastRefresh = useSignal(gameContext.settings.resizeBoard);
+    const lastDeckSize = useSignal(gameContext.userSettings.deck.size);
+    const lastRefresh = useSignal(gameContext.userSettings.board.resize);
 
     const lastClick = useSignal(-1);
 
@@ -104,7 +104,7 @@ export default component$(
         const isFinalPair =
           newSelected.length === 2 &&
           gameContext.game.successfulPairs.length ===
-            gameContext.settings.deck.size / 2 - 1;
+            gameContext.userSettings.deck.size / 2 - 1;
 
         // check immediately for the final pair
         if (isFinalPair) {
@@ -230,7 +230,7 @@ export default component$(
     useOnWindow(
       "resize",
       $(() => {
-        if (gameContext.boardLayout.isLocked) return;
+        if (gameContext.userSettings.board.isLocked) return;
 
         const container = containerRef.value as HTMLElement; // or use window instead of container/game?
         const board = boardRef.value as HTMLElement;
@@ -247,7 +247,7 @@ export default component$(
         const { cardLayout, boardLayout } = calculateLayouts(
           boardWidth,
           boardHeight,
-          gameContext.settings.deck.size
+          gameContext.userSettings.deck.size
         );
 
         gameContext.cardLayout = cardLayout;
@@ -261,18 +261,18 @@ export default component$(
     const adjustDeckSize = $((newDeckSize: number) => {
       lastDeckSize.value = newDeckSize;
 
-      if (gameContext.settings.deck.isLocked) {
+      if (gameContext.userSettings.deck.isLocked) {
         return;
       }
       gameContext.resetGame({
-        ...gameContext.settings,
+        ...gameContext.userSettings,
         deck: {
-          ...gameContext.settings.deck,
-          size: gameContext.settings.deck.size,
+          ...gameContext.userSettings.deck,
+          size: gameContext.userSettings.deck.size,
         },
       });
 
-      if (gameContext.boardLayout.isLocked) {
+      if (gameContext.userSettings.board.isLocked) {
         return;
       }
 
@@ -289,9 +289,9 @@ export default component$(
      * ================================ */
     useVisibleTask$(
       async (taskCtx) => {
-        const newDeckSize = taskCtx.track(() => gameContext.settings.deck.size);
+        const newDeckSize = taskCtx.track(() => gameContext.userSettings.deck.size);
         const newRefresh = taskCtx.track(
-          () => gameContext.settings.resizeBoard
+          () => gameContext.userSettings.board.resize
         );
         const isDeckChanged = lastDeckSize.value !== newDeckSize;
         const isBoardRefreshed = lastRefresh.value !== newRefresh;
