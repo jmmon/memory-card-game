@@ -42,4 +42,6 @@ export const schema_userSettings = z.object({
     showSelectedIds: z.boolean().default(false),
     showDimensions: z.boolean().default(false),
   }),
-});
+}).strict();
+
+export type iSchema_userSettings = z.infer<typeof schema_userSettings>;

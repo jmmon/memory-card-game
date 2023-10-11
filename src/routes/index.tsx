@@ -12,10 +12,11 @@ import {
   INITIAL_GAME_SETTINGS,
   INITIAL_USER_SETTINGS,
 } from "~/v3/context/initialState";
-import type {  iUserSettings } from "~/v3/types/types";
+import type { iUserSettings } from "~/v3/types/types";
 import { flattenObjectToEntries } from "~/v3/utils/utils";
 
 const LI_CLASSES = "pl-2 md:pl-4";
+
 export default component$(() => {
   return (
     <div class="grid w-full justify-center items-center gap-8 text-slate-200">
@@ -53,15 +54,12 @@ export default component$(() => {
   );
 });
 
-
-
-export const getNonDefaultQueryParams2 = (
+export const getNonDefaultQueryParams = (
   newSettings: iUserSettings,
   initialSettings: iUserSettings
 ) => {
   const newFlatSettings = flattenObjectToEntries(newSettings);
   const initialFlatSettings = flattenObjectToEntries(initialSettings);
-
 
   const result: string[] = [];
 
@@ -83,15 +81,16 @@ export const ChangeGameSettings = component$(() => {
     ...INITIAL_USER_SETTINGS,
   });
 
+  // all settings which were changed from initial values
   const compQParamsString = useComputed$<string>(() => {
-    const result = getNonDefaultQueryParams2(
+    const result = getNonDefaultQueryParams(
       unsavedSettings.value,
       INITIAL_USER_SETTINGS
     );
-    console.log('computed', { result });
     return result;
   });
 
+  // reset the UI to the new/initial settings when finished
   const saveSettings$ = $((newSettings?: Signal<iUserSettings>) => {
     unsavedSettings.value = newSettings
       ? newSettings.value
@@ -103,9 +102,6 @@ export const ChangeGameSettings = component$(() => {
       <Link
         href={`/game${
           compQParamsString.value !== "" ? "/?" + compQParamsString.value : ""
-          // computedQueryParamsString.value !== ""
-          //   ? "/?" + computedQueryParamsString.value
-          //   : ""
         }`}
         class="text-slate-200 hover:text-white text-4xl py-4 px-8 border-slate-200 rounded-lg bg-slate-800 hover:bg-slate-700"
       >

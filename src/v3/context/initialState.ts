@@ -75,8 +75,6 @@ export const INITIAL_GAME_SETTINGS: iGameSettings = {
   cardFlipAnimationDuration: 800,
 
   deck: {
-    MINIMUM_CARDS: GAME.MIN_CARD_COUNT,
-    MAXIMUM_CARDS: GAME.MAX_CARD_COUNT,
     fullDeck: formattedDeck,
   },
 };

@@ -5,6 +5,7 @@ import Modal from "../../templates/modal/modal";
 import FormattedTime from "../../molecules/formatted-time/formatted-time";
 import Button from "../../atoms/button/button";
 import ModalRow from "../../atoms/modal-row/modal-row";
+import { GAME } from "~/v3/constants/game";
 
 export default component$(() => {
   const gameContext = useContext(GameContext);
@@ -72,8 +73,8 @@ export default component$(() => {
               id="deck-card-count-end-game"
               class="flex-grow w-8/12"
               type="range"
-              min={gameContext.gameSettings.deck.MINIMUM_CARDS}
-              max={gameContext.gameSettings.deck.MAXIMUM_CARDS}
+              min={GAME.MIN_CARD_COUNT}
+              max={GAME.MAX_CARD_COUNT}
               step="2"
               bind:value={cardCount}
             />

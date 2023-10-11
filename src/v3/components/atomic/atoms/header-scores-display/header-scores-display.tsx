@@ -7,26 +7,30 @@ import {
 } from "@builder.io/qwik";
 import { header } from "~/v3/constants/header-constants";
 import { GameContext } from "~/v3/context/gameContext";
-import { useTimeout } from "~/v3/utils/useTimeout";
+import { useTimeoutObj } from "~/v3/utils/useTimeout";
 
 export default component$(() => {
   const gameContext = useContext(GameContext);
 
-  useTimeout(
-    $(() => {
+  useTimeoutObj({
+    action: $(() => {
       gameContext.interface.successAnimation = false;
     }),
-    useComputed$(() => gameContext.interface.successAnimation),
-    header.COUNTER_ANIMATE_DURATION
-  );
+    triggerCondition: useComputed$(
+      () => gameContext.interface.successAnimation
+    ),
+    initialDelay: header.COUNTER_ANIMATE_DURATION,
+  });
 
-  useTimeout(
-    $(() => {
+  useTimeoutObj({
+    action: $(() => {
       gameContext.interface.mismatchAnimation = false;
     }),
-    useComputed$(() => gameContext.interface.mismatchAnimation),
-    header.COUNTER_ANIMATE_DURATION
-  );
+    triggerCondition: useComputed$(
+      () => gameContext.interface.mismatchAnimation
+    ),
+    initialDelay: header.COUNTER_ANIMATE_DURATION,
+  });
 
   const mismatchAnimation = useComputed$(() => {
     const extraMismatchFeatures =

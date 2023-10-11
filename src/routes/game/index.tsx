@@ -1,41 +1,51 @@
-import { component$, useComputed$, useStyles$ } from "@builder.io/qwik";
+import { component$, useStyles$ } from "@builder.io/qwik";
 import styles from "./styles.css?inline";
-import { routeLoader$, useLocation } from "@builder.io/qwik-city";
+import { routeLoader$ } from "@builder.io/qwik-city";
 import crypto from "node:crypto";
-import Game, { keysSettings } from "~/v3/components/atomic/pages/game/game";
+import Game from "~/v3/components/atomic/pages/game/game";
 import { INITIAL_USER_SETTINGS } from "~/v3/context/initialState";
 import { unflattenObject } from "~/v3/utils/utils";
+import { validate } from "~/v3/validation/validate";
+import schemas from "~/v3/validation/schemas";
+import { iUserSettings } from "~/v3/types/types";
 // import SubmitScoreModal from "~/v3/components/submit-score-modal/submit-score-modal";
 
-export const useDefaultHash = routeLoader$(() => {
-  return crypto.randomBytes(20).toString("hex");
+export const useDefaultHash = routeLoader$(() =>
+  crypto.randomBytes(20).toString("hex")
+);
+
+const numberizeValues = (obj: object) =>
+  Object.fromEntries(
+    Object.entries(obj).map(([key, val]) => [
+      key,
+      isNaN(Number(val)) ? val : Number(val),
+    ])
+  );
+
+// params are settings which were changed from initial values
+export const useParams = routeLoader$(async (requestEvent) => {
+  // console.log("useParams loader...", {
+  //   urlSearchParams: requestEvent.url.searchParams,
+  // });
+  const searchParamsObj = Object.fromEntries(
+    requestEvent.url.searchParams.entries()
+  );
+
+  const unflattenedParams = unflattenObject(numberizeValues(searchParamsObj));
+  const completedParams = {
+    ...INITIAL_USER_SETTINGS,
+    ...unflattenedParams,
+  } as iUserSettings;
+
+  if (validate(completedParams, schemas.userSettings)) {
+    return completedParams;
+  }
+  return INITIAL_USER_SETTINGS;
 });
 
 export default component$(() => {
-  const loc = useLocation();
-  const paramsObj = Object.fromEntries(loc.url.searchParams.entries());
-  console.log("game route:", {
-    paramsObj,
-  });
-  const unflattenedParams = unflattenObject(paramsObj);
-
+  const paramsSettings = useParams();
   useStyles$(styles);
-
-  const settings = useComputed$(() => {
-    const newSettings = INITIAL_USER_SETTINGS;
-    for (const [key, value] of loc.url.searchParams) {
-      console.log({ key, value });
-      // overwrite value if it's a good key
-      // TODO: validate value is within bounds
-      // - do it proper with a validator and obj
-      if (key in keysSettings) {
-        newSettings[key] = value;
-      }
-    }
-    // Object.fromEntries(loc.url.searchParams.entries())
-    // return theSettings
-    return newSettings;
-  });
 
   return (
     <div class="flex flex-col w-full h-full items-center">
@@ -43,7 +53,7 @@ export default component$(() => {
         Memory Card Game
       </h1>
       {/* <SubmitScoreModal /> */}
-      <Game settings={settings.value} />
+      <Game settings={paramsSettings.value} />
     </div>
   );
 });

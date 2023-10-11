@@ -13,12 +13,11 @@ import { GameContext } from "~/v3/context/gameContext";
 import type { Pair } from "~/v3/types/types";
 import cardUtils from "~/v3/utils/cardUtils";
 import { useDebounce } from "~/v3/utils/useDebounce";
-import { useTimeout } from "~/v3/utils/useTimeout";
+import { useTimeoutObj } from "~/v3/utils/useTimeout";
 import { calculateLayouts } from "~/v3/utils/boardUtils";
 import Card from "../card/card";
 import { BOARD } from "~/v3/constants/board";
 import { GAME } from "~/v3/constants/game";
-
 
 export default component$(
   ({ containerRef }: { containerRef: Signal<HTMLElement | undefined> }) => {
@@ -194,21 +193,21 @@ export default component$(
     });
 
     // auto pause after some inactivity
-    useTimeout(
-      $(() => {
+    useTimeoutObj({
+      action: $(() => {
         gameContext.timer.pause();
         gameContext.interface.settingsModal.isShowing = true;
         lastClick.value === -1;
       }),
-      useComputed$(
+      triggerCondition: useComputed$(
         () =>
           gameContext.timer.state.isStarted &&
           !gameContext.timer.state.isEnded &&
           lastClick.value !== -1
       ),
-      BOARD.AUTO_PAUSE_DELAY_MS,
-      true
-    );
+      initialDelay: BOARD.AUTO_PAUSE_DELAY_MS,
+      checkConditionOnTimeout: true,
+    });
 
     /*
      * niceity: esc will unflip a flipped card
@@ -238,11 +237,13 @@ export default component$(
         const boardRect = board.getBoundingClientRect();
         const boardTop = boardRect.top;
         const boardBottomLimit =
-          (container.offsetHeight * (100 - GAME.CONTAINER_PADDING_PERCENT)) / 100; // account for padding on bottom
+          (container.offsetHeight * (100 - GAME.CONTAINER_PADDING_PERCENT)) /
+          100; // account for padding on bottom
         const boardHeight = boardBottomLimit - boardTop;
 
         const boardWidth =
-          (container.offsetWidth * (100 - GAME.CONTAINER_PADDING_PERCENT * 2)) / 100; // account for padding on sides
+          (container.offsetWidth * (100 - GAME.CONTAINER_PADDING_PERCENT * 2)) /
+          100; // account for padding on sides
 
         const { cardLayout, boardLayout } = calculateLayouts(
           boardWidth,
@@ -289,7 +290,9 @@ export default component$(
      * ================================ */
     useVisibleTask$(
       async (taskCtx) => {
-        const newDeckSize = taskCtx.track(() => gameContext.userSettings.deck.size);
+        const newDeckSize = taskCtx.track(
+          () => gameContext.userSettings.deck.size
+        );
         const newRefresh = taskCtx.track(
           () => gameContext.userSettings.board.resize
         );

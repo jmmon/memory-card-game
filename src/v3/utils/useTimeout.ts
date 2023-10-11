@@ -1,12 +1,17 @@
 import { $, useSignal, useVisibleTask$ } from "@builder.io/qwik";
 import type { QRL, Signal } from "@builder.io/qwik";
 
-export const useTimeout = (
-  action: QRL<() => void | any>,
-  triggerCondition: Signal<boolean>,
-  initialDelay: number,
-  checkConditionOnTimeout: boolean = false
-) => {
+export const useTimeoutObj = ({
+  action,
+  triggerCondition,
+  initialDelay,
+  checkConditionOnTimeout = false,
+}: {
+  action: QRL<() => void | any>;
+  triggerCondition: Signal<boolean>;
+  initialDelay: number;
+  checkConditionOnTimeout?: boolean;
+}) => {
   const delay = useSignal(initialDelay);
 
   useVisibleTask$((taskCtx) => {
@@ -30,13 +35,19 @@ export const useTimeout = (
   };
 };
 
-export const useDelayedTimeout = (
-  actionOnStart: QRL<() => void | any>,
-  actionOnEnd: QRL<() => void | any>,
-  triggerCondition: Signal<boolean>,
-  initialDelay: number,
-  interval: number
-) => {
+export const useDelayedTimeoutObj = ({
+  actionOnStart,
+  actionOnEnd,
+  triggerCondition,
+  initialDelay,
+  interval,
+}: {
+  actionOnStart: QRL<() => void | any>;
+  actionOnEnd: QRL<() => void | any>;
+  triggerCondition: Signal<boolean>;
+  initialDelay: number;
+  interval: number;
+}) => {
   const startDelay = useSignal(initialDelay);
   const intervalSignal = useSignal(interval);
 
@@ -45,13 +56,12 @@ export const useDelayedTimeout = (
 
     if (!triggerCondition.value) return;
 
-    const startTimer = setTimeout(() => {
-      actionOnStart();
-    }, startDelay.value);
+    const startTimer = setTimeout(actionOnStart, startDelay.value);
 
-    const endTimer = setTimeout(() => {
-      actionOnEnd();
-    }, startDelay.value + intervalSignal.value);
+    const endTimer = setTimeout(
+      actionOnEnd,
+      startDelay.value + intervalSignal.value
+    );
 
     taskCtx.cleanup(() => {
       clearTimeout(startTimer);
@@ -69,12 +79,17 @@ export const useDelayedTimeout = (
   };
 };
 
-export const useInterval = (
-  action: QRL<() => void>,
-  triggerCondition: Signal<boolean>,
-  regularInterval: number,
-  initialDelay?: number
-) => {
+export const useIntervalObj = ({
+  action,
+  triggerCondition,
+  regularInterval,
+  initialDelay,
+}: {
+  action: QRL<() => void>;
+  triggerCondition: Signal<boolean>;
+  regularInterval: number;
+  initialDelay?: number;
+}) => {
   const startDelay = useSignal(initialDelay);
   const intervalSignal = useSignal(regularInterval);
   const runInterval = useSignal(false);
@@ -98,12 +113,9 @@ export const useInterval = (
     taskCtx.track(() => runInterval.value);
     if (runInterval.value === false) return;
 
-    const update = () => {
-      action();
-    };
+    const intervalTimer = setInterval(action, intervalSignal.value);
 
-    const intervalTimer = setInterval(update, intervalSignal.value);
-    update();
+    action();
 
     taskCtx.cleanup(() => {
       clearInterval(intervalTimer);

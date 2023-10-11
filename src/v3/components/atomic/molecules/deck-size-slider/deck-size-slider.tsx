@@ -2,12 +2,13 @@ import { component$ } from "@builder.io/qwik";
 import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";
 import type { Signal } from "@builder.io/qwik";
 import type { iGameSettings, iUserSettings } from "~/v3/types/types";
+import { GAME } from "~/v3/constants/game";
 
 export default component$<{
   userSettings: Signal<iUserSettings>;
   isLocked?: boolean;
   for?: string;
-gameSettings: iGameSettings;
+  gameSettings: iGameSettings;
 }>((props) => {
   const name = `deck-size-slider${props.for ? "-" + props.for : ""}`;
   return (
@@ -20,8 +21,8 @@ gameSettings: iGameSettings;
         id={name}
         class="flex-grow w-8/12"
         type="range"
-        min={props.gameSettings.deck.MINIMUM_CARDS}
-        max={props.gameSettings.deck.MAXIMUM_CARDS}
+        min={GAME.MIN_CARD_COUNT}
+        max={GAME.MAX_CARD_COUNT}
         step="2"
         value={props.userSettings.value.deck.size}
         onInput$={(e: Event) => {

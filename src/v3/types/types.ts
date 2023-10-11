@@ -71,8 +71,6 @@ export type iGameSettings = {
   cardFlipAnimationDuration: number;
 
   deck: {
-    MINIMUM_CARDS: number;
-    MAXIMUM_CARDS: number;
     fullDeck: Card[];
   };
 };
