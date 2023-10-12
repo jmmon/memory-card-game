@@ -9,6 +9,7 @@ import DeckSizeSlider from "../../molecules/deck-size-slider/deck-size-slider";
 import type { PropFunction, Signal } from "@builder.io/qwik";
 import type { iGameSettings, iUserSettings } from "~/v3/types/types";
 import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";
+import { DropdownOriginal } from "../../atoms/dropdown/dropdown";
 
 export default component$(
   ({
@@ -26,7 +27,6 @@ export default component$(
   }) => {
     return (
       <div class="flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%]">
-
         {startShuffling$ !== undefined && startShuffling$ !== null && (
           <div class="flex-grow flex justify-evenly items-center">
             <div class="justify-center flex gap-[2%] items-center tooltip">
@@ -46,37 +46,6 @@ export default component$(
           >
             {/* left column */}
             <ModalRow>
-              <InputLock
-                text="Lock Board:"
-                tooltip="Prevent board layout from changing."
-                onChange$={(e) => {
-                  unsavedUserSettings.value = {
-                    ...unsavedUserSettings.value,
-                    board: {
-                      ...unsavedUserSettings.value.board,
-                      isLocked: (e.target as HTMLInputElement).checked,
-                    },
-                  };
-                }}
-              />
-            </ModalRow>
-            <ModalRow>
-              <InputLock
-                text="Lock Deck:"
-                tooltip={`Prevent deck size from changing. ${settingsModalConstants.REQUIRES_RESTART}`}
-                onChange$={(e) => {
-                  unsavedUserSettings.value = {
-                    ...unsavedUserSettings.value,
-                    deck: {
-                      ...unsavedUserSettings.value.deck,
-                      isLocked: (e.target as HTMLInputElement).checked,
-                    },
-                  };
-                }}
-              />
-            </ModalRow>
-
-            <ModalRow>
               <DeckSizeSlider
                 userSettings={unsavedUserSettings}
                 gameSettings={gameSettings}
@@ -84,6 +53,41 @@ export default component$(
                 for="game-settings"
               />
             </ModalRow>
+
+            <DropdownOriginal
+buttonText="Show Developer Settings"
+>
+              <>
+                <ModalRow>
+                  <InputLock
+                    text="Lock Board:"
+                    tooltip="Prevent board layout from changing."
+                    onChange$={(e) => {
+                      unsavedUserSettings.value = {
+                        ...unsavedUserSettings.value,
+                        board: {
+                          ...unsavedUserSettings.value.board,
+                          isLocked: (e.target as HTMLInputElement).checked,
+                        },
+                      };
+                    }}
+                  />
+                </ModalRow>
+                <ModalRow>
+                  <InputLock
+                    text="Lock Deck:"
+                    tooltip={`Prevent deck size from changing. ${settingsModalConstants.REQUIRES_RESTART}`}
+                    onChange$={(e) => {
+                      unsavedUserSettings.value = {
+                        ...unsavedUserSettings.value,
+                        deck: {
+                          ...unsavedUserSettings.value.deck,
+                          isLocked: (e.target as HTMLInputElement).checked,
+                        },
+                      };
+                    }}
+                  />
+                </ModalRow>
 
             <ModalRow>
               <InputLock
@@ -116,6 +120,11 @@ export default component$(
                 value={unsavedUserSettings.value.interface.showDimensions}
               />
             </ModalRow>
+
+              </>
+            </DropdownOriginal>
+
+
             {gameTime !== 0 && (
               <ModalRow>
                 <div class="w-full flex justify-between tooltip">

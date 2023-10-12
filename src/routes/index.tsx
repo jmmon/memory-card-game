@@ -7,6 +7,10 @@ import {
 } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
 import type { DocumentHead } from "@builder.io/qwik-city";
+import Dropdown, {
+  Dropdown2,
+  DropdownOriginal,
+} from "~/v3/components/atomic/atoms/dropdown/dropdown";
 import GameSettings from "~/v3/components/atomic/organisms/game-settings/game-settings";
 import {
   INITIAL_GAME_SETTINGS,
@@ -19,6 +23,7 @@ const LI_CLASSES = "pl-2 md:pl-4";
 
 export default component$(() => {
   return (
+<div class="flex flex-col justify-between items-center h-screen ">
     <div class="grid w-full justify-center items-center gap-8 text-slate-200">
       <h1 class="text-center text-4xl text-slate-500">Memory Card Game</h1>
 
@@ -37,20 +42,18 @@ export default component$(() => {
         </li>
       </ol>
 
-      <div class="flex flex-col items-center">
         <ChangeGameSettings />
 
-        <br />
-        <br />
+
+    </div>
 
         <Link
           href="/older-versions"
-          class=" text-slate-500 text-center underline hover:text-slate-300"
+          class="p-2 text-slate-500 text-center underline hover:text-slate-300"
         >
           Prototype versions...
         </Link>
-      </div>
-    </div>
+</div>
   );
 });
 
@@ -103,35 +106,66 @@ export const ChangeGameSettings = component$(() => {
         href={`/game${
           compQParamsString.value !== "" ? "/?" + compQParamsString.value : ""
         }`}
-        class="text-slate-200 hover:text-white text-4xl py-4 px-8 border-slate-200 rounded-lg bg-slate-800 hover:bg-slate-700"
+        class="mx-auto text-slate-200 hover:text-white text-4xl py-4 px-8 border-slate-200 rounded-lg bg-slate-800 hover:bg-slate-700"
       >
         Play
       </Link>
 
-      <div class={`flex flex-col items-center`}>
-        <button
-          class="border-none"
-          onClick$={() => {
-            showSettings.value = !showSettings.value;
-          }}
-        >
-          Change Settings
-        </button>
-        <div
-          class={`change-settings transition-all ${
-            showSettings.value
-              ? "pointer-events-auto h-[20rem] z-[1000] overflow-auto"
-              : "pointer-events-none h-0 z-[-1] overflow-hidden"
-          }`}
-        >
-          <GameSettings
-            saveSettings$={saveSettings$}
-            gameTime={0}
-            unsavedUserSettings={unsavedSettings}
-            gameSettings={INITIAL_GAME_SETTINGS}
-          />
-        </div>
-      </div>
+      {/* <h6>Dropdown</h6> */}
+      {/* <Dropdown buttonText="Change Settings"> */}
+      {/*   <GameSettings */}
+      {/*     saveSettings$={saveSettings$} */}
+      {/*     gameTime={0} */}
+      {/*     unsavedUserSettings={unsavedSettings} */}
+      {/*     gameSettings={INITIAL_GAME_SETTINGS} */}
+      {/*   /> */}
+      {/* </Dropdown> */}
+      {/**/}
+      {/* <h6>Dropdown2</h6> */}
+      {/* <Dropdown2 buttonText="Change Settings"> */}
+      {/*   <GameSettings */}
+      {/*     saveSettings$={saveSettings$} */}
+      {/*     gameTime={0} */}
+      {/*     unsavedUserSettings={unsavedSettings} */}
+      {/*     gameSettings={INITIAL_GAME_SETTINGS} */}
+      {/*   /> */}
+      {/* </Dropdown2> */}
+      {/**/}
+      {/* <h6>"Original"</h6> */}
+      <DropdownOriginal buttonText="Change Settings" expandedHeight="19rem">
+        <GameSettings
+          saveSettings$={saveSettings$}
+          gameTime={0}
+          unsavedUserSettings={unsavedSettings}
+          gameSettings={INITIAL_GAME_SETTINGS}
+        />
+      </DropdownOriginal>
+
+      {/* <h6>Original</h6> */}
+
+      {/* <div class={`flex flex-col items-center`}> */}
+      {/*   <button */}
+      {/*     class="border-none" */}
+      {/*     onClick$={() => { */}
+      {/*       showSettings.value = !showSettings.value; */}
+      {/*     }} */}
+      {/*   > */}
+      {/*     Change Settings */}
+      {/*   </button> */}
+      {/*   <div */}
+      {/*     class={`change-settings transition-all ${showSettings.value */}
+      {/*         ? "pointer-events-auto max-h-[1000px] h-[20rem] z-[1000] overflow-auto" */}
+      {/*         : "pointer-events-none max-h-0 h-0 z-[-1] overflow-hidden" */}
+      {/*       }`} */}
+      {/*   > */}
+      {/*     <GameSettings */}
+      {/*       saveSettings$={saveSettings$} */}
+      {/*       gameTime={0} */}
+      {/*       unsavedUserSettings={unsavedSettings} */}
+      {/*       gameSettings={INITIAL_GAME_SETTINGS} */}
+      {/*     /> */}
+      {/*   </div> */}
+      {/* </div> */}
     </>
   );
 });
