@@ -9,7 +9,7 @@ import DeckSizeSlider from "../../molecules/deck-size-slider/deck-size-slider";
 import type { PropFunction, Signal } from "@builder.io/qwik";
 import type { iGameSettings, iUserSettings } from "~/v3/types/types";
 import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";
-import { DropdownOriginal } from "../../atoms/dropdown/dropdown";
+import Dropdown from "../../atoms/dropdown/dropdown";
 
 export default component$(
   ({
@@ -54,76 +54,70 @@ export default component$(
               />
             </ModalRow>
 
-            <DropdownOriginal
-buttonText="Show Developer Settings"
->
-              <>
-                <ModalRow>
-                  <InputLock
-                    text="Lock Board:"
-                    tooltip="Prevent board layout from changing."
-                    onChange$={(e) => {
-                      unsavedUserSettings.value = {
-                        ...unsavedUserSettings.value,
-                        board: {
-                          ...unsavedUserSettings.value.board,
-                          isLocked: (e.target as HTMLInputElement).checked,
-                        },
-                      };
-                    }}
-                  />
-                </ModalRow>
-                <ModalRow>
-                  <InputLock
-                    text="Lock Deck:"
-                    tooltip={`Prevent deck size from changing. ${settingsModalConstants.REQUIRES_RESTART}`}
-                    onChange$={(e) => {
-                      unsavedUserSettings.value = {
-                        ...unsavedUserSettings.value,
-                        deck: {
-                          ...unsavedUserSettings.value.deck,
-                          isLocked: (e.target as HTMLInputElement).checked,
-                        },
-                      };
-                    }}
-                  />
-                </ModalRow>
+            <Dropdown buttonText="Show Developer Settings">
+              <ModalRow>
+                <InputLock
+                  text="Lock Board:"
+                  tooltip="Prevent board layout from changing."
+                  onChange$={(e) => {
+                    unsavedUserSettings.value = {
+                      ...unsavedUserSettings.value,
+                      board: {
+                        ...unsavedUserSettings.value.board,
+                        isLocked: (e.target as HTMLInputElement).checked,
+                      },
+                    };
+                  }}
+                />
+              </ModalRow>
+              <ModalRow>
+                <InputLock
+                  text="Lock Deck:"
+                  tooltip={`Prevent deck size from changing. ${settingsModalConstants.REQUIRES_RESTART}`}
+                  onChange$={(e) => {
+                    unsavedUserSettings.value = {
+                      ...unsavedUserSettings.value,
+                      deck: {
+                        ...unsavedUserSettings.value.deck,
+                        isLocked: (e.target as HTMLInputElement).checked,
+                      },
+                    };
+                  }}
+                />
+              </ModalRow>
 
-            <ModalRow>
-              <InputLock
-                text="Show Selected Card Ids"
-                tooltip="Show unique card ids for currently selected cards"
-                onChange$={(e) => {
-                  unsavedUserSettings.value = {
-                    ...unsavedUserSettings.value,
-                    interface: {
-                      ...unsavedUserSettings.value.interface,
-                      showSelectedIds: (e.target as HTMLInputElement).checked,
-                    },
-                  };
-                }}
-              />
-            </ModalRow>
-            <ModalRow>
-              <InputLock
-                text="Show Dimensions"
-                tooltip="Show board layout and window dimensions."
-                onChange$={(e) => {
-                  unsavedUserSettings.value = {
-                    ...unsavedUserSettings.value,
-                    interface: {
-                      ...unsavedUserSettings.value.interface,
-                      showDimensions: (e.target as HTMLInputElement).checked,
-                    },
-                  };
-                }}
-                value={unsavedUserSettings.value.interface.showDimensions}
-              />
-            </ModalRow>
-
-              </>
-            </DropdownOriginal>
-
+              <ModalRow>
+                <InputLock
+                  text="Show Selected Card Ids"
+                  tooltip="Show unique card ids for currently selected cards"
+                  onChange$={(e) => {
+                    unsavedUserSettings.value = {
+                      ...unsavedUserSettings.value,
+                      interface: {
+                        ...unsavedUserSettings.value.interface,
+                        showSelectedIds: (e.target as HTMLInputElement).checked,
+                      },
+                    };
+                  }}
+                />
+              </ModalRow>
+              <ModalRow>
+                <InputLock
+                  text="Show Dimensions"
+                  tooltip="Show board layout and window dimensions."
+                  onChange$={(e) => {
+                    unsavedUserSettings.value = {
+                      ...unsavedUserSettings.value,
+                      interface: {
+                        ...unsavedUserSettings.value.interface,
+                        showDimensions: (e.target as HTMLInputElement).checked,
+                      },
+                    };
+                  }}
+                  value={unsavedUserSettings.value.interface.showDimensions}
+                />
+              </ModalRow>
+            </Dropdown>
 
             {gameTime !== 0 && (
               <ModalRow>

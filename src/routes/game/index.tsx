@@ -7,7 +7,7 @@ import { INITIAL_USER_SETTINGS } from "~/v3/context/initialState";
 import { unflattenObject } from "~/v3/utils/utils";
 import { validate } from "~/v3/validation/validate";
 import schemas from "~/v3/validation/schemas";
-import { iUserSettings } from "~/v3/types/types";
+import type { iUserSettings } from "~/v3/types/types";
 // import SubmitScoreModal from "~/v3/components/submit-score-modal/submit-score-modal";
 
 export const useDefaultHash = routeLoader$(() =>
@@ -32,13 +32,13 @@ export const useParams = routeLoader$(async (requestEvent) => {
   );
 
   const unflattenedParams = unflattenObject(numberizeValues(searchParamsObj));
-  const completedParams = {
+  const completedUserParams = {
     ...INITIAL_USER_SETTINGS,
     ...unflattenedParams,
   } as iUserSettings;
 
-  if (validate(completedParams, schemas.userSettings)) {
-    return completedParams;
+  if (validate(completedUserParams, schemas.userSettings).isValid) {
+    return completedUserParams;
   }
   return INITIAL_USER_SETTINGS;
 });

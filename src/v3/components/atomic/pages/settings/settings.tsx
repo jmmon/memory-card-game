@@ -1,4 +1,5 @@
-import { $, Signal, component$, useContext, useSignal } from "@builder.io/qwik";
+import type { Signal} from "@builder.io/qwik";
+import { $, component$, useContext, useSignal } from "@builder.io/qwik";
 import { GameContext } from "~/v3/context/gameContext";
 
 import Modal from "../../templates/modal/modal";

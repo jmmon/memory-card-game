@@ -1,6 +1,6 @@
 import { $ } from "@builder.io/qwik";
 import { GAME } from "../constants/game";
-import {
+import type {
   GameData,
   iGameContext,
   iGameSettings,

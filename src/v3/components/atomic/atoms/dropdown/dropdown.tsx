@@ -3,11 +3,7 @@ import {
   $,
   component$,
   useSignal,
-  useComputed$,
-  useTask$,
-  useOn,
   useVisibleTask$,
-  Signal,
 } from "@builder.io/qwik";
 import { useDebounceObj } from "~/v3/utils/useDebounce";
 import Button from "../button/button";
@@ -24,94 +20,7 @@ import ChevronSvg from "~/media/icons/icons8-chevron-96 convertio.svg?jsx";
  *
  * */
 
-export default component$(
-  ({
-    buttonText,
-    showOnInit = false,
-    transitionTiming = 150,
-    expandedHeight = "20rem",
-  }: {
-    buttonText: string;
-    showOnInit?: boolean;
-    transitionTiming?: number;
-    expandedHeight?: string;
-  }) => {
-    const isShowing = useSignal<boolean>(showOnInit);
-    const debouncedShowing = useSignal<boolean>(showOnInit);
-
-    const debounce = useDebounceObj({
-      action: $(() => {
-        debouncedShowing.value = isShowing.value;
-        // console.log('debounce complete');
-      }),
-      _delay: transitionTiming,
-    });
-
-    const startAction = $((newValue: boolean) => {
-      // console.log('debounce started');
-      // can tweak delay if needed
-      debounce.setDelay(transitionTiming);
-      debounce.setValue(newValue);
-    });
-
-    const containerClasses = {
-      isShowing: `opacity-[100%] pointer-events-auto  z-[1000] overflow-hidden`,
-      visible: `opacity-[100%] pointer-events-auto  z-[1000]`,
-      isHiding: `opacity-[0%] pointer-events-none z-[-1]`,
-      hidden: `opacity-[0%] pointer-events-none z-[-1] overflow-hidden`,
-    };
-
-    return (
-      <>
-        <div
-          class={`transition-all duration-[${transitionTiming}ms] flex flex-col items-center relative  ${
-            isShowing.value ? "max-h-max" : "max-h-[46px]"
-          }`}
-        >
-          <button
-            class="border-none h-[46px]"
-            onClick$={() => {
-              isShowing.value = !isShowing.value;
-              startAction(isShowing.value);
-            }}
-          >
-            {buttonText}
-            <span
-              class={`transition-all duration-[${transitionTiming}ms] inline-block ml-2 text-sky-300 ${
-                isShowing.value ? `rotate-[180deg]` : ``
-              }`}
-            >
-              ^
-            </span>
-          </button>
-
-          <div
-            class={`relative bottom-0 transition-all ${
-              isShowing.value === debouncedShowing.value
-                ? isShowing.value === true
-                  ? containerClasses.visible
-                  : containerClasses.hidden
-                : isShowing.value === true
-                ? containerClasses.isShowing
-                : containerClasses.isHiding
-            }`}
-          >
-            <Slot />
-          </div>
-        </div>
-      </>
-    );
-  }
-);
-
 const INITIAL_MAX_HEIGHT = 10000;
-
-const containerClasses = {
-  isShowing: `opacity-[100%] pointer-events-auto  z-[1000] overflow-hidden`,
-  visible: `opacity-[100%] pointer-events-auto  z-[1000]`,
-  isHiding: `opacity-[0%] pointer-events-none z-[-1]`,
-  hidden: `opacity-[0%] pointer-events-none z-[-1] overflow-hidden`,
-};
 
 /*
  * start with it closed (or could be open)
@@ -120,137 +29,18 @@ const containerClasses = {
  * - That way it slides down/up from behind the button
  *
  * */
-export const Dropdown2 = component$(
-  ({
-    buttonText,
-    showOnInit = false,
-    transitionTiming = 150,
-    expandedHeight = "20rem",
-  }: {
-    buttonText: string;
-    showOnInit?: boolean;
-    transitionTiming?: number;
-    expandedHeight?: string;
-  }) => {
-    const isShowing = useSignal<boolean>(showOnInit);
-    const debouncedShowing = useSignal<boolean>(showOnInit);
-
-    const containerRef = useSignal<HTMLElement>();
-    const buttonRef = useSignal<HTMLElement>();
-
-    const isFirstRender = useSignal(true);
-    const maxHeightRef = useSignal(INITIAL_MAX_HEIGHT);
-    // the slot content will have an unknown height
-    // so we need to get it the first time we expand
-    //
-    // when open, the maxHeight of the containerRef should be
-    //
-
-    const calculatedMaxHeight = useComputed$(() => {
-      if (containerRef.value && !isFirstRender.value) {
-        // during a rerender
-        if (
-          maxHeightRef.value > containerRef.value.offsetHeight &&
-          maxHeightRef.value !== INITIAL_MAX_HEIGHT
-        ) {
-          return maxHeightRef.value;
-        }
-        maxHeightRef.value = containerRef.value.offsetHeight;
-        return maxHeightRef.value;
-      }
-
-      // on first render, turn off first render
-      if (isShowing.value && isFirstRender.value) {
-        isFirstRender.value = false;
-      }
-      return maxHeightRef.value;
-    });
-
-    // just to log it
-    useTask$(({ track }) => {
-      track(() => calculatedMaxHeight.value);
-      console.log("calcMaxH:", calculatedMaxHeight.value);
-    });
-
-    const debounce = useDebounceObj({
-      action: $(() => {
-        debouncedShowing.value = isShowing.value;
-        // console.log('debounce complete');
-      }),
-      _delay: transitionTiming,
-    });
-
-    const startAction = $((newValue: boolean) => {
-      // console.log('debounce started');
-      // can tweak delay if needed
-      debounce.setDelay(transitionTiming);
-      debounce.setValue(newValue);
-    });
-
-    return (
-      <>
-        <div
-          ref={containerRef}
-          class={`relative transition-all duration-[${transitionTiming}ms] flex flex-col items-center h-auto`}
-          style={{
-            maxHeight: isShowing.value
-              ? 600 + "px"
-              : buttonRef?.value?.offsetHeight || 0,
-            height: isShowing.value
-              ? 600 + "px"
-              : buttonRef?.value?.offsetHeight || 0,
-          }}
-        >
-          <button
-            ref={buttonRef}
-            class="border-none"
-            onClick$={() => {
-              isShowing.value = !isShowing.value;
-              startAction(isShowing.value);
-            }}
-          >
-            {buttonText}
-            <span
-              class={`transition-all duration-[${transitionTiming}ms] inline-block ml-2 text-sky-300 ${
-                isShowing.value ? `rotate-[180deg]` : ``
-              }`}
-            >
-              ^
-            </span>
-          </button>
-
-          <div
-            class={`absolute left-0 bottom-0 transition-all ${
-              isShowing.value === debouncedShowing.value
-                ? isShowing.value === true
-                  ? containerClasses.visible
-                  : containerClasses.hidden
-                : isShowing.value === true
-                ? containerClasses.isShowing
-                : containerClasses.isHiding
-            }`}
-          >
-            <Slot />
-          </div>
-        </div>
-      </>
-    );
-  }
-);
 
 const EXTRA_PX = 10;
 
-export const DropdownOriginal = component$(
+export default component$(
   ({
     buttonText,
     showOnInit = false,
     transitionTiming = 150,
-    expandedHeight = "20rem",
   }: {
     buttonText: string;
     showOnInit?: boolean;
     transitionTiming?: number;
-    expandedHeight?: string;
   }) => {
     const isOpen = useSignal(!showOnInit);
     const debouncedIsOpen = useSignal(!showOnInit);
@@ -339,8 +129,6 @@ export const DropdownOriginal = component$(
           </span>
         </Button>
 
-        {/* <ChevronIcon transitionTiming={transitionTiming} isShowing={isOpen} isInitialized={isInitialized} /> */}
-
         <div
           ref={containerRef}
           class={`h-auto border-box mx-2 ${
@@ -366,25 +154,3 @@ export const DropdownOriginal = component$(
     );
   }
 );
-
-const ChevronIcon = ({
-  transitionTiming,
-  isShowing,
-  isInitialized,
-}: {
-  transitionTiming: number;
-  isShowing: Signal<boolean>;
-  isInitialized: Signal<boolean>;
-}) => {
-  return (
-    <span
-      class={`transition-all duration-[${transitionTiming}ms] inline-block ml-2 text-sky-300 ${
-        isShowing.value && isInitialized.value
-          ? `rotate-[0deg]`
-          : `rotate-[180deg]`
-      }`}
-    >
-      <ChevronSvg style={{ fill: "#7777aa" }} />
-    </span>
-  );
-};

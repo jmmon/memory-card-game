@@ -1,4 +1,4 @@
-import { iNestedObj, iObj, iUserSettings } from "../types/types";
+import type { iNestedObj, iObj, iUserSettings } from "../types/types";
 
 export const flattenObjectToEntries = (
   obj: iUserSettings,
