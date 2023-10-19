@@ -55,7 +55,7 @@ import {
 
 export default component$(
   ({ settings = INITIAL_USER_SETTINGS }: { settings: iUserSettings }) => {
-    console.log("game component settings:", { settings });
+    // console.log("game component settings:", { settings });
     const timer = useTimer();
     const gameContext = useStore<iGameContext>(
       {
