@@ -1,8 +1,9 @@
 import crypto from "node:crypto";
 import scoreService from "./score.service";
-import serverDbService from "./db.service";
+import db from "./db.service";
 import { server$ } from "@builder.io/qwik-city";
 import scoreCountsService from "./scoreCounts.service";
+import { NewScore } from "../db/types";
 
 let timeout: ReturnType<typeof setTimeout> | null = null;
 const delay = (ms: number) => new Promise((resolve) => timeout = setTimeout(resolve, ms));
@@ -76,9 +77,13 @@ const getRandomInitials = () => {
   );
 };
 
+/** 
+ *0001110110111000001000000000010011100110011001111110101001010111110001011010001100110010010011000011011111101100101101011010110111110010010011110111000000001110001011011011010000000110011000001111101111011111000101000010100001100110011001100111100000011110
+ *
+ * */
 const getRandomMirroredPixels = () => {
-  const dimensions = 10;
-  const pixelsHalfCount = 50;
+  const dimensions = 16;
+  const pixelsHalfCount = dimensions * (dimensions / 2);
   const halfPixels = Array(pixelsHalfCount)
     .fill(0)
     .map(() => (Math.random() > 0.5 ? 1 : 0));
@@ -97,10 +102,21 @@ const getRandomMirroredPixels = () => {
   return resultPixelsArray.join("");
 };
 
+const generateHalfPixels = (halfCols: number = 32, rows: number = 64) => {
+  const halfPixels = Array(halfCols * rows)
+    .fill(0)
+    .map(() => (Math.random() > 0.5 ? 1 : 0));
+  return halfPixels.join("");
+}
+
+const PIXEL_AVATAR_ROWS = 16;
+const PIXEL_AVATAR_COLS = 16;
+const PIXEL_AVATAR_HALF_COLS = PIXEL_AVATAR_COLS / 2;
+
 const generateScoreData = (deckSize: number) => {
   const userId = getRandomBytes();
   const initials = getRandomInitials();
-  const pixels = getRandomMirroredPixels();
+  const halfPixels = generateHalfPixels(PIXEL_AVATAR_HALF_COLS, PIXEL_AVATAR_ROWS);
   const mismatches = Math.max(
     0,
     Math.round(
@@ -109,7 +125,7 @@ const generateScoreData = (deckSize: number) => {
     )
   );
 
-  const newScore = {
+  const newScore: NewScore = {
     deckSize,
     gameTime: `${
       deckSize * 1000 + Math.round(Math.random() * 1000)*100
@@ -119,7 +135,8 @@ const generateScoreData = (deckSize: number) => {
     initials,
     pairs: deckSize / 2,
     color: stringToColor(initials),
-    pixels,
+    // pixelData: pixels,
+    pixelData: `${PIXEL_AVATAR_COLS}x${PIXEL_AVATAR_ROWS}:${halfPixels}`
   };
   return newScore;
 };
@@ -139,10 +156,10 @@ const createManyScores = async ({
     for (let i = 0; i < scoresPerDeckSize; i++) {
       const newScoreData = generateScoreData(deckSize);
 
-      const newScorePromise = await serverDbService.saveNewScore(newScoreData);
+      const newScorePromise = await db.saveNewScore(newScoreData);
       console.log("\nsaved new score:", JSON.stringify({ newScorePromise }));
 
-      await delay(20);
+      // await delay(20);
       if (timeout) {
         clearTimeout(timeout);
         timeout = null;
@@ -159,7 +176,7 @@ const runSeed = async function ({
   scoresPerDeckSize: number;
 }) {
   try {
-    await serverDbService.clearData();
+    await db.clearData();
 
     const minDeckSize = 6;
     const maxDeckSize = 52;

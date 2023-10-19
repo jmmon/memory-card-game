@@ -3,12 +3,13 @@ import {
   pgTable,
   serial,
   json,
+  text,
   timestamp,
   interval,
   varchar,
 } from "drizzle-orm/pg-core";
-import type { LessThanOurScoreObj } from "../types/types";
 import { sql } from "drizzle-orm";
+import type { LessThanOurScoreObj } from "../types/types";
 
 export const scoreCounts = pgTable("scoreCounts", {
   id: serial("id").primaryKey(),
@@ -32,7 +33,7 @@ export const scores = pgTable("scores", {
   userId: varchar("userId", { length: 64 }), // some uuid, hashed value of an identifier/hash
   initials: varchar("initials", { length: 32 }), // some optional inputted string??
   color: varchar("color", { length: 32 }), // hsl(xxx, xxx%, xxx%)
-  pixels: varchar("pixels", { length: 256 }), // binary
+  pixelData: text("pixelData"), // binary
   // scoreCounts: integer("scoreCounts"),
 });
 

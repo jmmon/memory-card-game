@@ -44,16 +44,23 @@ export function hexCharToBase(hex: string, base: number) {
     .padStart(OLD_BASE / base, "0");
 }
 
-// take hex string and target string length
-// calculates how to achieve the target length by reducing the base of the hex string until we have enough digits
+// 
+/**
+* calculates base needed to achieve the target string length 
+* by reducing the base of the hex string until we have enough digits
+*
+* @param hex - input string to generate the base
+* @param targetMinimumStringLength - the half of pixels required
+* @return the new base
+*/
 function calculateBaseChange(hex: string, targetMinimumStringLength: number) {
-  const initialBase = 16;
+  const initialBase = 16; // the base of hex numbers
   let toDivideBaseBy = Math.ceil(targetMinimumStringLength / hex.length);
   let newBase = initialBase;
 
   while (toDivideBaseBy > 1) {
     if (newBase === 2) {
-      throw new Error("too long");
+      throw new Error(`too long: { targetMinimumStringLength: ${targetMinimumStringLength}, hex: ${hex}, toDivideBaseBy: ${toDivideBaseBy} }`);
     }
     newBase /= 2;
     toDivideBaseBy /= 2;
@@ -107,6 +114,21 @@ export function getPixels(
         const shouldFill = parseInt(charFromHash, base) % 2;
         pixels += shouldFill ? "0" : "1";
       }
+    }
+  }
+
+  return pixels;
+}
+
+function mirrorPixels(cols: number, rows: number, halfPixels: string) {
+  let pixels = '';
+
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < cols; j++) {
+      const halfway = Math.ceil(cols / 2);
+      const J = j >= halfway ? cols - 1 - j : j;
+      const charFromHash = halfPixels.charAt(i * halfway + J);
+      pixels += charFromHash;
     }
   }
 
@@ -220,16 +242,16 @@ interface PixelAvatarProps {
   };
   colorFrom?: Signal<string>;
   color?: string;
-  pixels?: string;
+  halfPixels?: string;
   outputTo$?: PropFunction<
-    ({ pixels, color }: { pixels: string; color: string }) => void
+    ({ cols, rows, halfPixels, color }: { cols: number; rows: number; halfPixels: string; color: string }) => void
   >;
 }
 
 export default component$(
   ({
-    rows = 10,
-    cols = 10,
+    rows = 16,
+    cols = 16,
     width = 100,
     height = 100,
     text,
@@ -240,7 +262,7 @@ export default component$(
     colorOptions = DEFAULT_COLOR_OPTIONS,
     colorFrom,
     color,
-    pixels,
+    halfPixels: halfPixels,
     outputTo$,
   }: PixelAvatarProps) => {
     const data = useSignal({
@@ -256,7 +278,7 @@ export default component$(
     });
 
     useTask$(async ({ track }) => {
-      track(() => [color, pixels, text?.value, colorFrom?.value]);
+      track(() => [color, halfPixels, text?.value, colorFrom?.value]);
 
       let generatedPixels, generatedColor;
       let textToUseForPixels = text?.value ?? "";
@@ -280,8 +302,8 @@ export default component$(
         );
       }
 
-      if (pixels) {
-        generatedPixels = pixels;
+      if (halfPixels) {
+        generatedPixels = mirrorPixels(cols, rows, halfPixels);
       } else {
         // hash the textToUseForPixels
         generatedPixels = await calculateOnlyPixels(
@@ -316,7 +338,7 @@ export default component$(
       // if isMoreColored !== forceLighter  we can use color for base and white for blocks
       // if isMoreColored == forceLighter  we can use white for base and color for blocks
       if (outputTo$ !== undefined) {
-        outputTo$({ pixels: generatedPixels, color: generatedColor });
+        outputTo$({ cols, rows, halfPixels: generatedPixels, color: generatedColor });
       }
     });
 

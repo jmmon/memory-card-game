@@ -77,7 +77,11 @@ export default component$(() => {
 
   const saveScore$ = $(async () => {
     if (gameContext.game.isSaved) return;
-    const [pixels, color] = data.value.split('.');
+
+    const [dimensions, pixelData] = data.value.split(':');
+    const [cols, rows] = dimensions.split('x');
+    const [halfPixels, color] = pixelData.split('.');
+
     const newScore: NewScore = {
       deckSize: gameContext.settings.deck.size,
       gameTime: `${gameContext.timer.state.timeDs} millisecond`,
@@ -86,7 +90,7 @@ export default component$(() => {
       userId: identifier.value,
       initials: initials.value,
       color,
-      pixels,
+      pixelData: `${cols}x${rows}:${halfPixels}`,
     };
 
     try {
@@ -187,9 +191,10 @@ export default component$(() => {
               width={computedAvatarSize.value}
               height={computedAvatarSize.value}
 
+
               text={identifier}
               colorFrom={initials}
-              outputTo$={({ pixels, color }) => { data.value = `${pixels}.${color}` }}
+              outputTo$={({ cols, rows, halfPixels, color }) => { data.value = `${cols}x${rows}:${halfPixels}.${color}` }}
             />
           </div>
           <div class="flex py-[2%] px-[4%]">

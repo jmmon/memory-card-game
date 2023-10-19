@@ -3,7 +3,9 @@ import {
   sql,
 } from "drizzle-orm";
 
+
 import {
+  text,
   integer,
   interval,
   pgTable,
@@ -40,10 +42,10 @@ export const scores = pgTable("scores", {
   gameTime: interval("gameTime", { precision: 6 }),
   mismatches: integer("mismatches"),
   pairs: integer("pairs"),
-  userId: varchar("userId", { length: 64 }), // some uuid, hashed value of an identifier/hash
-  initials: varchar("initials", { length: 32 }), // some optional inputted string??
-  color: varchar("color", { length: 32 }), // hsl(xxx, xxx%, xxx%)
-  pixels: varchar("pixels", { length: 256 }), // binary
+  userId: varchar("userId" ), // some uuid, hashed value of an identifier/hash
+  initials: varchar("initials"), // some optional inputted string??
+  color: varchar("color"), // hsl(xxx, xxx%, xxx%)
+  pixelData: text("pixelData"), // binary
   // scoreCounts: integer("scoreCounts"),
 });
 //

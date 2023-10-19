@@ -124,6 +124,8 @@ const generateBgAlpha = (color: string) =>
   color.slice(0, -2) + `${ROW_BG_COLOR_ALPHA})`;
 
 const ScoreRow = component$(({ score, size }: { score: ScoreWithPercentiles, size: Signal<number> }) => {
+  const [dimensions, halfPixels] = (score.pixelData as string).split(':');
+  const [cols, rows] = dimensions.split('x');
   return (
     <tr
       class="w-full h-full border border-slate-900 rounded-lg text-xs sm:text-sm md:text-md text-white"
@@ -137,7 +139,9 @@ const ScoreRow = component$(({ score, size }: { score: ScoreWithPercentiles, siz
       >
         <PixelAvatar
           color={score.color as string}
-          pixels={score.pixels as string}
+          halfPixels={halfPixels}
+          rows={Number(rows)}
+          cols={Number(cols)}
           width={size.value}
           height={size.value}
           classes="pixel-avatar"

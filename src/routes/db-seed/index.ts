@@ -11,11 +11,9 @@ export const onGet: RequestHandler = async (requestEvent) => {
     return;
   }
 
+  // create an obj from the query params
   const obj: Record<string, string> = {};
-
-  // console.log(requestEvent.url.toString());
   requestEvent.query.forEach((v, k) => {
-    // console.log({k,v});
     obj[k] = v;
   });
 

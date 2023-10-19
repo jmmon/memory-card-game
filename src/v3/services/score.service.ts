@@ -1,4 +1,4 @@
-import { and, eq, gt, gte, inArray, sql } from "drizzle-orm";
+import { and, eq, gte, inArray, sql } from "drizzle-orm";
 import { db, scores } from "../db";
 import type { SortColumnWithDirection } from "../types/types";
 import { DEFAULT_QUERY_PROPS } from "./constants";
