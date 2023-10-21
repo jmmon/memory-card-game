@@ -34,7 +34,8 @@ export const unflattenObject = (obj: iObj) => {
       const parentKey = split[0];
       const remainingUnderscoreKeys = split.slice(1).join("_");
 
-      if (unflattened[parentKey] === undefined) {
+      // if (unflattened[parentKey] === undefined) {
+      if (typeof unflattened[parentKey] === 'undefined') {
         // do not have a value for firstKey, need to set up an object for it
         unflattened[parentKey] = { [remainingUnderscoreKeys]: value };
       } else {

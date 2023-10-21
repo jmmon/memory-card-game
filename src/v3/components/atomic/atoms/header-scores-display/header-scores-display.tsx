@@ -7,7 +7,7 @@ import {
 } from "@builder.io/qwik";
 import { header } from "~/v3/constants/header-constants";
 import { GameContext } from "~/v3/context/gameContext";
-import { useTimeoutObj } from "~/v3/utils/useTimeout";
+import { useTimeoutObj } from "~/v3/hooks/useTimeout";
 
 export default component$(() => {
   const gameContext = useContext(GameContext);

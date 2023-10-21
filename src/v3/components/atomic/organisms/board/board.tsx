@@ -12,8 +12,8 @@ import {
 import { GameContext } from "~/v3/context/gameContext";
 import type { Pair } from "~/v3/types/types";
 import cardUtils from "~/v3/utils/cardUtils";
-import { useDebounce } from "~/v3/utils/useDebounce";
-import { useTimeoutObj } from "~/v3/utils/useTimeout";
+import useDebounceSignal from "~/v3/hooks/useDebounce";
+import { useTimeoutObj } from "~/v3/hooks/useTimeout";
 import { calculateLayouts } from "~/v3/utils/boardUtils";
 import Card from "../card/card";
 import { BOARD } from "~/v3/constants/board";
@@ -28,6 +28,10 @@ export default component$(
     const lastRefresh = useSignal(gameContext.userSettings.board.resize);
 
     const lastClick = useSignal(-1);
+
+    const isCardFlipped = useComputed$(
+      () => gameContext.game.flippedCardId !== -1
+    );
 
     const handleAddToSuccessfulPairsIfMatching = $(async () => {
       const [cardId1, cardId2] = gameContext.game.selectedCardIds;
@@ -78,14 +82,9 @@ export default component$(
       lastClick.value = Date.now();
     });
 
-    const unflipDebounce = useDebounce<number>(
-      unflipCard,
-      BOARD.MINIMUM_TIME_BETWEEN_CLICKS
-    );
-
-    const runUnflipDebounce = $((time: number) => {
-      unflipDebounce.setDelay(time);
-      unflipDebounce.setValue(-1);
+    const unflipDebounce = useDebounceSignal<number>({
+      _action$: unflipCard,
+      _delay: BOARD.MINIMUM_TIME_BETWEEN_CLICKS,
     });
 
     // runs when the clicked item is a card
@@ -103,13 +102,14 @@ export default component$(
         const isFinalPair =
           newSelected.length === 2 &&
           gameContext.game.successfulPairs.length ===
-            gameContext.userSettings.deck.size / 2 - 1;
+          gameContext.userSettings.deck.size / 2 - 1;
 
         // check immediately for the final pair
         if (isFinalPair) {
           gameContext.game.flippedCardId = cardId;
           gameContext.timer.pause();
-          runUnflipDebounce(BOARD.MINIMUM_TIME_BETWEEN_CLICKS);
+          // runUnflipDebounce(BOARD.MINIMUM_TIME_BETWEEN_CLICKS);
+          unflipDebounce.callDebounce();
           return;
         }
       }
@@ -119,61 +119,36 @@ export default component$(
       lastClick.value = Date.now();
     });
 
-    const handleClickCard = $(
-      (isCardFlipped: boolean, isClickedOnCard: boolean, clickedId: number) => {
-        // unflip card if flipped
-        if (isCardFlipped) {
-          unflipCard();
-        }
-        // card is not flipped
-        else if (isClickedOnCard) {
-          // initialize game timer on first click
-          if (!gameContext.timer.state.isStarted) {
-            gameContext.startGame();
-          }
-
-          // runClickUnflippedCardDebounce(clickedId);
-          handleClickUnflippedCard(clickedId);
-        }
+    const handleClickCard = $((isClickedOnCard: boolean, clickedId: number) => {
+      // unflip card if flipped
+      if (isCardFlipped.value) {
+        unflipCard();
       }
-    );
+      // card is not flipped
+      else if (isClickedOnCard) {
+        // initialize game timer on first click
+        if (!gameContext.timer.state.isStarted) {
+          gameContext.startGame();
+        }
 
-    const clickCardDebounce = useDebounce<{
-      isCardFlipped: boolean;
+        // runClickUnflippedCardDebounce(clickedId);
+        handleClickUnflippedCard(clickedId);
+      }
+    });
+
+    const clickCardDebounce = useDebounceSignal<{
       isClickedOnCard: boolean;
       clickedId: number;
-    }>(
-      $((values) => {
-        const { isCardFlipped, isClickedOnCard, clickedId } = values as {
-          isCardFlipped: boolean;
-          isClickedOnCard: boolean;
-          clickedId: number;
-        };
-        handleClickCard(isCardFlipped, isClickedOnCard, clickedId as number);
-      }),
-      BOARD.MINIMUM_TIME_BETWEEN_CLICKS
-    );
-
-    const runClickCardDebounce = $(
-      ({
-        isCardFlipped,
-        isClickedOnCard,
-        clickedId,
-      }: {
-        isCardFlipped: boolean;
+    }>({
+      _action$: $((newValue: {
         isClickedOnCard: boolean;
         clickedId: number;
       }) => {
-        clickCardDebounce.setDelay(
-          BOARD.MINIMUM_TIME_BETWEEN_CLICKS - (Date.now() - lastClick.value)
-        );
-        clickCardDebounce.setValue({
-          isCardFlipped,
-          isClickedOnCard,
-          clickedId,
-        });
-      }
-    );
+        const { isClickedOnCard, clickedId } = newValue;
+        handleClickCard(isClickedOnCard, clickedId as number);
+      }),
+      _delay: BOARD.MINIMUM_TIME_BETWEEN_CLICKS,
+    });
 
     const handleClickBoard$ = $((e: QwikMouseEvent) => {
       const isCardFlipped = gameContext.game.flippedCardId !== -1;
@@ -185,10 +160,13 @@ export default component$(
 
       if (!isClickedOnCard && !isCardFlipped) return;
 
-      runClickCardDebounce({
-        isCardFlipped,
-        isClickedOnCard,
-        clickedId: clickedId as number,
+      clickCardDebounce.callDebounce({
+        newValue: {
+          isClickedOnCard,
+          clickedId: clickedId as number,
+        },
+        delay:
+          BOARD.MINIMUM_TIME_BETWEEN_CLICKS - (Date.now() - lastClick.value),
       });
     });
 
@@ -216,9 +194,14 @@ export default component$(
       "keydown",
       $((e) => {
         if ((e as KeyboardEvent).key === "Escape") {
-          runUnflipDebounce(
-            BOARD.MINIMUM_TIME_BETWEEN_CLICKS - (Date.now() - lastClick.value)
-          );
+          unflipDebounce.callDebounce({
+            delay:
+              BOARD.MINIMUM_TIME_BETWEEN_CLICKS -
+              (Date.now() - lastClick.value),
+          });
+          // runUnflipDebounce(
+          //   BOARD.MINIMUM_TIME_BETWEEN_CLICKS - (Date.now() - lastClick.value)
+          // );
         }
       })
     );
@@ -364,9 +347,8 @@ export default component$(
       .card-shuffle-transform {
         transition-property: transform;
         transition-timing-function: cubic-bezier(0.40, 1.3, 0.62, 1.045);
-        transition-duration: ${
-          BOARD.CARD_SHUFFLE_PAUSE_DURATION + BOARD.CARD_SHUFFLE_ACTIVE_DURATION
-        }ms;
+        transition-duration: ${BOARD.CARD_SHUFFLE_PAUSE_DURATION + BOARD.CARD_SHUFFLE_ACTIVE_DURATION
+      }ms;
       }
 
       .shake-card {

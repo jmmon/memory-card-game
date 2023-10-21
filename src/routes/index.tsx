@@ -17,7 +17,7 @@ const LI_CLASSES = "pl-2 md:pl-4";
 export default component$(() => {
   return (
     <div class="flex flex-col justify-between items-center h-screen ">
-      <div class="grid w-full justify-center items-center gap-8 text-slate-200">
+      <div class="grid w-full max-w-[600px] justify-center items-center gap-8 text-slate-200">
         <h1 class="text-center text-4xl text-slate-500">Memory Card Game</h1>
         <Instructions />
 

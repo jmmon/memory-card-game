@@ -4,10 +4,11 @@ import {
   component$,
   useSignal,
   useVisibleTask$,
+  useComputed$,
 } from "@builder.io/qwik";
-import { useDebounceObj } from "~/v3/utils/useDebounce";
 import Button from "../button/button";
 import ChevronSvg from "~/media/icons/icons8-chevron-96 convertio.svg?jsx";
+import useDebounceSignal from "~/v3/hooks/useDebounce";
 
 /* to get the heights of the contents, could start with open state
  * then can save the height
@@ -20,7 +21,7 @@ import ChevronSvg from "~/media/icons/icons8-chevron-96 convertio.svg?jsx";
  *
  * */
 
-const INITIAL_MAX_HEIGHT = 10000;
+const INITIAL_MAX_HEIGHT = 500;
 
 /*
  * start with it closed (or could be open)
@@ -35,93 +36,120 @@ const EXTRA_PX = 10;
 export default component$(
   ({
     buttonText,
-    showOnInit = false,
-    transitionTiming = 150,
+    startAsOpen = false,
+    transitionTiming = 400,
   }: {
     buttonText: string;
-    showOnInit?: boolean;
+    startAsOpen?: boolean;
     transitionTiming?: number;
   }) => {
-    const isOpen = useSignal(!showOnInit);
-    const debouncedIsOpen = useSignal(!showOnInit);
+    const isOpen = useSignal(!startAsOpen);
+    const debouncedIsOpen = useSignal(!startAsOpen);
     const isInitialized = useSignal(false);
 
-    const debounce = useDebounceObj({
-      action: $(() => {
+    const { callDebounce: callDebounce } = useDebounceSignal({
+      _action$: $(() => {
         debouncedIsOpen.value = isOpen.value;
       }),
       _delay: transitionTiming,
     });
 
-    const handleToggle$ = $((newValue: boolean) => {
-      debounce.setDelay(transitionTiming);
-      debounce.setValue(newValue);
-    });
+    const containerRef = useSignal<HTMLDivElement>();
+    const maxExpandedHeight = useSignal(INITIAL_MAX_HEIGHT);
 
-    // for the test vz
-    const containerRef = useSignal<HTMLElement>();
-    const maxExpHeight = useSignal(INITIAL_MAX_HEIGHT);
-
-    // expandedHeight should be dynamic, rather than having
-    // to pass in a static value
-    //
-    // so as the height of the containerRef changes I
-    // need to overwrite the max if it's higher?
-
-    // update maxHeight after container finishes opening
+    /**
+     * Updates maxExpandedHeight
+     * Runs once on initialization after render, hitting the first case:
+     * - Starts as NOT initialized,
+     * - meaning the container is open but content is hidden, so we can get the max height
+     * - Then re-set the open state (& debounced state) to what it should be (usually closed)
+     *
+     * This debounced state change will cause a second call of this task, due to tracking
+     * So now maxExpandedHeight is not the default so we hit our second case:
+     * - All this does is mark it as initialized, and return
+     * - (after initialized, the dropdown content should act normally.)
+     *
+     * Finally, after it is initialized, we are in normal operation.
+     * This task updates maxExpandedHeight after the container finishes opening,
+     * so the content height may be dynamic
+     * So when done opening, and if our maxExpandedHeight is not what it should be, we hit our third case:
+     * - simply re-save the maxExpandedHeight (+ extra px)
+     * */
     useVisibleTask$(({ track }) => {
       const isDoneOpening = track(() => debouncedIsOpen.value);
-      switch (true) {
-        // on init, set the height and immediately close.
-        // This saves the height and then rerenders as closed (and still uninitialized)
-        // Since we change debouncedIsOpen, `track` will run this fn again
-        case maxExpHeight.value === INITIAL_MAX_HEIGHT &&
-          isInitialized.value === false: {
-          maxExpHeight.value =
-            (containerRef.value?.offsetHeight || 0) + EXTRA_PX;
-          isOpen.value = showOnInit;
-          debouncedIsOpen.value = showOnInit;
-          return;
-        }
 
-        // 2nd runtime will skip above, so this fires:
-        // now we have our height so this can run to disable initialization
-        // this will cause another rerender, now of the hidden and closed dropdown
-        case isInitialized.value === false: {
-          isInitialized.value = true;
-          return;
-        }
+      if (
+        maxExpandedHeight.value === INITIAL_MAX_HEIGHT &&
+        isInitialized.value === false
+      ) {
+        maxExpandedHeight.value =
+          (containerRef.value?.offsetHeight || 0) + EXTRA_PX;
+        isOpen.value = startAsOpen;
+        debouncedIsOpen.value = startAsOpen;
+        return;
+      }
 
-        // Finally, tracking the end of the opening animation
-        // update the maxHeight when it is open, in case it's dynamic
-        case isDoneOpening &&
-          maxExpHeight.value - EXTRA_PX !==
-            (containerRef.value?.offsetHeight || 0): {
-          maxExpHeight.value =
-            (containerRef.value?.offsetHeight || 0) + EXTRA_PX;
-          return;
-        }
+      if (isInitialized.value === false) {
+        isInitialized.value = true;
+        return;
+      }
+
+      if (
+        isDoneOpening &&
+        maxExpandedHeight.value !==
+          (containerRef.value?.offsetHeight || 0) - EXTRA_PX
+      ) {
+        maxExpandedHeight.value =
+          (containerRef.value?.offsetHeight || 0) + EXTRA_PX;
+        return;
       }
     });
 
+    const computedContainerClasses = useComputed$(() => {
+      return !isInitialized.value
+        ? "pointer-events-none opacity-0 z-0 border-transparent"
+        : `border-b-2 ${
+            isOpen.value
+              ? `border-slate-600 pointer-events-auto z-10 opacity-100 ${
+                  debouncedIsOpen.value ? `overflow-auto` : `overflow-hidden`
+                }`
+              : "border-transparent pointer-events-none z-0 opacity-80 overflow-hidden"
+          } transition-all`;
+    });
+
+    // const after = `after:transition-all after:content-[" "] after:bg-slate-200 after:border-rounded after:block after:w-full after:h-1 after:relative after:bottom-0 after:left-0 after:right-0`
+    // const computedContainerClasses = useComputed$(() => {
+    //   return !isInitialized.value
+    //     ? "pointer-events-none opacity-0 z-0"
+    //     : `${
+    //         isOpen.value
+    //           ? `pointer-events-auto z-10 opacity-100 ${
+    //               debouncedIsOpen.value ? `overflow-auto` : `overflow-hidden`
+    //             }`
+    //           : "pointer-events-none z-0 opacity-80 overflow-hidden"
+    //       } transition-all`;
+    // });
     return (
-      <div class={`flex flex-col items-center`}>
+      <div
+        class={`flex flex-col items-center`}
+      >
         <Button
           classes="border-none"
           onClick$={() => {
             isOpen.value = !isOpen.value;
-            handleToggle$(isOpen.value);
+            callDebounce();
           }}
           disabled={!isInitialized.value}
         >
           {buttonText}
 
           <span
-            class={`transition-all duration-[${transitionTiming}ms] inline-block ml-2 text-sky-300 ${
+            class={`transition-all inline-block ml-2 text-sky-300 ${
               isOpen.value && isInitialized.value
                 ? `rotate-[0deg]`
                 : `rotate-[180deg]`
             }`}
+            style={{ transitionDuration: transitionTiming + "ms" }}
           >
             <ChevronSvg
               style={{ fill: "#c0c8ff", width: "1em", height: "1em" }}
@@ -129,23 +157,15 @@ export default component$(
           </span>
         </Button>
 
+        {/* content container */}
         <div
           ref={containerRef}
-          class={`h-auto border-box mx-2 ${
-            isInitialized.value
-              ? `transition-all ${
-                  isOpen.value
-                    ? `border-b-2 border-slate-600 pointer-events-auto z-10 opacity-100 ${
-                        debouncedIsOpen.value
-                          ? `overflow-auto`
-                          : `overflow-hidden`
-                      }`
-                    : "border-transparent pointer-events-none z-0 opacity-80 overflow-hidden"
-                }`
-              : "pointer-events-none opacity-0 z-0"
-          }`}
+          class={`relative h-auto border-box mx-2 ${computedContainerClasses.value}`}
           style={{
-            maxHeight: isOpen.value ? maxExpHeight.value + "px" : "0",
+            maxHeight: isOpen.value ? maxExpandedHeight.value + "px" : "0",
+            transitionDuration: isInitialized.value
+              ? transitionTiming + "ms"
+              : "0ms",
           }}
         >
           <Slot />

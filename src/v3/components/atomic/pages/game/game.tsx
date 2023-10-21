@@ -9,12 +9,12 @@ import {
 } from "@builder.io/qwik";
 import { GameContext } from "../../../../context/gameContext";
 
-import { useTimer } from "~/v3/utils/useTimer";
+import { useTimer } from "~/v3/hooks/useTimer";
 import {
   useDelayedTimeoutObj,
   useIntervalObj,
   useTimeoutObj,
-} from "~/v3/utils/useTimeout";
+} from "~/v3/hooks/useTimeout";
 
 import FaceCardSymbols from "../../../playing-card-components/symbols/face-card-symbols";
 import CardSymbols from "../../../playing-card-components/symbols/card-symbols";

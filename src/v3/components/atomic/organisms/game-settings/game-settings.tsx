@@ -15,7 +15,7 @@ export default component$(
   ({
     unsavedUserSettings,
     saveSettings$,
-    startShuffling$: startShuffling$,
+    startShuffling$,
     gameTime,
     gameSettings,
   }: {
@@ -27,7 +27,7 @@ export default component$(
   }) => {
     return (
       <div class="flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%]">
-        {startShuffling$ !== undefined && startShuffling$ !== null && (
+        {startShuffling$ !== undefined && (
           <div class="flex-grow flex justify-evenly items-center">
             <div class="justify-center flex gap-[2%] items-center tooltip">
               <Button onClick$={startShuffling$}>
