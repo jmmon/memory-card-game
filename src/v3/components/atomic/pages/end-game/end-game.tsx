@@ -83,6 +83,7 @@ export default component$(() => {
             </span>
           </div>
         </ModalRow>
+
         <Button
           onClick$={() => {
             gameContext.resetGame({
@@ -97,6 +98,7 @@ export default component$(() => {
         >
           Play Again
         </Button>
+
         <Button onClick$={hideModal$} >
           Close
         </Button>

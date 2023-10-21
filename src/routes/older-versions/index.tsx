@@ -1,5 +1,5 @@
 import { component$ } from "@builder.io/qwik";
-import { LinkLi } from "..";
+import { Link } from "@builder.io/qwik-city";
 
 export default component$(() => {
   return (
@@ -13,22 +13,24 @@ export default component$(() => {
           Older versions:
         </h3>
         <ul class="flex flex-col gap-2">
-          <LinkLi
-            href="/older-versions/resize"
-            pretext="v2.5"
-            text="Better dynamic board resizing"
-          />
-          <LinkLi
-            href="/older-versions/v2"
-            pretext="v2"
-            text="Second version"
-          />
-          <LinkLi
-            href="/older-versions/v1.5"
-            pretext="v1.5"
-            text="Card flip prototype"
-          />
-          <LinkLi href="/older-versions/v1" pretext="v1" text="First version" />
+          <li class="flex gap-1">
+            <div class="w-12 text-right text-slate-400 ">v2.5</div>
+            <Link href="/older-versions/resize">
+              - Better dynamic board resizing
+            </Link>
+          </li>
+          <li class="flex gap-1">
+            <div class="w-12 text-right text-slate-400">v2</div>
+            <Link href="/older-versions/v2">- Second version</Link>
+          </li>
+          <li class="flex gap-1">
+            <div class="w-12 text-right text-slate-400">v1.5</div>
+            <Link href="/older-versions/v1.5">- Card flip prototype</Link>
+          </li>
+          <li class="flex gap-1">
+            <div class="w-12 text-right text-slate-400">v1</div>
+            <Link href="/older-versions/v1">- First version</Link>
+          </li>
         </ul>
       </div>
     </div>
