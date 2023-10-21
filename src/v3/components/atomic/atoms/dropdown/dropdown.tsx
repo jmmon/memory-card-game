@@ -9,6 +9,7 @@ import {
 import Button from "../button/button";
 import ChevronSvg from "~/media/icons/icons8-chevron-96 convertio.svg?jsx";
 import useDebounceSignal from "~/v3/hooks/useDebounce";
+import useAccomodateScrollbar from "~/v3/hooks/useAccomodateScrollbar";
 
 /* to get the heights of the contents, could start with open state
  * then can save the height
@@ -56,6 +57,8 @@ export default component$(
 
     const containerRef = useSignal<HTMLDivElement>();
     const maxExpandedHeight = useSignal(INITIAL_MAX_HEIGHT);
+
+    useAccomodateScrollbar<HTMLDivElement>(containerRef);
 
     /**
      * Updates maxExpandedHeight
@@ -129,10 +132,9 @@ export default component$(
     //           : "pointer-events-none z-0 opacity-80 overflow-hidden"
     //       } transition-all`;
     // });
+
     return (
-      <div
-        class={`flex flex-col items-center`}
-      >
+      <div class={`flex flex-col items-center`}>
         <Button
           classes="border-none"
           onClick$={() => {
@@ -161,6 +163,7 @@ export default component$(
         <div
           ref={containerRef}
           class={`relative h-auto border-box mx-2 ${computedContainerClasses.value}`}
+          /* I want to mark this div as something which may sometimes have a scrollbar. */
           style={{
             maxHeight: isOpen.value ? maxExpandedHeight.value + "px" : "0",
             transitionDuration: isInitialized.value

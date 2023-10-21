@@ -1,0 +1,37 @@
+import { useSignal, $, useVisibleTask$ } from "@builder.io/qwik";
+import { getScrollbarWidth } from "~/v3/utils/getScrollbarWidth";
+import type { Signal } from "@builder.io/qwik";
+import useBodyScrollable from "../useBodyScrollable";
+
+// We will keep track of a list of elements that may have scrollbars
+// which sometimes appear, so we're acoomodating the padding for them.
+// We want to be able to call this hook to add a new element to the list.
+//
+// We can return a signal to be used as a ref to point to an element
+
+/**
+ *
+ *
+ * */
+export function useAccomodateScrollbar(
+  newElementToWatch?: Signal<HTMLElement | undefined>
+) {
+  const elementArray = useSignal<Array<HTMLElement>>([]);
+  const scrollbarWidth = useSignal(0);
+  const bodyScrollable = useBodyScrollable();
+
+  const add = $((ref: HTMLElement) => {
+    elementArray.value.push(ref);
+    // elementArray.value = [...elementArray.value, ref];
+  });
+
+  useVisibleTask$((taskCtx) => {
+    if (scrollbarWidth.value === 0) {
+      // runs once after render to initialize
+      scrollbarWidth.value = getScrollbarWidth();
+    }
+
+  });
+
+  return { };
+}

@@ -117,6 +117,7 @@ export type iGameContext = {
   gameSettings: iGameSettings;
 
   interface: {
+    isScrollable: boolean;
     successAnimation: boolean;
     mismatchAnimation: boolean;
     inverseSettingsModal: {
