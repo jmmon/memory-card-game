@@ -12,7 +12,7 @@ export default ({
   const limitedMs = truncateMs(Number(ms), limit);
 
   return (
-    <span class="text-slate-100 text-left">
+    <span class="text-left text-slate-100">
       <HeaderSpanGreyedAtZero val={minutes} text="m" /> {seconds}
       <span class="text-xs text-slate-400">{limitedMs}s</span>
     </span>

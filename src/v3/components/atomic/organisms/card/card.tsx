@@ -7,10 +7,11 @@ import {
 } from "@builder.io/qwik";
 import { GameContext } from "~/v3/context/gameContext";
 import cardUtils from "~/v3/utils/cardUtils";
-import type { BoardLayout, Coords, Card } from "~/v3/types/types";
-import type { Signal } from "@builder.io/qwik";
 import { BOARD } from "~/v3/constants/board";
 import CardView from "../../molecules/card-view/card-view";
+
+import type { BoardLayout, Coords, Card } from "~/v3/types/types";
+import type { Signal } from "@builder.io/qwik";
 
 // underside shows immediately, but hides after this far during return transition
 export const CARD_HIDE_UNDERSIDE_AFTER_PERCENT = 0.9;
@@ -191,8 +192,8 @@ export default component$(({ card }: { card: Card }) => {
             isThisRemoved.value &&
             gameContext.game.flippedCardId !== card.id &&
             gameContext.game.flippedCardId !== card.pairId
-              ? "opacity-0 scale-[110%] pointer-events-none"
-              : "opacity-100 cursor-pointer"
+              ? "pointer-events-none scale-[110%] opacity-0"
+              : "cursor-pointer opacity-100"
           } ${
             isThisMismatched.value &&
             gameContext.game.isShaking &&

@@ -24,17 +24,14 @@ import Settings from "../settings/settings";
 import Loading from "../loading/loading";
 import Board from "../../organisms/board/board";
 
-import type { iUserSettings, iGameContext } from "~/v3/types/types";
 import { GAME } from "~/v3/constants/game";
 import { BOARD } from "~/v3/constants/board";
 import {
   INITIAL_STATE,
   INITIAL_USER_SETTINGS,
 } from "~/v3/context/initialState";
-// import { getScrollbarWidth } from "~/v3/utils/getScrollbarWidth";
-// import useElementScrollable from "~/v3/hooks/useElementScrollable";
 import { useVisibilityChange } from "~/v3/hooks/useVisibilityChange/useVisibilityChange";
-import useAccomodateScrollbar from "~/v3/hooks/useAccomodateScrollbar";
+import type { iUserSettings, iGameContext } from "~/v3/types/types";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
 // export const getKeysIfObject = (obj: object, prefix?: string) => {

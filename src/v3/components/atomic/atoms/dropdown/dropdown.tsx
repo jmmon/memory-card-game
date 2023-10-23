@@ -9,7 +9,6 @@ import {
 import Button from "../button/button";
 import ChevronSvg from "~/media/icons/icons8-chevron-96 convertio.svg?jsx";
 import useDebounceSignal from "~/v3/hooks/useDebounce";
-import useAccomodateScrollbar from "~/v3/hooks/useAccomodateScrollbar";
 
 /* to get the heights of the contents, could start with open state
  * then can save the height
@@ -58,7 +57,8 @@ export default component$(
     const containerRef = useSignal<HTMLDivElement>();
     const maxExpandedHeight = useSignal(INITIAL_MAX_HEIGHT);
 
-    useAccomodateScrollbar<HTMLDivElement>(containerRef);
+    // const { isElementScrollable, scrollbarWidth } =
+    //   useAccomodateScrollbar<HTMLDivElement>(containerRef);
 
     /**
      * Updates maxExpandedHeight
@@ -110,13 +110,13 @@ export default component$(
 
     const computedContainerClasses = useComputed$(() => {
       return !isInitialized.value
-        ? "pointer-events-none opacity-0 z-0 border-transparent"
-        : `border-b-2 ${
+        ? "pointer-events-none z-0 border-transparent opacity-0"
+        : `flex flex-col items-center border-b-2 ${
             isOpen.value
               ? `border-slate-600 pointer-events-auto z-10 opacity-100 ${
                   debouncedIsOpen.value ? `overflow-auto` : `overflow-hidden`
                 }`
-              : "border-transparent pointer-events-none z-0 opacity-80 overflow-hidden"
+              : "pointer-events-none z-0 overflow-hidden border-transparent opacity-80"
           } transition-all`;
     });
 
@@ -169,6 +169,10 @@ export default component$(
             transitionDuration: isInitialized.value
               ? transitionTiming + "ms"
               : "0ms",
+            // padding: isElementScrollable.value
+            //   ? `0px 0px 0px ${scrollbarWidth.value}px`
+            //   : `0px ${scrollbarWidth.value}px`,
+scrollbarGutter: `stable both-edges`,
           }}
         >
           <Slot />

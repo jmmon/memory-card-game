@@ -25,12 +25,12 @@ export default component$(
       >
         <label
           for={text}
-          class="text-slate-100 flex gap-2 items-center justify-between w-full mr-2 mb-1 cursor-pointer text-left"
+          class="mb-1 mr-2 flex w-full cursor-pointer items-center justify-between gap-2 text-left text-slate-100"
         >
           {text}
           <input
             disabled={disabled}
-            class="cursor-pointer w-6 h-6"
+            class="h-6 w-6 cursor-pointer"
             type="checkbox"
             id={text}
             name={text}

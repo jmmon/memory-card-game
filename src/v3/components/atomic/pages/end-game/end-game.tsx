@@ -30,9 +30,9 @@ export default component$(() => {
         detectClickOutside: false,
       }}
     >
-      <div class="flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%]">
+      <div class="flex flex-col gap-0.5 px-[4%] py-[2%] md:gap-1">
         <ModalRow>
-          <div class="text-slate-100 flex flex-grow justify-between">
+          <div class="flex flex-grow justify-between text-slate-100">
             <span>Pairs:</span>
             <span>
               {gameContext.game.successfulPairs.length}/
@@ -41,7 +41,7 @@ export default component$(() => {
           </div>
         </ModalRow>
         <ModalRow>
-          <div class="text-slate-100 flex flex-grow justify-between">
+          <div class="flex flex-grow justify-between text-slate-100">
             <span>Mismatches:</span>
             <span>
               {gameContext.game.mismatchPairs.length}
@@ -52,7 +52,7 @@ export default component$(() => {
           </div>
         </ModalRow>
         <ModalRow>
-          <div class="text-slate-100 flex flex-grow justify-between">
+          <div class="flex flex-grow justify-between text-slate-100">
             <span>Time:</span>
             <span>
               <FormattedTime timeMs={gameContext.timer.state.time} limit={3} />
@@ -61,9 +61,9 @@ export default component$(() => {
         </ModalRow>
 
         <ModalRow>
-          <div class="flex flex-grow gap-[2%] items-center tooltip w-full">
+          <div class="tooltip flex w-full flex-grow items-center gap-[2%]">
             <label
-              class="text-slate-100 w-4/12 text-left"
+              class="w-4/12 text-left text-slate-100"
               for="deck-card-count-end-game"
             >
               Deck Card Count:
@@ -71,7 +71,7 @@ export default component$(() => {
             <input
               name="deck-card-count-end-game"
               id="deck-card-count-end-game"
-              class="flex-grow w-8/12"
+              class="w-8/12 flex-grow"
               type="range"
               min={GAME.MIN_CARD_COUNT}
               max={GAME.MAX_CARD_COUNT}

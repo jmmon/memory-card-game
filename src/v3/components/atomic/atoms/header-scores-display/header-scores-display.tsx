@@ -105,8 +105,8 @@ const Score = component$(
           animate ? header.SCORE_ANIMATION_CLASSES : ""
         } flex gap-2 ${header.CODE_TEXT_DARK}`}
       >
-        <span class="w-8/12 flex-grow flex-shrink-0 text-right">{label}:</span>
-        <span class="text-slate-100 w-4/12 flex-grow flex-shrink-0 text-left">
+        <span class="w-8/12 flex-shrink-0 flex-grow text-right">{label}:</span>
+        <span class="w-4/12 flex-shrink-0 flex-grow text-left text-slate-100">
           {score}
           {showMax && <span class="text-slate-400">/{max}</span>}
         </span>

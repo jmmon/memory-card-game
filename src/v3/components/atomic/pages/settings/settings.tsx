@@ -1,10 +1,10 @@
-import type { Signal} from "@builder.io/qwik";
 import { $, component$, useContext, useSignal } from "@builder.io/qwik";
 import { GameContext } from "~/v3/context/gameContext";
 
 import Modal from "../../templates/modal/modal";
 import GameSettings from "../../organisms/game-settings/game-settings";
 
+import type { Signal} from "@builder.io/qwik";
 import type { iUserSettings } from "~/v3/types/types";
 
 export default component$(() => {

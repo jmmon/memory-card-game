@@ -48,8 +48,8 @@ export default component$(() => {
   useStyles$(styles);
 
   return (
-    <div class="flex flex-col w-full h-full items-center overflow-hidden">
-      <h1 class="absolute top-0 left-0 text-sm md:text-lg lg:text-2xl text-slate-600/80 z-[-1]">
+    <div class="flex h-full w-full flex-col items-center overflow-hidden">
+      <h1 class="absolute left-0 top-0 z-[-1] text-sm text-slate-600/80 md:text-lg lg:text-2xl">
         Memory Card Game
       </h1>
       {/* <SubmitScoreModal /> */}

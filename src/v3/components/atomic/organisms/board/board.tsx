@@ -1,4 +1,3 @@
-import type { QwikMouseEvent, Signal } from "@builder.io/qwik";
 import {
   $,
   component$,
@@ -10,7 +9,6 @@ import {
   useVisibleTask$,
 } from "@builder.io/qwik";
 import { GameContext } from "~/v3/context/gameContext";
-import type { Pair } from "~/v3/types/types";
 import cardUtils from "~/v3/utils/cardUtils";
 import useDebounceSignal from "~/v3/hooks/useDebounce";
 import { useTimeoutObj } from "~/v3/hooks/useTimeout";
@@ -18,6 +16,9 @@ import { calculateLayouts } from "~/v3/utils/boardUtils";
 import Card from "../card/card";
 import { BOARD } from "~/v3/constants/board";
 import { GAME } from "~/v3/constants/game";
+
+import type { Pair } from "~/v3/types/types";
+import type { QwikMouseEvent, Signal } from "@builder.io/qwik";
 
 export default component$(
   ({ containerRef }: { containerRef: Signal<HTMLElement | undefined> }) => {
@@ -390,7 +391,7 @@ export default component$(
 
     return (
       <div
-        class="relative max-h-full max-w-full w-full h-full items-center "
+        class="relative h-full max-h-full w-full max-w-full items-center "
         ref={boardRef}
         onClick$={handleClickBoard$}
         data-label="board"

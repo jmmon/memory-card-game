@@ -6,7 +6,7 @@ import FaceCardSymbols from "~/v3/components/playing-card-components/symbols/fac
 export default component$(() => {
   return (
     <div
-      class="mx-auto h-screen flex flex-wrap justify-center"
+      class="mx-auto flex h-screen flex-wrap justify-center"
       style={{ overflowY: "scroll" }}
     >
       {Object.values(PlayingCardComponents)

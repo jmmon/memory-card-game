@@ -5,11 +5,20 @@ import FormattedTime from "../../molecules/formatted-time/formatted-time";
 import ModalRow from "../../atoms/modal-row/modal-row";
 import InputLock from "../../atoms/input-lock/input-lock";
 import DeckSizeSlider from "../../molecules/deck-size-slider/deck-size-slider";
+import Dropdown from "../../atoms/dropdown/dropdown";
 
+import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";
 import type { PropFunction, Signal } from "@builder.io/qwik";
 import type { iGameSettings, iUserSettings } from "~/v3/types/types";
-import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";
-import Dropdown from "../../atoms/dropdown/dropdown";
+
+type GameSettingsProps = {
+  unsavedUserSettings: Signal<iUserSettings>;
+  saveSettings$: PropFunction<(newSettings?: Signal<iUserSettings>) => void>;
+  startShuffling$?: PropFunction<() => void>;
+  gameTime: number;
+  gameSettings: iGameSettings;
+  classes?: string;
+};
 
 export default component$(
   ({
@@ -18,18 +27,13 @@ export default component$(
     startShuffling$,
     gameTime,
     gameSettings,
-  }: {
-    unsavedUserSettings: Signal<iUserSettings>;
-    saveSettings$: PropFunction<(newSettings?: Signal<iUserSettings>) => void>;
-    startShuffling$?: PropFunction<() => void>;
-    gameTime: number;
-    gameSettings: iGameSettings;
-  }) => {
+    classes = "",
+  }: GameSettingsProps) => {
     return (
-      <div class="flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%]">
+      <div class={`flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%] ${classes}`}>
         {startShuffling$ !== undefined && (
-          <div class="flex-grow flex justify-evenly items-center">
-            <div class="justify-center flex gap-[2%] items-center tooltip">
+          <div class="flex flex-grow items-center justify-evenly">
+            <div class="tooltip flex items-center justify-center gap-[2%]">
               <Button onClick$={startShuffling$}>
                 <span class="text-slate-100">Shuffle Deck</span>
               </Button>
@@ -121,7 +125,7 @@ export default component$(
 
             {gameTime !== 0 && (
               <ModalRow>
-                <div class="w-full flex justify-between tooltip">
+                <div class="tooltip flex w-full justify-between">
                   <label class="text-slate-100">Played Time:</label>
                   <FormattedTime timeMs={gameTime} />
                   <span class="tooltiptext">
@@ -227,8 +231,8 @@ export default component$(
           {/* </div> */}
         </div>
 
-        <div class="flex-grow flex justify-evenly items-center">
-          <div class="justify-center flex  gap-[2%] items-center tooltip">
+        <div class="flex flex-grow items-center justify-evenly">
+          <div class="tooltip flex  items-center justify-center gap-[2%]">
             <Button onClick$={saveSettings$}>
               <span class="text-slate-100">Reset Without Saving</span>
             </Button>
@@ -238,8 +242,8 @@ export default component$(
           </div>
         </div>
 
-        <div class="flex-grow flex justify-evenly items-center">
-          <div class="justify-center flex  gap-[2%] items-center tooltip">
+        <div class="flex flex-grow items-center justify-evenly">
+          <div class="tooltip flex  items-center justify-center gap-[2%]">
             <Button
               onClick$={() => {
                 saveSettings$(unsavedUserSettings);
@@ -250,11 +254,11 @@ export default component$(
             <span class="tooltiptext">Save current settings and restart.</span>
           </div>
         </div>
-        <details class="w-full mt-2 flex flex-col gap-2 items-center">
-          <summary class="text-slate-100 p-2 border border-slate-200 bg-slate-700 rounded hover:bg-slate-500 cursor-pointer w-max mx-auto">
+        <details class="mt-2 flex w-full flex-col items-center gap-2">
+          <summary class="mx-auto w-max cursor-pointer rounded border border-slate-200 bg-slate-700 p-2 text-slate-100 hover:bg-slate-500">
             Help
           </summary>
-          <ul class="text-slate-100 text-left list-disc grid gap-2 w-full">
+          <ul class="grid w-full list-disc gap-2 text-left text-slate-100">
             <li>Select cards by clicking on them.</li>
             <li>
               Cards are matched when the two selected cards have the same number

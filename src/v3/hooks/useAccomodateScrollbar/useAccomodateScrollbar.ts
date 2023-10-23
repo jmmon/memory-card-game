@@ -20,45 +20,50 @@ type UpdateFunctionProps = {
   isElementScrollable: boolean;
 };
 
-export function useAccomodateScrollbar<T extends HTMLElement,>(
+export function useAccomodateScrollbar<T extends HTMLElement>(
   elRef: Signal<T | undefined>,
   updateFunction$?: QRL<(props: UpdateFunctionProps) => void>
 ) {
-
-  console.log('useAccomodateScrollbar', {elRef: elRef?.value});
+  console.log("useAccomodateScrollbar", { elRef: elRef?.value });
   const isElementScrollable = useElementScrollable<T>(elRef);
   const scrollbarWidth = useSignal(0);
 
   useVisibleTask$(({ track }) => {
-    if (elRef && elRef.value) track(() => [elRef.value, isElementScrollable.value]);
+    console.log("useAccomodateScrollbar visTask:", { elRef: elRef.value });
+    if (elRef && elRef.value)
+      track(() => [elRef.value, isElementScrollable.value]);
     else return;
-
-    console.log('useAccomodateScrollbar visTask:', {elRef: elRef.value});
 
     // run on first time to calculate scrollbar width
     if (scrollbarWidth.value === 0) {
       // runs once after render to initialize
       scrollbarWidth.value = getScrollbarWidth();
-      if (elRef.value) {
-        elRef.value.style.paddingLeft = `${scrollbarWidth.value}px`;
-      }
+
+      // if (elRef.value) {
+      //   (elRef.value).style.paddingLeft = `${scrollbarWidth.value}px`;
+      // }
     }
 
-    if (typeof updateFunction$ !== 'undefined')
+    // manually modify body padding
+    // if (elRef.value) {
+    //   if (isElementScrollable.value) {
+    //     (elRef.value).style.paddingRight = "0px";
+    //   } else {
+    //     (elRef.value).style.paddingRight = `${scrollbarWidth.value}px`;
+    //   }
+    // }
+
+    // run update function if exists
+    if (typeof updateFunction$ !== "undefined") {
       updateFunction$({
         scrollbarWidth: scrollbarWidth.value,
         isElementScrollable: isElementScrollable.value,
       });
-
-    // manually modify body padding
-    if (elRef.value) {
-      if (isElementScrollable.value) {
-        elRef.value.style.paddingRight = "0px";
-      } else {
-        elRef.value.style.paddingRight = `${scrollbarWidth.value}px`;
-      }
     }
   });
 
-  return { scrollbarWidth, isElementScrollable };
+  return { scrollbarWidth, isElementScrollable } as {
+    scrollbarWidth: Readonly<Signal<Number>>;
+    isElementScrollable: Readonly<Signal<Boolean>>;
+  };
 }

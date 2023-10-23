@@ -1,4 +1,3 @@
-import type { PropFunction } from "@builder.io/qwik";
 import { component$, useContext } from "@builder.io/qwik";
 import Button from "../../atoms/button/button";
 import { GameContext } from "~/v3/context/gameContext";
@@ -7,6 +6,8 @@ import HeaderSelectedIds from "../../atoms/header-selected-ids/header-selected-i
 import HeaderGameDimensions from "../../atoms/header-game-dimensions/header-game-dimensions";
 import HeaderTimerDisplay from "../../atoms/header-timer-display/header-timer-display";
 import HeaderScoresDisplay from "../../atoms/header-scores-display/header-scores-display";
+
+import type { PropFunction } from "@builder.io/qwik";
 
 export default component$(
   ({ showSettings$ }: { showSettings$: PropFunction<() => void> }) => {
