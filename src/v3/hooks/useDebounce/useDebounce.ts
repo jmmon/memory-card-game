@@ -1,5 +1,4 @@
 import { useSignal, $, useTask$ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
 import type { UseDebounceProps } from "./types";
 
 /**

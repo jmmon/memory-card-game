@@ -1,4 +1,5 @@
-import { QRL, useVisibleTask$ } from "@builder.io/qwik";
+import type { QRL} from "@builder.io/qwik";
+import { useVisibleTask$ } from "@builder.io/qwik";
 export type UseVisibilityChangeProps = {
   onHidden$?: QRL<() => void>;
   onShown$?: QRL<() => void>;

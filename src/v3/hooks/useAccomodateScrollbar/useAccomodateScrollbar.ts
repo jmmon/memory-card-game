@@ -24,13 +24,13 @@ export function useAccomodateScrollbar<T extends HTMLElement>(
   elRef: Signal<T | undefined>,
   updateFunction$?: QRL<(props: UpdateFunctionProps) => void>
 ) {
-  console.log("useAccomodateScrollbar", { elRef: elRef?.value });
+  console.log("useAccomodateScrollbar", { elRef: elRef.value });
   const isElementScrollable = useElementScrollable<T>(elRef);
   const scrollbarWidth = useSignal(0);
 
   useVisibleTask$(({ track }) => {
     console.log("useAccomodateScrollbar visTask:", { elRef: elRef.value });
-    if (elRef && elRef.value)
+    if (elRef.value)
       track(() => [elRef.value, isElementScrollable.value]);
     else return;
 

@@ -7,7 +7,7 @@ import {
   useStore,
   // useVisibleTask$,
 } from "@builder.io/qwik";
-import { GameContext } from "../../../../context/gameContext";
+import { GameContext } from "~/v3/context/gameContext";
 
 import { useTimer } from "~/v3/hooks/useTimer";
 import {
@@ -16,8 +16,8 @@ import {
   useTimeoutObj,
 } from "~/v3/hooks/useTimeout";
 
-import FaceCardSymbols from "../../../playing-card-components/symbols/face-card-symbols";
-import CardSymbols from "../../../playing-card-components/symbols/card-symbols";
+import FaceCardSymbols from "~/v3/components/playing-card-components/symbols/face-card-symbols";
+import CardSymbols from "~/v3/components/playing-card-components/symbols/face-card-symbols";
 import EndGame from "../end-game/end-game";
 import GameHeader from "../../organisms/game-header/game-header";
 import Settings from "../settings/settings";
