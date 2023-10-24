@@ -1,13 +1,13 @@
-import type { Signal} from "@builder.io/qwik";
 import { component$, useContext } from "@builder.io/qwik";
 import { GameContext } from "~/v3/context/gameContext";
 
 import ImageBackFace from "~/media/cards/_backWhite.png?jsx";
-import PlayingCardComponents from "../../../playing-card-components";
+import PlayingCardComponents from "~/v3/components/playing-card-components";
 import CardFace from "../../atoms/card-face/card-face";
 
-import type{ Card } from "~/v3/types/types";
 import { BOARD } from "~/v3/constants/board";
+import type{ Card } from "~/v3/types/types";
+import type { Signal} from "@builder.io/qwik";
 
 // holds the front and back of card
 export default component$(

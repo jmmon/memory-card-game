@@ -1,7 +1,7 @@
 import { component$, $, useSignal, useComputed$ } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
-import Dropdown from "~/v3/components/atomic/atoms/dropdown/dropdown";
-import GameSettings from "~/v3/components/atomic/organisms/game-settings/game-settings";
+import Dropdown from "~/v3/components/atoms/dropdown/dropdown";
+import GameSettings from "~/v3/components/organisms/game-settings/game-settings";
 import {
   INITIAL_GAME_SETTINGS,
   INITIAL_USER_SETTINGS,
