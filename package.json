@@ -1,11 +1,13 @@
 {
-  "name": "my-qwik-basic-starter",
-  "description": "Demo App with Routing built-in (recommended)",
+  "packageManager": "pnpm@8.10.0",
+  "name": "memory-card-game",
+  "description": "Match all pairs to clear the board!",
   "engines": {
     "node": ">=15.0.0"
   },
   "private": true,
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
     "build": "qwik build",
     "build.client": "vite build",
     "build.preview": "vite build --ssr src/entry.preview.tsx",
@@ -19,14 +21,14 @@
     "fmt.check": "prettier --check .",
     "lint": "eslint \"src/**/*.ts*\"",
     "lint.fix": "eslint \"src/**/*.ts*\" --fix",
-    "preview": "qwik build preview && yarn vite preview --open",
+    "preview": "qwik build preview && pnpm vite preview --open",
     "serve": "node server/entry.node-server",
     "start": "vite --open --mode ssr",
     "qwik": "qwik"
   },
   "devDependencies": {
-    "@builder.io/qwik": "^1.2.10",
-    "@builder.io/qwik-city": "^1.2.10",
+    "@builder.io/qwik": "^1.2.15",
+    "@builder.io/qwik-city": "^1.2.15",
     "@types/compression": "^1.7.2",
     "@types/eslint": "8.40.2",
     "@types/node": "^20.4.0",
@@ -37,7 +39,7 @@
     "compression": "^1.7.4",
     "drizzle-kit": "^0.19.13",
     "eslint": "^8.48.0",
-    "eslint-plugin-qwik": "^1.2.10",
+    "eslint-plugin-qwik": "^1.2.15",
     "node-env-run": "^4.0.2",
     "postcss": "^8.4.23",
     "prettier": "2.8.8",
