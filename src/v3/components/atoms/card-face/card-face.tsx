@@ -5,16 +5,18 @@ export default component$(
   ({
     roundedCornersPx,
     classes = "",
+    label = "card-front",
   }: {
     roundedCornersPx: number;
     classes: string;
     width: number;
     height: number;
+    label: string;
   }) => {
     return (
       <div
         class={`card-face absolute flex items-center justify-center [backface-visibility:hidden] ${classes}`}
-        data-label="card-front"
+        data-label={label}
         style={{
           borderRadius: roundedCornersPx + "px",
           // width: width + "px",
