@@ -26,7 +26,7 @@ export default component$(
       <>
         <CardFace
           roundedCornersPx={roundedCornersPx}
-          data-label="card-front"
+          label="card-front"
           classes="text-black [transform:rotateY(180deg)]"
           width={gameContext.cardLayout.width * BOARD.CARD_RATIO_VS_CONTAINER}
           height={gameContext.cardLayout.height * BOARD.CARD_RATIO_VS_CONTAINER}
@@ -41,7 +41,7 @@ export default component$(
 
         <CardFace
           roundedCornersPx={roundedCornersPx}
-          data-label="card-back"
+          label="card-back"
           classes="text-white"
           width={gameContext.cardLayout.width * BOARD.CARD_RATIO_VS_CONTAINER}
           height={gameContext.cardLayout.height * BOARD.CARD_RATIO_VS_CONTAINER}
