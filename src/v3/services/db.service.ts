@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
-import { db } from "../db/index";
-import { scores } from "../db/schema";
-import type { NewScore } from "../db/schema";
+import { db } from "~/v3/db/index";
+import { scores } from "~/v3/db/schema";
+import type { NewScore } from "~/v3/db/schema";
 
 // submitWin(data): submits the win and calculates and returns your percentile scores
 

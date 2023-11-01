@@ -1,7 +1,7 @@
 import { useSignal, useVisibleTask$ } from "@builder.io/qwik";
 import { getScrollbarWidth } from "~/v3/utils/getScrollbarWidth";
+import useElementScrollable from "~/v3/hooks/useElementScrollable";
 import type { QRL, Signal } from "@builder.io/qwik";
-import useElementScrollable from "../useElementScrollable";
 
 // We will keep track of a list of elements that may have scrollbars
 // which sometimes appear, so we're acoomodating the padding for them.

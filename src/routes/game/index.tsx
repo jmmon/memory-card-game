@@ -1,12 +1,13 @@
 import { component$, useStyles$ } from "@builder.io/qwik";
-import styles from "./styles.css?inline";
 import { routeLoader$ } from "@builder.io/qwik-city";
+import styles from "./styles.css?inline";
 import crypto from "node:crypto";
-import Game from "~/v3/components/atomic/pages/game/game";
+import Game from "~/v3/components/pages/game/game";
 import { INITIAL_USER_SETTINGS } from "~/v3/context/initialState";
 import { unflattenObject } from "~/v3/utils/utils";
 import { validate } from "~/v3/validation/validate";
 import schemas from "~/v3/validation/schemas";
+
 import type { iUserSettings } from "~/v3/types/types";
 // import SubmitScoreModal from "~/v3/components/submit-score-modal/submit-score-modal";
 

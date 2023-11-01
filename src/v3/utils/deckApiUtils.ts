@@ -5,7 +5,7 @@
  *
  * */
 
-import type { Card } from "../types/types";
+import type { Card } from "~/v3/types/types";
 import deckUtils from "./deckUtils";
 
 const PARTIAL_DECK_API = "https://deckofcardsapi.com/api/deck/new/?cards=";

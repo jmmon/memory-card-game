@@ -1,14 +1,6 @@
 import { $, useStore, useVisibleTask$ } from "@builder.io/qwik";
 import type { QRL } from "@builder.io/qwik";
-
-type UseTimerOpts = {
-  onPause: QRL<() => void>;
-  onStart: QRL<() => void>;
-  onStop: QRL<() => void>;
-  onReset: QRL<() => void>;
-  onResume: QRL<() => void>;
-  isPaused: boolean;
-};
+import type {UseTimerOpts, State} from "./types";
 
 export const useTimer = ({
   onPause,
@@ -17,7 +9,7 @@ export const useTimer = ({
   onReset,
   onResume,
 }: Partial<UseTimerOpts> = {}) => {
-  const state = useStore({
+  const state = useStore<State>({
     status: "STOPPED",
     time: 0,
     last: 0,

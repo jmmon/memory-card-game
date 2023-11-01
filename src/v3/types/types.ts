@@ -1,5 +1,5 @@
 import type { QRL } from "@builder.io/qwik";
-import type { useTimer } from "../hooks/useTimer";
+import type { useTimer } from "~/v3/hooks/useTimer";
 
 
 export type iObj = { [key: string]: any };

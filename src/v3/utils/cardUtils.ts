@@ -1,4 +1,4 @@
-import { BOARD } from "../constants/board";
+import { BOARD } from "~/v3/constants/board";
 import type {
   BoardLayout,
   CardLayout,
@@ -6,7 +6,7 @@ import type {
   Pair,
   ShuffleTransform,
   Card,
-} from "../types/types";
+} from "~/v3/types/types";
 
 /*
  * compared to board, how big will the enlarged card (flipped card) be?
