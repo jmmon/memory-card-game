@@ -6,6 +6,7 @@ import ModalRow from "~/v3/components/atoms/modal-row/modal-row";
 import InputLock from "~/v3/components/atoms/input-lock/input-lock";
 import DeckSizeSlider from "~/v3/components/molecules/deck-size-slider/deck-size-slider";
 import Dropdown from "~/v3/components/atoms/dropdown/dropdown";
+import DropdownGrid from "~/v3/components/molecules/dropdown-grid/dropdown-grid";
 
 import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";
 import type { PropFunction, Signal } from "@builder.io/qwik";
@@ -58,7 +59,7 @@ export default component$(
               />
             </ModalRow>
 
-            <Dropdown buttonText="Show Developer Settings">
+            <DropdownGrid buttonText="Show Developer Settings">
               <ModalRow>
                 <InputLock
                   text="Lock Board:"
@@ -121,7 +122,7 @@ export default component$(
                   value={unsavedUserSettings.value.interface.showDimensions}
                 />
               </ModalRow>
-            </Dropdown>
+            </DropdownGrid>
 
             {gameTime !== 0 && (
               <ModalRow>
