@@ -16,22 +16,22 @@ export const useElementScrollable = function <T extends HTMLElement>(
 
   useVisibleTask$(({ track, cleanup }) => {
     console.log("useElementScrollable visTask:", { elRef: elRef.value });
-    if (elRef && elRef.value) track(() => elRef?.value);
+    if (elRef.value) track(() => elRef.value);
     else return;
 
     // if (typeof elRef.value === "undefined") return;
 
     const resizeObserver = new ResizeObserver(() => {
-      const el = elRef.value ?? document.body;
+      const el = elRef.value;
       const parent =
-        (el.parentElement as HTMLElement & { innerHeight: number }) ?? window;
+        el.parentElement ? (el.parentElement as HTMLElement & { innerHeight: number }) : window;
       isElementScrollable.value = el.scrollHeight > parent.innerHeight;
       console.log('observed resize:', { isElementScrollable: isElementScrollable.value });
     });
 
-    resizeObserver.observe(elRef.value ?? document.body);
+    resizeObserver.observe(elRef.value);
 
-    cleanup(() => resizeObserver.unobserve(elRef.value ?? document.body));
+    cleanup(() => resizeObserver.unobserve(elRef.value));
   });
 
   return isElementScrollable as Readonly<Signal<boolean>>;
