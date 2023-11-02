@@ -114,15 +114,6 @@ export const GameStarter = component$(() => {
           gameSettings={INITIAL_GAME_SETTINGS}
         />
       </DropdownGrid>
-
-      {/* <Dropdown buttonText="Change Settings"> */}
-      {/*   <GameSettings */}
-      {/*     saveSettings$={saveSettings$} */}
-      {/*     gameTime={0} */}
-      {/*     unsavedUserSettings={unsavedSettings} */}
-      {/*     gameSettings={INITIAL_GAME_SETTINGS} */}
-      {/*   /> */}
-      {/* </Dropdown> */}
     </>
   );
 });

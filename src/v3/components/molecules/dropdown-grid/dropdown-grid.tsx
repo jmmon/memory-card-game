@@ -1,6 +1,7 @@
 import { component$, useStyles$, useSignal, Slot } from "@builder.io/qwik";
 import Button from "~/v3/components/atoms/button/button";
 import ChevronSvg from "~/media/icons/icons8-chevron-96 convertio.svg?jsx";
+
 import type { Signal } from "@builder.io/qwik";
 
 export default component$(

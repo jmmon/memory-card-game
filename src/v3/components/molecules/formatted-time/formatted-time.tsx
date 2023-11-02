@@ -1,5 +1,5 @@
 import { formatTime, truncateMs } from "~/v3/utils/formatTime";
-import HeaderSpanGreyedAtZero from "../../atoms/header-span-greyed-at-zero/header-span-greyed-at-zero";
+import HeaderSpanGreyedAtZero from "~/v3/components/atoms/header-span-greyed-at-zero/header-span-greyed-at-zero";
 
 export default ({
   timeMs,

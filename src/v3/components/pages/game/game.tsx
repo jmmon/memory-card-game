@@ -17,12 +17,12 @@ import {
 } from "~/v3/hooks/useTimeout";
 
 import FaceCardSymbols from "~/v3/components/playing-card-components/symbols/face-card-symbols";
-import CardSymbols from "~/v3/components/playing-card-components/symbols/face-card-symbols";
-import EndGame from "../end-game/end-game";
-import GameHeader from "../../organisms/game-header/game-header";
-import Settings from "../settings/settings";
-import Loading from "../loading/loading";
-import Board from "../../organisms/board/board";
+import CardSymbols from "~/v3/components/playing-card-components/symbols/card-symbols";
+import EndGame from "~/v3/components/pages/end-game/end-game";
+import GameHeader from "~/v3/components/organisms/game-header/game-header";
+import Settings from "~/v3/components/pages/settings/settings";
+import Loading from "~/v3/components/pages/loading/loading";
+import Board from "~/v3/components/organisms/board/board";
 
 import { GAME } from "~/v3/constants/game";
 import { BOARD } from "~/v3/constants/board";

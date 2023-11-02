@@ -13,7 +13,7 @@ import cardUtils from "~/v3/utils/cardUtils";
 import useDebounceSignal from "~/v3/hooks/useDebounce";
 import { useTimeoutObj } from "~/v3/hooks/useTimeout";
 import { calculateLayouts } from "~/v3/utils/boardUtils";
-import Card from "../card/card";
+import Card from "~/v3/components/organisms/card/card";
 import { BOARD } from "~/v3/constants/board";
 import { GAME } from "~/v3/constants/game";
 

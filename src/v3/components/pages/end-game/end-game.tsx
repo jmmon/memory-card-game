@@ -1,10 +1,10 @@
 import { component$, $, useContext, useSignal } from "@builder.io/qwik";
 import { GameContext } from "~/v3/context/gameContext";
 
-import Modal from "../../templates/modal/modal";
-import FormattedTime from "../../molecules/formatted-time/formatted-time";
-import Button from "../../atoms/button/button";
-import ModalRow from "../../atoms/modal-row/modal-row";
+import Modal from "~/v3/components/templates/modal/modal";
+import FormattedTime from "~/v3/components/molecules/formatted-time/formatted-time";
+import Button from "~/v3/components/atoms/button/button";
+import ModalRow from "~/v3/components/atoms/modal-row/modal-row";
 import { GAME } from "~/v3/constants/game";
 
 export default component$(() => {

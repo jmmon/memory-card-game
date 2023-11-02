@@ -1,10 +1,22 @@
-export type Status = 'RUNNING' | 'STOPPED';
+export type Status = "RUNNING" | "STOPPED";
 
 export interface State {
   status: Status;
-  total: number;
-  start: number;
-  end: number;
-  isStarted: boolean;
-  isPaused: boolean;
+
+  time: number;
+  last: number;
+
+  isStarted: false;
+  isPaused: false;
+  isEnded: false;
+  blink: false;
 }
+
+export type UseTimerOpts = {
+  onPause$: QRL<() => void>;
+  onStart$: QRL<() => void>;
+  onStop$: QRL<() => void>;
+  onReset$: QRL<() => void>;
+  onResume$: QRL<() => void>;
+  isPaused: boolean;
+};

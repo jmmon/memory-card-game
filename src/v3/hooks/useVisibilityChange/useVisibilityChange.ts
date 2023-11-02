@@ -1,10 +1,5 @@
-import type { QRL} from "@builder.io/qwik";
 import { useVisibleTask$ } from "@builder.io/qwik";
-export type UseVisibilityChangeProps = {
-  onHidden$?: QRL<() => void>;
-  onShown$?: QRL<() => void>;
-  onChange$?: QRL<() => void>;
-};
+import type { UseVisibilityChangeProps } from "./types";
 
 /* ============================
  * pause game when switching tabs

@@ -1,4 +1,4 @@
-import CloseButton from "../../atoms/modal-close-button/modal-close-button";
+import CloseButton from "~/v3/components/atoms/modal-close-button/modal-close-button";
 import type { PropFunction } from "@builder.io/qwik";
 
 export default ({

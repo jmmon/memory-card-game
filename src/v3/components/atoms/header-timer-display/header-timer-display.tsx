@@ -1,6 +1,6 @@
 import { component$, useContext } from "@builder.io/qwik";
 import { GameContext } from "~/v3/context/gameContext";
-import FormattedTime from "../../molecules/formatted-time/formatted-time";
+import FormattedTime from "~/v3/components/molecules/formatted-time/formatted-time";
 import { header } from "~/v3/constants/header-constants";
 
 export default component$(() => {

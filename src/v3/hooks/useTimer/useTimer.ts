@@ -1,14 +1,5 @@
 import { $, useStore, useVisibleTask$ } from "@builder.io/qwik";
-import type { QRL } from "@builder.io/qwik";
-
-type UseTimerOpts = {
-  onPause$: QRL<() => void>;
-  onStart$: QRL<() => void>;
-  onStop$: QRL<() => void>;
-  onReset$: QRL<() => void>;
-  onResume$: QRL<() => void>;
-  isPaused: boolean;
-};
+import type {UseTimerOpts, State} from "./types";
 
 export const useTimer = ({
   onPause$,
@@ -17,37 +8,37 @@ export const useTimer = ({
   onReset$,
   onResume$,
 }: Partial<UseTimerOpts> = {}) => {
-  const state = useStore({
+  const state = useStore<State>({
     /**
-     * @param {"RUNNING" | "STOPPED"} status - actually controls the timer
+     * @param status - actually controls the timer
      * */
     timerStatus: "STOPPED",
     /**
-     * @param {number} time - currently accumulated time in ms
+     * @param time - currently accumulated time in ms
      * */
     time: 0,
     /**
-     * @param {number} last - previous loop Date.now(),
+     * @param last - previous loop Date.now(),
      *   to calculate time passed since last update
      * */
     last: 0,
     /**
-     * @param {boolean} isStarted - Marks the start of the timer session
+     * @param isStarted - Marks the start of the timer session
      *   Marked as true when the game starts (first click of a card)
      * */
     isStarted: false,
     /**
-     * @param {boolean} isPaused - Toggle to control paused state
+     * @param isPaused - Toggle to control paused state
      *   Has no effect if `isStarted` is false or `isEnded` is true
      * */
     isPaused: false,
     /**
-     * @param {boolean} isEnded - Marks the end of the game
+     * @param isEnded - Marks the end of the game
      *   Used to prevent resuming the game after the game is ended
      * */
     isEnded: false,
     /**
-     * @param {boolean} blink - Sends a blinking signal while paused
+     * @param blink - Sends a blinking signal while paused
      *   Just for looks, to blink the timer display (probably should be external)
      * */
     blink: false,
@@ -175,3 +166,4 @@ export const useTimer = ({
 
   return timer;
 };
+

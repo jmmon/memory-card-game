@@ -1,6 +1,7 @@
 import { component$ } from "@builder.io/qwik";
 import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";
 import { GAME } from "~/v3/constants/game";
+
 import type { Signal } from "@builder.io/qwik";
 import type { iGameSettings, iUserSettings } from "~/v3/types/types";
 

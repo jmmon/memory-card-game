@@ -1,6 +1,6 @@
 import { component$, $, Slot } from "@builder.io/qwik";
 
-import ModalHeader from "../../molecules/modal-header/modal-header";
+import ModalHeader from "~/v3/components/molecules/modal-header/modal-header";
 
 import type { QwikMouseEvent, PropFunction } from "@builder.io/qwik";
 

@@ -1,10 +1,11 @@
 import { component$ } from "@builder.io/qwik";
 
-import Button from "../../atoms/button/button";
-import FormattedTime from "../../molecules/formatted-time/formatted-time";
-import ModalRow from "../../atoms/modal-row/modal-row";
-import InputLock from "../../atoms/input-lock/input-lock";
-import DeckSizeSlider from "../../molecules/deck-size-slider/deck-size-slider";
+import Button from "~/v3/components/atoms/button/button";
+import FormattedTime from "~/v3/components/molecules/formatted-time/formatted-time";
+import ModalRow from "~/v3/components/atoms/modal-row/modal-row";
+import InputLock from "~/v3/components/atoms/input-lock/input-lock";
+import DeckSizeSlider from "~/v3/components/molecules/deck-size-slider/deck-size-slider";
+import Dropdown from "~/v3/components/atoms/dropdown/dropdown";
 import DropdownGrid from "~/v3/components/molecules/dropdown-grid/dropdown-grid";
 
 import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";

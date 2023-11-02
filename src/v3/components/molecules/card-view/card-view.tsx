@@ -3,11 +3,11 @@ import { GameContext } from "~/v3/context/gameContext";
 
 import ImageBackFace from "~/media/cards/_backWhite.png?jsx";
 import PlayingCardComponents from "~/v3/components/playing-card-components";
-import CardFace from "../../atoms/card-face/card-face";
+import CardFace from "~/v3/components/atoms/card-face/card-face";
 
 import { BOARD } from "~/v3/constants/board";
-import type { Card } from "~/v3/types/types";
-import type { Signal } from "@builder.io/qwik";
+import type { Signal} from "@builder.io/qwik";
+import type{ Card } from "~/v3/types/types";
 
 // holds the front and back of card
 export default component$(

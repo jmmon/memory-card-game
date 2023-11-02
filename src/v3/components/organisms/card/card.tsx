@@ -8,7 +8,7 @@ import {
 import { GameContext } from "~/v3/context/gameContext";
 import cardUtils from "~/v3/utils/cardUtils";
 import { BOARD } from "~/v3/constants/board";
-import CardView from "../../molecules/card-view/card-view";
+import CardView from "~/v3/components/molecules/card-view/card-view";
 
 import type { BoardLayout, Coords, Card } from "~/v3/types/types";
 import type { Signal } from "@builder.io/qwik";
