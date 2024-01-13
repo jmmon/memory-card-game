@@ -1,12 +1,12 @@
 import CloseButton from "~/v3/components/atoms/modal-close-button/modal-close-button";
-import type { PropFunction } from "@builder.io/qwik";
+import type { QRL } from "@builder.io/qwik";
 
 export default ({
   hideModal$,
   title,
   buttonOpts = { onLeft: false, text: "x" },
 }: {
-  hideModal$: PropFunction<() => void>;
+  hideModal$: QRL<() => void>;
   title: string;
   buttonOpts?: Partial<{ onLeft?: boolean; text?: string }>;
 }) => {
