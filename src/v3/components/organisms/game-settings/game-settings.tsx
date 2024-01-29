@@ -5,7 +5,6 @@ import FormattedTime from "~/v3/components/molecules/formatted-time/formatted-ti
 import ModalRow from "~/v3/components/atoms/modal-row/modal-row";
 import InputLock from "~/v3/components/atoms/input-lock/input-lock";
 import DeckSizeSlider from "~/v3/components/molecules/deck-size-slider/deck-size-slider";
-import Dropdown from "~/v3/components/atoms/dropdown/dropdown";
 import DropdownGrid from "~/v3/components/molecules/dropdown-grid/dropdown-grid";
 
 import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";

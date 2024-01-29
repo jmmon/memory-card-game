@@ -1,4 +1,4 @@
-import { $, useSignal, useVisibleTask$ } from "@builder.io/qwik";
+import { $, useSignal, useTask$ } from "@builder.io/qwik";
 import type { QRL, Signal } from "@builder.io/qwik";
 
 export const useTimeoutObj = ({
@@ -14,7 +14,7 @@ export const useTimeoutObj = ({
 }) => {
   const delay = useSignal(initialDelay);
 
-  useVisibleTask$((taskCtx) => {
+  useTask$((taskCtx) => {
     taskCtx.track(() => triggerCondition.value);
     if (!triggerCondition.value) return;
 
@@ -51,7 +51,7 @@ export const useDelayedTimeoutObj = ({
   const startDelay = useSignal(initialDelay);
   const intervalSignal = useSignal(interval);
 
-  useVisibleTask$((taskCtx) => {
+  useTask$((taskCtx) => {
     taskCtx.track(() => triggerCondition.value);
 
     if (!triggerCondition.value) return;
@@ -94,7 +94,7 @@ export const useIntervalObj = ({
   const intervalSignal = useSignal(regularInterval);
   const runInterval = useSignal(false);
 
-  useVisibleTask$((taskCtx) => {
+  useTask$((taskCtx) => {
     taskCtx.track(() => triggerCondition.value);
 
     runInterval.value = false;
@@ -109,7 +109,7 @@ export const useIntervalObj = ({
     });
   });
 
-  useVisibleTask$((taskCtx) => {
+  useTask$((taskCtx) => {
     taskCtx.track(() => runInterval.value);
     if (runInterval.value === false) return;
 

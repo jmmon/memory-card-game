@@ -273,11 +273,11 @@ export default component$(
      * - also when "resize" flip-flops, or when deck.size changes
      * ================================ */
     useVisibleTask$(
-      async (taskCtx) => {
-        const newDeckSize = taskCtx.track(
+      async ({track}) => {
+        const newDeckSize = track(
           () => gameContext.userSettings.deck.size
         );
-        const newRefresh = taskCtx.track(
+        const newRefresh = track(
           () => gameContext.userSettings.board.resize
         );
         const isDeckChanged = lastDeckSize.value !== newDeckSize;
@@ -311,8 +311,7 @@ export default component$(
           containerRef.value as HTMLDivElement
         );
         gameContext.initializeDeck();
-      },
-      { strategy: "document-idle" }
+      }
     );
 
     useStyles$(`

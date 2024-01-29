@@ -1,3 +1,5 @@
+import type {QRL} from "@builder.io/qwik";
+
 export type Status = "RUNNING" | "STOPPED";
 
 export interface State {
@@ -6,10 +8,10 @@ export interface State {
   time: number;
   last: number;
 
-  isStarted: false;
-  isPaused: false;
-  isEnded: false;
-  blink: false;
+  isStarted: boolean;
+  isPaused: boolean;
+  isEnded: boolean;
+  blink: boolean;
 }
 
 export type UseTimerOpts = {

@@ -5,7 +5,6 @@ import {
   useContextProvider,
   useSignal,
   useStore,
-  // useVisibleTask$,
 } from "@builder.io/qwik";
 import { GameContext } from "~/v3/context/gameContext";
 

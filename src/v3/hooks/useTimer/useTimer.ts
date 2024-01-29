@@ -1,4 +1,4 @@
-import { $, useStore, useVisibleTask$ } from "@builder.io/qwik";
+import { $, useStore, useTask$ } from "@builder.io/qwik";
 import type {UseTimerOpts, State} from "./types";
 
 export const useTimer = ({
@@ -12,7 +12,7 @@ export const useTimer = ({
     /**
      * @param status - actually controls the timer
      * */
-    timerStatus: "STOPPED",
+    status: "STOPPED",
     /**
      * @param time - currently accumulated time in ms
      * */
@@ -50,7 +50,7 @@ export const useTimer = ({
   const start = $(() => {
     state.isPaused = false;
     state.isStarted = true;
-    state.timerStatus = "RUNNING"; // tracked by task
+    state.status = "RUNNING"; // tracked by task
 
     if (typeof onStart$ !== "undefined") onStart$();
   });
@@ -60,7 +60,7 @@ export const useTimer = ({
    * */
   const stop = $(() => {
     state.isEnded = true;
-    state.timerStatus = "STOPPED";
+    state.status = "STOPPED";
 
     if (typeof onStop$ !== "undefined") onStop$();
   });
@@ -75,7 +75,7 @@ export const useTimer = ({
     if (state.isStarted === false || state.isEnded) return;
 
     state.isStarted = true;
-    state.timerStatus = "RUNNING"; // tracked by task
+    state.status = "RUNNING"; // tracked by task
 
     if (typeof onResume$ !== "undefined") onResume$();
   });
@@ -88,7 +88,7 @@ export const useTimer = ({
     state.isPaused = true;
     if (!state.isStarted || state.isEnded) return;
 
-    state.timerStatus = "STOPPED";
+    state.status = "STOPPED";
     if (typeof onPause$ !== "undefined") onPause$();
   });
 
@@ -101,16 +101,16 @@ export const useTimer = ({
     state.isStarted = false;
     state.isEnded = false;
     state.isPaused = false;
-    state.timerStatus = "STOPPED";
+    state.status = "STOPPED";
 
     if (typeof onReset$ !== "undefined") onReset$();
   });
 
   /**
-   * Creates and destroys the setIntervals based on timerStatus
+   * Creates and destroys the setIntervals based on status
    * */
-  useVisibleTask$((taskCtx) => {
-    const status = taskCtx.track(() => state.timerStatus);
+  useTask$((taskCtx) => {
+    const status = taskCtx.track(() => state.status);
 
     // resume and pause have no effect if not started (first run)
     if (!state.isStarted) return;
