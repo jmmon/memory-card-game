@@ -36,7 +36,7 @@ export default component$(() => {
 
 const pruneDefaultsFromQueryParams = (
   newSettings: iUserSettings,
-  initialSettings: iUserSettings
+  initialSettings: iUserSettings,
 ) => {
   const newFlatSettings = flattenObjectToEntries(newSettings);
   const initialFlatSettings = flattenObjectToEntries(initialSettings);
@@ -55,24 +55,68 @@ const pruneDefaultsFromQueryParams = (
   return result.join("&");
 };
 
-const Instructions = () => (
+// function is_touch_enabled() {
+//   return isBrowser && (
+//     "ontouchstart" in window ||
+//     navigator.maxTouchPoints > 0 ||
+//       //ts-ignore-next-line
+//     navigator?.msMaxTouchPoints > 0
+//   );
+// }
+//
+// const useActionString = () => {
+//   const actionString = useSignal<"Tap/Click" | "Tap" | "Click">("Tap/Click");
+//   useVisibleTask$(() => {
+//     if (is_touch_enabled()) {
+//       actionString.value = "Tap";
+//     } else {
+//       actionString.value = "Click";
+//     }
+//   });
+//   return actionString;
+// }
+
+const Instructions = () => {
+  const actionString = "Tap/Click";
+  return (
   <>
     <h3 class="text-center">Goal:</h3>
-    <p class="text-center text-2xl ">Eliminate all cards from the board.</p>
+    <p class="text-center text-3xl">Clear the board to win!</p>
 
-    <ol class=" border-box text-md grid w-full max-w-[50ch] list-decimal gap-4 px-6 marker:text-slate-400 md:text-lg">
-      <li class={LI_CLASSES}>Pick two cards.</li>
+    <ul class="mx-auto border-box text-md grid w-full max-w-[60ch] list-disc gap-4 px-6 marker:text-slate-400 md:text-lg">
       <li class={LI_CLASSES}>
-        If the numbers and colors match, they're removed from the game.
+        <strong>{actionString}</strong> a card to view it.
+        <br />
+        <strong>{actionString} again</strong> to return the card to the board.
       </li>
-      <li class={LI_CLASSES}>Match all the cards to win!</li>
+      <li class={LI_CLASSES}>
+        After <strong>two</strong> cards have been flipped, if the{" "}
+        <strong>numbers</strong> and <strong>colors</strong> match...
+        <br />
+        <code>
+          (e.g. <strong>Queen</strong> of <strong>Spades</strong> with{" "}
+          <strong>Queen</strong> of <strong>Clubs</strong>; or{" "}
+          <strong>2</strong> of <strong>Hearts</strong> with <strong>2</strong>{" "}
+          of <strong>Diamonds</strong>,)
+        </code>{" "}
+        <br />
+        ...you found a <strong>pair</strong> and they're removed from the board!
+      </li>
+      <li class={LI_CLASSES}>
+        <strong>Clear</strong> the <strong>board</strong> to{" "}
+        <strong>win!</strong>
+      </li>
+      <li class={LI_CLASSES}>
+        At the end, view your <strong>game time</strong>,{" "}
+        <strong>pairs found</strong>, and <strong>mismatches found</strong>.
+      </li>
       <li class={`text-slate-500 ${LI_CLASSES}`}>
         (COMING SOON:) Save your score, and see how you compare to other
         players!
       </li>
-    </ol>
+    </ul>
   </>
-);
+) };
 
 export const GameStarter = component$(() => {
   const unsavedSettings = useSignal<iUserSettings>({
@@ -83,7 +127,7 @@ export const GameStarter = component$(() => {
   const compQParamsString = useComputed$<string>(() => {
     const result = pruneDefaultsFromQueryParams(
       unsavedSettings.value,
-      INITIAL_USER_SETTINGS
+      INITIAL_USER_SETTINGS,
     );
     return result;
   });

@@ -109,8 +109,8 @@ export const useTimer = ({
   /**
    * Creates and destroys the setIntervals based on status
    * */
-  useTask$((taskCtx) => {
-    const status = taskCtx.track(() => state.status);
+  useTask$(({track, cleanup}) => {
+    const status = track(() => state.status);
 
     // resume and pause have no effect if not started (first run)
     if (!state.isStarted) return;
@@ -138,6 +138,7 @@ export const useTimer = ({
       intervalId = setInterval(updateRunningTime, 95);
 
       updateRunningTime(); // run immediately also
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     } else if (status === "STOPPED" && state.isPaused) {
       blinkId = setInterval(() => {
         state.blink = !state.blink;
@@ -146,7 +147,7 @@ export const useTimer = ({
     }
 
     // clean up the intervals
-    taskCtx.cleanup(() => {
+    cleanup(() => {
       if (intervalId) clearInterval(intervalId);
       intervalId = null;
 

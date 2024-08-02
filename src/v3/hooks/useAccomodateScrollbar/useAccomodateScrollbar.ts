@@ -28,6 +28,7 @@ export function useAccomodateScrollbar<T extends HTMLElement>(
   const isElementScrollable = useElementScrollable<T>(elRef);
   const scrollbarWidth = useSignal(0);
 
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ track }) => {
     console.log("useAccomodateScrollbar visTask:", { elRef: elRef.value });
     if (elRef.value)

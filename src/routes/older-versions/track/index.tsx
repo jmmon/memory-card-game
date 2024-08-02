@@ -13,32 +13,36 @@ export default component$(() => {
   /*
    * Track offsetWidth/offsetHeight
    * */
-  useVisibleTask$((taskCtx) => {
-    const offsetWidth = taskCtx.track(
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(({track}) => {
+    const offsetWidth = track(
       () => (ref.value as HTMLElement).offsetWidth
     );
     console.log("track offsetWidth of ref:", offsetWidth);
   });
-  useVisibleTask$((taskCtx) => {
-    const offsetHeight = taskCtx.track(
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(({track}) => {
+    const offsetHeight = track(
       () => (ref.value as HTMLElement).offsetHeight
     );
     console.log("track offsetHeight of ref:", offsetHeight);
   });
 
-  useVisibleTask$((taskCtx) => {
-    const offsetHeight = taskCtx.track(
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(({track}) => {
+    const offsetHeight = track(
       () => (ref.value as HTMLElement).offsetHeight
     );
-    const offsetWidth = taskCtx.track(
+    const offsetWidth = track(
       () => (ref.value as HTMLElement).offsetWidth
     );
     console.log("COMBO: track offsetWidth && track offsetHeight of ref:", { offsetHeight, offsetWidth });
   });
 
 
-  useVisibleTask$((taskCtx) => {
-    const [ offsetHeight, offsetWidth ] = taskCtx.track(
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(({track}) => {
+    const [ offsetHeight, offsetWidth ] = track(
       () => [(ref.value as HTMLElement).offsetHeight, (ref.value as HTMLElement).offsetWidth]
     );
     console.log("COMBO ARRAY: track [offsetWidth, offsetHeight] of ref:", { offsetHeight, offsetWidth });
@@ -49,14 +53,16 @@ export default component$(() => {
   /*
    * Track styleWidth/styleHeight
    * */
-  useVisibleTask$((taskCtx) => {
-    const styleWidth = taskCtx.track(
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(({track}) => {
+    const styleWidth = track(
       () => (ref.value as HTMLElement).style.width
     );
     console.log("track styleWidth of ref:", styleWidth);
   });
-  useVisibleTask$((taskCtx) => {
-    const styleHeight = taskCtx.track(
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(({track}) => {
+    const styleHeight = track(
       () => (ref.value as HTMLElement).style.height
     );
     console.log("track styleHeight of ref:", styleHeight);
@@ -65,8 +71,9 @@ export default component$(() => {
   /*
    * Track ref itself (assume it only changes on server render)
    * */
-  useVisibleTask$((taskCtx) => {
-    taskCtx.track(() => ref.value as HTMLElement);
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(({track}) => {
+    track(() => ref.value as HTMLElement);
     console.log("track ref itself:", ref.value);
   });
 

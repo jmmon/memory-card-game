@@ -148,6 +148,7 @@ export default component$(() => {
   });
 
   // calculate board on mount
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(() => {
     calculateBoard();
   });

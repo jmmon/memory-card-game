@@ -10,6 +10,7 @@ export const useVisibilityChange = ({
   onShown$,
   onChange$,
 }: UseVisibilityChangeProps) => {
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ cleanup }) => {
     let hidden = "hidden";
     let state = 0;

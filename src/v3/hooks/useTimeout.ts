@@ -1,4 +1,4 @@
-import { $, useSignal, useTask$ } from "@builder.io/qwik";
+import { $, useSignal, useTask$, useVisibleTask$ } from "@builder.io/qwik";
 import type { QRL, Signal } from "@builder.io/qwik";
 
 export const useTimeoutObj = ({
@@ -94,8 +94,9 @@ export const useIntervalObj = ({
   const intervalSignal = useSignal(regularInterval);
   const runInterval = useSignal(false);
 
-  useTask$((taskCtx) => {
-    taskCtx.track(() => triggerCondition.value);
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(({track, cleanup}) => {
+    track(() => triggerCondition.value);
 
     runInterval.value = false;
     if (!triggerCondition.value) return;
@@ -104,7 +105,7 @@ export const useIntervalObj = ({
       runInterval.value = true;
     }, startDelay.value);
 
-    taskCtx.cleanup(() => {
+    cleanup(() => {
       clearTimeout(startTimer);
     });
   });

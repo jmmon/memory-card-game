@@ -7,7 +7,7 @@ import type { Signal } from "@builder.io/qwik";
  * @param defaultVal=false - if you know you need to scroll, can set to true
  * @return bodyScrollable - signal that is true if body has scroll height available
  */
-type HTMLElementWithInnerHeight = HTMLElement & { innerHeight: number };
+// type HTMLElementWithInnerHeight = HTMLElement & { innerHeight: number };
 
 export const useElementScrollable = function <T extends HTMLElement>(
   elRef: Signal<T | undefined>,
@@ -18,15 +18,14 @@ export const useElementScrollable = function <T extends HTMLElement>(
   /** 
    * Sets up a ResizeObserver to watch the element and the parent
    * */
+  //eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ track, cleanup }) => {
     console.log("useElementScrollable visTask:", { elRef: elRef.value });
     if (elRef.value) track(() => elRef.value);
     else return;
 
-    let resizeObserver: ResizeObserver;
-
     const resizeObserver = new ResizeObserver(() => {
-      const el = elRef.value;
+      const el = elRef.value as T;
       const parent =
         el.parentElement ? (el.parentElement as HTMLElement & { innerHeight: number }) : window;
       isElementScrollable.value = el.scrollHeight > parent.innerHeight;
@@ -34,8 +33,7 @@ export const useElementScrollable = function <T extends HTMLElement>(
     });
 
     resizeObserver.observe(elRef.value);
-
-    cleanup(() => resizeObserver.unobserve(elRef.value));
+    cleanup(() => elRef.value && resizeObserver.unobserve(elRef.value));
   });
 
   return isElementScrollable as Readonly<Signal<boolean>>;

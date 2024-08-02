@@ -260,6 +260,7 @@ export default component$(() => {
 
 
   // when first hitting client, now we have dimensions, so update our state
+  // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(() => {
     updateDimensions();
     isLoading.value = false;
