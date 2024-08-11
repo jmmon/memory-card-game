@@ -1,0 +1,5040 @@
+{
+  "manifestHash": "q3l141",
+  "symbols": {
+    "s_BqF9GT1vPKM": {
+      "origin": "v3/hooks/useTimer/useTimer.ts",
+      "displayName": "useTimer_useTask",
+      "canonicalFilename": "s_bqf9gt1vpkm",
+      "hash": "BqF9GT1vPKM",
+      "ctxKind": "function",
+      "ctxName": "useTask$",
+      "captures": true,
+      "parent": null,
+      "loc": [
+        2778,
+        4077
+      ]
+    },
+    "s_J3bEk18HRJ4": {
+      "origin": "v3/hooks/useDebounce/useDebounce.ts",
+      "displayName": "useDebounceSignal_useTask",
+      "canonicalFilename": "s_j3bek18hrj4",
+      "hash": "J3bEk18HRJ4",
+      "ctxKind": "function",
+      "ctxName": "useTask$",
+      "captures": true,
+      "parent": null,
+      "loc": [
+        1918,
+        2303
+      ]
+    },
+    "s_J7NY6UuXoog": {
+      "origin": "v3/hooks/useTimeout.ts",
+      "displayName": "useTimeoutObj_useTask",
+      "canonicalFilename": "s_j7ny6uuxoog",
+      "hash": "J7NY6UuXoog",
+      "ctxKind": "function",
+      "ctxName": "useTask$",
+      "captures": true,
+      "parent": null,
+      "loc": [
+        441,
+        776
+      ]
+    },
+    "s_NE4sYtcyypU": {
+      "origin": "v3/hooks/useTimeout.ts",
+      "displayName": "useIntervalObj_useTask",
+      "canonicalFilename": "s_ne4sytcyypu",
+      "hash": "NE4sYtcyypU",
+      "ctxKind": "function",
+      "ctxName": "useTask$",
+      "captures": true,
+      "parent": null,
+      "loc": [
+        2669,
+        2934
+      ]
+    },
+    "s_cHfW1MZIypo": {
+      "origin": "v3/hooks/useTimeout.ts",
+      "displayName": "useDelayedTimeoutObj_useTask",
+      "canonicalFilename": "s_chfw1mziypo",
+      "hash": "cHfW1MZIypo",
+      "ctxKind": "function",
+      "ctxName": "useTask$",
+      "captures": true,
+      "parent": null,
+      "loc": [
+        1265,
+        1648
+      ]
+    },
+    "s_02wMImzEAbk": {
+      "origin": "../node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs",
+      "displayName": "QwikCityProvider_component_useTask",
+      "canonicalFilename": "s_02wmimzeabk",
+      "hash": "02wMImzEAbk",
+      "ctxKind": "function",
+      "ctxName": "useTask$",
+      "captures": true,
+      "parent": "s_TxCFOy819ag",
+      "loc": [
+        27637,
+        36818
+      ]
+    },
+    "s_21m9J0MsxOM": {
+      "origin": "routes/older-versions/v1.5/index.tsx",
+      "displayName": "FlippableCard_component_useTask",
+      "canonicalFilename": "s_21m9j0msxom",
+      "hash": "21m9J0MsxOM",
+      "ctxKind": "function",
+      "ctxName": "useTask$",
+      "captures": true,
+      "parent": "s_75dcEG60J0o",
+      "loc": [
+        3271,
+        4107
+      ]
+    },
+    "s_6xTnM2f4M5s": {
+      "origin": "old/v1/components/memory-card-game/memory-card-game.tsx",
+      "displayName": "Board_component_useTask",
+      "canonicalFilename": "s_6xtnm2f4m5s",
+      "hash": "6xTnM2f4M5s",
+      "ctxKind": "function",
+      "ctxName": "useTask$",
+      "captures": true,
+      "parent": "s_pRjF6UDiF1I",
+      "loc": [
+        2127,
+        2602
+      ]
+    },
+    "s_HJ8DAxw98cc": {
+      "origin": "v3/components/organisms/card/card.tsx",
+      "displayName": "card_component_useTask",
+      "canonicalFilename": "s_hj8daxw98cc",
+      "hash": "HJ8DAxw98cc",
+      "ctxKind": "function",
+      "ctxName": "useTask$",
+      "captures": true,
+      "parent": "s_tcpBt4EdroQ",
+      "loc": [
+        2026,
+        3193
+      ]
+    },
+    "s_JgSutTMrkbI": {
+      "origin": "routes/older-versions/resize/index.tsx",
+      "displayName": "resize_component_useTask",
+      "canonicalFilename": "s_jgsuttmrkbi",
+      "hash": "JgSutTMrkbI",
+      "ctxKind": "function",
+      "ctxName": "useTask$",
+      "captures": true,
+      "parent": "s_NMgYoa6LUKU",
+      "loc": [
+        3519,
+        3813
+      ]
+    },
+    "s_LU0sHB4t8uk": {
+      "origin": "v3/components/organisms/card/card.tsx",
+      "displayName": "card_component_useTask_1",
+      "canonicalFilename": "s_lu0shb4t8uk",
+      "hash": "LU0sHB4t8uk",
+      "ctxKind": "function",
+      "ctxName": "useTask$",
+      "captures": true,
+      "parent": "s_tcpBt4EdroQ",
+      "loc": [
+        4278,
+        5554
+      ]
+    },
+    "s_Rznvw4LARwo": {
+      "origin": "old/v2/components/FlippableCard.tsx",
+      "displayName": "FlippableCard_component_useTask",
+      "canonicalFilename": "s_rznvw4larwo",
+      "hash": "Rznvw4LARwo",
+      "ctxKind": "function",
+      "ctxName": "useTask$",
+      "captures": true,
+      "parent": "s_HH0i6OfaiF0",
+      "loc": [
+        1347,
+        2189
+      ]
+    },
+    "s_YzgZ0JTkHns": {
+      "origin": "old/v1/components/memory-card-game/memory-card-game.tsx",
+      "displayName": "memory_card_game_component_useTask",
+      "canonicalFilename": "s_yzgz0jtkhns",
+      "hash": "YzgZ0JTkHns",
+      "ctxKind": "function",
+      "ctxName": "useTask$",
+      "captures": true,
+      "parent": "s_YG5N76Z5wuk",
+      "loc": [
+        1129,
+        1298
+      ]
+    },
+    "s_0kZvzi3lobY": {
+      "origin": "v3/hooks/useTimeout.ts",
+      "displayName": "useIntervalObj_useVisibleTask",
+      "canonicalFilename": "s_0kzvzi3loby",
+      "hash": "0kZvzi3lobY",
+      "ctxKind": "function",
+      "ctxName": "useVisibleTask$",
+      "captures": true,
+      "parent": null,
+      "loc": [
+        2351,
+        2654
+      ]
+    },
+    "s_5iuNNNqClkQ": {
+      "origin": "v3/hooks/useVisibilityChange/useVisibilityChange.ts",
+      "displayName": "useVisibilityChange_useVisibleTask",
+      "canonicalFilename": "s_5iunnnqclkq",
+      "hash": "5iuNNNqClkQ",
+      "ctxKind": "function",
+      "ctxName": "useVisibleTask$",
+      "captures": true,
+      "parent": null,
+      "loc": [
+        417,
+        3351
+      ]
+    },
+    "s_DHZUSgPRuYs": {
+      "origin": "v3/hooks/useElementScrollable/useElementScrollable.ts",
+      "displayName": "useElementScrollable_useVisibleTask",
+      "canonicalFilename": "s_dhzusgpruys",
+      "hash": "DHZUSgPRuYs",
+      "ctxKind": "function",
+      "ctxName": "useVisibleTask$",
+      "captures": true,
+      "parent": null,
+      "loc": [
+        759,
+        1420
+      ]
+    },
+    "s_mJAldbickAQ": {
+      "origin": "v3/hooks/useAccomodateScrollbar/useAccomodateScrollbar.ts",
+      "displayName": "useAccomodateScrollbar_useVisibleTask",
+      "canonicalFilename": "s_mjaldbickaq",
+      "hash": "mJAldbickAQ",
+      "ctxKind": "function",
+      "ctxName": "useVisibleTask$",
+      "captures": true,
+      "parent": null,
+      "loc": [
+        1246,
+        2251
+      ]
+    },
+    "s_1Ir3DNFwoTI": {
+      "origin": "routes/older-versions/track/index.tsx",
+      "displayName": "track_component_useVisibleTask_2",
+      "canonicalFilename": "s_1ir3dnfwoti",
+      "hash": "1Ir3DNFwoTI",
+      "ctxKind": "function",
+      "ctxName": "useVisibleTask$",
+      "captures": true,
+      "parent": "s_Lp2GXCDAPvA",
+      "loc": [
+        951,
+        1263
+      ]
+    },
+    "s_1MW1s8HfQqM": {
+      "origin": "routes/older-versions/track/index.tsx",
+      "displayName": "track_component_useVisibleTask_4",
+      "canonicalFilename": "s_1mw1s8hfqqm",
+      "hash": "1MW1s8HfQqM",
+      "ctxKind": "function",
+      "ctxName": "useVisibleTask$",
+      "captures": true,
+      "parent": "s_Lp2GXCDAPvA",
+      "loc": [
+        1758,
+        1926
+      ]
+    },
+    "s_4kCdbaUCWHc": {
+      "origin": "routes/older-versions/track/index.tsx",
+      "displayName": "track_component_useVisibleTask_3",
+      "canonicalFilename": "s_4kcdbaucwhc",
+      "hash": "4kCdbaUCWHc",
+      "ctxKind": "function",
+      "ctxName": "useVisibleTask$",
+      "captures": true,
+      "parent": "s_Lp2GXCDAPvA",
+      "loc": [
+        1345,
+        1624
+      ]
+    },
+    "s_7aDB0Y0vKv4": {
+      "origin": "routes/older-versions/track/index.tsx",
+      "displayName": "track_component_useVisibleTask_5",
+      "canonicalFilename": "s_7adb0y0vkv4",
+      "hash": "7aDB0Y0vKv4",
+      "ctxKind": "function",
+      "ctxName": "useVisibleTask$",
+      "captures": true,
+      "parent": "s_Lp2GXCDAPvA",
+      "loc": [
+        2004,
+        2176
+      ]
+    },
+    "s_ByxAuJvAxvs": {
+      "origin": "routes/older-versions/track/index.tsx",
+      "displayName": "track_component_useVisibleTask_1",
+      "canonicalFilename": "s_byxaujvaxvs",
+      "hash": "ByxAuJvAxvs",
+      "ctxKind": "function",
+      "ctxName": "useVisibleTask$",
+      "captures": true,
+      "parent": "s_Lp2GXCDAPvA",
+      "loc": [
+        696,
+        871
+      ]
+    },
+    "s_LtgaZ0iO9sI": {
+      "origin": "v3/components/organisms/board/board.tsx",
+      "displayName": "board_component_useVisibleTask",
+      "canonicalFilename": "s_ltgaz0io9si",
+      "hash": "LtgaZ0iO9sI",
+      "ctxKind": "function",
+      "ctxName": "useVisibleTask$",
+      "captures": true,
+      "parent": "s_PwmycWKuzJI",
+      "loc": [
+        9375,
+        10416
+      ]
+    },
+    "s_LvoP4jHG3cI": {
+      "origin": "routes/older-versions/track/index.tsx",
+      "displayName": "track_component_useVisibleTask",
+      "canonicalFilename": "s_lvop4jhg3ci",
+      "hash": "LvoP4jHG3cI",
+      "ctxKind": "function",
+      "ctxName": "useVisibleTask$",
+      "captures": true,
+      "parent": "s_Lp2GXCDAPvA",
+      "loc": [
+        447,
+        618
+      ]
+    },
+    "s_p9S0sGAspZw": {
+      "origin": "routes/older-versions/v2/index.tsx",
+      "displayName": "v2_component_useVisibleTask",
+      "canonicalFilename": "s_p9s0sgaspzw",
+      "hash": "p9S0sGAspZw",
+      "ctxKind": "function",
+      "ctxName": "useVisibleTask$",
+      "captures": true,
+      "parent": "s_qiFlzJo0Xuo",
+      "loc": [
+        8297,
+        8364
+      ]
+    },
+    "s_rnBvneBqXZ4": {
+      "origin": "routes/older-versions/resize/index.tsx",
+      "displayName": "resize_component_useVisibleTask",
+      "canonicalFilename": "s_rnbvnebqxz4",
+      "hash": "rnBvneBqXZ4",
+      "ctxKind": "function",
+      "ctxName": "useVisibleTask$",
+      "captures": true,
+      "parent": "s_NMgYoa6LUKU",
+      "loc": [
+        3924,
+        3959
+      ]
+    },
+    "s_xVN9HOA4azs": {
+      "origin": "routes/older-versions/track/index.tsx",
+      "displayName": "track_component_useVisibleTask_6",
+      "canonicalFilename": "s_xvn9hoa4azs",
+      "hash": "xVN9HOA4azs",
+      "ctxKind": "function",
+      "ctxName": "useVisibleTask$",
+      "captures": true,
+      "parent": "s_Lp2GXCDAPvA",
+      "loc": [
+        2336,
+        2449
+      ]
+    },
+    "s_0N8IaaURbeU": {
+      "origin": "routes/older-versions/resize/index.tsx",
+      "displayName": "Lock_component",
+      "canonicalFilename": "s_0n8iaaurbeu",
+      "hash": "0N8IaaURbeU",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        4748,
+        5114
+      ]
+    },
+    "s_0cabC28HIoE": {
+      "origin": "old/v1/components/memory-card-game/memory-card-game.tsx",
+      "displayName": "Settings_component",
+      "canonicalFilename": "s_0cabc28hioe",
+      "hash": "0cabC28HIoE",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        7440,
+        7690
+      ]
+    },
+    "s_0qMbsGhxIt4": {
+      "origin": "v3/components/molecules/card-view/card-view.tsx",
+      "displayName": "card_view_component",
+      "canonicalFilename": "s_0qmbsghxit4",
+      "hash": "0qMbsGhxIt4",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        540,
+        1845
+      ]
+    },
+    "s_3aR9gw7Hk5w": {
+      "origin": "v3/components/molecules/dropdown-grid/dropdown-grid.tsx",
+      "displayName": "dropdown_grid_component",
+      "canonicalFilename": "s_3ar9gw7hk5w",
+      "hash": "3aR9gw7Hk5w",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        246,
+        2099
+      ]
+    },
+    "s_40zqTTcgiZI": {
+      "origin": "v3/components/molecules/deck-size-slider/deck-size-slider.tsx",
+      "displayName": "deck_size_slider_component",
+      "canonicalFilename": "s_40zqttcgizi",
+      "hash": "40zqTTcgiZI",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        445,
+        1515
+      ]
+    },
+    "s_4LZiuCBf9Zc": {
+      "origin": "v3/components/atoms/modal-row/modal-row.tsx",
+      "displayName": "modal_row_component",
+      "canonicalFilename": "s_4lziucbf9zc",
+      "hash": "4LZiuCBf9Zc",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        87,
+        481
+      ]
+    },
+    "s_58g2FOx49Bo": {
+      "origin": "v3/components/atoms/input-lock/input-lock.tsx",
+      "displayName": "input_lock_component",
+      "canonicalFilename": "s_58g2fox49bo",
+      "hash": "58g2FOx49Bo",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        153,
+        1165
+      ]
+    },
+    "s_5EcSMMvV0l4": {
+      "origin": "routes/v4/index.tsx",
+      "displayName": "v4_component",
+      "canonicalFilename": "s_5ecsmmvv0l4",
+      "hash": "5EcSMMvV0l4",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        251,
+        358
+      ]
+    },
+    "s_6NroavKN34E": {
+      "origin": "v3/components/pages/end-game/end-game.tsx",
+      "displayName": "end_game_component",
+      "canonicalFilename": "s_6nroavkn34e",
+      "hash": "6NroavKN34E",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        479,
+        3572
+      ]
+    },
+    "s_75dcEG60J0o": {
+      "origin": "routes/older-versions/v1.5/index.tsx",
+      "displayName": "FlippableCard_component",
+      "canonicalFilename": "s_75dceg60j0o",
+      "hash": "75dcEG60J0o",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        1340,
+        4793
+      ]
+    },
+    "s_7kq56stJGZI": {
+      "origin": "routes/cards/index.tsx",
+      "displayName": "cards_component",
+      "canonicalFilename": "s_7kq56stjgzi",
+      "hash": "7kq56stJGZI",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        342,
+        814
+      ]
+    },
+    "s_8gdLBszqbaM": {
+      "origin": "../node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs",
+      "displayName": "Link_component",
+      "canonicalFilename": "s_8gdlbszqbam",
+      "hash": "8gdLBszqbaM",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        38802,
+        41462
+      ]
+    },
+    "s_91K010CZomw": {
+      "origin": "v3/components/atoms/card-face/card-face.tsx",
+      "displayName": "card_face_component",
+      "canonicalFilename": "s_91k010czomw",
+      "hash": "91K010CZomw",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        134,
+        804
+      ]
+    },
+    "s_DZ85jORb6dY": {
+      "origin": "routes/older-versions/v2/index.tsx",
+      "displayName": "GreySpan_component",
+      "canonicalFilename": "s_dz85jorb6dy",
+      "hash": "DZ85jORb6dY",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        2949,
+        3109
+      ]
+    },
+    "s_E2KdyzD6g5Q": {
+      "origin": "routes/older-versions/resize/index.tsx",
+      "displayName": "Settings_component",
+      "canonicalFilename": "s_e2kdyzd6g5q",
+      "hash": "E2KdyzD6g5Q",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        5663,
+        8631
+      ]
+    },
+    "s_GqgsY5tcdZQ": {
+      "origin": "v3/components/atoms/header-timer-display/header-timer-display.tsx",
+      "displayName": "header_timer_display_component",
+      "canonicalFilename": "s_gqgsy5tcdzq",
+      "hash": "GqgsY5tcdZQ",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        291,
+        780
+      ]
+    },
+    "s_HH0i6OfaiF0": {
+      "origin": "old/v2/components/FlippableCard.tsx",
+      "displayName": "FlippableCard_component",
+      "canonicalFilename": "s_hh0i6ofaif0",
+      "hash": "HH0i6OfaiF0",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        727,
+        5304
+      ]
+    },
+    "s_HdP0Y3Z6acI": {
+      "origin": "old/v1/components/memory-card-game/memory-card-game.tsx",
+      "displayName": "SettingsRow_component",
+      "canonicalFilename": "s_hdp0y3z6aci",
+      "hash": "HdP0Y3Z6acI",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        7734,
+        7897
+      ]
+    },
+    "s_I7dbcyA3RY4": {
+      "origin": "routes/game/index.tsx",
+      "displayName": "game_component",
+      "canonicalFilename": "s_i7dbcya3ry4",
+      "hash": "I7dbcyA3RY4",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        1612,
+        2013
+      ]
+    },
+    "s_KFHPqR8z0zU": {
+      "origin": "routes/index.tsx",
+      "displayName": "GameStarter_component",
+      "canonicalFilename": "s_kfhpqr8z0zu",
+      "hash": "KFHPqR8z0zU",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        4076,
+        5295
+      ]
+    },
+    "s_LEy7cxvvfcY": {
+      "origin": "routes/layout.tsx",
+      "displayName": "layout_component",
+      "canonicalFilename": "s_ley7cxvvfcy",
+      "hash": "LEy7cxvvfcY",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        899,
+        1004
+      ]
+    },
+    "s_Lp2GXCDAPvA": {
+      "origin": "routes/older-versions/track/index.tsx",
+      "displayName": "track_component",
+      "canonicalFilename": "s_lp2gxcdapva",
+      "hash": "Lp2GXCDAPvA",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        269,
+        3900
+      ]
+    },
+    "s_MCaM2HHilnA": {
+      "origin": "v3/components/playing-card-components/symbols/card-symbols.tsx",
+      "displayName": "card_symbols_component",
+      "canonicalFilename": "s_mcam2hhilna",
+      "hash": "MCaM2HHilnA",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        178,
+        14752
+      ]
+    },
+    "s_NMgYoa6LUKU": {
+      "origin": "routes/older-versions/resize/index.tsx",
+      "displayName": "resize_component",
+      "canonicalFilename": "s_nmgyoa6luku",
+      "hash": "NMgYoa6LUKU",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        1088,
+        4714
+      ]
+    },
+    "s_NezKBbi0BRw": {
+      "origin": "v3/components/pages/loading/loading.tsx",
+      "displayName": "loading_component",
+      "canonicalFilename": "s_nezkbbi0brw",
+      "hash": "NezKBbi0BRw",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        81,
+        606
+      ]
+    },
+    "s_Nk9PlpjQm9Y": {
+      "origin": "../node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs",
+      "displayName": "GetForm_component",
+      "canonicalFilename": "s_nk9plpjqm9y",
+      "hash": "Nk9PlpjQm9Y",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        55155,
+        56872
+      ]
+    },
+    "s_OSKuBHH2p7w": {
+      "origin": "old/v2/components/match-modal/match-modal.tsx",
+      "displayName": "match_modal_component",
+      "canonicalFilename": "s_oskubhh2p7w",
+      "hash": "OSKuBHH2p7w",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        161,
+        1052
+      ]
+    },
+    "s_PwmycWKuzJI": {
+      "origin": "v3/components/organisms/board/board.tsx",
+      "displayName": "board_component",
+      "canonicalFilename": "s_pwmycwkuzji",
+      "hash": "PwmycWKuzJI",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        740,
+        12994
+      ]
+    },
+    "s_QupDoi0UeVM": {
+      "origin": "v3/components/pages/settings/settings.tsx",
+      "displayName": "settings_component",
+      "canonicalFilename": "s_qupdoi0uevm",
+      "hash": "QupDoi0UeVM",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        411,
+        1460
+      ]
+    },
+    "s_RdCk0EDbwd4": {
+      "origin": "v3/components/pages/game/game.tsx",
+      "displayName": "game_component",
+      "canonicalFilename": "s_rdck0edbwd4",
+      "hash": "RdCk0EDbwd4",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        2102,
+        9929
+      ]
+    },
+    "s_TxCFOy819ag": {
+      "origin": "../node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs",
+      "displayName": "QwikCityProvider_component",
+      "canonicalFilename": "s_txcfoy819ag",
+      "hash": "TxCFOy819ag",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        24097,
+        37105
+      ]
+    },
+    "s_VhdotcV6r5I": {
+      "origin": "v3/components/atoms/button/button.tsx",
+      "displayName": "button_component",
+      "canonicalFilename": "s_vhdotcv6r5i",
+      "hash": "VhdotcV6r5I",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        142,
+        601
+      ]
+    },
+    "s_WmYC5H00wtI": {
+      "origin": "../node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs",
+      "displayName": "QwikCityMockProvider_component",
+      "canonicalFilename": "s_wmyc5h00wti",
+      "hash": "WmYC5H00wtI",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        37389,
+        38683
+      ]
+    },
+    "s_Y0rI2BAbOXo": {
+      "origin": "routes/older-versions/v1.5/index.tsx",
+      "displayName": "v1_5_component",
+      "canonicalFilename": "s_y0ri2baboxo",
+      "hash": "Y0rI2BAbOXo",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        340,
+        1123
+      ]
+    },
+    "s_YG5N76Z5wuk": {
+      "origin": "old/v1/components/memory-card-game/memory-card-game.tsx",
+      "displayName": "memory_card_game_component",
+      "canonicalFilename": "s_yg5n76z5wuk",
+      "hash": "YG5N76Z5wuk",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        374,
+        1557
+      ]
+    },
+    "s_Z0PVpPT3bTM": {
+      "origin": "routes/older-versions/v1/index.tsx",
+      "displayName": "v1_component",
+      "canonicalFilename": "s_z0pvppt3btm",
+      "hash": "Z0PVpPT3bTM",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        224,
+        295
+      ]
+    },
+    "s_Zgq5ggfgKg4": {
+      "origin": "v3/components/atoms/header-scores-display/header-scores-display.tsx",
+      "displayName": "header_scores_display_component",
+      "canonicalFilename": "s_zgq5ggfgkg4",
+      "hash": "Zgq5ggfgKg4",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        313,
+        2617
+      ]
+    },
+    "s_Ztfjxf2AqS4": {
+      "origin": "old/v1/components/memory-card-game/memory-card-game.tsx",
+      "displayName": "BoardHeader_component",
+      "canonicalFilename": "s_ztfjxf2aqs4",
+      "hash": "Ztfjxf2AqS4",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        3296,
+        3488
+      ]
+    },
+    "s_cVhEBXKM03U": {
+      "origin": "old/v1/components/memory-card-game/memory-card-game.tsx",
+      "displayName": "PairsWidget_component",
+      "canonicalFilename": "s_cvhebxkm03u",
+      "hash": "cVhEBXKM03U",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        3532,
+        3735
+      ]
+    },
+    "s_dTt5BEKyoHc": {
+      "origin": "routes/older-versions/index.tsx",
+      "displayName": "older_versions_component",
+      "canonicalFilename": "s_dtt5bekyohc",
+      "hash": "dTt5BEKyoHc",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        124,
+        1387
+      ]
+    },
+    "s_e0ssiDXoeAM": {
+      "origin": "../node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs",
+      "displayName": "RouterOutlet_component",
+      "canonicalFilename": "s_e0ssidxoeam",
+      "hash": "e0ssiDXoeAM",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        7865,
+        8765
+      ]
+    },
+    "s_fXh3I0a2LXw": {
+      "origin": "v3/components/atoms/header-game-dimensions/header-game-dimensions.tsx",
+      "displayName": "header_game_dimensions_component",
+      "canonicalFilename": "s_fxh3i0a2lxw",
+      "hash": "fXh3I0a2LXw",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        263,
+        1484
+      ]
+    },
+    "s_foaX70yCrpE": {
+      "origin": "v3/components/templates/modal/modal.tsx",
+      "displayName": "modal_component",
+      "canonicalFilename": "s_foax70ycrpe",
+      "hash": "foaX70yCrpE",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        477,
+        2223
+      ]
+    },
+    "s_iKisfwYtJcU": {
+      "origin": "components/router-head/router-head.tsx",
+      "displayName": "RouterHead_component",
+      "canonicalFilename": "s_ikisfwytjcu",
+      "hash": "iKisfwYtJcU",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        303,
+        1303
+      ]
+    },
+    "s_ltY0cFd72dM": {
+      "origin": "routes/older-versions/v2/layout.tsx",
+      "displayName": "layout_component",
+      "canonicalFilename": "s_lty0cfd72dm",
+      "hash": "ltY0cFd72dM",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        297,
+        919
+      ]
+    },
+    "s_mAbHMdeUxko": {
+      "origin": "old/v1/components/memory-card-game/memory-card-game.tsx",
+      "displayName": "CardUnit_component",
+      "canonicalFilename": "s_mabhmdeuxko",
+      "hash": "mAbHMdeUxko",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        4553,
+        7370
+      ]
+    },
+    "s_na9oMFPFEJA": {
+      "origin": "v3/components/organisms/game-settings/game-settings.tsx",
+      "displayName": "game_settings_component",
+      "canonicalFilename": "s_na9omfpfeja",
+      "hash": "na9oMFPFEJA",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        1039,
+        11849
+      ]
+    },
+    "s_pFgNxMw8kuI": {
+      "origin": "old/v1/components/memory-card-game/memory-card-game.tsx",
+      "displayName": "MismatchCountWidget_component",
+      "canonicalFilename": "s_pfgnxmw8kui",
+      "hash": "pFgNxMw8kuI",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        3785,
+        3994
+      ]
+    },
+    "s_pRjF6UDiF1I": {
+      "origin": "old/v1/components/memory-card-game/memory-card-game.tsx",
+      "displayName": "Board_component",
+      "canonicalFilename": "s_prjf6udif1i",
+      "hash": "pRjF6UDiF1I",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        1647,
+        3252
+      ]
+    },
+    "s_qiFlzJo0Xuo": {
+      "origin": "routes/older-versions/v2/index.tsx",
+      "displayName": "v2_component",
+      "canonicalFilename": "s_qiflzjo0xuo",
+      "hash": "qiFlzJo0Xuo",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        4189,
+        10429
+      ]
+    },
+    "s_ql4xr9R8LxI": {
+      "origin": "v3/components/organisms/game-header/game-header.tsx",
+      "displayName": "game_header_component",
+      "canonicalFilename": "s_ql4xr9r8lxi",
+      "hash": "ql4xr9R8LxI",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        740,
+        1574
+      ]
+    },
+    "s_sCZdKlxzZSs": {
+      "origin": "routes/older-versions/resize/index.tsx",
+      "displayName": "Card_component",
+      "canonicalFilename": "s_sczdklxzzss",
+      "hash": "sCZdKlxzZSs",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        5146,
+        5625
+      ]
+    },
+    "s_sFnVGQnqIeg": {
+      "origin": "v3/components/atoms/header-section/header-section.tsx",
+      "displayName": "header_section_component",
+      "canonicalFilename": "s_sfnvgqnqieg",
+      "hash": "sFnVGQnqIeg",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        136,
+        307
+      ]
+    },
+    "s_t07ifSi9QcY": {
+      "origin": "routes/index.tsx",
+      "displayName": "routes_component",
+      "canonicalFilename": "s_t07ifsi9qcy",
+      "hash": "t07ifSi9QcY",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        682,
+        1217
+      ]
+    },
+    "s_tN7oCn0nbiw": {
+      "origin": "v3/components/playing-card-components/symbols/face-card-symbols.tsx",
+      "displayName": "face_card_symbols_component",
+      "canonicalFilename": "s_tn7ocn0nbiw",
+      "hash": "tN7oCn0nbiw",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        186,
+        465247
+      ]
+    },
+    "s_tcpBt4EdroQ": {
+      "origin": "v3/components/organisms/card/card.tsx",
+      "displayName": "card_component",
+      "canonicalFilename": "s_tcpbt4edroq",
+      "hash": "tcpBt4EdroQ",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        926,
+        9457
+      ]
+    },
+    "s_u6RTVWfiVYM": {
+      "origin": "v3/components/atoms/header-selected-ids/header-selected-ids.tsx",
+      "displayName": "header_selected_ids_component",
+      "canonicalFilename": "s_u6rtvwfivym",
+      "hash": "u6RTVWfiVYM",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        205,
+        701
+      ]
+    },
+    "s_uI3OBiwIu2U": {
+      "origin": "root.tsx",
+      "displayName": "root_component",
+      "canonicalFilename": "s_ui3obiwiu2u",
+      "hash": "uI3OBiwIu2U",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        278,
+        851
+      ]
+    },
+    "s_wv5p0cFi9Bg": {
+      "origin": "v3/components/atoms/header-scores-display/header-scores-display.tsx",
+      "displayName": "Score_component",
+      "canonicalFilename": "s_wv5p0cfi9bg",
+      "hash": "wv5p0cFi9Bg",
+      "ctxKind": "function",
+      "ctxName": "component$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        2652,
+        3321
+      ]
+    },
+    "s_C0IEAk0y6Pk": {
+      "origin": "v3/components/organisms/board/board.tsx",
+      "displayName": "board_component_useStyles",
+      "canonicalFilename": "s_c0ieak0y6pk",
+      "hash": "C0IEAk0y6Pk",
+      "ctxKind": "function",
+      "ctxName": "useStyles$",
+      "captures": false,
+      "parent": "s_PwmycWKuzJI",
+      "loc": [
+        10437,
+        12654
+      ]
+    },
+    "s_JxDIDab23Yg": {
+      "origin": "routes/layout.tsx",
+      "displayName": "layout_component_useStyles",
+      "canonicalFilename": "s_jxdidab23yg",
+      "hash": "JxDIDab23Yg",
+      "ctxKind": "function",
+      "ctxName": "useStyles$",
+      "captures": false,
+      "parent": "s_LEy7cxvvfcY",
+      "loc": [
+        921,
+        927
+      ]
+    },
+    "s_lsJo0DVX7vM": {
+      "origin": "v3/components/atoms/header-scores-display/header-scores-display.tsx",
+      "displayName": "header_scores_display_component_useStylesScoped",
+      "canonicalFilename": "s_lsjo0dvx7vm",
+      "hash": "lsJo0DVX7vM",
+      "ctxKind": "function",
+      "ctxName": "useStylesScoped$",
+      "captures": false,
+      "parent": "s_Zgq5ggfgKg4",
+      "loc": [
+        1347,
+        1924
+      ]
+    },
+    "s_1yUExyHvwY8": {
+      "origin": "v3/context/initialState.ts",
+      "displayName": "INITIAL_STATE_9",
+      "canonicalFilename": "s_1yuexyhvwy8",
+      "hash": "1yUExyHvwY8",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        6371,
+        6500
+      ]
+    },
+    "s_5oQH5b60zeI": {
+      "origin": "v3/hooks/useTimer/useTimer.ts",
+      "displayName": "useTimer_reset",
+      "canonicalFilename": "s_5oqh5b60zei",
+      "hash": "5oQH5b60zeI",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": null,
+      "loc": [
+        2471,
+        2690
+      ]
+    },
+    "s_8MI0htChHqI": {
+      "origin": "v3/context/initialState.ts",
+      "displayName": "INITIAL_STATE_1",
+      "canonicalFilename": "s_8mi0htchhqi",
+      "hash": "8MI0htChHqI",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        3559,
+        4316
+      ]
+    },
+    "s_UotzBQZtU7s": {
+      "origin": "v3/context/initialState.ts",
+      "displayName": "INITIAL_STATE_10",
+      "canonicalFilename": "s_uotzbqztu7s",
+      "hash": "UotzBQZtU7s",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        6517,
+        6692
+      ]
+    },
+    "s_VnBGKv8TTN8": {
+      "origin": "v3/context/initialState.ts",
+      "displayName": "INITIAL_STATE_8",
+      "canonicalFilename": "s_vnbgkv8ttn8",
+      "hash": "VnBGKv8TTN8",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        5977,
+        6352
+      ]
+    },
+    "s_2L0MGRenC4o": {
+      "origin": "v3/components/pages/game/game.tsx",
+      "displayName": "game_component_useIntervalObj_1",
+      "canonicalFilename": "s_2l0mgrenc4o",
+      "hash": "2L0MGRenC4o",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_RdCk0EDbwd4",
+      "loc": [
+        6062,
+        6890
+      ]
+    },
+    "s_DHcAoLBNQ40": {
+      "origin": "routes/older-versions/track/index.tsx",
+      "displayName": "track_component_div_div_button_onClick",
+      "canonicalFilename": "s_dhcaolbnq40",
+      "hash": "DHcAoLBNQ40",
+      "ctxKind": "eventHandler",
+      "ctxName": "onClick$",
+      "captures": true,
+      "parent": "s_Lp2GXCDAPvA",
+      "loc": [
+        2927,
+        3060
+      ]
+    },
+    "s_E4djdLLd8Lk": {
+      "origin": "old/v2/components/FlippableCard.tsx",
+      "displayName": "FlippableCard_component_coords_useComputed",
+      "canonicalFilename": "s_e4djdlld8lk",
+      "hash": "E4djdLLd8Lk",
+      "ctxKind": "function",
+      "ctxName": "useComputed$",
+      "captures": true,
+      "parent": "s_HH0i6OfaiF0",
+      "loc": [
+        2227,
+        2303
+      ]
+    },
+    "s_FnNVQn9WWpQ": {
+      "origin": "v3/components/organisms/card/card.tsx",
+      "displayName": "card_component_isThisRemoved_useComputed",
+      "canonicalFilename": "s_fnnvqn9wwpq",
+      "hash": "FnNVQn9WWpQ",
+      "ctxKind": "function",
+      "ctxName": "useComputed$",
+      "captures": true,
+      "parent": "s_tcpBt4EdroQ",
+      "loc": [
+        1046,
+        1123
+      ]
+    },
+    "s_IG8JuFWmA7Q": {
+      "origin": "v3/components/pages/game/game.tsx",
+      "displayName": "game_component_useIntervalObj_useComputed_1",
+      "canonicalFilename": "s_ig8jufwma7q",
+      "hash": "IG8JuFWmA7Q",
+      "ctxKind": "function",
+      "ctxName": "useComputed$",
+      "captures": true,
+      "parent": "s_RdCk0EDbwd4",
+      "loc": [
+        6941,
+        7001
+      ]
+    },
+    "s_QYcnnov2ztw": {
+      "origin": "routes/older-versions/track/index.tsx",
+      "displayName": "track_component_div_div_button_onClick_2",
+      "canonicalFilename": "s_qycnnov2ztw",
+      "hash": "QYcnnov2ztw",
+      "ctxKind": "eventHandler",
+      "ctxName": "onClick$",
+      "captures": true,
+      "parent": "s_Lp2GXCDAPvA",
+      "loc": [
+        3426,
+        3561
+      ]
+    },
+    "s_RPDJAz33WLA": {
+      "origin": "../node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs",
+      "displayName": "QwikCityProvider_component_useStyles",
+      "canonicalFilename": "s_rpdjaz33wla",
+      "hash": "RPDJAz33WLA",
+      "ctxKind": "function",
+      "ctxName": "useStyles$",
+      "captures": false,
+      "parent": "s_TxCFOy819ag",
+      "loc": [
+        24152,
+        24186
+      ]
+    },
+    "s_Sjz1N0GVPdc": {
+      "origin": "routes/game/index.tsx",
+      "displayName": "game_component_useStyles",
+      "canonicalFilename": "s_sjz1n0gvpdc",
+      "hash": "Sjz1N0GVPdc",
+      "ctxKind": "function",
+      "ctxName": "useStyles$",
+      "captures": false,
+      "parent": "s_I7dbcyA3RY4",
+      "loc": [
+        1673,
+        1679
+      ]
+    },
+    "s_c1kdk7QEzmg": {
+      "origin": "v3/components/molecules/dropdown-grid/dropdown-grid.tsx",
+      "displayName": "dropdown_grid_component_useStyles",
+      "canonicalFilename": "s_c1kdk7qezmg",
+      "hash": "c1kdk7QEzmg",
+      "ctxKind": "function",
+      "ctxName": "useStyles$",
+      "captures": false,
+      "parent": "s_3aR9gw7Hk5w",
+      "loc": [
+        487,
+        729
+      ]
+    },
+    "s_1RJPKHqF8AQ": {
+      "origin": "../node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs",
+      "displayName": "spa_init_event",
+      "canonicalFilename": "s_1rjpkhqf8aq",
+      "hash": "1RJPKHqF8AQ",
+      "ctxKind": "function",
+      "ctxName": "event$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        1385,
+        6788
+      ]
+    },
+    "s_3aeyDOX0YnU": {
+      "origin": "v3/context/initialState.ts",
+      "displayName": "INITIAL_STATE",
+      "canonicalFilename": "s_3aeydox0ynu",
+      "hash": "3aeyDOX0YnU",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        2936,
+        3491
+      ]
+    },
+    "s_A5bZC7WO00A": {
+      "origin": "../node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs",
+      "displayName": "routeActionQrl_action_submit",
+      "canonicalFilename": "s_a5bzc7wo00a",
+      "hash": "A5bZC7WO00A",
+      "ctxKind": "function",
+      "ctxName": "submit",
+      "captures": true,
+      "parent": null,
+      "loc": [
+        42532,
+        44199
+      ]
+    },
+    "s_AN7moVAjj0A": {
+      "origin": "v3/context/initialState.ts",
+      "displayName": "INITIAL_STATE_2",
+      "canonicalFilename": "s_an7movajj0a",
+      "hash": "AN7moVAjj0A",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        4381,
+        4502
+      ]
+    },
+    "s_JbVigb9PklA": {
+      "origin": "v3/hooks/useTimer/useTimer.ts",
+      "displayName": "useTimer_resume",
+      "canonicalFilename": "s_jbvigb9pkla",
+      "hash": "JbVigb9PklA",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": null,
+      "loc": [
+        1814,
+        2048
+      ]
+    },
+    "s_PWClVmRORhY": {
+      "origin": "v3/context/initialState.ts",
+      "displayName": "INITIAL_STATE_7",
+      "canonicalFilename": "s_pwclvmrorhy",
+      "hash": "PWClVmRORhY",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        5844,
+        5956
+      ]
+    },
+    "s_SGytLJ8uq8I": {
+      "origin": "../node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs",
+      "displayName": "serverQrl_rpc",
+      "canonicalFilename": "s_sgytlj8uq8i",
+      "hash": "SGytLJ8uq8I",
+      "ctxKind": "function",
+      "ctxName": "rpc",
+      "captures": true,
+      "parent": null,
+      "loc": [
+        48928,
+        51880
+      ]
+    },
+    "s_TLzhoVALFlE": {
+      "origin": "v3/context/initialState.ts",
+      "displayName": "INITIAL_STATE_3",
+      "canonicalFilename": "s_tlzhovalfle",
+      "hash": "TLzhoVALFlE",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        4642,
+        4966
+      ]
+    },
+    "s_VCzvcLUDXH4": {
+      "origin": "v3/hooks/useTimer/useTimer.ts",
+      "displayName": "useTimer_pause",
+      "canonicalFilename": "s_vczvcludxh4",
+      "hash": "VCzvcLUDXH4",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": null,
+      "loc": [
+        2191,
+        2364
+      ]
+    },
+    "s_YR8PmlWDBDg": {
+      "origin": "v3/context/initialState.ts",
+      "displayName": "INITIAL_STATE_5",
+      "canonicalFilename": "s_yr8pmlwdbdg",
+      "hash": "YR8PmlWDBDg",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        5252,
+        5691
+      ]
+    },
+    "s_dwaOzCj98b8": {
+      "origin": "v3/hooks/useTimer/useTimer.ts",
+      "displayName": "useTimer_start",
+      "canonicalFilename": "s_dwaozcj98b8",
+      "hash": "dwaOzCj98b8",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": null,
+      "loc": [
+        1325,
+        1495
+      ]
+    },
+    "s_fNt5PFA3SzM": {
+      "origin": "v3/context/initialState.ts",
+      "displayName": "INITIAL_STATE_6",
+      "canonicalFilename": "s_fnt5pfa3szm",
+      "hash": "fNt5PFA3SzM",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        5713,
+        5823
+      ]
+    },
+    "s_fUmQx2aFoy8": {
+      "origin": "v3/hooks/useTimer/useTimer.ts",
+      "displayName": "useTimer_stop",
+      "canonicalFilename": "s_fumqx2afoy8",
+      "hash": "fUmQx2aFoy8",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": null,
+      "loc": [
+        1574,
+        1693
+      ]
+    },
+    "s_ixirnEZzQh0": {
+      "origin": "v3/hooks/useDebounce/useDebounce.ts",
+      "displayName": "useDebounceSignal_callDebounce",
+      "canonicalFilename": "s_ixirnezzqh0",
+      "hash": "ixirnEZzQh0",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": null,
+      "loc": [
+        1380,
+        1717
+      ]
+    },
+    "s_jC85XeQEoXY": {
+      "origin": "v3/context/initialState.ts",
+      "displayName": "INITIAL_STATE_11",
+      "canonicalFilename": "s_jc85xeqeoxy",
+      "hash": "jC85XeQEoXY",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        6711,
+        7956
+      ]
+    },
+    "s_nEiE0w2EXx8": {
+      "origin": "v3/hooks/useTimeout.ts",
+      "displayName": "useTimeoutObj",
+      "canonicalFilename": "s_neie0w2exx8",
+      "hash": "nEiE0w2EXx8",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": null,
+      "loc": [
+        807,
+        858
+      ]
+    },
+    "s_oiWqBVacAfs": {
+      "origin": "v3/context/initialState.ts",
+      "displayName": "INITIAL_STATE_4",
+      "canonicalFilename": "s_oiwqbvacafs",
+      "hash": "oiWqBVacAfs",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": false,
+      "parent": null,
+      "loc": [
+        5039,
+        5135
+      ]
+    },
+    "s_sDrs44GO7Us": {
+      "origin": "v3/hooks/useTimeout.ts",
+      "displayName": "useIntervalObj",
+      "canonicalFilename": "s_sdrs44go7us",
+      "hash": "sDrs44GO7Us",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": null,
+      "loc": [
+        2972,
+        3180
+      ]
+    },
+    "s_uPHV2oGn4wc": {
+      "origin": "../node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs",
+      "displayName": "Form_form_onSubmit",
+      "canonicalFilename": "s_uphv2ogn4wc",
+      "hash": "uPHV2oGn4wc",
+      "ctxKind": "function",
+      "ctxName": "_jsxS",
+      "captures": true,
+      "parent": null,
+      "loc": [
+        54067,
+        54216
+      ]
+    },
+    "s_yeGBHOAZZUk": {
+      "origin": "v3/hooks/useTimeout.ts",
+      "displayName": "useDelayedTimeoutObj",
+      "canonicalFilename": "s_yegbhoazzuk",
+      "hash": "yeGBHOAZZUk",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": null,
+      "loc": [
+        1686,
+        1894
+      ]
+    },
+    "s_00lU2mhNUf8": {
+      "origin": "v3/components/atoms/header-scores-display/header-scores-display.tsx",
+      "displayName": "header_scores_display_component_useTimeoutObj_useComputed_1",
+      "canonicalFilename": "s_00lu2mhnuf8",
+      "hash": "00lU2mhNUf8",
+      "ctxKind": "function",
+      "ctxName": "useComputed$",
+      "captures": true,
+      "parent": "s_Zgq5ggfgKg4",
+      "loc": [
+        786,
+        831
+      ]
+    },
+    "s_0ayKAGPxh2k": {
+      "origin": "routes/older-versions/track/index.tsx",
+      "displayName": "track_component_div_div_button_onClick_1",
+      "canonicalFilename": "s_0aykagpxh2k",
+      "hash": "0ayKAGPxh2k",
+      "ctxKind": "eventHandler",
+      "ctxName": "onClick$",
+      "captures": true,
+      "parent": "s_Lp2GXCDAPvA",
+      "loc": [
+        3163,
+        3296
+      ]
+    },
+    "s_0w5j1QiBkl4": {
+      "origin": "v3/components/pages/game/game.tsx",
+      "displayName": "game_component_useTimeoutObj_useComputed",
+      "canonicalFilename": "s_0w5j1qibkl4",
+      "hash": "0w5j1QiBkl4",
+      "ctxKind": "function",
+      "ctxName": "useComputed$",
+      "captures": true,
+      "parent": "s_RdCk0EDbwd4",
+      "loc": [
+        5516,
+        5576
+      ]
+    },
+    "s_2sP9hg6vDyY": {
+      "origin": "routes/older-versions/resize/index.tsx",
+      "displayName": "resize_component_calculateBoard",
+      "canonicalFilename": "s_2sp9hg6vdyy",
+      "hash": "2sP9hg6vDyY",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_NMgYoa6LUKU",
+      "loc": [
+        1287,
+        3246
+      ]
+    },
+    "s_48MhuxYL4gQ": {
+      "origin": "routes/older-versions/v2/layout.tsx",
+      "displayName": "layout_component_useOnDocument",
+      "canonicalFilename": "s_48mhuxyl4gq",
+      "hash": "48MhuxYL4gQ",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_ltY0cFd72dM",
+      "loc": [
+        576,
+        834
+      ]
+    },
+    "s_4VJ02ZeZrB4": {
+      "origin": "v3/components/organisms/board/board.tsx",
+      "displayName": "board_component_useTimeoutObj_useComputed",
+      "canonicalFilename": "s_4vj02zezrb4",
+      "hash": "4VJ02ZeZrB4",
+      "ctxKind": "function",
+      "ctxName": "useComputed$",
+      "captures": true,
+      "parent": "s_PwmycWKuzJI",
+      "loc": [
+        6623,
+        6757
+      ]
+    },
+    "s_5P4RSHEAn2k": {
+      "origin": "v3/components/pages/game/game.tsx",
+      "displayName": "game_component_useIntervalObj_useComputed",
+      "canonicalFilename": "s_5p4rshean2k",
+      "hash": "5P4RSHEAn2k",
+      "ctxKind": "function",
+      "ctxName": "useComputed$",
+      "captures": true,
+      "parent": "s_RdCk0EDbwd4",
+      "loc": [
+        3684,
+        3782
+      ]
+    },
+    "s_5w15TieZP0A": {
+      "origin": "v3/components/organisms/board/board.tsx",
+      "displayName": "board_component_useOnWindow_1",
+      "canonicalFilename": "s_5w15tiezp0a",
+      "hash": "5w15TieZP0A",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_PwmycWKuzJI",
+      "loc": [
+        7362,
+        8417
+      ]
+    },
+    "s_5zVdCAOMmlg": {
+      "origin": "v3/components/molecules/deck-size-slider/deck-size-slider.tsx",
+      "displayName": "deck_size_slider_component_div_input_onInput",
+      "canonicalFilename": "s_5zvdcaommlg",
+      "hash": "5zVdCAOMmlg",
+      "ctxKind": "eventHandler",
+      "ctxName": "onInput$",
+      "captures": true,
+      "parent": "s_40zqTTcgiZI",
+      "loc": [
+        991,
+        1266
+      ]
+    },
+    "s_6UBei8y2HDs": {
+      "origin": "v3/components/pages/game/game.tsx",
+      "displayName": "game_component_useDelayedTimeoutObj_useComputed",
+      "canonicalFilename": "s_6ubei8y2hds",
+      "hash": "6UBei8y2HDs",
+      "ctxKind": "function",
+      "ctxName": "useComputed$",
+      "captures": true,
+      "parent": "s_RdCk0EDbwd4",
+      "loc": [
+        7647,
+        7689
+      ]
+    },
+    "s_7nOUIhhLaHA": {
+      "origin": "routes/older-versions/resize/index.tsx",
+      "displayName": "resize_component_useOnWindow",
+      "canonicalFilename": "s_7nouihhlaha",
+      "hash": "7nOUIhhLaHA",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_NMgYoa6LUKU",
+      "loc": [
+        3345,
+        3451
+      ]
+    },
+    "s_8ocjZu2UXss": {
+      "origin": "v3/components/pages/game/game.tsx",
+      "displayName": "game_component_useVisibilityChange",
+      "canonicalFilename": "s_8ocjzu2uxss",
+      "hash": "8ocjZu2UXss",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_RdCk0EDbwd4",
+      "loc": [
+        7986,
+        8039
+      ]
+    },
+    "s_8s3hmkR0UHg": {
+      "origin": "v3/components/atoms/header-scores-display/header-scores-display.tsx",
+      "displayName": "header_scores_display_component_mismatchAnimation_useComputed",
+      "canonicalFilename": "s_8s3hmkr0uhg",
+      "hash": "8s3hmkR0UHg",
+      "ctxKind": "function",
+      "ctxName": "useComputed$",
+      "captures": true,
+      "parent": "s_Zgq5ggfgKg4",
+      "loc": [
+        943,
+        1322
+      ]
+    },
+    "s_9CRRBwgARMc": {
+      "origin": "v3/components/organisms/board/board.tsx",
+      "displayName": "board_component_useOnWindow",
+      "canonicalFilename": "s_9crrbwgarmc",
+      "hash": "9CRRBwgARMc",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_PwmycWKuzJI",
+      "loc": [
+        6979,
+        7235
+      ]
+    },
+    "s_9ZhBdtxlMNo": {
+      "origin": "old/v1/components/memory-card-game/memory-card-game.tsx",
+      "displayName": "CardUnit_component_Fragment_div_onClick",
+      "canonicalFilename": "s_9zhbdtxlmno",
+      "hash": "9ZhBdtxlMNo",
+      "ctxKind": "eventHandler",
+      "ctxName": "onClick$",
+      "captures": true,
+      "parent": "s_mAbHMdeUxko",
+      "loc": [
+        6856,
+        6904
+      ]
+    },
+    "s_9r4WHi6Z2P0": {
+      "origin": "v3/components/organisms/board/board.tsx",
+      "displayName": "board_component_handleClickUnflippedCard",
+      "canonicalFilename": "s_9r4whi6z2p0",
+      "hash": "9r4WHi6Z2P0",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_PwmycWKuzJI",
+      "loc": [
+        3479,
+        4454
+      ]
+    },
+    "s_BUbtvTyvVRE": {
+      "origin": "../node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs",
+      "displayName": "QwikCityMockProvider_component_goto",
+      "canonicalFilename": "s_bubtvtyvvre",
+      "hash": "BUbtvTyvVRE",
+      "ctxKind": "function",
+      "ctxName": "goto",
+      "captures": false,
+      "parent": "s_WmYC5H00wtI",
+      "loc": [
+        37804,
+        37882
+      ]
+    },
+    "s_EDwZNRrV60E": {
+      "origin": "v3/components/pages/game/game.tsx",
+      "displayName": "game_component_useDelayedTimeoutObj_1",
+      "canonicalFilename": "s_edwznrrv60e",
+      "hash": "EDwZNRrV60E",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_RdCk0EDbwd4",
+      "loc": [
+        7490,
+        7596
+      ]
+    },
+    "s_F8E4KgdO9W0": {
+      "origin": "old/v2/components/FlippableCard.tsx",
+      "displayName": "FlippableCard_component_isRemoved_useComputed",
+      "canonicalFilename": "s_f8e4kgdo9w0",
+      "hash": "F8E4KgdO9W0",
+      "ctxKind": "function",
+      "ctxName": "useComputed$",
+      "captures": true,
+      "parent": "s_HH0i6OfaiF0",
+      "loc": [
+        1103,
+        1176
+      ]
+    },
+    "s_FCzgRbSJCWQ": {
+      "origin": "v3/components/pages/end-game/end-game.tsx",
+      "displayName": "end_game_component_Modal_div_Button_onClick",
+      "canonicalFilename": "s_fczgrbsjcwq",
+      "hash": "FCzgRbSJCWQ",
+      "ctxKind": "jSXProp",
+      "ctxName": "onClick$",
+      "captures": true,
+      "parent": "s_6NroavKN34E",
+      "loc": [
+        3118,
+        3403
+      ]
+    },
+    "s_FYayy72LZNk": {
+      "origin": "v3/components/atoms/header-scores-display/header-scores-display.tsx",
+      "displayName": "header_scores_display_component_useTimeoutObj_1",
+      "canonicalFilename": "s_fyayy72lznk",
+      "hash": "FYayy72LZNk",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_Zgq5ggfgKg4",
+      "loc": [
+        669,
+        739
+      ]
+    },
+    "s_H0sIhF1R00U": {
+      "origin": "v3/components/atoms/header-scores-display/header-scores-display.tsx",
+      "displayName": "header_scores_display_component_useTimeoutObj_useComputed",
+      "canonicalFilename": "s_h0sihf1r00u",
+      "hash": "H0sIhF1R00U",
+      "ctxKind": "function",
+      "ctxName": "useComputed$",
+      "captures": true,
+      "parent": "s_Zgq5ggfgKg4",
+      "loc": [
+        521,
+        565
+      ]
+    },
+    "s_HBdOIEEsAsE": {
+      "origin": "routes/index.tsx",
+      "displayName": "GameStarter_component_saveSettings",
+      "canonicalFilename": "s_hbdoieesase",
+      "hash": "HBdOIEEsAsE",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_KFHPqR8z0zU",
+      "loc": [
+        4529,
+        4676
+      ]
+    },
+    "s_I6xh0fDF0lU": {
+      "origin": "v3/components/organisms/game-settings/game-settings.tsx",
+      "displayName": "game_settings_component_div_div_div_DropdownGrid_ModalRow_InputLock_onChange_2",
+      "canonicalFilename": "s_i6xh0fdf0lu",
+      "hash": "I6xh0fDF0lU",
+      "ctxKind": "jSXProp",
+      "ctxName": "onChange$",
+      "captures": true,
+      "parent": "s_na9oMFPFEJA",
+      "loc": [
+        3828,
+        4194
+      ]
+    },
+    "s_IPrJHcSk1jY": {
+      "origin": "routes/older-versions/track/index.tsx",
+      "displayName": "track_component_changeDimension",
+      "canonicalFilename": "s_iprjhcsk1jy",
+      "hash": "IPrJHcSk1jY",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_Lp2GXCDAPvA",
+      "loc": [
+        2483,
+        2606
+      ]
+    },
+    "s_JE3pN3qQoHA": {
+      "origin": "v3/components/organisms/board/board.tsx",
+      "displayName": "board_component_handleClickBoard",
+      "canonicalFilename": "s_je3pn3qqoha",
+      "hash": "JE3pN3qQoHA",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_PwmycWKuzJI",
+      "loc": [
+        5639,
+        6322
+      ]
+    },
+    "s_KK5BfmKH4ZI": {
+      "origin": "../node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs",
+      "displayName": "GetForm_component_form_onSubmit_1",
+      "canonicalFilename": "s_kk5bfmkh4zi",
+      "hash": "KK5BfmKH4ZI",
+      "ctxKind": "function",
+      "ctxName": "_jsxS",
+      "captures": false,
+      "parent": "s_Nk9PlpjQm9Y",
+      "loc": [
+        56261,
+        56585
+      ]
+    },
+    "s_LB5TPUEKj0w": {
+      "origin": "routes/older-versions/v2/index.tsx",
+      "displayName": "v2_component_div_div_onClick",
+      "canonicalFilename": "s_lb5tpuekj0w",
+      "hash": "LB5TPUEKj0w",
+      "ctxKind": "eventHandler",
+      "ctxName": "onClick$",
+      "captures": true,
+      "parent": "s_qiFlzJo0Xuo",
+      "loc": [
+        9587,
+        9624
+      ]
+    },
+    "s_NGaBU1yvmzk": {
+      "origin": "v3/components/pages/game/game.tsx",
+      "displayName": "game_component_useDelayedTimeoutObj",
+      "canonicalFilename": "s_ngabu1yvmzk",
+      "hash": "NGaBU1yvmzk",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_RdCk0EDbwd4",
+      "loc": [
+        7405,
+        7465
+      ]
+    },
+    "s_NeFslp1uRmM": {
+      "origin": "routes/older-versions/resize/index.tsx",
+      "displayName": "Settings_component_div_div_Lock_onChange_1",
+      "canonicalFilename": "s_nefslp1urmm",
+      "hash": "NeFslp1uRmM",
+      "ctxKind": "jSXProp",
+      "ctxName": "onChange$",
+      "captures": true,
+      "parent": "s_E2KdyzD6g5Q",
+      "loc": [
+        7399,
+        7561
+      ]
+    },
+    "s_NwNi3pJUPWI": {
+      "origin": "routes/older-versions/track/index.tsx",
+      "displayName": "track_component_div_div_button_onClick_3",
+      "canonicalFilename": "s_nwni3pjupwi",
+      "hash": "NwNi3pJUPWI",
+      "ctxKind": "eventHandler",
+      "ctxName": "onClick$",
+      "captures": true,
+      "parent": "s_Lp2GXCDAPvA",
+      "loc": [
+        3665,
+        3800
+      ]
+    },
+    "s_Osdg8FnYTw4": {
+      "origin": "../node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs",
+      "displayName": "Link_component_handlePrefetch",
+      "canonicalFilename": "s_osdg8fnytw4",
+      "hash": "Osdg8FnYTw4",
+      "ctxKind": "function",
+      "ctxName": "handlePrefetch",
+      "captures": false,
+      "parent": "s_8gdLBszqbaM",
+      "loc": [
+        39502,
+        39833
+      ]
+    },
+    "s_Pz05xbsdXvk": {
+      "origin": "v3/components/organisms/board/board.tsx",
+      "displayName": "board_component_handleClickCard",
+      "canonicalFilename": "s_pz05xbsdxvk",
+      "hash": "Pz05xbsdXvk",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_PwmycWKuzJI",
+      "loc": [
+        4593,
+        5018
+      ]
+    },
+    "s_QLMb65lI030": {
+      "origin": "v3/components/molecules/dropdown-grid/dropdown-grid.tsx",
+      "displayName": "dropdown_grid_component_div_Button_onClick",
+      "canonicalFilename": "s_qlmb65li030",
+      "hash": "QLMb65lI030",
+      "ctxKind": "jSXProp",
+      "ctxName": "onClick$",
+      "captures": true,
+      "parent": "s_3aR9gw7Hk5w",
+      "loc": [
+        894,
+        957
+      ]
+    },
+    "s_RtLfqyB6tLo": {
+      "origin": "v3/components/organisms/card/card.tsx",
+      "displayName": "card_component_isCardFlipped_useComputed",
+      "canonicalFilename": "s_rtlfqyb6tlo",
+      "hash": "RtLfqyB6tLo",
+      "ctxKind": "function",
+      "ctxName": "useComputed$",
+      "captures": true,
+      "parent": "s_tcpBt4EdroQ",
+      "loc": [
+        1328,
+        1376
+      ]
+    },
+    "s_S90h70Bzpc8": {
+      "origin": "v3/components/pages/game/game.tsx",
+      "displayName": "game_component_useTimeoutObj",
+      "canonicalFilename": "s_s90h70bzpc8",
+      "hash": "S90h70Bzpc8",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_RdCk0EDbwd4",
+      "loc": [
+        4294,
+        5465
+      ]
+    },
+    "s_WBZtSeVYVrc": {
+      "origin": "v3/components/templates/modal/modal.tsx",
+      "displayName": "modal_component_closeModal",
+      "canonicalFilename": "s_wbztsevyvrc",
+      "hash": "WBZtSeVYVrc",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_foaX70yCrpE",
+      "loc": [
+        960,
+        1167
+      ]
+    },
+    "s_ZlVvo7KGRq8": {
+      "origin": "routes/index.tsx",
+      "displayName": "GameStarter_component_compQParamsString_useComputed",
+      "canonicalFilename": "s_zlvvo7kgrq8",
+      "hash": "ZlVvo7KGRq8",
+      "ctxKind": "function",
+      "ctxName": "useComputed$",
+      "captures": true,
+      "parent": "s_KFHPqR8z0zU",
+      "loc": [
+        4286,
+        4436
+      ]
+    },
+    "s_btfVIY32UqI": {
+      "origin": "routes/older-versions/resize/index.tsx",
+      "displayName": "Settings_component_div_div_button_onClick_1",
+      "canonicalFilename": "s_btfviy32uqi",
+      "hash": "btfVIY32UqI",
+      "ctxKind": "eventHandler",
+      "ctxName": "onClick$",
+      "captures": true,
+      "parent": "s_E2KdyzD6g5Q",
+      "loc": [
+        8315,
+        8344
+      ]
+    },
+    "s_cr8O23w0h4w": {
+      "origin": "v3/components/pages/end-game/end-game.tsx",
+      "displayName": "end_game_component_hideModal",
+      "canonicalFilename": "s_cr8o23w0h4w",
+      "hash": "cr8O23w0h4w",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_6NroavKN34E",
+      "loc": [
+        695,
+        835
+      ]
+    },
+    "s_d8odqSTaefA": {
+      "origin": "v3/components/pages/game/game.tsx",
+      "displayName": "game_component_Fragment_div_GameHeader_showSettings",
+      "canonicalFilename": "s_d8odqstaefa",
+      "hash": "d8odqSTaefA",
+      "ctxKind": "jSXProp",
+      "ctxName": "showSettings$",
+      "captures": true,
+      "parent": "s_RdCk0EDbwd4",
+      "loc": [
+        9655,
+        9720
+      ]
+    },
+    "s_dERRUK2oGbw": {
+      "origin": "v3/components/organisms/board/board.tsx",
+      "displayName": "board_component_handleAddToSuccessfulPairsIfMatching",
+      "canonicalFilename": "s_derruk2ogbw",
+      "hash": "dERRUK2oGbw",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_PwmycWKuzJI",
+      "loc": [
+        1263,
+        2667
+      ]
+    },
+    "s_ddW9gJZuJ9k": {
+      "origin": "v3/components/organisms/board/board.tsx",
+      "displayName": "board_component_useTimeoutObj",
+      "canonicalFilename": "s_ddw9gjzuj9k",
+      "hash": "ddW9gJZuJ9k",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_PwmycWKuzJI",
+      "loc": [
+        6424,
+        6572
+      ]
+    },
+    "s_fXRDTws7Noc": {
+      "origin": "routes/older-versions/resize/index.tsx",
+      "displayName": "Settings_component_div_input_onInput",
+      "canonicalFilename": "s_fxrdtws7noc",
+      "hash": "fXRDTws7Noc",
+      "ctxKind": "eventHandler",
+      "ctxName": "onInput$",
+      "captures": true,
+      "parent": "s_E2KdyzD6g5Q",
+      "loc": [
+        7778,
+        7908
+      ]
+    },
+    "s_fzkx77LJSNE": {
+      "origin": "old/v1/components/memory-card-game/memory-card-game.tsx",
+      "displayName": "CardUnit_component_isSelected_useComputed",
+      "canonicalFilename": "s_fzkx77ljsne",
+      "hash": "fzkx77LJSNE",
+      "ctxKind": "function",
+      "ctxName": "useComputed$",
+      "captures": true,
+      "parent": "s_mAbHMdeUxko",
+      "loc": [
+        4824,
+        4976
+      ]
+    },
+    "s_gJE5PlgWbYQ": {
+      "origin": "routes/older-versions/v1.5/index.tsx",
+      "displayName": "v1_5_component_div_button_onClick",
+      "canonicalFilename": "s_gje5plgwbyq",
+      "hash": "gJE5PlgWbYQ",
+      "ctxKind": "eventHandler",
+      "ctxName": "onClick$",
+      "captures": true,
+      "parent": "s_Y0rI2BAbOXo",
+      "loc": [
+        546,
+        681
+      ]
+    },
+    "s_gd0d5dRbGKo": {
+      "origin": "routes/older-versions/resize/index.tsx",
+      "displayName": "Settings_component_div_div_Lock_onChange",
+      "canonicalFilename": "s_gd0d5drbgko",
+      "hash": "gd0d5dRbGKo",
+      "ctxKind": "jSXProp",
+      "ctxName": "onChange$",
+      "captures": true,
+      "parent": "s_E2KdyzD6g5Q",
+      "loc": [
+        7220,
+        7311
+      ]
+    },
+    "s_h0QOspCqlbo": {
+      "origin": "routes/older-versions/v1.5/index.tsx",
+      "displayName": "FlippableCard_component_useStylesScoped",
+      "canonicalFilename": "s_h0qospcqlbo",
+      "hash": "h0QOspCqlbo",
+      "ctxKind": "function",
+      "ctxName": "useStylesScoped$",
+      "captures": false,
+      "parent": "s_75dcEG60J0o",
+      "loc": [
+        1610,
+        3252
+      ]
+    },
+    "s_Wx7bt7smHik": {
+      "origin": "routes/older-versions/v2/index.tsx",
+      "displayName": "v2_component_handleClick",
+      "canonicalFilename": "s_wx7bt7smhik",
+      "hash": "Wx7bt7smHik",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_qiFlzJo0Xuo",
+      "loc": [
+        6789,
+        7544
+      ]
+    },
+    "s_ayH4QQxNVQI": {
+      "origin": "v3/components/atoms/header-scores-display/header-scores-display.tsx",
+      "displayName": "header_scores_display_component_useTimeoutObj",
+      "canonicalFilename": "s_ayh4qqxnvqi",
+      "hash": "ayH4QQxNVQI",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_Zgq5ggfgKg4",
+      "loc": [
+        405,
+        474
+      ]
+    },
+    "s_cNSor0vsAyk": {
+      "origin": "old/v1/components/memory-card-game/memory-card-game.tsx",
+      "displayName": "CardUnit_component_isRemoved_useComputed",
+      "canonicalFilename": "s_cnsor0vsayk",
+      "hash": "cNSor0vsAyk",
+      "ctxKind": "function",
+      "ctxName": "useComputed$",
+      "captures": true,
+      "parent": "s_mAbHMdeUxko",
+      "loc": [
+        5015,
+        5085
+      ]
+    },
+    "s_fX0bDjeJa0E": {
+      "origin": "../node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs",
+      "displayName": "QwikCityProvider_component_goto",
+      "canonicalFilename": "s_fx0bdjeja0e",
+      "hash": "fX0bDjeJa0E",
+      "ctxKind": "function",
+      "ctxName": "goto",
+      "captures": true,
+      "parent": "s_TxCFOy819ag",
+      "loc": [
+        25495,
+        27025
+      ]
+    },
+    "s_hfSqc7jov0E": {
+      "origin": "routes/older-versions/v2/index.tsx",
+      "displayName": "v2_component_handleAddToSuccessfulPairsIfMatching",
+      "canonicalFilename": "s_hfsqc7jov0e",
+      "hash": "hfSqc7jov0E",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_qiFlzJo0Xuo",
+      "loc": [
+        5119,
+        5815
+      ]
+    },
+    "s_i6UFT6ns0yY": {
+      "origin": "old/v2/components/match-modal/match-modal.tsx",
+      "displayName": "match_modal_component_Fragment_div_onClick",
+      "canonicalFilename": "s_i6uft6ns0yy",
+      "hash": "i6UFT6ns0yY",
+      "ctxKind": "eventHandler",
+      "ctxName": "onClick$",
+      "captures": true,
+      "parent": "s_OSKuBHH2p7w",
+      "loc": [
+        479,
+        605
+      ]
+    },
+    "s_ixaBU6Rf0X8": {
+      "origin": "old/v2/components/FlippableCard.tsx",
+      "displayName": "FlippableCard_component_flipTransform_useComputed",
+      "canonicalFilename": "s_ixabu6rf0x8",
+      "hash": "ixaBU6Rf0X8",
+      "ctxKind": "function",
+      "ctxName": "useComputed$",
+      "captures": true,
+      "parent": "s_HH0i6OfaiF0",
+      "loc": [
+        2348,
+        3078
+      ]
+    },
+    "s_jVJ00rWjMms": {
+      "origin": "v3/components/organisms/game-settings/game-settings.tsx",
+      "displayName": "game_settings_component_div_div_div_DropdownGrid_ModalRow_InputLock_onChange_3",
+      "canonicalFilename": "s_jvj00rwjmms",
+      "hash": "jVJ00rWjMms",
+      "ctxKind": "jSXProp",
+      "ctxName": "onChange$",
+      "captures": true,
+      "parent": "s_na9oMFPFEJA",
+      "loc": [
+        4439,
+        4804
+      ]
+    },
+    "s_jaZqWlmi9o4": {
+      "origin": "v3/components/organisms/board/board.tsx",
+      "displayName": "board_component_adjustDeckSize",
+      "canonicalFilename": "s_jazqwlmi9o4",
+      "hash": "jaZqWlmi9o4",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_PwmycWKuzJI",
+      "loc": [
+        8460,
+        9083
+      ]
+    },
+    "s_mD7iWeLmM4Y": {
+      "origin": "v3/components/pages/settings/settings.tsx",
+      "displayName": "settings_component_hideModal",
+      "canonicalFilename": "s_md7iwelmm4y",
+      "hash": "mD7iWeLmM4Y",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_QupDoi0UeVM",
+      "loc": [
+        588,
+        721
+      ]
+    },
+    "s_n9WwF9lLvZ4": {
+      "origin": "v3/components/pages/game/game.tsx",
+      "displayName": "game_component_useIntervalObj",
+      "canonicalFilename": "s_n9wwf9llvz4",
+      "hash": "n9WwF9lLvZ4",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_RdCk0EDbwd4",
+      "loc": [
+        3165,
+        3633
+      ]
+    },
+    "s_nhoHJLTbSFg": {
+      "origin": "v3/components/organisms/game-settings/game-settings.tsx",
+      "displayName": "game_settings_component_div_div_div_DropdownGrid_ModalRow_InputLock_onChange",
+      "canonicalFilename": "s_nhohjltbsfg",
+      "hash": "nhoHJLTbSFg",
+      "ctxKind": "jSXProp",
+      "ctxName": "onChange$",
+      "captures": true,
+      "parent": "s_na9oMFPFEJA",
+      "loc": [
+        2588,
+        2939
+      ]
+    },
+    "s_nu0J8LkJXGg": {
+      "origin": "v3/components/organisms/card/card.tsx",
+      "displayName": "card_component_isThisMismatched_useComputed",
+      "canonicalFilename": "s_nu0j8lkjxgg",
+      "hash": "nu0J8LkJXGg",
+      "ctxKind": "function",
+      "ctxName": "useComputed$",
+      "captures": true,
+      "parent": "s_tcpBt4EdroQ",
+      "loc": [
+        1173,
+        1239
+      ]
+    },
+    "s_oQ0qSDToxtw": {
+      "origin": "v3/components/organisms/game-settings/game-settings.tsx",
+      "displayName": "game_settings_component_div_div_div_Button_onClick",
+      "canonicalFilename": "s_oq0qsdtoxtw",
+      "hash": "oQ0qSDToxtw",
+      "ctxKind": "jSXProp",
+      "ctxName": "onClick$",
+      "captures": true,
+      "parent": "s_na9oMFPFEJA",
+      "loc": [
+        10740,
+        10817
+      ]
+    },
+    "s_ogQLxnRtCiQ": {
+      "origin": "routes/older-versions/resize/index.tsx",
+      "displayName": "Settings_component_handleAdjustHeight",
+      "canonicalFilename": "s_ogqlxnrtciq",
+      "hash": "ogQLxnRtCiQ",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_E2KdyzD6g5Q",
+      "loc": [
+        6051,
+        7052
+      ]
+    },
+    "s_p67Q76xP0aQ": {
+      "origin": "v3/components/organisms/board/board.tsx",
+      "displayName": "board_component_isCardFlipped_useComputed",
+      "canonicalFilename": "s_p67q76xp0aq",
+      "hash": "p67Q76xP0aQ",
+      "ctxKind": "function",
+      "ctxName": "useComputed$",
+      "captures": true,
+      "parent": "s_PwmycWKuzJI",
+      "loc": [
+        1156,
+        1199
+      ]
+    },
+    "s_p9MSze0ojs4": {
+      "origin": "../node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs",
+      "displayName": "GetForm_component_form_onSubmit",
+      "canonicalFilename": "s_p9msze0ojs4",
+      "hash": "p9MSze0ojs4",
+      "ctxKind": "function",
+      "ctxName": "_jsxS",
+      "captures": true,
+      "parent": "s_Nk9PlpjQm9Y",
+      "loc": [
+        55746,
+        56155
+      ]
+    },
+    "s_pIf0khHUxfY": {
+      "origin": "../node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs",
+      "displayName": "Link_component_handleClick",
+      "canonicalFilename": "s_pif0khhuxfy",
+      "hash": "pIf0khHUxfY",
+      "ctxKind": "function",
+      "ctxName": "handleClick",
+      "captures": true,
+      "parent": "s_8gdLBszqbaM",
+      "loc": [
+        40260,
+        40780
+      ]
+    },
+    "s_pSqpy1zscrk": {
+      "origin": "old/v1/components/memory-card-game/memory-card-game.tsx",
+      "displayName": "memory_card_game_component_appStore_useStore",
+      "canonicalFilename": "s_psqpy1zscrk",
+      "hash": "pSqpy1zscrk",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": false,
+      "parent": "s_YG5N76Z5wuk",
+      "loc": [
+        863,
+        1076
+      ]
+    },
+    "s_rKubk2ZBUx8": {
+      "origin": "v3/components/pages/settings/settings.tsx",
+      "displayName": "settings_component_resetSettings",
+      "canonicalFilename": "s_rkubk2zbux8",
+      "hash": "rKubk2ZBUx8",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_QupDoi0UeVM",
+      "loc": [
+        753,
+        1008
+      ]
+    },
+    "s_uGPYkZ1RIBU": {
+      "origin": "old/v1/components/memory-card-game/memory-card-game.tsx",
+      "displayName": "CardUnit_component_handleClickCard",
+      "canonicalFilename": "s_ugpykz1ribu",
+      "hash": "uGPYkZ1RIBU",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_mAbHMdeUxko",
+      "loc": [
+        5149,
+        6077
+      ]
+    },
+    "s_ubH3QH40lns": {
+      "origin": "old/v1/components/memory-card-game/memory-card-game.tsx",
+      "displayName": "CardUnit_component_coords_useComputed",
+      "canonicalFilename": "s_ubh3qh40lns",
+      "hash": "ubH3QH40lns",
+      "ctxKind": "function",
+      "ctxName": "useComputed$",
+      "captures": true,
+      "parent": "s_mAbHMdeUxko",
+      "loc": [
+        4662,
+        4780
+      ]
+    },
+    "s_vml3Pe0defY": {
+      "origin": "v3/components/organisms/board/board.tsx",
+      "displayName": "board_component_clickCardDebounce_useDebounceSignal",
+      "canonicalFilename": "s_vml3pe0defy",
+      "hash": "vml3Pe0defY",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_PwmycWKuzJI",
+      "loc": [
+        5234,
+        5435
+      ]
+    },
+    "s_w80CoKwisy0": {
+      "origin": "v3/components/pages/end-game/end-game.tsx",
+      "displayName": "end_game_component_Modal_div_ModalRow_div_input_bind_value",
+      "canonicalFilename": "s_w80cokwisy0",
+      "hash": "w80CoKwisy0",
+      "ctxKind": "eventHandler",
+      "ctxName": "onInput$",
+      "captures": true,
+      "parent": "s_6NroavKN34E",
+      "loc": [
+        0,
+        0
+      ]
+    },
+    "s_w9Mf8fLCke4": {
+      "origin": "v3/components/organisms/card/card.tsx",
+      "displayName": "card_component_isSelected_useComputed",
+      "canonicalFilename": "s_w9mf8flcke4",
+      "hash": "w9Mf8fLCke4",
+      "ctxKind": "function",
+      "ctxName": "useComputed$",
+      "captures": true,
+      "parent": "s_tcpBt4EdroQ",
+      "loc": [
+        5594,
+        5655
+      ]
+    },
+    "s_xr0T9h7eUow": {
+      "origin": "routes/older-versions/v1.5/index.tsx",
+      "displayName": "v1_5_component_div_FlippableCard_handleToggle",
+      "canonicalFilename": "s_xr0t9h7euow",
+      "hash": "xr0T9h7eUow",
+      "ctxKind": "jSXProp",
+      "ctxName": "handleToggle$",
+      "captures": true,
+      "parent": "s_Y0rI2BAbOXo",
+      "loc": [
+        867,
+        1019
+      ]
+    },
+    "s_y4Xogr07Oe8": {
+      "origin": "v3/components/organisms/game-settings/game-settings.tsx",
+      "displayName": "game_settings_component_div_div_div_DropdownGrid_ModalRow_InputLock_onChange_1",
+      "canonicalFilename": "s_y4xogr07oe8",
+      "hash": "y4Xogr07Oe8",
+      "ctxKind": "jSXProp",
+      "ctxName": "onChange$",
+      "captures": true,
+      "parent": "s_na9oMFPFEJA",
+      "loc": [
+        3216,
+        3565
+      ]
+    },
+    "s_yzEiKtmTFug": {
+      "origin": "routes/older-versions/v2/index.tsx",
+      "displayName": "v2_component_handleSelectCard",
+      "canonicalFilename": "s_yzeiktmtfug",
+      "hash": "yzEiKtmTFug",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_qiFlzJo0Xuo",
+      "loc": [
+        5854,
+        6759
+      ]
+    },
+    "s_yzrTOaGHlX4": {
+      "origin": "v3/components/organisms/board/board.tsx",
+      "displayName": "board_component_unflipCard",
+      "canonicalFilename": "s_yzrtoaghlx4",
+      "hash": "yzrTOaGHlX4",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_PwmycWKuzJI",
+      "loc": [
+        2802,
+        3055
+      ]
+    },
+    "s_zA1mzABlPx4": {
+      "origin": "routes/older-versions/v2/index.tsx",
+      "displayName": "v2_component_updateDimensions",
+      "canonicalFilename": "s_za1mzablpx4",
+      "hash": "zA1mzABlPx4",
+      "ctxKind": "function",
+      "ctxName": "$",
+      "captures": true,
+      "parent": "s_qiFlzJo0Xuo",
+      "loc": [
+        7579,
+        8134
+      ]
+    },
+    "s_zcDhJgf3GUo": {
+      "origin": "old/v2/components/FlippableCard.tsx",
+      "displayName": "FlippableCard_component_isThisCardFlipped_useComputed",
+      "canonicalFilename": "s_zcdhjgf3guo",
+      "hash": "zcDhJgf3GUo",
+      "ctxKind": "function",
+      "ctxName": "useComputed$",
+      "captures": true,
+      "parent": "s_HH0i6OfaiF0",
+      "loc": [
+        993,
+        1062
+      ]
+    },
+    "s_zyK73RxFRLw": {
+      "origin": "routes/older-versions/resize/index.tsx",
+      "displayName": "Settings_component_div_div_button_onClick",
+      "canonicalFilename": "s_zyk73rxfrlw",
+      "hash": "zyK73RxFRLw",
+      "ctxKind": "eventHandler",
+      "ctxName": "onClick$",
+      "captures": true,
+      "parent": "s_E2KdyzD6g5Q",
+      "loc": [
+        8242,
+        8272
+      ]
+    }
+  },
+  "mapping": {
+    "s_BqF9GT1vPKM": "q-_w2Kr5DG.js",
+    "s_J3bEk18HRJ4": "q-Dri9Hegq.js",
+    "s_J7NY6UuXoog": "q-B7EIueNJ.js",
+    "s_NE4sYtcyypU": "q-BWCSlPNE.js",
+    "s_cHfW1MZIypo": "q-xgAK4zG_.js",
+    "s_02wMImzEAbk": "q-DHc6JzLf.js",
+    "s_21m9J0MsxOM": "q-CdM2r-8i.js",
+    "s_6xTnM2f4M5s": "q-Gr6nH7cF.js",
+    "s_HJ8DAxw98cc": "q-CCwQVUlJ.js",
+    "s_JgSutTMrkbI": "q-Dky8KNxD.js",
+    "s_LU0sHB4t8uk": "q-CCwQVUlJ.js",
+    "s_Rznvw4LARwo": "q-48Fcg_2j.js",
+    "s_YzgZ0JTkHns": "q-C-CCJCOk.js",
+    "s_0kZvzi3lobY": "q-BWCSlPNE.js",
+    "s_5iuNNNqClkQ": "q-CjCVfvET.js",
+    "s_DHZUSgPRuYs": "q-D4MoR5bM.js",
+    "s_mJAldbickAQ": "q-DTpz42Av.js",
+    "s_1Ir3DNFwoTI": "q-DMpOC6xx.js",
+    "s_1MW1s8HfQqM": "q-DMpOC6xx.js",
+    "s_4kCdbaUCWHc": "q-DMpOC6xx.js",
+    "s_7aDB0Y0vKv4": "q-DMpOC6xx.js",
+    "s_ByxAuJvAxvs": "q-DMpOC6xx.js",
+    "s_LtgaZ0iO9sI": "q-Br4JsR3r.js",
+    "s_LvoP4jHG3cI": "q-DMpOC6xx.js",
+    "s_p9S0sGAspZw": "q-CWEVohcs.js",
+    "s_rnBvneBqXZ4": "q-Dky8KNxD.js",
+    "s_xVN9HOA4azs": "q-DMpOC6xx.js",
+    "s_0N8IaaURbeU": "q-Db3XNYu-.js",
+    "s_0cabC28HIoE": "q-DAyJnvG8.js",
+    "s_0qMbsGhxIt4": "q-JxSaUNWz.js",
+    "s_3aR9gw7Hk5w": "q-DDa_Ab6x.js",
+    "s_40zqTTcgiZI": "q-B_nl-JRO.js",
+    "s_4LZiuCBf9Zc": "q-CSx2f65i.js",
+    "s_58g2FOx49Bo": "q-BW1j3O6J.js",
+    "s_5EcSMMvV0l4": "q-MdpTHFOq.js",
+    "s_6NroavKN34E": "q-DMfHr9Rm.js",
+    "s_75dcEG60J0o": "q-CdM2r-8i.js",
+    "s_7kq56stJGZI": "q-BIyokVUI.js",
+    "s_8gdLBszqbaM": "q-BhvTaWEA.js",
+    "s_91K010CZomw": "q-CIWVIuAW.js",
+    "s_DZ85jORb6dY": "q-BmAEJDo1.js",
+    "s_E2KdyzD6g5Q": "q-B6a8MhAT.js",
+    "s_GqgsY5tcdZQ": "q-C0OLRsen.js",
+    "s_HH0i6OfaiF0": "q-48Fcg_2j.js",
+    "s_HdP0Y3Z6acI": "q-BfowUc82.js",
+    "s_I7dbcyA3RY4": "q-DE8sk58K.js",
+    "s_KFHPqR8z0zU": "q-e3KJQtEx.js",
+    "s_LEy7cxvvfcY": "q-DYiMBZHs.js",
+    "s_Lp2GXCDAPvA": "q-DMpOC6xx.js",
+    "s_MCaM2HHilnA": "q-CZ8xRH6E.js",
+    "s_NMgYoa6LUKU": "q-Dky8KNxD.js",
+    "s_NezKBbi0BRw": "q-Dgg3qpwx.js",
+    "s_Nk9PlpjQm9Y": "q-CpfIZ6Pn.js",
+    "s_OSKuBHH2p7w": "q-C7MLiFBm.js",
+    "s_PwmycWKuzJI": "q-Br4JsR3r.js",
+    "s_QupDoi0UeVM": "q-zdgL8jQV.js",
+    "s_RdCk0EDbwd4": "q-D5Hb7Ote.js",
+    "s_TxCFOy819ag": "q-DHc6JzLf.js",
+    "s_VhdotcV6r5I": "q-CaZQszMe.js",
+    "s_WmYC5H00wtI": "q-TxK-tbiU.js",
+    "s_Y0rI2BAbOXo": "q-C271mq4H.js",
+    "s_YG5N76Z5wuk": "q-C-CCJCOk.js",
+    "s_Z0PVpPT3bTM": "q-D2xs4CZV.js",
+    "s_Zgq5ggfgKg4": "q-DMRG15_F.js",
+    "s_Ztfjxf2AqS4": "q-CPzc8QZB.js",
+    "s_cVhEBXKM03U": "q-Cba09MO6.js",
+    "s_dTt5BEKyoHc": "q-4YDk_yVp.js",
+    "s_e0ssiDXoeAM": "q-BXA9H81s.js",
+    "s_fXh3I0a2LXw": "q-DuxBEMlF.js",
+    "s_foaX70yCrpE": "q-3EH9kOhI.js",
+    "s_iKisfwYtJcU": "q-C8JienN_.js",
+    "s_ltY0cFd72dM": "q-Dh-fS8Xm.js",
+    "s_mAbHMdeUxko": "q-Bz25HYFh.js",
+    "s_na9oMFPFEJA": "q-CcuVyQBd.js",
+    "s_pFgNxMw8kuI": "q-DTEdrjvk.js",
+    "s_pRjF6UDiF1I": "q-Gr6nH7cF.js",
+    "s_qiFlzJo0Xuo": "q-CWEVohcs.js",
+    "s_ql4xr9R8LxI": "q-Bj92h9J5.js",
+    "s_sCZdKlxzZSs": "q-hMn2NIZx.js",
+    "s_sFnVGQnqIeg": "q-QXNOhl9O.js",
+    "s_t07ifSi9QcY": "q-CzwWq5S2.js",
+    "s_tN7oCn0nbiw": "q-P7duf7Fx.js",
+    "s_tcpBt4EdroQ": "q-CCwQVUlJ.js",
+    "s_u6RTVWfiVYM": "q-DZajjKbP.js",
+    "s_uI3OBiwIu2U": "q-uVjUoq_o.js",
+    "s_wv5p0cFi9Bg": "q-BlK87Llj.js",
+    "s_C0IEAk0y6Pk": "q-Br4JsR3r.js",
+    "s_JxDIDab23Yg": "q-DYiMBZHs.js",
+    "s_lsJo0DVX7vM": "q-DMRG15_F.js",
+    "s_1yUExyHvwY8": "q-CsLVTc0v.js",
+    "s_5oQH5b60zeI": "q-_w2Kr5DG.js",
+    "s_8MI0htChHqI": "q-CsLVTc0v.js",
+    "s_UotzBQZtU7s": "q-CsLVTc0v.js",
+    "s_VnBGKv8TTN8": "q-CsLVTc0v.js",
+    "s_2L0MGRenC4o": "q-D5Hb7Ote.js",
+    "s_DHcAoLBNQ40": "q-DMpOC6xx.js",
+    "s_E4djdLLd8Lk": "q-48Fcg_2j.js",
+    "s_FnNVQn9WWpQ": "q-CCwQVUlJ.js",
+    "s_IG8JuFWmA7Q": "q-D5Hb7Ote.js",
+    "s_QYcnnov2ztw": "q-DMpOC6xx.js",
+    "s_RPDJAz33WLA": "q-DHc6JzLf.js",
+    "s_Sjz1N0GVPdc": "q-DE8sk58K.js",
+    "s_c1kdk7QEzmg": "q-DDa_Ab6x.js",
+    "s_1RJPKHqF8AQ": "q-BGmpAaRo.js",
+    "s_3aeyDOX0YnU": "q-CsLVTc0v.js",
+    "s_A5bZC7WO00A": "q-D7jF_2YK.js",
+    "s_AN7moVAjj0A": "q-CsLVTc0v.js",
+    "s_JbVigb9PklA": "q-_w2Kr5DG.js",
+    "s_PWClVmRORhY": "q-CsLVTc0v.js",
+    "s_SGytLJ8uq8I": "q-4jlgJ-oK.js",
+    "s_TLzhoVALFlE": "q-CsLVTc0v.js",
+    "s_VCzvcLUDXH4": "q-_w2Kr5DG.js",
+    "s_YR8PmlWDBDg": "q-CsLVTc0v.js",
+    "s_dwaOzCj98b8": "q-_w2Kr5DG.js",
+    "s_fNt5PFA3SzM": "q-CsLVTc0v.js",
+    "s_fUmQx2aFoy8": "q-_w2Kr5DG.js",
+    "s_ixirnEZzQh0": "q-Dri9Hegq.js",
+    "s_jC85XeQEoXY": "q-CsLVTc0v.js",
+    "s_nEiE0w2EXx8": "q-B7EIueNJ.js",
+    "s_oiWqBVacAfs": "q-CsLVTc0v.js",
+    "s_sDrs44GO7Us": "q-BWCSlPNE.js",
+    "s_uPHV2oGn4wc": "q-B0E3Na9u.js",
+    "s_yeGBHOAZZUk": "q-xgAK4zG_.js",
+    "s_00lU2mhNUf8": "q-DMRG15_F.js",
+    "s_0ayKAGPxh2k": "q-DMpOC6xx.js",
+    "s_0w5j1QiBkl4": "q-D5Hb7Ote.js",
+    "s_2sP9hg6vDyY": "q-Dky8KNxD.js",
+    "s_48MhuxYL4gQ": "q-Dh-fS8Xm.js",
+    "s_4VJ02ZeZrB4": "q-Br4JsR3r.js",
+    "s_5P4RSHEAn2k": "q-D5Hb7Ote.js",
+    "s_5w15TieZP0A": "q-Br4JsR3r.js",
+    "s_5zVdCAOMmlg": "q-B_nl-JRO.js",
+    "s_6UBei8y2HDs": "q-D5Hb7Ote.js",
+    "s_7nOUIhhLaHA": "q-Dky8KNxD.js",
+    "s_8ocjZu2UXss": "q-D5Hb7Ote.js",
+    "s_8s3hmkR0UHg": "q-DMRG15_F.js",
+    "s_9CRRBwgARMc": "q-Br4JsR3r.js",
+    "s_9ZhBdtxlMNo": "q-Bz25HYFh.js",
+    "s_9r4WHi6Z2P0": "q-Br4JsR3r.js",
+    "s_BUbtvTyvVRE": "q-TxK-tbiU.js",
+    "s_EDwZNRrV60E": "q-D5Hb7Ote.js",
+    "s_F8E4KgdO9W0": "q-48Fcg_2j.js",
+    "s_FCzgRbSJCWQ": "q-DMfHr9Rm.js",
+    "s_FYayy72LZNk": "q-DMRG15_F.js",
+    "s_H0sIhF1R00U": "q-DMRG15_F.js",
+    "s_HBdOIEEsAsE": "q-e3KJQtEx.js",
+    "s_I6xh0fDF0lU": "q-CcuVyQBd.js",
+    "s_IPrJHcSk1jY": "q-DMpOC6xx.js",
+    "s_JE3pN3qQoHA": "q-Br4JsR3r.js",
+    "s_KK5BfmKH4ZI": "q-CpfIZ6Pn.js",
+    "s_LB5TPUEKj0w": "q-CWEVohcs.js",
+    "s_NGaBU1yvmzk": "q-D5Hb7Ote.js",
+    "s_NeFslp1uRmM": "q-B6a8MhAT.js",
+    "s_NwNi3pJUPWI": "q-DMpOC6xx.js",
+    "s_Osdg8FnYTw4": "q-BhvTaWEA.js",
+    "s_Pz05xbsdXvk": "q-Br4JsR3r.js",
+    "s_QLMb65lI030": "q-DDa_Ab6x.js",
+    "s_RtLfqyB6tLo": "q-CCwQVUlJ.js",
+    "s_S90h70Bzpc8": "q-D5Hb7Ote.js",
+    "s_WBZtSeVYVrc": "q-3EH9kOhI.js",
+    "s_ZlVvo7KGRq8": "q-e3KJQtEx.js",
+    "s_btfVIY32UqI": "q-B6a8MhAT.js",
+    "s_cr8O23w0h4w": "q-DMfHr9Rm.js",
+    "s_d8odqSTaefA": "q-D5Hb7Ote.js",
+    "s_dERRUK2oGbw": "q-Br4JsR3r.js",
+    "s_ddW9gJZuJ9k": "q-Br4JsR3r.js",
+    "s_fXRDTws7Noc": "q-B6a8MhAT.js",
+    "s_fzkx77LJSNE": "q-Bz25HYFh.js",
+    "s_gJE5PlgWbYQ": "q-C271mq4H.js",
+    "s_gd0d5dRbGKo": "q-B6a8MhAT.js",
+    "s_h0QOspCqlbo": "q-CdM2r-8i.js",
+    "s_Wx7bt7smHik": "q-CWEVohcs.js",
+    "s_ayH4QQxNVQI": "q-DMRG15_F.js",
+    "s_cNSor0vsAyk": "q-Bz25HYFh.js",
+    "s_fX0bDjeJa0E": "q-DHc6JzLf.js",
+    "s_hfSqc7jov0E": "q-CWEVohcs.js",
+    "s_i6UFT6ns0yY": "q-C7MLiFBm.js",
+    "s_ixaBU6Rf0X8": "q-48Fcg_2j.js",
+    "s_jVJ00rWjMms": "q-CcuVyQBd.js",
+    "s_jaZqWlmi9o4": "q-Br4JsR3r.js",
+    "s_mD7iWeLmM4Y": "q-zdgL8jQV.js",
+    "s_n9WwF9lLvZ4": "q-D5Hb7Ote.js",
+    "s_nhoHJLTbSFg": "q-CcuVyQBd.js",
+    "s_nu0J8LkJXGg": "q-CCwQVUlJ.js",
+    "s_oQ0qSDToxtw": "q-CcuVyQBd.js",
+    "s_ogQLxnRtCiQ": "q-B6a8MhAT.js",
+    "s_p67Q76xP0aQ": "q-Br4JsR3r.js",
+    "s_p9MSze0ojs4": "q-CpfIZ6Pn.js",
+    "s_pIf0khHUxfY": "q-BhvTaWEA.js",
+    "s_pSqpy1zscrk": "q-C-CCJCOk.js",
+    "s_rKubk2ZBUx8": "q-zdgL8jQV.js",
+    "s_uGPYkZ1RIBU": "q-Bz25HYFh.js",
+    "s_ubH3QH40lns": "q-Bz25HYFh.js",
+    "s_vml3Pe0defY": "q-Br4JsR3r.js",
+    "s_w80CoKwisy0": "q-DMfHr9Rm.js",
+    "s_w9Mf8fLCke4": "q-CCwQVUlJ.js",
+    "s_xr0T9h7eUow": "q-C271mq4H.js",
+    "s_y4Xogr07Oe8": "q-CcuVyQBd.js",
+    "s_yzEiKtmTFug": "q-CWEVohcs.js",
+    "s_yzrTOaGHlX4": "q-Br4JsR3r.js",
+    "s_zA1mzABlPx4": "q-CWEVohcs.js",
+    "s_zcDhJgf3GUo": "q-48Fcg_2j.js",
+    "s_zyK73RxFRLw": "q-B6a8MhAT.js"
+  },
+  "bundles": {
+    "q-2xxLj5CZ.js": {
+      "size": 165,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-CcuVyQBd.js"
+      ],
+      "origins": [
+        "src/v3/components/organisms/game-settings/game-settings.tsx"
+      ]
+    },
+    "q-3EH9kOhI.js": {
+      "size": 1998,
+      "imports": [
+        "q-BpQTPpSx.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/v3/components/atoms/modal-close-button/modal-close-button.tsx",
+        "src/v3/components/molecules/modal-header/modal-header.tsx",
+        "src/v3/components/templates/modal/modal.tsx_entry_modal.js",
+        "src/v3/components/templates/modal/s_foax70ycrpe.js",
+        "src/v3/components/templates/modal/s_wbztsevyvrc.js"
+      ],
+      "symbols": [
+        "s_foaX70yCrpE",
+        "s_WBZtSeVYVrc"
+      ]
+    },
+    "q-48Fcg_2j.js": {
+      "size": 3155,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-DKxAHOH7.js",
+        "q-DqYTxZUq.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/old/v2/components/FlippableCard.tsx_entry_FlippableCard.js",
+        "src/old/v2/components/s_e4djdlld8lk.js",
+        "src/old/v2/components/s_f8e4kgdo9w0.js",
+        "src/old/v2/components/s_hh0i6ofaif0.js",
+        "src/old/v2/components/s_ixabu6rf0x8.js",
+        "src/old/v2/components/s_rznvw4larwo.js",
+        "src/old/v2/components/s_zcdhjgf3guo.js"
+      ],
+      "symbols": [
+        "s_E4djdLLd8Lk",
+        "s_F8E4KgdO9W0",
+        "s_HH0i6OfaiF0",
+        "s_ixaBU6Rf0X8",
+        "s_Rznvw4LARwo",
+        "s_zcDhJgf3GUo"
+      ]
+    },
+    "q-4jlgJ-oK.js": {
+      "size": 1210,
+      "imports": [
+        "q-BWqR_uM0.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs_entry_serverQrl.js",
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/s_sgytlj8uq8i.js"
+      ],
+      "symbols": [
+        "s_SGytLJ8uq8I"
+      ]
+    },
+    "q-4YDk_yVp.js": {
+      "size": 1376,
+      "imports": [
+        "q-BWqR_uM0.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/routes/older-versions/index.tsx_entry_older-versions.js",
+        "src/routes/older-versions/s_dtt5bekyohc.js"
+      ],
+      "symbols": [
+        "s_dTt5BEKyoHc"
+      ]
+    },
+    "q-67UUR4zU.js": {
+      "size": 49212,
+      "origins": [
+        "src/v3/components/playing-card-components/generators/faces/ace-card.ts",
+        "src/v3/components/playing-card-components/generators/faces/jack-clubs-card.ts",
+        "src/v3/components/playing-card-components/generators/faces/jack-diamonds-card.ts",
+        "src/v3/components/playing-card-components/generators/faces/jack-hearts-card.ts",
+        "src/v3/components/playing-card-components/generators/faces/jack-spades-card.ts",
+        "src/v3/components/playing-card-components/generators/faces/king-clubs-card.ts",
+        "src/v3/components/playing-card-components/generators/faces/king-diamonds-card.ts",
+        "src/v3/components/playing-card-components/generators/faces/king-hearts-card.ts",
+        "src/v3/components/playing-card-components/generators/faces/king-spades-card.ts",
+        "src/v3/components/playing-card-components/generators/faces/queen-clubs-card.ts",
+        "src/v3/components/playing-card-components/generators/faces/queen-diamonds-card.ts",
+        "src/v3/components/playing-card-components/generators/faces/queen-hearts-card.ts",
+        "src/v3/components/playing-card-components/generators/faces/queen-spades-card.ts",
+        "src/v3/components/playing-card-components/generators/numbers/eight-card.ts",
+        "src/v3/components/playing-card-components/generators/numbers/five-card.ts",
+        "src/v3/components/playing-card-components/generators/numbers/four-card.ts",
+        "src/v3/components/playing-card-components/generators/numbers/nine-card.ts",
+        "src/v3/components/playing-card-components/generators/numbers/seven-card.ts",
+        "src/v3/components/playing-card-components/generators/numbers/six-card.ts",
+        "src/v3/components/playing-card-components/generators/numbers/ten-card.ts",
+        "src/v3/components/playing-card-components/generators/numbers/three-card.ts",
+        "src/v3/components/playing-card-components/generators/numbers/two-card.ts",
+        "src/v3/components/playing-card-components/index.tsx"
+      ]
+    },
+    "q-_w2Kr5DG.js": {
+      "size": 1172,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/v3/hooks/useTimer/s_5oqh5b60zei.js",
+        "src/v3/hooks/useTimer/s_bqf9gt1vpkm.js",
+        "src/v3/hooks/useTimer/s_dwaozcj98b8.js",
+        "src/v3/hooks/useTimer/s_fumqx2afoy8.js",
+        "src/v3/hooks/useTimer/s_jbvigb9pkla.js",
+        "src/v3/hooks/useTimer/s_vczvcludxh4.js",
+        "src/v3/hooks/useTimer/useTimer.ts_entry_useTimer.js"
+      ],
+      "symbols": [
+        "s_5oQH5b60zeI",
+        "s_BqF9GT1vPKM",
+        "s_dwaOzCj98b8",
+        "s_fUmQx2aFoy8",
+        "s_JbVigb9PklA",
+        "s_VCzvcLUDXH4"
+      ]
+    },
+    "q-B-5Yuc6X.js": {
+      "size": 958,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-B7EIueNJ.js",
+        "q-B7EIueNJ.js",
+        "q-BWCSlPNE.js",
+        "q-BWCSlPNE.js",
+        "q-BWCSlPNE.js",
+        "q-xgAK4zG_.js",
+        "q-xgAK4zG_.js"
+      ],
+      "origins": [
+        "src/v3/hooks/useTimeout.ts"
+      ]
+    },
+    "q-B0E3Na9u.js": {
+      "size": 125,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs_entry_Form.js",
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/s_uphv2ogn4wc.js"
+      ],
+      "symbols": [
+        "s_uPHV2oGn4wc"
+      ]
+    },
+    "q-B1eNMThK.js": {
+      "size": 229,
+      "origins": [
+        "src/v3/constants/header-constants.ts"
+      ]
+    },
+    "q-B2T4dIn7.js": {
+      "size": 886,
+      "origins": [
+        "src/v3/constants/board.ts",
+        "src/v3/types/types.ts"
+      ]
+    },
+    "q-B6a8MhAT.js": {
+      "size": 2755,
+      "imports": [
+        "q-C1TRUaAU.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/routes/older-versions/resize/index.tsx_entry_Settings.js",
+        "src/routes/older-versions/resize/s_btfviy32uqi.js",
+        "src/routes/older-versions/resize/s_e2kdyzd6g5q.js",
+        "src/routes/older-versions/resize/s_fxrdtws7noc.js",
+        "src/routes/older-versions/resize/s_gd0d5drbgko.js",
+        "src/routes/older-versions/resize/s_nefslp1urmm.js",
+        "src/routes/older-versions/resize/s_ogqlxnrtciq.js",
+        "src/routes/older-versions/resize/s_zyk73rxfrlw.js"
+      ],
+      "symbols": [
+        "s_btfVIY32UqI",
+        "s_E2KdyzD6g5Q",
+        "s_fXRDTws7Noc",
+        "s_gd0d5dRbGKo",
+        "s_NeFslp1uRmM",
+        "s_ogQLxnRtCiQ",
+        "s_zyK73RxFRLw"
+      ]
+    },
+    "q-B7EIueNJ.js": {
+      "size": 323,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/v3/hooks/s_j7ny6uuxoog.js",
+        "src/v3/hooks/s_neie0w2exx8.js",
+        "src/v3/hooks/useTimeout.ts_entry_useTimeoutObj.js"
+      ],
+      "symbols": [
+        "s_J7NY6UuXoog",
+        "s_nEiE0w2EXx8"
+      ]
+    },
+    "q-B_nl-JRO.js": {
+      "size": 1165,
+      "imports": [
+        "q-B2T4dIn7.js",
+        "q-BSlnlEPy.js",
+        "q-BZfsnWS4.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/v3/components/molecules/deck-size-slider/deck-size-slider.tsx_entry_deck-size-slider.js",
+        "src/v3/components/molecules/deck-size-slider/s_40zqttcgizi.js",
+        "src/v3/components/molecules/deck-size-slider/s_5zvdcaommlg.js"
+      ],
+      "symbols": [
+        "s_40zqTTcgiZI",
+        "s_5zVdCAOMmlg"
+      ]
+    },
+    "q-BdYLCXwR.js": {
+      "size": 2231,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-BfowUc82.js",
+        "q-Bz25HYFh.js",
+        "q-C-CCJCOk.js",
+        "q-Cba09MO6.js",
+        "q-CPzc8QZB.js",
+        "q-DTEdrjvk.js",
+        "q-Gr6nH7cF.js"
+      ],
+      "origins": [
+        "node_modules/.pnpm/jabber@1.5.3/node_modules/jabber/build/index.js",
+        "src/old/v1/components/memory-card-game/memory-card-game.tsx"
+      ]
+    },
+    "q-BDziASYj.js": {
+      "size": 366,
+      "imports": [
+        "q-BWqR_uM0.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-DYiMBZHs.js"
+      ],
+      "origins": [
+        "src/routes/layout.tsx"
+      ]
+    },
+    "q-BfowUc82.js": {
+      "size": 163,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/old/v1/components/memory-card-game/memory-card-game.tsx_entry_SettingsRow.js",
+        "src/old/v1/components/memory-card-game/s_hdp0y3z6aci.js"
+      ],
+      "symbols": [
+        "s_HdP0Y3Z6acI"
+      ]
+    },
+    "q-BGmpAaRo.js": {
+      "size": 2253,
+      "origins": [
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/s_1rjpkhqf8aq.js"
+      ],
+      "symbols": [
+        "s_1RJPKHqF8AQ"
+      ]
+    },
+    "q-BhvTaWEA.js": {
+      "size": 1514,
+      "imports": [
+        "q-BWqR_uM0.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs_entry_Link.js",
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/s_8gdlbszqbam.js",
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/s_osdg8fnytw4.js",
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/s_pif0khhuxfy.js"
+      ],
+      "symbols": [
+        "s_8gdLBszqbaM",
+        "s_Osdg8FnYTw4",
+        "s_pIf0khHUxfY"
+      ]
+    },
+    "q-BIyokVUI.js": {
+      "size": 457,
+      "imports": [
+        "q-67UUR4zU.js",
+        "q-CUXzYzYS.js",
+        "q-NQKLULmt.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/routes/cards/index.tsx_entry_cards.js",
+        "src/routes/cards/s_7kq56stjgzi.js"
+      ],
+      "symbols": [
+        "s_7kq56stJGZI"
+      ]
+    },
+    "q-Bj92h9J5.js": {
+      "size": 1013,
+      "imports": [
+        "q-C7wqIQUc.js",
+        "q-ChVQulEX.js",
+        "q-CUXzYzYS.js",
+        "q-DIQVMw0r.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-C0OLRsen.js",
+        "q-DuxBEMlF.js",
+        "q-DZajjKbP.js",
+        "q-QXNOhl9O.js"
+      ],
+      "origins": [
+        "src/v3/components/atoms/header-game-dimensions/header-game-dimensions.tsx",
+        "src/v3/components/atoms/header-section/header-section.tsx",
+        "src/v3/components/atoms/header-selected-ids/header-selected-ids.tsx",
+        "src/v3/components/atoms/header-timer-display/header-timer-display.tsx",
+        "src/v3/components/organisms/game-header/game-header.tsx_entry_game-header.js",
+        "src/v3/components/organisms/game-header/s_ql4xr9r8lxi.js"
+      ],
+      "symbols": [
+        "s_ql4xr9R8LxI"
+      ]
+    },
+    "q-BlK87Llj.js": {
+      "size": 541,
+      "imports": [
+        "q-B1eNMThK.js",
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/v3/components/atoms/header-scores-display/header-scores-display.tsx_entry_Score.js",
+        "src/v3/components/atoms/header-scores-display/s_wv5p0cfi9bg.js"
+      ],
+      "symbols": [
+        "s_wv5p0cFi9Bg"
+      ]
+    },
+    "q-BmAEJDo1.js": {
+      "size": 308,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-DKxAHOH7.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/routes/older-versions/v2/index.tsx_entry_GreySpan.js",
+        "src/routes/older-versions/v2/s_dz85jorb6dy.js"
+      ],
+      "symbols": [
+        "s_DZ85jORb6dY"
+      ]
+    },
+    "q-BpQTPpSx.js": {
+      "size": 250,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-3EH9kOhI.js"
+      ],
+      "origins": [
+        "src/v3/components/templates/modal/modal.tsx"
+      ]
+    },
+    "q-Bq36Wx9q.js": {
+      "size": 2539,
+      "origins": [
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/service-worker.mjs",
+        "src/routes/service-worker.ts"
+      ]
+    },
+    "q-Br4JsR3r.js": {
+      "size": 7546,
+      "imports": [
+        "q-B-5Yuc6X.js",
+        "q-B2T4dIn7.js",
+        "q-BSlnlEPy.js",
+        "q-ChVQulEX.js",
+        "q-CUXzYzYS.js",
+        "q-DaB3U830.js",
+        "q-JMGhjEJm.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-Dri9Hegq.js",
+        "q-Dri9Hegq.js"
+      ],
+      "origins": [
+        "src/v3/components/organisms/board/board.tsx_entry_board.js",
+        "src/v3/components/organisms/board/s_4vj02zezrb4.js",
+        "src/v3/components/organisms/board/s_5w15tiezp0a.js",
+        "src/v3/components/organisms/board/s_9crrbwgarmc.js",
+        "src/v3/components/organisms/board/s_9r4whi6z2p0.js",
+        "src/v3/components/organisms/board/s_c0ieak0y6pk.js",
+        "src/v3/components/organisms/board/s_ddw9gjzuj9k.js",
+        "src/v3/components/organisms/board/s_derruk2ogbw.js",
+        "src/v3/components/organisms/board/s_jazqwlmi9o4.js",
+        "src/v3/components/organisms/board/s_je3pn3qqoha.js",
+        "src/v3/components/organisms/board/s_ltgaz0io9si.js",
+        "src/v3/components/organisms/board/s_p67q76xp0aq.js",
+        "src/v3/components/organisms/board/s_pwmycwkuzji.js",
+        "src/v3/components/organisms/board/s_pz05xbsdxvk.js",
+        "src/v3/components/organisms/board/s_vml3pe0defy.js",
+        "src/v3/components/organisms/board/s_yzrtoaghlx4.js",
+        "src/v3/hooks/useDebounce/useDebounce.ts"
+      ],
+      "symbols": [
+        "s_4VJ02ZeZrB4",
+        "s_5w15TieZP0A",
+        "s_9CRRBwgARMc",
+        "s_9r4WHi6Z2P0",
+        "s_C0IEAk0y6Pk",
+        "s_ddW9gJZuJ9k",
+        "s_dERRUK2oGbw",
+        "s_jaZqWlmi9o4",
+        "s_JE3pN3qQoHA",
+        "s_LtgaZ0iO9sI",
+        "s_p67Q76xP0aQ",
+        "s_PwmycWKuzJI",
+        "s_Pz05xbsdXvk",
+        "s_vml3Pe0defY",
+        "s_yzrTOaGHlX4"
+      ]
+    },
+    "q-BSlnlEPy.js": {
+      "size": 486,
+      "imports": [
+        "q-B2T4dIn7.js"
+      ],
+      "origins": [
+        "src/v3/constants/game.ts"
+      ]
+    },
+    "q-BW1j3O6J.js": {
+      "size": 676,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/v3/components/atoms/input-lock/input-lock.tsx_entry_input-lock.js",
+        "src/v3/components/atoms/input-lock/s_58g2fox49bo.js"
+      ],
+      "symbols": [
+        "s_58g2FOx49Bo"
+      ]
+    },
+    "q-BWCSlPNE.js": {
+      "size": 540,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/v3/hooks/s_0kzvzi3loby.js",
+        "src/v3/hooks/s_ne4sytcyypu.js",
+        "src/v3/hooks/s_sdrs44go7us.js",
+        "src/v3/hooks/useTimeout.ts_entry_useIntervalObj.js"
+      ],
+      "symbols": [
+        "s_0kZvzi3lobY",
+        "s_NE4sYtcyypU",
+        "s_sDrs44GO7Us"
+      ]
+    },
+    "q-BWqR_uM0.js": {
+      "size": 9053,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-BGmpAaRo.js",
+        "q-BhvTaWEA.js",
+        "q-BXA9H81s.js",
+        "q-DHc6JzLf.js"
+      ],
+      "origins": [
+        "@qwik-city-sw-register",
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs"
+      ]
+    },
+    "q-BXA9H81s.js": {
+      "size": 624,
+      "imports": [
+        "q-BWqR_uM0.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs_entry_RouterOutlet.js",
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/s_e0ssidxoeam.js"
+      ],
+      "symbols": [
+        "s_e0ssiDXoeAM"
+      ]
+    },
+    "q-Bz25HYFh.js": {
+      "size": 2536,
+      "imports": [
+        "q-BdYLCXwR.js",
+        "q-CUXzYzYS.js",
+        "q-DlSNexLF.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/old/v1/components/memory-card-game/memory-card-game.tsx_entry_CardUnit.js",
+        "src/old/v1/components/memory-card-game/s_9zhbdtxlmno.js",
+        "src/old/v1/components/memory-card-game/s_cnsor0vsayk.js",
+        "src/old/v1/components/memory-card-game/s_fzkx77ljsne.js",
+        "src/old/v1/components/memory-card-game/s_mabhmdeuxko.js",
+        "src/old/v1/components/memory-card-game/s_ubh3qh40lns.js",
+        "src/old/v1/components/memory-card-game/s_ugpykz1ribu.js"
+      ],
+      "symbols": [
+        "s_9ZhBdtxlMNo",
+        "s_cNSor0vsAyk",
+        "s_fzkx77LJSNE",
+        "s_mAbHMdeUxko",
+        "s_ubH3QH40lns",
+        "s_uGPYkZ1RIBU"
+      ]
+    },
+    "q-BZfsnWS4.js": {
+      "size": 116,
+      "origins": [
+        "src/v3/constants/settings-modal-constants.ts"
+      ]
+    },
+    "q-C-CCJCOk.js": {
+      "size": 1076,
+      "imports": [
+        "q-BdYLCXwR.js",
+        "q-CUXzYzYS.js",
+        "q-DlSNexLF.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/old/v1/components/memory-card-game/memory-card-game.tsx_entry_memory-card-game.js",
+        "src/old/v1/components/memory-card-game/s_psqpy1zscrk.js",
+        "src/old/v1/components/memory-card-game/s_yg5n76z5wuk.js",
+        "src/old/v1/components/memory-card-game/s_yzgz0jtkhns.js"
+      ],
+      "symbols": [
+        "s_pSqpy1zscrk",
+        "s_YG5N76Z5wuk",
+        "s_YzgZ0JTkHns"
+      ]
+    },
+    "q-C0n79eEt.js": {
+      "size": 297,
+      "imports": [
+        "q-BWqR_uM0.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-DE8sk58K.js"
+      ],
+      "origins": [
+        "src/routes/game/index.tsx"
+      ]
+    },
+    "q-C0OLRsen.js": {
+      "size": 596,
+      "imports": [
+        "q-B1eNMThK.js",
+        "q-C2SAhMen.js",
+        "q-ChVQulEX.js",
+        "q-CUXzYzYS.js",
+        "q-jWjf2FpO.js"
+      ],
+      "origins": [
+        "src/v3/components/atoms/header-timer-display/header-timer-display.tsx_entry_header-timer-display.js",
+        "src/v3/components/atoms/header-timer-display/s_gqgsy5tcdzq.js"
+      ],
+      "symbols": [
+        "s_GqgsY5tcdZQ"
+      ]
+    },
+    "q-C1TRUaAU.js": {
+      "size": 706,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-B6a8MhAT.js",
+        "q-Db3XNYu-.js",
+        "q-Dky8KNxD.js",
+        "q-hMn2NIZx.js"
+      ],
+      "origins": [
+        "src/routes/older-versions/resize/index.tsx"
+      ]
+    },
+    "q-C271mq4H.js": {
+      "size": 1052,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-DqYTxZUq.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/routes/older-versions/v1.5/index.tsx_entry_v1.5.js",
+        "src/routes/older-versions/v1.5/s_gje5plgwbyq.js",
+        "src/routes/older-versions/v1.5/s_xr0t9h7euow.js",
+        "src/routes/older-versions/v1.5/s_y0ri2baboxo.js"
+      ],
+      "symbols": [
+        "s_gJE5PlgWbYQ",
+        "s_xr0T9h7eUow",
+        "s_Y0rI2BAbOXo"
+      ]
+    },
+    "q-C2SAhMen.js": {
+      "size": 550,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-jWjf2FpO.js"
+      ],
+      "origins": [
+        "src/v3/components/atoms/header-span-greyed-at-zero/header-span-greyed-at-zero.tsx",
+        "src/v3/components/molecules/formatted-time/formatted-time.tsx"
+      ]
+    },
+    "q-C7MLiFBm.js": {
+      "size": 1075,
+      "imports": [
+        "q-Ct1fw7HK.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/old/v2/components/match-modal/match-modal.tsx_entry_match-modal.js",
+        "src/old/v2/components/match-modal/s_i6uft6ns0yy.js",
+        "src/old/v2/components/match-modal/s_oskubhh2p7w.js"
+      ],
+      "symbols": [
+        "s_i6UFT6ns0yY",
+        "s_OSKuBHH2p7w"
+      ]
+    },
+    "q-C7wqIQUc.js": {
+      "size": 236,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-BlK87Llj.js",
+        "q-DMRG15_F.js"
+      ],
+      "origins": [
+        "src/v3/components/atoms/header-scores-display/header-scores-display.tsx"
+      ]
+    },
+    "q-C8JienN_.js": {
+      "size": 741,
+      "imports": [
+        "q-BWqR_uM0.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/components/router-head/router-head.tsx_entry_RouterHead.js",
+        "src/components/router-head/s_ikisfwytjcu.js"
+      ],
+      "symbols": [
+        "s_iKisfwYtJcU"
+      ]
+    },
+    "q-CaZQszMe.js": {
+      "size": 357,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/v3/components/atoms/button/button.tsx_entry_button.js",
+        "src/v3/components/atoms/button/s_vhdotcv6r5i.js"
+      ],
+      "symbols": [
+        "s_VhdotcV6r5I"
+      ]
+    },
+    "q-Cba09MO6.js": {
+      "size": 299,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-DlSNexLF.js"
+      ],
+      "origins": [
+        "src/old/v1/components/memory-card-game/memory-card-game.tsx_entry_PairsWidget.js",
+        "src/old/v1/components/memory-card-game/s_cvhebxkm03u.js"
+      ],
+      "symbols": [
+        "s_cVhEBXKM03U"
+      ]
+    },
+    "q-CcuVyQBd.js": {
+      "size": 5495,
+      "imports": [
+        "q-BZfsnWS4.js",
+        "q-C2SAhMen.js",
+        "q-CSUuI8I3.js",
+        "q-CU7o9uqR.js",
+        "q-CUXzYzYS.js",
+        "q-DIQVMw0r.js",
+        "q-jWjf2FpO.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-B_nl-JRO.js",
+        "q-BW1j3O6J.js"
+      ],
+      "origins": [
+        "src/v3/components/atoms/input-lock/input-lock.tsx",
+        "src/v3/components/molecules/deck-size-slider/deck-size-slider.tsx",
+        "src/v3/components/organisms/game-settings/game-settings.tsx_entry_game-settings.js",
+        "src/v3/components/organisms/game-settings/s_i6xh0fdf0lu.js",
+        "src/v3/components/organisms/game-settings/s_jvj00rwjmms.js",
+        "src/v3/components/organisms/game-settings/s_na9omfpfeja.js",
+        "src/v3/components/organisms/game-settings/s_nhohjltbsfg.js",
+        "src/v3/components/organisms/game-settings/s_oq0qsdtoxtw.js",
+        "src/v3/components/organisms/game-settings/s_y4xogr07oe8.js"
+      ],
+      "symbols": [
+        "s_I6xh0fDF0lU",
+        "s_jVJ00rWjMms",
+        "s_na9oMFPFEJA",
+        "s_nhoHJLTbSFg",
+        "s_oQ0qSDToxtw",
+        "s_y4Xogr07Oe8"
+      ]
+    },
+    "q-CCwQVUlJ.js": {
+      "size": 4370,
+      "imports": [
+        "q-B2T4dIn7.js",
+        "q-ChVQulEX.js",
+        "q-CUXzYzYS.js",
+        "q-DaB3U830.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/v3/components/organisms/card/card.tsx_entry_card.js",
+        "src/v3/components/organisms/card/s_fnnvqn9wwpq.js",
+        "src/v3/components/organisms/card/s_hj8daxw98cc.js",
+        "src/v3/components/organisms/card/s_lu0shb4t8uk.js",
+        "src/v3/components/organisms/card/s_nu0j8lkjxgg.js",
+        "src/v3/components/organisms/card/s_rtlfqyb6tlo.js",
+        "src/v3/components/organisms/card/s_tcpbt4edroq.js",
+        "src/v3/components/organisms/card/s_w9mf8flcke4.js"
+      ],
+      "symbols": [
+        "s_FnNVQn9WWpQ",
+        "s_HJ8DAxw98cc",
+        "s_LU0sHB4t8uk",
+        "s_nu0J8LkJXGg",
+        "s_RtLfqyB6tLo",
+        "s_tcpBt4EdroQ",
+        "s_w9Mf8fLCke4"
+      ]
+    },
+    "q-CdM2r-8i.js": {
+      "size": 2894,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-DqYTxZUq.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/routes/older-versions/v1.5/index.tsx_entry_FlippableCard.js",
+        "src/routes/older-versions/v1.5/s_21m9j0msxom.js",
+        "src/routes/older-versions/v1.5/s_75dceg60j0o.js",
+        "src/routes/older-versions/v1.5/s_h0qospcqlbo.js"
+      ],
+      "symbols": [
+        "s_21m9J0MsxOM",
+        "s_75dcEG60J0o",
+        "s_h0QOspCqlbo"
+      ]
+    },
+    "q-ChVQulEX.js": {
+      "size": 77,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/v3/context/gameContext.ts"
+      ]
+    },
+    "q-CIWVIuAW.js": {
+      "size": 431,
+      "imports": [
+        "q-B2T4dIn7.js",
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/v3/components/atoms/card-face/card-face.tsx_entry_card-face.js",
+        "src/v3/components/atoms/card-face/s_91k010czomw.js"
+      ],
+      "symbols": [
+        "s_91K010CZomw"
+      ]
+    },
+    "q-CjCVfvET.js": {
+      "size": 1388,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/v3/hooks/useVisibilityChange/s_5iunnnqclkq.js",
+        "src/v3/hooks/useVisibilityChange/useVisibilityChange.ts_entry_useVisibilityChange.js"
+      ],
+      "symbols": [
+        "s_5iuNNNqClkQ"
+      ]
+    },
+    "q-CjLzsr7P.js": {
+      "size": 125,
+      "imports": [
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-Bq36Wx9q.js"
+      ],
+      "origins": [
+        "@qwik-city-entries"
+      ]
+    },
+    "q-CpfIZ6Pn.js": {
+      "size": 1299,
+      "imports": [
+        "q-BWqR_uM0.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs_entry_GetForm.js",
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/s_kk5bfmkh4zi.js",
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/s_nk9plpjqm9y.js",
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/s_p9msze0ojs4.js"
+      ],
+      "symbols": [
+        "s_KK5BfmKH4ZI",
+        "s_Nk9PlpjQm9Y",
+        "s_p9MSze0ojs4"
+      ]
+    },
+    "q-CPzc8QZB.js": {
+      "size": 310,
+      "imports": [
+        "q-BdYLCXwR.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/old/v1/components/memory-card-game/memory-card-game.tsx_entry_BoardHeader.js",
+        "src/old/v1/components/memory-card-game/s_ztfjxf2aqs4.js"
+      ],
+      "symbols": [
+        "s_Ztfjxf2AqS4"
+      ]
+    },
+    "q-CRhajFq9.js": {
+      "size": 171,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-4YDk_yVp.js"
+      ],
+      "origins": [
+        "src/routes/older-versions/index.tsx"
+      ]
+    },
+    "q-CsLVTc0v.js": {
+      "size": 2579,
+      "imports": [
+        "q-B2T4dIn7.js",
+        "q-BSlnlEPy.js",
+        "q-CUXzYzYS.js",
+        "q-DMuXHX_M.js",
+        "q-JMGhjEJm.js",
+        "q-uemlvruI.js",
+        "q-vvhfLP29.js"
+      ],
+      "origins": [
+        "src/v3/context/initialState.ts_entry_INITIAL_STATE.js",
+        "src/v3/context/s_1yuexyhvwy8.js",
+        "src/v3/context/s_3aeydox0ynu.js",
+        "src/v3/context/s_8mi0htchhqi.js",
+        "src/v3/context/s_an7movajj0a.js",
+        "src/v3/context/s_fnt5pfa3szm.js",
+        "src/v3/context/s_jc85xeqeoxy.js",
+        "src/v3/context/s_oiwqbvacafs.js",
+        "src/v3/context/s_pwclvmrorhy.js",
+        "src/v3/context/s_tlzhovalfle.js",
+        "src/v3/context/s_uotzbqztu7s.js",
+        "src/v3/context/s_vnbgkv8ttn8.js",
+        "src/v3/context/s_yr8pmlwdbdg.js"
+      ],
+      "symbols": [
+        "s_1yUExyHvwY8",
+        "s_3aeyDOX0YnU",
+        "s_8MI0htChHqI",
+        "s_AN7moVAjj0A",
+        "s_fNt5PFA3SzM",
+        "s_jC85XeQEoXY",
+        "s_oiWqBVacAfs",
+        "s_PWClVmRORhY",
+        "s_TLzhoVALFlE",
+        "s_UotzBQZtU7s",
+        "s_VnBGKv8TTN8",
+        "s_YR8PmlWDBDg"
+      ]
+    },
+    "q-CSUuI8I3.js": {
+      "size": 165,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-DDa_Ab6x.js"
+      ],
+      "origins": [
+        "src/v3/components/molecules/dropdown-grid/dropdown-grid.tsx"
+      ]
+    },
+    "q-CSx2f65i.js": {
+      "size": 364,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/v3/components/atoms/modal-row/modal-row.tsx_entry_modal-row.js",
+        "src/v3/components/atoms/modal-row/s_4lziucbf9zc.js"
+      ],
+      "symbols": [
+        "s_4LZiuCBf9Zc"
+      ]
+    },
+    "q-Ct1fw7HK.js": {
+      "size": 83,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/old/v2/context/match-modal.context.ts"
+      ]
+    },
+    "q-CU7o9uqR.js": {
+      "size": 165,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-CSx2f65i.js"
+      ],
+      "origins": [
+        "src/v3/components/atoms/modal-row/modal-row.tsx"
+      ]
+    },
+    "q-CUXzYzYS.js": {
+      "size": 67586,
+      "origins": [
+        "@builder.io/qwik/build",
+        "node_modules/.pnpm/@builder.io+qwik@1.7.1_@types+node@20.14.12_undici@5.22.1/node_modules/@builder.io/qwik/core.prod.mjs"
+      ]
+    },
+    "q-CWEVohcs.js": {
+      "size": 3542,
+      "imports": [
+        "q-Ct1fw7HK.js",
+        "q-CUXzYzYS.js",
+        "q-DKxAHOH7.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-48Fcg_2j.js"
+      ],
+      "origins": [
+        "src/old/v2/components/FlippableCard.tsx",
+        "src/routes/older-versions/v2/index.tsx_entry_v2.js",
+        "src/routes/older-versions/v2/s_hfsqc7jov0e.js",
+        "src/routes/older-versions/v2/s_lb5tpuekj0w.js",
+        "src/routes/older-versions/v2/s_p9s0sgaspzw.js",
+        "src/routes/older-versions/v2/s_qiflzjo0xuo.js",
+        "src/routes/older-versions/v2/s_wx7bt7smhik.js",
+        "src/routes/older-versions/v2/s_yzeiktmtfug.js",
+        "src/routes/older-versions/v2/s_za1mzablpx4.js"
+      ],
+      "symbols": [
+        "s_hfSqc7jov0E",
+        "s_LB5TPUEKj0w",
+        "s_p9S0sGAspZw",
+        "s_qiFlzJo0Xuo",
+        "s_Wx7bt7smHik",
+        "s_yzEiKtmTFug",
+        "s_zA1mzABlPx4"
+      ]
+    },
+    "q-CZ8xRH6E.js": {
+      "size": 10037,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/v3/components/playing-card-components/symbols/card-symbols.tsx_entry_card-symbols.js",
+        "src/v3/components/playing-card-components/symbols/s_mcam2hhilna.js"
+      ],
+      "symbols": [
+        "s_MCaM2HHilnA"
+      ]
+    },
+    "q-CzwWq5S2.js": {
+      "size": 702,
+      "imports": [
+        "q-BWqR_uM0.js",
+        "q-CUXzYzYS.js",
+        "q-DNPZqUDl.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/routes/index.tsx_entry_routes.js",
+        "src/routes/s_t07ifsi9qcy.js"
+      ],
+      "symbols": [
+        "s_t07ifSi9QcY"
+      ]
+    },
+    "q-D2xs4CZV.js": {
+      "size": 187,
+      "imports": [
+        "q-BdYLCXwR.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/routes/older-versions/v1/index.tsx_entry_v1.js",
+        "src/routes/older-versions/v1/s_z0pvppt3btm.js"
+      ],
+      "symbols": [
+        "s_Z0PVpPT3bTM"
+      ]
+    },
+    "q-D4MoR5bM.js": {
+      "size": 502,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/v3/hooks/useElementScrollable/s_dhzusgpruys.js",
+        "src/v3/hooks/useElementScrollable/useElementScrollable.ts_entry_useElementScrollable.js"
+      ],
+      "symbols": [
+        "s_DHZUSgPRuYs"
+      ]
+    },
+    "q-D5Hb7Ote.js": {
+      "size": 5319,
+      "imports": [
+        "q-B-5Yuc6X.js",
+        "q-B2T4dIn7.js",
+        "q-BSlnlEPy.js",
+        "q-ChVQulEX.js",
+        "q-CUXzYzYS.js",
+        "q-DMuXHX_M.js",
+        "q-NQKLULmt.js",
+        "q-uemlvruI.js",
+        "q-vvhfLP29.js"
+      ],
+      "dynamicImports": [
+        "q-_w2Kr5DG.js",
+        "q-_w2Kr5DG.js",
+        "q-_w2Kr5DG.js",
+        "q-_w2Kr5DG.js",
+        "q-_w2Kr5DG.js",
+        "q-_w2Kr5DG.js",
+        "q-Bj92h9J5.js",
+        "q-Br4JsR3r.js",
+        "q-CjCVfvET.js",
+        "q-Dgg3qpwx.js",
+        "q-DMfHr9Rm.js",
+        "q-zdgL8jQV.js"
+      ],
+      "origins": [
+        "src/v3/components/organisms/board/board.tsx",
+        "src/v3/components/organisms/game-header/game-header.tsx",
+        "src/v3/components/pages/end-game/end-game.tsx",
+        "src/v3/components/pages/game/game.tsx_entry_game.js",
+        "src/v3/components/pages/game/s_0w5j1qibkl4.js",
+        "src/v3/components/pages/game/s_2l0mgrenc4o.js",
+        "src/v3/components/pages/game/s_5p4rshean2k.js",
+        "src/v3/components/pages/game/s_6ubei8y2hds.js",
+        "src/v3/components/pages/game/s_8ocjzu2uxss.js",
+        "src/v3/components/pages/game/s_d8odqstaefa.js",
+        "src/v3/components/pages/game/s_edwznrrv60e.js",
+        "src/v3/components/pages/game/s_ig8jufwma7q.js",
+        "src/v3/components/pages/game/s_n9wwf9llvz4.js",
+        "src/v3/components/pages/game/s_ngabu1yvmzk.js",
+        "src/v3/components/pages/game/s_rdck0edbwd4.js",
+        "src/v3/components/pages/game/s_s90h70bzpc8.js",
+        "src/v3/components/pages/loading/loading.tsx",
+        "src/v3/components/pages/settings/settings.tsx",
+        "src/v3/hooks/useTimer/useTimer.ts",
+        "src/v3/hooks/useVisibilityChange/useVisibilityChange.ts"
+      ],
+      "symbols": [
+        "s_0w5j1QiBkl4",
+        "s_2L0MGRenC4o",
+        "s_5P4RSHEAn2k",
+        "s_6UBei8y2HDs",
+        "s_8ocjZu2UXss",
+        "s_d8odqSTaefA",
+        "s_EDwZNRrV60E",
+        "s_IG8JuFWmA7Q",
+        "s_n9WwF9lLvZ4",
+        "s_NGaBU1yvmzk",
+        "s_RdCk0EDbwd4",
+        "s_S90h70Bzpc8"
+      ]
+    },
+    "q-D7jF_2YK.js": {
+      "size": 761,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs_entry_routeActionQrl.js",
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/s_a5bzc7wo00a.js"
+      ],
+      "symbols": [
+        "s_A5bZC7WO00A"
+      ]
+    },
+    "q-D8mQb5oD.js": {
+      "size": 263,
+      "imports": [
+        "q-BWqR_uM0.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-MdpTHFOq.js"
+      ],
+      "origins": [
+        "src/routes/v4/index.tsx"
+      ]
+    },
+    "q-DaB3U830.js": {
+      "size": 1946,
+      "imports": [
+        "q-B2T4dIn7.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-CCwQVUlJ.js",
+        "q-JxSaUNWz.js"
+      ],
+      "origins": [
+        "src/v3/components/molecules/card-view/card-view.tsx",
+        "src/v3/components/organisms/card/card.tsx",
+        "src/v3/utils/cardUtils.ts"
+      ]
+    },
+    "q-DAyJnvG8.js": {
+      "size": 254,
+      "imports": [
+        "q-BdYLCXwR.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/old/v1/components/memory-card-game/memory-card-game.tsx_entry_Settings.js",
+        "src/old/v1/components/memory-card-game/s_0cabc28hioe.js"
+      ],
+      "symbols": [
+        "s_0cabC28HIoE"
+      ]
+    },
+    "q-Db3XNYu-.js": {
+      "size": 329,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/routes/older-versions/resize/index.tsx_entry_Lock.js",
+        "src/routes/older-versions/resize/s_0n8iaaurbeu.js"
+      ],
+      "symbols": [
+        "s_0N8IaaURbeU"
+      ]
+    },
+    "q-DCn8522q.js": {
+      "size": 171,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-Dh-fS8Xm.js"
+      ],
+      "origins": [
+        "src/routes/older-versions/v2/layout.tsx"
+      ]
+    },
+    "q-DDa_Ab6x.js": {
+      "size": 2201,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-DIQVMw0r.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/media/icons/icons8-chevron-96 convertio.svg?jsx",
+        "src/v3/components/molecules/dropdown-grid/dropdown-grid.tsx_entry_dropdown-grid.js",
+        "src/v3/components/molecules/dropdown-grid/s_3ar9gw7hk5w.js",
+        "src/v3/components/molecules/dropdown-grid/s_c1kdk7qezmg.js",
+        "src/v3/components/molecules/dropdown-grid/s_qlmb65li030.js"
+      ],
+      "symbols": [
+        "s_3aR9gw7Hk5w",
+        "s_c1kdk7QEzmg",
+        "s_QLMb65lI030"
+      ]
+    },
+    "q-DE8sk58K.js": {
+      "size": 1274,
+      "imports": [
+        "q-BWqR_uM0.js",
+        "q-C0n79eEt.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-D5Hb7Ote.js"
+      ],
+      "origins": [
+        "src/routes/game/index.tsx_entry_game.js",
+        "src/routes/game/s_i7dbcya3ry4.js",
+        "src/routes/game/s_sjz1n0gvpdc.js",
+        "src/routes/game/styles.css?inline",
+        "src/v3/components/pages/game/game.tsx"
+      ],
+      "symbols": [
+        "s_I7dbcyA3RY4",
+        "s_Sjz1N0GVPdc"
+      ]
+    },
+    "q-DEwFRyg0.js": {
+      "size": 269,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-D2xs4CZV.js"
+      ],
+      "origins": [
+        "src/routes/older-versions/v1/index.tsx"
+      ]
+    },
+    "q-Dgg3qpwx.js": {
+      "size": 432,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/v3/components/pages/loading/loading.tsx_entry_loading.js",
+        "src/v3/components/pages/loading/s_nezkbbi0brw.js"
+      ],
+      "symbols": [
+        "s_NezKBbi0BRw"
+      ]
+    },
+    "q-Dh-fS8Xm.js": {
+      "size": 798,
+      "imports": [
+        "q-Ct1fw7HK.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-C7MLiFBm.js"
+      ],
+      "origins": [
+        "src/old/v2/components/match-modal/match-modal.tsx",
+        "src/routes/older-versions/v2/layout.tsx_entry_layout.js",
+        "src/routes/older-versions/v2/s_48mhuxyl4gq.js",
+        "src/routes/older-versions/v2/s_lty0cfd72dm.js"
+      ],
+      "symbols": [
+        "s_48MhuxYL4gQ",
+        "s_ltY0cFd72dM"
+      ]
+    },
+    "q-DHc6JzLf.js": {
+      "size": 6383,
+      "imports": [
+        "q-BWqR_uM0.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-BDziASYj.js",
+        "q-C0n79eEt.js",
+        "q-C1TRUaAU.js",
+        "q-CjLzsr7P.js",
+        "q-CRhajFq9.js",
+        "q-D8mQb5oD.js",
+        "q-DCn8522q.js",
+        "q-DEwFRyg0.js",
+        "q-DKxAHOH7.js",
+        "q-DNlNLXZM.js",
+        "q-DNPZqUDl.js",
+        "q-DqYTxZUq.js",
+        "q-DrTZznee.js",
+        "q-Jxi-xeSd.js"
+      ],
+      "origins": [
+        "@qwik-city-plan",
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs_entry_QwikCityProvider.js",
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/s_02wmimzeabk.js",
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/s_fx0bdjeja0e.js",
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/s_rpdjaz33wla.js",
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/s_txcfoy819ag.js"
+      ],
+      "symbols": [
+        "s_02wMImzEAbk",
+        "s_fX0bDjeJa0E",
+        "s_RPDJAz33WLA",
+        "s_TxCFOy819ag"
+      ]
+    },
+    "q-DIQVMw0r.js": {
+      "size": 165,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-CaZQszMe.js"
+      ],
+      "origins": [
+        "src/v3/components/atoms/button/button.tsx"
+      ]
+    },
+    "q-DKxAHOH7.js": {
+      "size": 1363,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-BmAEJDo1.js",
+        "q-CWEVohcs.js"
+      ],
+      "origins": [
+        "src/old/utils/cardUtils.ts",
+        "src/routes/older-versions/v2/index.tsx"
+      ]
+    },
+    "q-Dky8KNxD.js": {
+      "size": 2086,
+      "imports": [
+        "q-C1TRUaAU.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/routes/older-versions/resize/index.tsx_entry_resize.js",
+        "src/routes/older-versions/resize/s_2sp9hg6vdyy.js",
+        "src/routes/older-versions/resize/s_7nouihhlaha.js",
+        "src/routes/older-versions/resize/s_jgsuttmrkbi.js",
+        "src/routes/older-versions/resize/s_nmgyoa6luku.js",
+        "src/routes/older-versions/resize/s_rnbvnebqxz4.js"
+      ],
+      "symbols": [
+        "s_2sP9hg6vDyY",
+        "s_7nOUIhhLaHA",
+        "s_JgSutTMrkbI",
+        "s_NMgYoa6LUKU",
+        "s_rnBvneBqXZ4"
+      ]
+    },
+    "q-DlSNexLF.js": {
+      "size": 115,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/old/v1/context/context.ts"
+      ]
+    },
+    "q-DMfHr9Rm.js": {
+      "size": 3225,
+      "imports": [
+        "q-B2T4dIn7.js",
+        "q-BpQTPpSx.js",
+        "q-BSlnlEPy.js",
+        "q-C2SAhMen.js",
+        "q-ChVQulEX.js",
+        "q-CU7o9uqR.js",
+        "q-CUXzYzYS.js",
+        "q-DIQVMw0r.js",
+        "q-jWjf2FpO.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/v3/components/pages/end-game/end-game.tsx_entry_end-game.js",
+        "src/v3/components/pages/end-game/s_6nroavkn34e.js",
+        "src/v3/components/pages/end-game/s_cr8o23w0h4w.js",
+        "src/v3/components/pages/end-game/s_fczgrbsjcwq.js",
+        "src/v3/components/pages/end-game/s_w80cokwisy0.js"
+      ],
+      "symbols": [
+        "s_6NroavKN34E",
+        "s_cr8O23w0h4w",
+        "s_FCzgRbSJCWQ",
+        "s_w80CoKwisy0"
+      ]
+    },
+    "q-DMpOC6xx.js": {
+      "size": 3322,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/routes/older-versions/track/index.tsx_entry_track.js",
+        "src/routes/older-versions/track/s_0aykagpxh2k.js",
+        "src/routes/older-versions/track/s_1ir3dnfwoti.js",
+        "src/routes/older-versions/track/s_1mw1s8hfqqm.js",
+        "src/routes/older-versions/track/s_4kcdbaucwhc.js",
+        "src/routes/older-versions/track/s_7adb0y0vkv4.js",
+        "src/routes/older-versions/track/s_byxaujvaxvs.js",
+        "src/routes/older-versions/track/s_dhcaolbnq40.js",
+        "src/routes/older-versions/track/s_iprjhcsk1jy.js",
+        "src/routes/older-versions/track/s_lp2gxcdapva.js",
+        "src/routes/older-versions/track/s_lvop4jhg3ci.js",
+        "src/routes/older-versions/track/s_nwni3pjupwi.js",
+        "src/routes/older-versions/track/s_qycnnov2ztw.js",
+        "src/routes/older-versions/track/s_xvn9hoa4azs.js"
+      ],
+      "symbols": [
+        "s_0ayKAGPxh2k",
+        "s_1Ir3DNFwoTI",
+        "s_1MW1s8HfQqM",
+        "s_4kCdbaUCWHc",
+        "s_7aDB0Y0vKv4",
+        "s_ByxAuJvAxvs",
+        "s_DHcAoLBNQ40",
+        "s_IPrJHcSk1jY",
+        "s_Lp2GXCDAPvA",
+        "s_LvoP4jHG3cI",
+        "s_NwNi3pJUPWI",
+        "s_QYcnnov2ztw",
+        "s_xVN9HOA4azs"
+      ]
+    },
+    "q-DMRG15_F.js": {
+      "size": 3145,
+      "imports": [
+        "q-B-5Yuc6X.js",
+        "q-B1eNMThK.js",
+        "q-C7wqIQUc.js",
+        "q-ChVQulEX.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/v3/components/atoms/header-scores-display/header-scores-display.tsx_entry_header-scores-display.js",
+        "src/v3/components/atoms/header-scores-display/s_00lu2mhnuf8.js",
+        "src/v3/components/atoms/header-scores-display/s_8s3hmkr0uhg.js",
+        "src/v3/components/atoms/header-scores-display/s_ayh4qqxnvqi.js",
+        "src/v3/components/atoms/header-scores-display/s_fyayy72lznk.js",
+        "src/v3/components/atoms/header-scores-display/s_h0sihf1r00u.js",
+        "src/v3/components/atoms/header-scores-display/s_lsjo0dvx7vm.js",
+        "src/v3/components/atoms/header-scores-display/s_zgq5ggfgkg4.js"
+      ],
+      "symbols": [
+        "s_00lU2mhNUf8",
+        "s_8s3hmkR0UHg",
+        "s_ayH4QQxNVQI",
+        "s_FYayy72LZNk",
+        "s_H0sIhF1R00U",
+        "s_lsJo0DVX7vM",
+        "s_Zgq5ggfgKg4"
+      ]
+    },
+    "q-DMuXHX_M.js": {
+      "size": 1227,
+      "imports": [
+        "q-B2T4dIn7.js"
+      ],
+      "origins": [
+        "src/v3/utils/deckUtils.ts"
+      ]
+    },
+    "q-DNlNLXZM.js": {
+      "size": 171,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-BIyokVUI.js"
+      ],
+      "origins": [
+        "src/routes/cards/index.tsx"
+      ]
+    },
+    "q-DNPZqUDl.js": {
+      "size": 2589,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-CzwWq5S2.js",
+        "q-e3KJQtEx.js"
+      ],
+      "origins": [
+        "src/routes/index.tsx",
+        "src/v3/utils/utils.ts"
+      ]
+    },
+    "q-DqYTxZUq.js": {
+      "size": 334,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-C271mq4H.js",
+        "q-CdM2r-8i.js"
+      ],
+      "origins": [
+        "src/routes/older-versions/v1.5/index.tsx"
+      ]
+    },
+    "q-Dri9Hegq.js": {
+      "size": 415,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/v3/hooks/useDebounce/s_ixirnezzqh0.js",
+        "src/v3/hooks/useDebounce/s_j3bek18hrj4.js",
+        "src/v3/hooks/useDebounce/useDebounce.ts_entry_useDebounceSignal.js"
+      ],
+      "symbols": [
+        "s_ixirnEZzQh0",
+        "s_J3bEk18HRJ4"
+      ]
+    },
+    "q-DrTZznee.js": {
+      "size": 171,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-DMpOC6xx.js"
+      ],
+      "origins": [
+        "src/routes/older-versions/track/index.tsx"
+      ]
+    },
+    "q-DTEdrjvk.js": {
+      "size": 305,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-DlSNexLF.js"
+      ],
+      "origins": [
+        "src/old/v1/components/memory-card-game/memory-card-game.tsx_entry_MismatchCountWidget.js",
+        "src/old/v1/components/memory-card-game/s_pfgnxmw8kui.js"
+      ],
+      "symbols": [
+        "s_pFgNxMw8kuI"
+      ]
+    },
+    "q-DTpz42Av.js": {
+      "size": 621,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/v3/hooks/useAccomodateScrollbar/s_mjaldbickaq.js",
+        "src/v3/hooks/useAccomodateScrollbar/useAccomodateScrollbar.ts_entry_useAccomodateScrollbar.js",
+        "src/v3/utils/getScrollbarWidth.ts"
+      ],
+      "symbols": [
+        "s_mJAldbickAQ"
+      ]
+    },
+    "q-DuxBEMlF.js": {
+      "size": 1158,
+      "imports": [
+        "q-B1eNMThK.js",
+        "q-ChVQulEX.js",
+        "q-CUXzYzYS.js",
+        "q-jWjf2FpO.js"
+      ],
+      "origins": [
+        "src/v3/components/atoms/header-game-dimensions/header-game-dimensions.tsx_entry_header-game-dimensions.js",
+        "src/v3/components/atoms/header-game-dimensions/s_fxh3i0a2lxw.js"
+      ],
+      "symbols": [
+        "s_fXh3I0a2LXw"
+      ]
+    },
+    "q-DwB6Cn8B.js": {
+      "size": 171,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-uVjUoq_o.js"
+      ],
+      "origins": [
+        "src/global.css",
+        "src/root.tsx"
+      ]
+    },
+    "q-DYiMBZHs.js": {
+      "size": 5118,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/routes/layout.tsx_entry_layout.js",
+        "src/routes/s_jxdidab23yg.js",
+        "src/routes/s_ley7cxvvfcy.js",
+        "src/routes/styles.css?inline"
+      ],
+      "symbols": [
+        "s_JxDIDab23Yg",
+        "s_LEy7cxvvfcY"
+      ]
+    },
+    "q-DZajjKbP.js": {
+      "size": 600,
+      "imports": [
+        "q-B1eNMThK.js",
+        "q-ChVQulEX.js",
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/v3/components/atoms/header-selected-ids/header-selected-ids.tsx_entry_header-selected-ids.js",
+        "src/v3/components/atoms/header-selected-ids/s_u6rtvwfivym.js"
+      ],
+      "symbols": [
+        "s_u6RTVWfiVYM"
+      ]
+    },
+    "q-e3KJQtEx.js": {
+      "size": 1416,
+      "imports": [
+        "q-2xxLj5CZ.js",
+        "q-B2T4dIn7.js",
+        "q-BSlnlEPy.js",
+        "q-BWqR_uM0.js",
+        "q-CSUuI8I3.js",
+        "q-CUXzYzYS.js",
+        "q-DNPZqUDl.js",
+        "q-uemlvruI.js",
+        "q-vvhfLP29.js"
+      ],
+      "origins": [
+        "src/routes/index.tsx_entry_GameStarter.js",
+        "src/routes/s_hbdoieesase.js",
+        "src/routes/s_kfhpqr8z0zu.js",
+        "src/routes/s_zlvvo7kgrq8.js"
+      ],
+      "symbols": [
+        "s_HBdOIEEsAsE",
+        "s_KFHPqR8z0zU",
+        "s_ZlVvo7KGRq8"
+      ]
+    },
+    "q-Gr6nH7cF.js": {
+      "size": 995,
+      "imports": [
+        "q-BdYLCXwR.js",
+        "q-CUXzYzYS.js",
+        "q-DlSNexLF.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/old/v1/components/memory-card-game/memory-card-game.tsx_entry_Board.js",
+        "src/old/v1/components/memory-card-game/s_6xtnm2f4m5s.js",
+        "src/old/v1/components/memory-card-game/s_prjf6udif1i.js"
+      ],
+      "symbols": [
+        "s_6xTnM2f4M5s",
+        "s_pRjF6UDiF1I"
+      ]
+    },
+    "q-hMn2NIZx.js": {
+      "size": 467,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/routes/older-versions/resize/index.tsx_entry_Card.js",
+        "src/routes/older-versions/resize/s_sczdklxzzss.js"
+      ],
+      "symbols": [
+        "s_sCZdKlxzZSs"
+      ]
+    },
+    "q-JMGhjEJm.js": {
+      "size": 657,
+      "imports": [
+        "q-B2T4dIn7.js",
+        "q-BSlnlEPy.js"
+      ],
+      "origins": [
+        "src/v3/utils/boardUtils.ts"
+      ]
+    },
+    "q-jWjf2FpO.js": {
+      "size": 331,
+      "origins": [
+        "src/v3/utils/formatTime.ts"
+      ]
+    },
+    "q-Jxi-xeSd.js": {
+      "size": 118,
+      "origins": [
+        "src/routes/v3/index.tsx"
+      ]
+    },
+    "q-JxSaUNWz.js": {
+      "size": 1532,
+      "imports": [
+        "q-67UUR4zU.js",
+        "q-B2T4dIn7.js",
+        "q-ChVQulEX.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-CIWVIuAW.js"
+      ],
+      "origins": [
+        "src/media/cards/_backWhite.png?jsx",
+        "src/v3/components/atoms/card-face/card-face.tsx",
+        "src/v3/components/molecules/card-view/card-view.tsx_entry_card-view.js",
+        "src/v3/components/molecules/card-view/s_0qmbsghxit4.js"
+      ],
+      "symbols": [
+        "s_0qMbsGhxIt4"
+      ]
+    },
+    "q-MdpTHFOq.js": {
+      "size": 170,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/routes/v4/index.tsx_entry_v4.js",
+        "src/routes/v4/s_5ecsmmvv0l4.js"
+      ],
+      "symbols": [
+        "s_5EcSMMvV0l4"
+      ]
+    },
+    "q-NQKLULmt.js": {
+      "size": 236,
+      "imports": [
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-CZ8xRH6E.js",
+        "q-P7duf7Fx.js"
+      ],
+      "origins": [
+        "src/v3/components/playing-card-components/symbols/card-symbols.tsx",
+        "src/v3/components/playing-card-components/symbols/face-card-symbols.tsx"
+      ]
+    },
+    "q-P7duf7Fx.js": {
+      "size": 456043,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/v3/components/playing-card-components/symbols/face-card-symbols.tsx_entry_face-card-symbols.js",
+        "src/v3/components/playing-card-components/symbols/s_tn7ocn0nbiw.js"
+      ],
+      "symbols": [
+        "s_tN7oCn0nbiw"
+      ]
+    },
+    "q-QXNOhl9O.js": {
+      "size": 208,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/v3/components/atoms/header-section/header-section.tsx_entry_header-section.js",
+        "src/v3/components/atoms/header-section/s_sfnvgqnqieg.js"
+      ],
+      "symbols": [
+        "s_sFnVGQnqIeg"
+      ]
+    },
+    "q-TxK-tbiU.js": {
+      "size": 845,
+      "imports": [
+        "q-BWqR_uM0.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/index.qwik.mjs_entry_QwikCityMockProvider.js",
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/s_bubtvtyvvre.js",
+        "node_modules/.pnpm/@builder.io+qwik-city@1.7.1_@types+node@20.14.12/node_modules/@builder.io/qwik-city/s_wmyc5h00wti.js"
+      ],
+      "symbols": [
+        "s_BUbtvTyvVRE",
+        "s_WmYC5H00wtI"
+      ]
+    },
+    "q-uemlvruI.js": {
+      "size": 1077
+    },
+    "q-uVjUoq_o.js": {
+      "size": 532,
+      "imports": [
+        "q-BWqR_uM0.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-C8JienN_.js"
+      ],
+      "origins": [
+        "src/components/router-head/router-head.tsx",
+        "src/root.tsx_entry_root.js",
+        "src/s_ui3obiwiu2u.js"
+      ],
+      "symbols": [
+        "s_uI3OBiwIu2U"
+      ]
+    },
+    "q-vvhfLP29.js": {
+      "size": 6612,
+      "imports": [
+        "q-B2T4dIn7.js",
+        "q-BSlnlEPy.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "dynamicImports": [
+        "q-CsLVTc0v.js",
+        "q-CsLVTc0v.js",
+        "q-CsLVTc0v.js",
+        "q-CsLVTc0v.js",
+        "q-CsLVTc0v.js",
+        "q-CsLVTc0v.js",
+        "q-CsLVTc0v.js",
+        "q-CsLVTc0v.js",
+        "q-CsLVTc0v.js",
+        "q-CsLVTc0v.js",
+        "q-CsLVTc0v.js",
+        "q-CsLVTc0v.js"
+      ],
+      "origins": [
+        "src/v3/context/initialState.ts",
+        "src/v3/utils/cards.ts"
+      ]
+    },
+    "q-xgAK4zG_.js": {
+      "size": 404,
+      "imports": [
+        "q-CUXzYzYS.js"
+      ],
+      "origins": [
+        "src/v3/hooks/s_chfw1mziypo.js",
+        "src/v3/hooks/s_yegbhoazzuk.js",
+        "src/v3/hooks/useTimeout.ts_entry_useDelayedTimeoutObj.js"
+      ],
+      "symbols": [
+        "s_cHfW1MZIypo",
+        "s_yeGBHOAZZUk"
+      ]
+    },
+    "q-zdgL8jQV.js": {
+      "size": 1313,
+      "imports": [
+        "q-2xxLj5CZ.js",
+        "q-BpQTPpSx.js",
+        "q-ChVQulEX.js",
+        "q-CUXzYzYS.js",
+        "q-uemlvruI.js"
+      ],
+      "origins": [
+        "src/v3/components/pages/settings/s_md7iwelmm4y.js",
+        "src/v3/components/pages/settings/s_qupdoi0uevm.js",
+        "src/v3/components/pages/settings/s_rkubk2zbux8.js",
+        "src/v3/components/pages/settings/settings.tsx_entry_settings.js"
+      ],
+      "symbols": [
+        "s_mD7iWeLmM4Y",
+        "s_QupDoi0UeVM",
+        "s_rKubk2ZBUx8"
+      ]
+    }
+  },
+  "injections": [
+    {
+      "tag": "style",
+      "location": "head",
+      "attributes": {
+        "data-src": "/build/q-12m6TtxX.css",
+        "dangerouslySetInnerHTML": "/*! tailwindcss v3.3.3 | MIT License | https://tailwindcss.com\n */*,:before,:after{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}:before,:after{--tw-content: \"\"}html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\",Segoe UI Symbol,\"Noto Color Emoji\";font-feature-settings:normal;font-variation-settings:normal}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,samp,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,[type=button],[type=reset],[type=submit]{-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dl,dd,h1,h2,h3,h4,h5,h6,hr,figure,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}ol,ul,menu{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}button,[role=button]{cursor:pointer}:disabled{cursor:default}img,svg,video,canvas,audio,iframe,embed,object{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]{display:none}*,:before,:after{--tw-border-spacing-x: 0;--tw-border-spacing-y: 0;--tw-translate-x: 0;--tw-translate-y: 0;--tw-rotate: 0;--tw-skew-x: 0;--tw-skew-y: 0;--tw-scale-x: 1;--tw-scale-y: 1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness: proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width: 0px;--tw-ring-offset-color: #fff;--tw-ring-color: rgb(59 130 246 / .5);--tw-ring-offset-shadow: 0 0 #0000;--tw-ring-shadow: 0 0 #0000;--tw-shadow: 0 0 #0000;--tw-shadow-colored: 0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: }::backdrop{--tw-border-spacing-x: 0;--tw-border-spacing-y: 0;--tw-translate-x: 0;--tw-translate-y: 0;--tw-rotate: 0;--tw-skew-x: 0;--tw-skew-y: 0;--tw-scale-x: 1;--tw-scale-y: 1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness: proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width: 0px;--tw-ring-offset-color: #fff;--tw-ring-color: rgb(59 130 246 / .5);--tw-ring-offset-shadow: 0 0 #0000;--tw-ring-shadow: 0 0 #0000;--tw-shadow: 0 0 #0000;--tw-shadow-colored: 0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: }.container{width:100%}@media (min-width: 640px){.container{max-width:640px}}@media (min-width: 768px){.container{max-width:768px}}@media (min-width: 1024px){.container{max-width:1024px}}@media (min-width: 1280px){.container{max-width:1280px}}@media (min-width: 1536px){.container{max-width:1536px}}.pointer-events-none{pointer-events:none}.pointer-events-auto{pointer-events:auto}.visible{visibility:visible}.invisible{visibility:hidden}.absolute{position:absolute}.relative{position:relative}.left-0{left:0}.top-0{top:0}.z-0{z-index:0}.z-50{z-index:50}.z-\\[-1\\]{z-index:-1}.z-\\[1000\\]{z-index:1000}.z-\\[1\\]{z-index:1}.col-span-1{grid-column:span 1 / span 1}.col-span-2{grid-column:span 2 / span 2}.col-start-3{grid-column-start:3}.m-4{margin:1rem}.m-auto{margin:auto}.mx-auto{margin-left:auto;margin-right:auto}.mb-1{margin-bottom:.25rem}.mb-2{margin-bottom:.5rem}.ml-2{margin-left:.5rem}.ml-auto{margin-left:auto}.mr-2{margin-right:.5rem}.mt-2{margin-top:.5rem}.box-border{box-sizing:border-box}.block{display:block}.inline-block{display:inline-block}.inline{display:inline}.flex{display:flex}.table{display:table}.grid{display:grid}.hidden{display:none}.aspect-\\[2\\.25\\/3\\.5\\]{aspect-ratio:2.25/3.5}.aspect-square{aspect-ratio:1 / 1}.h-1\\/3{height:33.333333%}.h-4{height:1rem}.h-6{height:1.5rem}.h-\\[90\\%\\]{height:90%}.h-auto{height:auto}.h-full{height:100%}.h-min{height:-moz-min-content;height:min-content}.h-screen{height:100vh}.max-h-\\[90vh\\]{max-height:90vh}.max-h-full{max-height:100%}.w-1\\/2{width:50%}.w-12{width:3rem}.w-4\\/12{width:33.333333%}.w-6{width:1.5rem}.w-8\\/12{width:66.666667%}.w-\\[11em\\]{width:11em}.w-\\[50vw\\]{width:50vw}.w-\\[90\\%\\]{width:90%}.w-full{width:100%}.w-max{width:-moz-max-content;width:max-content}.w-min{width:-moz-min-content;width:min-content}.w-screen{width:100vw}.min-w-\\[16rem\\]{min-width:16rem}.max-w-\\[32rem\\]{max-width:32rem}.max-w-\\[600px\\]{max-width:600px}.max-w-\\[60ch\\]{max-width:60ch}.max-w-full{max-width:100%}.flex-1{flex:1 1 0%}.flex-shrink-0{flex-shrink:0}.shrink{flex-shrink:1}.flex-grow{flex-grow:1}.rotate-\\[0deg\\]{--tw-rotate: 0deg;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.rotate-\\[180deg\\]{--tw-rotate: 180deg;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.scale-100{--tw-scale-x: 1;--tw-scale-y: 1;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.scale-\\[0\\.95\\]{--tw-scale-x: .95;--tw-scale-y: .95;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.scale-\\[110\\%\\]{--tw-scale-x: 110%;--tw-scale-y: 110%;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.scale-\\[120\\%\\]{--tw-scale-x: 120%;--tw-scale-y: 120%;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.scale-\\[1\\]{--tw-scale-x: 1;--tw-scale-y: 1;transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.transform{transform:translate(var(--tw-translate-x),var(--tw-translate-y)) rotate(var(--tw-rotate)) skew(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.cursor-pointer{cursor:pointer}.resize{resize:both}.list-disc{list-style-type:disc}.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-cols-5{grid-template-columns:repeat(5,minmax(0,1fr))}.grid-cols-\\[0\\.3fr_1fr_0\\.3fr\\]{grid-template-columns:.3fr 1fr .3fr}.grid-cols-\\[3\\.6em_0\\.6em_3\\.6em\\]{grid-template-columns:3.6em .6em 3.6em}.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.items-end{align-items:flex-end}.items-center{align-items:center}.items-stretch{align-items:stretch}.justify-end{justify-content:flex-end}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.justify-around{justify-content:space-around}.justify-evenly{justify-content:space-evenly}.gap-0{gap:0px}.gap-0\\.5{gap:.125rem}.gap-1{gap:.25rem}.gap-1\\.5{gap:.375rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-8{gap:2rem}.gap-\\[2\\%\\]{gap:2%}.justify-self-end{justify-self:end}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.overflow-y-hidden{overflow-y:hidden}.rounded{border-radius:.25rem}.rounded-2xl{border-radius:1rem}.rounded-\\[12px\\]{border-radius:12px}.rounded-\\[50\\%\\]{border-radius:50%}.rounded-lg{border-radius:.5rem}.rounded-md{border-radius:.375rem}.rounded-xl{border-radius:.75rem}.border{border-width:1px}.border-2{border-width:2px}.border-b-2{border-bottom-width:2px}.border-none{border-style:none}.border-slate-200{--tw-border-opacity: 1;border-color:rgb(226 232 240 / var(--tw-border-opacity))}.border-slate-400{--tw-border-opacity: 1;border-color:rgb(148 163 184 / var(--tw-border-opacity))}.border-slate-50{--tw-border-opacity: 1;border-color:rgb(248 250 252 / var(--tw-border-opacity))}.border-slate-50\\/10{border-color:#f8fafc1a}.border-slate-50\\/20{border-color:#f8fafc33}.border-slate-50\\/25{border-color:#f8fafc40}.border-slate-600{--tw-border-opacity: 1;border-color:rgb(71 85 105 / var(--tw-border-opacity))}.border-slate-800{--tw-border-opacity: 1;border-color:rgb(30 41 59 / var(--tw-border-opacity))}.border-slate-900{--tw-border-opacity: 1;border-color:rgb(15 23 42 / var(--tw-border-opacity))}.border-transparent{border-color:transparent}.border-white{--tw-border-opacity: 1;border-color:rgb(255 255 255 / var(--tw-border-opacity))}.border-zinc-500{--tw-border-opacity: 1;border-color:rgb(113 113 122 / var(--tw-border-opacity))}.bg-\\[dodgerblue\\]{--tw-bg-opacity: 1;background-color:rgb(30 144 255 / var(--tw-bg-opacity))}.bg-amber-100{--tw-bg-opacity: 1;background-color:rgb(254 243 199 / var(--tw-bg-opacity))}.bg-black{--tw-bg-opacity: 1;background-color:rgb(0 0 0 / var(--tw-bg-opacity))}.bg-slate-300{--tw-bg-opacity: 1;background-color:rgb(203 213 225 / var(--tw-bg-opacity))}.bg-slate-600{--tw-bg-opacity: 1;background-color:rgb(71 85 105 / var(--tw-bg-opacity))}.bg-slate-700{--tw-bg-opacity: 1;background-color:rgb(51 65 85 / var(--tw-bg-opacity))}.bg-slate-800{--tw-bg-opacity: 1;background-color:rgb(30 41 59 / var(--tw-bg-opacity))}.bg-slate-800\\/90{background-color:#1e293be6}.bg-slate-950{--tw-bg-opacity: 1;background-color:rgb(2 6 23 / var(--tw-bg-opacity))}.bg-transparent{background-color:transparent}.bg-white\\/40{background-color:#fff6}.bg-opacity-0{--tw-bg-opacity: 0}.bg-opacity-10{--tw-bg-opacity: .1}.bg-opacity-20{--tw-bg-opacity: .2}.bg-opacity-30{--tw-bg-opacity: .3}.p-2{padding:.5rem}.p-4{padding:1rem}.p-\\[1\\.5\\%\\]{padding:1.5%}.px-1{padding-left:.25rem;padding-right:.25rem}.px-1\\.5{padding-left:.375rem;padding-right:.375rem}.px-2{padding-left:.5rem;padding-right:.5rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.px-8{padding-left:2rem;padding-right:2rem}.px-\\[4\\%\\]{padding-left:4%;padding-right:4%}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-1\\.5{padding-top:.375rem;padding-bottom:.375rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-\\[2\\%\\]{padding-top:2%;padding-bottom:2%}.pl-2{padding-left:.5rem}.text-left{text-align:left}.text-center{text-align:center}.text-right{text-align:right}.text-2xl{font-size:1.5rem;line-height:2rem}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-4xl{font-size:2.25rem;line-height:2.5rem}.text-lg{font-size:1.125rem;line-height:1.75rem}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xs{font-size:.75rem;line-height:1rem}.text-black{--tw-text-opacity: 1;color:rgb(0 0 0 / var(--tw-text-opacity))}.text-blue-900{--tw-text-opacity: 1;color:rgb(30 58 138 / var(--tw-text-opacity))}.text-sky-300{--tw-text-opacity: 1;color:rgb(125 211 252 / var(--tw-text-opacity))}.text-slate-100{--tw-text-opacity: 1;color:rgb(241 245 249 / var(--tw-text-opacity))}.text-slate-200{--tw-text-opacity: 1;color:rgb(226 232 240 / var(--tw-text-opacity))}.text-slate-400{--tw-text-opacity: 1;color:rgb(148 163 184 / var(--tw-text-opacity))}.text-slate-500{--tw-text-opacity: 1;color:rgb(100 116 139 / var(--tw-text-opacity))}.text-slate-600{--tw-text-opacity: 1;color:rgb(71 85 105 / var(--tw-text-opacity))}.text-slate-600\\/80{color:#475569cc}.text-white{--tw-text-opacity: 1;color:rgb(255 255 255 / var(--tw-text-opacity))}.underline{text-decoration-line:underline}.line-through{text-decoration-line:line-through}.opacity-0{opacity:0}.opacity-100{opacity:1}.opacity-20{opacity:.2}.opacity-50{opacity:.5}.blur{--tw-blur: blur(8px);filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.filter{filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur-\\[2px\\]{--tw-backdrop-blur: blur(2px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-sm{--tw-backdrop-blur: blur(4px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,-webkit-backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter;transition-property:color,background-color,border-color,text-decoration-color,fill,stroke,opacity,box-shadow,transform,filter,backdrop-filter,-webkit-backdrop-filter;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.duration-\\[300ms\\]{transition-duration:.3s}.\\[animation-timing-function\\:ease-in-out\\]{animation-timing-function:ease-in-out}.\\[backface-visibility\\:hidden\\]{backface-visibility:hidden}.\\[perspective\\:1400px\\]{perspective:1400px}.\\[transform-style\\:preserve-3d\\]{transform-style:preserve-3d}.\\[transform\\:rotateY\\(180deg\\)\\]{transform:rotateY(180deg)}.\\[transition-duration\\:200ms\\]{transition-duration:.2s}.\\[transition-property\\:transform\\]{transition-property:transform}:root{--qwik-dark-blue: #006ce9;--qwik-light-blue: #18b6f6;--qwik-light-purple: #ac7ff4;--qwik-dark-purple: #713fc2;--qwik-dirty-black: #1d2033;--qwik-dark-background: #151934;--qwik-dark-text: #ffffff}html{line-height:1;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\",Segoe UI Symbol,\"Noto Color Emoji\"}body{padding:0;margin:0;line-height:inherit}html{-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\",Segoe UI Symbol,\"Noto Color Emoji\"}body{padding:0;line-height:inherit}.marker\\:text-slate-400 *::marker{color:#94a3b8}.marker\\:text-slate-400::marker{color:#94a3b8}.hover\\:border-slate-700:hover{--tw-border-opacity: 1;border-color:rgb(51 65 85 / var(--tw-border-opacity))}.hover\\:bg-slate-200:hover{--tw-bg-opacity: 1;background-color:rgb(226 232 240 / var(--tw-bg-opacity))}.hover\\:bg-slate-500:hover{--tw-bg-opacity: 1;background-color:rgb(100 116 139 / var(--tw-bg-opacity))}.hover\\:bg-slate-600:hover{--tw-bg-opacity: 1;background-color:rgb(71 85 105 / var(--tw-bg-opacity))}.hover\\:bg-slate-700:hover{--tw-bg-opacity: 1;background-color:rgb(51 65 85 / var(--tw-bg-opacity))}.hover\\:bg-white:hover{--tw-bg-opacity: 1;background-color:rgb(255 255 255 / var(--tw-bg-opacity))}.hover\\:bg-opacity-25:hover{--tw-bg-opacity: .25}.hover\\:text-slate-300:hover{--tw-text-opacity: 1;color:rgb(203 213 225 / var(--tw-text-opacity))}.hover\\:text-slate-400:hover{--tw-text-opacity: 1;color:rgb(148 163 184 / var(--tw-text-opacity))}.hover\\:text-slate-800:hover{--tw-text-opacity: 1;color:rgb(30 41 59 / var(--tw-text-opacity))}.hover\\:text-white:hover{--tw-text-opacity: 1;color:rgb(255 255 255 / var(--tw-text-opacity))}@media (min-width: 768px){.md\\:flex-row{flex-direction:row}.md\\:gap-1{gap:.25rem}.md\\:gap-2{gap:.5rem}.md\\:px-3{padding-left:.75rem;padding-right:.75rem}.md\\:pl-4{padding-left:1rem}.md\\:text-lg{font-size:1.125rem;line-height:1.75rem}.md\\:text-sm{font-size:.875rem;line-height:1.25rem}}@media (min-width: 1024px){.lg\\:gap-4{gap:1rem}.lg\\:rounded-3xl{border-radius:1.5rem}.lg\\:px-4{padding-left:1rem;padding-right:1rem}.lg\\:text-2xl{font-size:1.5rem;line-height:2rem}}\n"
+      }
+    }
+  ],
+  "version": "1",
+  "options": {
+    "target": "client",
+    "buildMode": "production",
+    "entryStrategy": {
+      "type": "smart"
+    }
+  },
+  "platform": {
+    "qwik": "1.7.1",
+    "vite": "",
+    "rollup": "4.19.1",
+    "env": "node",
+    "os": "win32",
+    "node": "21.1.0"
+  }
+}
