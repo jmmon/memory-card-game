@@ -272,8 +272,9 @@ export default component$(
      * - RUNS ON MOUNT
      * - also when "resize" flip-flops, or when deck.size changes
      * ================================ */
+    // eslint-disable-next-line qwik/no-use-visible-task
     useVisibleTask$(
-      async ({track}) => {
+      async ({ track }) => {
         const newDeckSize = track(
           () => gameContext.userSettings.deck.size
         );
