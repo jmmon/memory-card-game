@@ -79,44 +79,45 @@ const pruneDefaultsFromQueryParams = (
 const Instructions = () => {
   const actionString = "Tap/Click";
   return (
-  <>
-    <h3 class="text-center">Goal:</h3>
-    <p class="text-center text-3xl">Clear the board to win!</p>
+    <>
+      <h3 class="text-center">Goal:</h3>
+      <p class="text-center text-3xl">Clear the board to win!</p>
 
-    <ul class="mx-auto border-box text-md grid w-full max-w-[60ch] list-disc gap-4 px-6 marker:text-slate-400 md:text-lg">
-      <li class={LI_CLASSES}>
-        <strong>{actionString}</strong> a card to view it.
-        <br />
-        <strong>{actionString} again</strong> to return the card to the board.
-      </li>
-      <li class={LI_CLASSES}>
-        After <strong>two</strong> cards have been flipped, if the{" "}
-        <strong>numbers</strong> and <strong>colors</strong> match...
-        <br />
-        <code>
-          (e.g. <strong>Queen</strong> of <strong>Spades</strong> with{" "}
-          <strong>Queen</strong> of <strong>Clubs</strong>; or{" "}
-          <strong>2</strong> of <strong>Hearts</strong> with <strong>2</strong>{" "}
-          of <strong>Diamonds</strong>,)
-        </code>{" "}
-        <br />
-        ...you found a <strong>pair</strong> and they're removed from the board!
-      </li>
-      <li class={LI_CLASSES}>
-        <strong>Clear</strong> the <strong>board</strong> to{" "}
-        <strong>win!</strong>
-      </li>
-      <li class={LI_CLASSES}>
-        At the end, view your <strong>game time</strong>,{" "}
-        <strong>pairs found</strong>, and <strong>mismatches found</strong>.
-      </li>
-      <li class={`text-slate-500 ${LI_CLASSES}`}>
-        (COMING SOON:) Save your score, and see how you compare to other
-        players!
-      </li>
-    </ul>
-  </>
-) };
+      <ul class="mx-auto border-box text-md grid w-full max-w-[60ch] list-disc gap-4 px-6 marker:text-slate-400 md:text-lg">
+        <li class={LI_CLASSES}>
+          <strong>{actionString}</strong> a card to view it.
+          <br />
+          <strong>{actionString} again</strong> to return the card to the board.
+        </li>
+        <li class={LI_CLASSES}>
+          After <strong>two</strong> cards have been flipped, if the{" "}
+          <strong>numbers</strong> and <strong>colors</strong> match...
+          <br />
+          <code>
+            (e.g. <strong>Queen</strong> of <strong>Spades</strong> with{" "}
+            <strong>Queen</strong> of <strong>Clubs</strong>; or{" "}
+            <strong>2</strong> of <strong>Hearts</strong> with <strong>2</strong>{" "}
+            of <strong>Diamonds</strong>,)
+          </code>{" "}
+          <br />
+          ...you found a <strong>pair</strong> and they're removed from the board!
+        </li>
+        <li class={LI_CLASSES}>
+          <strong>Clear</strong> the <strong>board</strong> to{" "}
+          <strong>win!</strong>
+        </li>
+        <li class={LI_CLASSES}>
+          At the end, view your <strong>game time</strong>,{" "}
+          <strong>pairs found</strong>, and <strong>mismatches found</strong>.
+        </li>
+        <li class={`text-slate-500 ${LI_CLASSES}`}>
+          (COMING SOON:) Save your score, and see how you compare to other
+          players!
+        </li>
+      </ul>
+    </>
+  )
+};
 
 export const GameStarter = component$(() => {
   const unsavedSettings = useSignal<iUserSettings>({
@@ -142,9 +143,8 @@ export const GameStarter = component$(() => {
   return (
     <>
       <Link
-        href={`/game${
-          compQParamsString.value !== "" ? "/?" + compQParamsString.value : ""
-        }`}
+        href={`/game${compQParamsString.value !== "" ? "/?" + compQParamsString.value : ""
+          }`}
         class="mx-auto rounded-lg border-slate-200 bg-slate-800 px-8 py-4 text-4xl text-slate-200 hover:bg-slate-700 hover:text-white"
       >
         Play
@@ -163,11 +163,11 @@ export const GameStarter = component$(() => {
 });
 
 export const head: DocumentHead = {
-  title: "Welcome to Qwik",
+  title: "Memory Card Game - Joe Moulton dot Dev",
   meta: [
     {
       name: "description",
-      content: "Qwik site description",
+      content: "Match pairs of cards by color to win!",
     },
   ],
 };
