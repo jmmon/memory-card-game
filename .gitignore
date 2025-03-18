@@ -50,3 +50,6 @@ build-most-recent-working.zip
 build-working-idle-start.zip
 build-timer-fixed.zip
 build-timer-fixed.zip
+dist.bak
+dist.node
+server.node
