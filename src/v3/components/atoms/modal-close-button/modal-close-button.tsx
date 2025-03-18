@@ -8,7 +8,7 @@ export default ({
   hideModal$: QRL<() => void>;
 }) => (
   <button
-    class="ml-auto rounded-lg border border-slate-400 bg-slate-800/90 px-2 py-1.5 text-slate-600 transition-all hover:bg-slate-600 hover:text-slate-400"
+    class="ml-auto rounded-lg text-xl border-none text-slate-400 bg-transparent px-2 py-0 transition-all hover:text-slate-200 focus:text-slate-200"
     onClick$={hideModal$}
   >
     {text}
