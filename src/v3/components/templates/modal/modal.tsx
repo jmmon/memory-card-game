@@ -2,7 +2,7 @@ import { component$, $, Slot } from "@builder.io/qwik";
 
 import ModalHeader from "~/v3/components/molecules/modal-header/modal-header";
 
-import type { QwikMouseEvent, PropFunction } from "@builder.io/qwik";
+import type { PropFunction } from "@builder.io/qwik";
 
 const DURATION = "duration-[300ms]";
 // const IS_SHOWING_DELAY = 50;
@@ -32,7 +32,7 @@ export default component$(
   }) => {
     containerClasses = DEFAULT_CONTAINER_BG + " " + containerClasses;
 
-    const closeModal$ = $((e: QwikMouseEvent) => {
+    const closeModal$ = $((e: MouseEvent) => {
       if (!options.detectClickOutside) return;
       if ((e.target as HTMLElement).dataset.name === "background") {
         hideModal$(); // fn to turn off boolean
@@ -41,21 +41,19 @@ export default component$(
 
     return (
       <div
-        class={`top-0 left-0 absolute w-full h-full bg-black flex justify-center items-center transition-all ${DURATION} ${
-          isShowing
+        class={`top-0 left-0 absolute w-full h-full bg-black flex justify-center items-center transition-all ${DURATION} ${isShowing
             ? `pointer-events-auto ${bgClasses} z-[1000] bg-opacity-30 `
             : "pointer-events-none z-[-1] bg-opacity-0"
-        }`}
+          }`}
         data-name="background"
         onClick$={closeModal$}
         style={bgStyles}
       >
         <div
-          class={`min-w-[16rem] w-[50vw] max-w-[32rem] max-h-[90vh] relative mx-auto text-center ${containerClasses} rounded-lg lg:rounded-3xl flex flex-col gap-1 p-[1.5%] transition-all ${DURATION} ${
-            isShowing
+          class={`min-w-[16rem] w-[50vw] max-w-[32rem] max-h-[90vh] relative mx-auto text-center ${containerClasses} rounded-lg lg:rounded-3xl flex flex-col gap-1 p-[1.5%] transition-all ${DURATION} ${isShowing
               ? "pointer-events-auto z-[1000] scale-100 opacity-100"
               : "pointer-events-none z-[-1] scale-[120%] opacity-0"
-          }`}
+            }`}
           data-name="modal"
         >
           <ModalHeader hideModal$={hideModal$} title={title} />
