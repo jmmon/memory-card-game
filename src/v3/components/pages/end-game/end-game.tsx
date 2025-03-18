@@ -6,6 +6,7 @@ import FormattedTime from "~/v3/components/molecules/formatted-time/formatted-ti
 import Button from "~/v3/components/atoms/button/button";
 import ModalRow from "~/v3/components/atoms/modal-row/modal-row";
 import { GAME } from "~/v3/constants/game";
+import ModalStats from "../../atoms/modal-stats/modal-stats";
 
 export default component$(() => {
   const gameContext = useContext(GameContext);
@@ -32,16 +33,33 @@ export default component$(() => {
     >
       <div class="flex flex-col gap-0.5 px-[4%] py-[2%] md:gap-1">
         <ModalRow>
-          <div class="flex flex-grow justify-between text-slate-100">
+          <ModalStats
+            label="Pairs:"
+            content={
+              `${gameContext.game.successfulPairs.length
+              }/${gameContext.userSettings.deck.size / 2
+              }`
+            }
+          />
+          {/* <div class="flex flex-grow justify-between text-slate-100">
             <span>Pairs:</span>
             <span>
               {gameContext.game.successfulPairs.length}/
               {gameContext.userSettings.deck.size / 2}
             </span>
-          </div>
+          </div> */}
         </ModalRow>
         <ModalRow>
-          <div class="flex flex-grow justify-between text-slate-100">
+          <ModalStats
+            label="Mismatches:"
+            content={
+              `${gameContext.game.mismatchPairs.length}
+              ${gameContext.userSettings.maxAllowableMismatches !== -1
+                ? `/${gameContext.userSettings.deck.size / 2}`
+                : ""}`
+            }
+          />
+          {/* <div class="flex flex-grow justify-between text-slate-100">
             <span>Mismatches:</span>
             <span>
               {gameContext.game.mismatchPairs.length}
@@ -49,7 +67,7 @@ export default component$(() => {
                 ? `/${gameContext.userSettings.deck.size / 2} `
                 : ""}
             </span>
-          </div>
+          </div> */}
         </ModalRow>
         <ModalRow>
           <div class="flex flex-grow justify-between text-slate-100">

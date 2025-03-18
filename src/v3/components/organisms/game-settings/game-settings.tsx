@@ -32,7 +32,7 @@ export default component$(
     return (
       <div class={`flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%] ${classes}`}>
         {startShuffling$ !== undefined && (
-          <div class="flex flex-grow items-center justify-evenly">
+          <div class="mb-4 flex flex-grow items-center justify-evenly">
             <div class="tooltip flex items-center justify-center gap-[2%]">
               <Button onClick$={startShuffling$}>
                 <span class="text-slate-100">Shuffle Deck</span>
@@ -48,84 +48,9 @@ export default component$(
           <div
             class={`flex-grow flex flex-col ${settingsModalConstants.COLUMN_GAP}  items-center`}
           >
-            {/* left column */}
-            <ModalRow>
-              <DeckSizeSlider
-                userSettings={unsavedUserSettings}
-                gameSettings={gameSettings}
-                isLocked={unsavedUserSettings.value.deck.isLocked}
-                for="game-settings"
-              />
-            </ModalRow>
-
-            <DropdownGrid buttonText="Show Developer Settings">
-              <ModalRow>
-                <InputLock
-                  text="Lock Board:"
-                  tooltip="Prevent board layout from changing."
-                  onChange$={(e) => {
-                    unsavedUserSettings.value = {
-                      ...unsavedUserSettings.value,
-                      board: {
-                        ...unsavedUserSettings.value.board,
-                        isLocked: (e.target as HTMLInputElement).checked,
-                      },
-                    };
-                  }}
-                />
-              </ModalRow>
-              <ModalRow>
-                <InputLock
-                  text="Lock Deck:"
-                  tooltip={`Prevent deck size from changing. ${settingsModalConstants.REQUIRES_RESTART}`}
-                  onChange$={(e) => {
-                    unsavedUserSettings.value = {
-                      ...unsavedUserSettings.value,
-                      deck: {
-                        ...unsavedUserSettings.value.deck,
-                        isLocked: (e.target as HTMLInputElement).checked,
-                      },
-                    };
-                  }}
-                />
-              </ModalRow>
-
-              <ModalRow>
-                <InputLock
-                  text="Show Selected Card Ids"
-                  tooltip="Show unique card ids for currently selected cards"
-                  onChange$={(e) => {
-                    unsavedUserSettings.value = {
-                      ...unsavedUserSettings.value,
-                      interface: {
-                        ...unsavedUserSettings.value.interface,
-                        showSelectedIds: (e.target as HTMLInputElement).checked,
-                      },
-                    };
-                  }}
-                />
-              </ModalRow>
-              <ModalRow>
-                <InputLock
-                  text="Show Dimensions"
-                  tooltip="Show board layout and window dimensions."
-                  onChange$={(e) => {
-                    unsavedUserSettings.value = {
-                      ...unsavedUserSettings.value,
-                      interface: {
-                        ...unsavedUserSettings.value.interface,
-                        showDimensions: (e.target as HTMLInputElement).checked,
-                      },
-                    };
-                  }}
-                  value={unsavedUserSettings.value.interface.showDimensions}
-                />
-              </ModalRow>
-            </DropdownGrid>
-
             {gameTime !== 0 && (
               <ModalRow>
-                <div class="tooltip flex w-full justify-between">
+                <div class="tooltip flex w-full items-center justify-between">
                   <label class="text-slate-100">Played Time:</label>
                   <FormattedTime timeMs={gameTime} />
                   <span class="tooltiptext">
@@ -134,7 +59,16 @@ export default component$(
                 </div>
               </ModalRow>
             )}
+            <ModalRow>
+              <DeckSizeSlider
+                userSettings={unsavedUserSettings}
+                gameSettings={gameSettings}
+                isLocked={unsavedUserSettings.value.deck.isLocked}
+                for="game-settings"
+              />
+            </ModalRow>
           </div>
+
 
           {/* right column */}
           {/* <div class={`flex-grow flex flex-col ${COLUMN_GAP} items-center`}> */}
@@ -231,46 +165,105 @@ export default component$(
           {/* </div> */}
         </div>
 
-        <div class="flex flex-grow items-center justify-evenly">
-          <div class="tooltip flex  items-center justify-center gap-[2%]">
-            <Button onClick$={saveSettings$}>
-              <span class="text-slate-100">Reset Without Saving</span>
-            </Button>
-            <span class="tooltiptext">
-              Reset the game, keeping current settings.
-            </span>
-          </div>
+        <DropdownGrid buttonClasses="w-full" buttonText="Show Developer Settings">
+          <ModalRow>
+            <InputLock
+              text="Lock Board:"
+              tooltip="Prevent board layout from changing."
+              onChange$={(e) => {
+                unsavedUserSettings.value = {
+                  ...unsavedUserSettings.value,
+                  board: {
+                    ...unsavedUserSettings.value.board,
+                    isLocked: (e.target as HTMLInputElement).checked,
+                  },
+                };
+              }}
+            />
+          </ModalRow>
+          <ModalRow>
+            <InputLock
+              text="Lock Deck:"
+              tooltip={`Prevent deck size from changing. ${settingsModalConstants.REQUIRES_RESTART}`}
+              onChange$={(e) => {
+                unsavedUserSettings.value = {
+                  ...unsavedUserSettings.value,
+                  deck: {
+                    ...unsavedUserSettings.value.deck,
+                    isLocked: (e.target as HTMLInputElement).checked,
+                  },
+                };
+              }}
+            />
+          </ModalRow>
+
+          <ModalRow>
+            <InputLock
+              text="Show Selected Card Ids"
+              tooltip="Show unique card ids for currently selected cards"
+              onChange$={(e) => {
+                unsavedUserSettings.value = {
+                  ...unsavedUserSettings.value,
+                  interface: {
+                    ...unsavedUserSettings.value.interface,
+                    showSelectedIds: (e.target as HTMLInputElement).checked,
+                  },
+                };
+              }}
+            />
+          </ModalRow>
+          <ModalRow>
+            <InputLock
+              text="Show Dimensions"
+              tooltip="Show board layout and window dimensions."
+              onChange$={(e) => {
+                unsavedUserSettings.value = {
+                  ...unsavedUserSettings.value,
+                  interface: {
+                    ...unsavedUserSettings.value.interface,
+                    showDimensions: (e.target as HTMLInputElement).checked,
+                  },
+                };
+              }}
+              value={unsavedUserSettings.value.interface.showDimensions}
+            />
+          </ModalRow>
+        </DropdownGrid>
+
+        <Help />
+
+        <div class="mt-5 flex flex-grow items-center justify-around">
+          <Button onClick$={saveSettings$}>
+            <span class="text-slate-100">Reset Game</span>
+          </Button>
+          <Button
+            onClick$={() => {
+              saveSettings$(unsavedUserSettings);
+            }}
+          >
+            <span class="text-slate-100">Save & Reset</span>
+          </Button>
         </div>
 
-        <div class="flex flex-grow items-center justify-evenly">
-          <div class="tooltip flex  items-center justify-center gap-[2%]">
-            <Button
-              onClick$={() => {
-                saveSettings$(unsavedUserSettings);
-              }}
-            >
-              <span class="text-slate-100">Save & Restart</span>
-            </Button>
-            <span class="tooltiptext">Save current settings and restart.</span>
-          </div>
-        </div>
-        <details class="mt-2 flex w-full flex-col items-center gap-2">
-          <summary class="mx-auto w-max cursor-pointer rounded border border-slate-200 bg-slate-700 p-2 text-slate-100 hover:bg-slate-500">
-            Help
-          </summary>
-          <ul class="grid w-full list-disc gap-2 text-left text-slate-100">
-            <li>Select cards by clicking on them.</li>
-            <li>
-              Cards are matched when the two selected cards have the same number
-              and the color matches (i.e. red with red, black with black).
-            </li>
-            <li>
-              Game time starts when you select your first card, and stops when
-              the last pair of cards disappears.
-            </li>
-          </ul>
-        </details>
+
       </div>
     );
   }
 );
+
+const Help = () => (
+  <DropdownGrid buttonText="Help" buttonClasses="w-full">
+    <ul class="grid w-full list-disc gap-2 text-left text-slate-100">
+      <li>Select cards by clicking on them.</li>
+      <li>
+        Cards are matched when the two selected cards have the same number
+        and the color matches (i.e. red with red, black with black).
+      </li>
+      <li>
+        Game time starts when you select your first card, and stops when
+        the last pair of cards disappears.
+      </li>
+    </ul>
+  </DropdownGrid>
+);
+
