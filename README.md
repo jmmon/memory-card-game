@@ -32,10 +32,10 @@ Inside your project, you'll see the following directory structure:
 
 ## Add Integrations and deployment
 
-Use the `yarn qwik add` command to add additional integrations. Some examples of integrations includes: Cloudflare, Netlify or Express Server, and the [Static Site Generator (SSG)](https://qwik.builder.io/qwikcity/guides/static-site-generation/).
+Use the `pnpm qwik add` command to add additional integrations. Some examples of integrations includes: Cloudflare, Netlify or Express Server, and the [Static Site Generator (SSG)](https://qwik.builder.io/qwikcity/guides/static-site-generation/).
 
 ```shell
-yarn qwik add # or `yarn qwik add`
+pnpm qwik add # or `pnpm qwik add`
 ```
 
 ## Development
@@ -43,7 +43,7 @@ yarn qwik add # or `yarn qwik add`
 Development mode uses [Vite's development server](https://vitejs.dev/). The `dev` command will server-side render (SSR) the output during development.
 
 ```shell
-npm start # or `yarn start`
+npm start # or `pnpm start`
 ```
 
 > Note: during dev mode, Vite may request a significant number of `.js` files. This does not represent a Qwik production build.
@@ -53,7 +53,7 @@ npm start # or `yarn start`
 The preview command will create a production build of the client modules, a production build of `src/entry.preview.tsx`, and run a local server. The preview server is only for convenience to preview a production build locally and should not be used as a production server.
 
 ```shell
-yarn preview # or `yarn preview`
+pnpm preview # or `pnpm preview`
 ```
 
 ## Production
@@ -61,7 +61,7 @@ yarn preview # or `yarn preview`
 The production build will generate client and server modules by running both client and server build commands. The build command will use Typescript to run a type check on the source code.
 
 ```shell
-yarn build # or `yarn build`
+pnpm build # or `pnpm build`
 ```
 
 ## Express Server
@@ -69,7 +69,7 @@ yarn build # or `yarn build`
 This app has a minimal [Express server](https://expressjs.com/) implementation. After running a full build, you can preview the build using the command:
 
 ```
-yarn serve
+pnpm serve
 ```
 
 Then visit [http://localhost:8080/](http://localhost:8080/)
@@ -82,7 +82,17 @@ This should be faster and less overhead than Express or other frameworks.
 After running a full build, you can preview the build using the command:
 
 ```
-yarn serve
+pnpm serve
+```
+
+Then visit [http://localhost:8080/](http://localhost:8080/)
+
+## Express Server
+
+This app has a minimal [Express server](https://expressjs.com/) implementation. After running a full build, you can preview the build using the command:
+
+```
+pnpm serve
 ```
 
 Then visit [http://localhost:8080/](http://localhost:8080/)
