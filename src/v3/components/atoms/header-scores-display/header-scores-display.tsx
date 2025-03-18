@@ -63,7 +63,7 @@ export default component$(() => {
 
   return (
     <code
-      class={`bg-slate-800 ${header.CODE_TEXT_LIGHT} flex flex-col w-[11em] gap-1 ${header.CODE_PADDING}`}
+      class={`bg-slate-800 ${header.CODE_TEXT_LIGHT} grid w-[12em] gap-1 ${header.CODE_PADDING}`}
     >
       <Score
         animate={gameContext.interface.successAnimation}
@@ -101,10 +101,10 @@ const Score = component$(
     return (
       <div
         class={`rounded mismatch ${animate ? header.SCORE_ANIMATION_CLASSES : ""
-          } flex gap-2 ${header.CODE_TEXT_DARK}`}
+          } grid gap-1.5 grid-cols-[2fr_1fr] ${header.CODE_TEXT_DARK}`}
       >
-        <span class="w-8/12 flex-shrink-0 flex-grow text-right">{label}:</span>
-        <span class="w-4/12 flex-shrink-0 flex-grow text-left text-slate-100">
+        <span class="text-right">{label}:</span>
+        <span class="text-left text-slate-100">
           {score}
           {showMax && <span class="text-slate-400">/{max}</span>}
         </span>

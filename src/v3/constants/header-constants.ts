@@ -1,5 +1,5 @@
 
-const CODE_PADDING = "px-1.5 md:px-3 lg:px-4";
+const CODE_PADDING = "px-1 md:px-1.5 lg:px-2";
 const CODE_TEXT_LIGHT = "text-slate-200";
 const CODE_TEXT_DARK = "text-slate-400";
 
