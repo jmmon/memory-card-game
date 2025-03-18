@@ -59,6 +59,7 @@ export default component$(
                 </div>
               </ModalRow>
             )}
+
             <ModalRow>
               <DeckSizeSlider
                 userSettings={unsavedUserSettings}
@@ -166,68 +167,73 @@ export default component$(
         </div>
 
         <DropdownGrid buttonClasses="w-full" buttonText="Show Developer Settings">
-          <ModalRow>
-            <InputLock
-              text="Lock Board:"
-              tooltip="Prevent board layout from changing."
-              onChange$={(e) => {
-                unsavedUserSettings.value = {
-                  ...unsavedUserSettings.value,
-                  board: {
-                    ...unsavedUserSettings.value.board,
-                    isLocked: (e.target as HTMLInputElement).checked,
-                  },
-                };
-              }}
-            />
-          </ModalRow>
-          <ModalRow>
-            <InputLock
-              text="Lock Deck:"
-              tooltip={`Prevent deck size from changing. ${settingsModalConstants.REQUIRES_RESTART}`}
-              onChange$={(e) => {
-                unsavedUserSettings.value = {
-                  ...unsavedUserSettings.value,
-                  deck: {
-                    ...unsavedUserSettings.value.deck,
-                    isLocked: (e.target as HTMLInputElement).checked,
-                  },
-                };
-              }}
-            />
-          </ModalRow>
+          <div class="grid gap-1 p-3">
+            <ModalRow>
+              <InputLock
+                text="Lock Board:"
+                tooltip="Prevent board layout from changing."
+                value={unsavedUserSettings.value.board.isLocked}
+                onChange$={(e) => {
+                  unsavedUserSettings.value = {
+                    ...unsavedUserSettings.value,
+                    board: {
+                      ...unsavedUserSettings.value.board,
+                      isLocked: (e.target as HTMLInputElement).checked,
+                    },
+                  };
+                }}
+              />
+            </ModalRow>
+            <ModalRow>
+              <InputLock
+                text="Lock Deck:"
+                tooltip={`Prevent deck size from changing. ${settingsModalConstants.REQUIRES_RESTART}`}
+                value={unsavedUserSettings.value.deck.isLocked}
+                onChange$={(e) => {
+                  unsavedUserSettings.value = {
+                    ...unsavedUserSettings.value,
+                    deck: {
+                      ...unsavedUserSettings.value.deck,
+                      isLocked: (e.target as HTMLInputElement).checked,
+                    },
+                  };
+                }}
+              />
+            </ModalRow>
 
-          <ModalRow>
-            <InputLock
-              text="Show Selected Card Ids"
-              tooltip="Show unique card ids for currently selected cards"
-              onChange$={(e) => {
-                unsavedUserSettings.value = {
-                  ...unsavedUserSettings.value,
-                  interface: {
-                    ...unsavedUserSettings.value.interface,
-                    showSelectedIds: (e.target as HTMLInputElement).checked,
-                  },
-                };
-              }}
-            />
-          </ModalRow>
-          <ModalRow>
-            <InputLock
-              text="Show Dimensions"
-              tooltip="Show board layout and window dimensions."
-              onChange$={(e) => {
-                unsavedUserSettings.value = {
-                  ...unsavedUserSettings.value,
-                  interface: {
-                    ...unsavedUserSettings.value.interface,
-                    showDimensions: (e.target as HTMLInputElement).checked,
-                  },
-                };
-              }}
-              value={unsavedUserSettings.value.interface.showDimensions}
-            />
-          </ModalRow>
+            <ModalRow>
+              <InputLock
+                text="Show Selected Card Ids"
+                tooltip="Show unique card ids for currently selected cards"
+                value={unsavedUserSettings.value.interface.showSelectedIds}
+                onChange$={(e) => {
+                  unsavedUserSettings.value = {
+                    ...unsavedUserSettings.value,
+                    interface: {
+                      ...unsavedUserSettings.value.interface,
+                      showSelectedIds: (e.target as HTMLInputElement).checked,
+                    },
+                  };
+                }}
+              />
+            </ModalRow>
+            <ModalRow>
+              <InputLock
+                text="Show Dimensions"
+                tooltip="Show board layout and window dimensions."
+                value={unsavedUserSettings.value.interface.showDimensions}
+                onChange$={(e) => {
+                  unsavedUserSettings.value = {
+                    ...unsavedUserSettings.value,
+                    interface: {
+                      ...unsavedUserSettings.value.interface,
+                      showDimensions: (e.target as HTMLInputElement).checked,
+                    },
+                  };
+                }}
+              />
+            </ModalRow>
+          </div>
         </DropdownGrid>
 
         <Help />
@@ -241,11 +247,9 @@ export default component$(
               saveSettings$(unsavedUserSettings);
             }}
           >
-            <span class="text-slate-100">Save & Reset</span>
+            <span class="text-slate-100">Save &amp; Reset</span>
           </Button>
         </div>
-
-
       </div>
     );
   }
@@ -253,17 +257,19 @@ export default component$(
 
 const Help = () => (
   <DropdownGrid buttonText="Help" buttonClasses="w-full">
-    <ul class="grid w-full list-disc gap-2 text-left text-slate-100">
-      <li>Select cards by clicking on them.</li>
-      <li>
-        Cards are matched when the two selected cards have the same number
-        and the color matches (i.e. red with red, black with black).
-      </li>
-      <li>
-        Game time starts when you select your first card, and stops when
-        the last pair of cards disappears.
-      </li>
-    </ul>
+    <div class="w-full p-3">
+      <ul class="grid w-full leading-5 list-disc gap-2 text-left text-slate-100">
+        <li>Select cards by clicking on them.</li>
+        <li>
+          Cards are matched when the two selected cards have the same number
+          and the color matches (i.e. red with red, black with black).
+        </li>
+        <li>
+          Game time starts when you select your first card, and stops when
+          the last pair of cards disappears.
+        </li>
+      </ul>
+    </div>
   </DropdownGrid>
 );
 
