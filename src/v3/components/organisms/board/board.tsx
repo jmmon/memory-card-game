@@ -18,7 +18,7 @@ import { BOARD } from "~/v3/constants/board";
 import { GAME } from "~/v3/constants/game";
 
 import type { Pair } from "~/v3/types/types";
-import type { QwikMouseEvent, Signal } from "@builder.io/qwik";
+import type { Signal } from "@builder.io/qwik";
 
 export default component$(
   ({ containerRef }: { containerRef: Signal<HTMLElement | undefined> }) => {
@@ -45,18 +45,12 @@ export default component$(
       // console.log({ isMatch, card1, card2 });
 
       if (!isMatch) {
-        gameContext.game.mismatchPairs = [
-          ...gameContext.game.mismatchPairs,
-          pair,
-        ];
+        gameContext.game.mismatchPairs.push(pair);
         gameContext.game.mismatchPair = pair;
         gameContext.interface.mismatchAnimation = true;
       } else {
         // add to our pairs
-        gameContext.game.successfulPairs = [
-          ...gameContext.game.successfulPairs,
-          pair,
-        ];
+        gameContext.game.successfulPairs.push(pair);
 
         // TODO:
         // some success animation to indicate a pair,
@@ -68,11 +62,11 @@ export default component$(
       gameContext.game.selectedCardIds = [];
 
       // finally finally, check for end conditions
-      const res = await gameContext.isGameEnded();
-
-      if (res.isEnded) {
-        gameContext.endGame(res.isWin);
-      }
+      gameContext.isGameEnded().then(res => {
+        if (res.isEnded) {
+          gameContext.endGame(res.isWin);
+        }
+      });
     });
 
     const unflipCard = $(async () => {
@@ -151,7 +145,7 @@ export default component$(
       _delay: BOARD.MINIMUM_TIME_BETWEEN_CLICKS,
     });
 
-    const handleClickBoard$ = $((e: QwikMouseEvent) => {
+    const handleClickBoard$ = $((e: MouseEvent) => {
       const isCardFlipped = gameContext.game.flippedCardId !== -1;
       // attempt to get the card id if click is on a card
       // removed cards don't intercept click events, so they're filtered out automatically
