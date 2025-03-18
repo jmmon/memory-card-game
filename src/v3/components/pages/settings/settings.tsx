@@ -19,11 +19,13 @@ export default component$(() => {
     gameContext.hideSettings();
   });
 
-  const resetSettings = $(async (newSettings?: Signal<iUserSettings>) => {
-    await gameContext.resetGame(newSettings ? newSettings.value : undefined);
-    // resync and hide modal after new settings are saved
-    console.log("game reset", gameContext);
-    hideModal$();
+  const saveOrResetSettings = $(async (newSettings?: Signal<iUserSettings>) => {
+    gameContext.resetGame(newSettings ? newSettings.value : undefined)
+      .then(() => {
+        // resync and hide modal after new settings are saved
+        console.log("game reset", gameContext);
+        hideModal$();
+      });
   });
 
   return (
@@ -35,7 +37,7 @@ export default component$(() => {
       <GameSettings
         gameTime={gameContext.timer.state.time}
         startShuffling$={gameContext.startShuffling}
-        saveSettings$={resetSettings}
+        saveSettings$={saveOrResetSettings}
         unsavedUserSettings={unsavedSettings}
         gameSettings={gameContext.gameSettings}
       />
