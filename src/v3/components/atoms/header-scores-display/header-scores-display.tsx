@@ -43,9 +43,8 @@ export default component$(() => {
 
   useStylesScoped$(`
     .success, .mismatch {
-      transition: all ${
-        header.COUNTER_ANIMATE_DURATION * 0.8
-      }ms cubic-bezier(0.2,1.29,0.42,1.075);
+      transition: all ${header.COUNTER_ANIMATE_DURATION * 0.8
+    }ms cubic-bezier(0.2,1.29,0.42,1.075);
     /*   transition: all 0.2s ease-in-out; */
     }
 
@@ -101,9 +100,8 @@ const Score = component$(
   }) => {
     return (
       <div
-        class={`rounded mismatch ${
-          animate ? header.SCORE_ANIMATION_CLASSES : ""
-        } flex gap-2 ${header.CODE_TEXT_DARK}`}
+        class={`rounded mismatch ${animate ? header.SCORE_ANIMATION_CLASSES : ""
+          } flex gap-2 ${header.CODE_TEXT_DARK}`}
       >
         <span class="w-8/12 flex-shrink-0 flex-grow text-right">{label}:</span>
         <span class="w-4/12 flex-shrink-0 flex-grow text-left text-slate-100">

@@ -45,12 +45,18 @@ export default component$(
       // console.log({ isMatch, card1, card2 });
 
       if (!isMatch) {
-        gameContext.game.mismatchPairs.push(pair);
+        gameContext.game.mismatchPairs = [
+          ...gameContext.game.mismatchPairs,
+          pair
+        ];
         gameContext.game.mismatchPair = pair;
         gameContext.interface.mismatchAnimation = true;
       } else {
         // add to our pairs
-        gameContext.game.successfulPairs.push(pair);
+        gameContext.game.successfulPairs = [
+          ...gameContext.game.successfulPairs,
+          pair
+        ];
 
         // TODO:
         // some success animation to indicate a pair,
