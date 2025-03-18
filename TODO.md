@@ -15,3 +15,7 @@
 > - also show Mismatches and Pairs, even if game isn't over yet
 
 - Modal x button: remove border & bg, just have a simple x?
+DONE
+
+- Settings: open with Esc key??
+DONE

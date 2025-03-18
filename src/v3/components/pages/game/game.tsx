@@ -3,6 +3,7 @@ import {
   component$,
   useComputed$,
   useContextProvider,
+  useOnDocument,
   useSignal,
   useStore,
 } from "@builder.io/qwik";
@@ -142,6 +143,16 @@ export default component$(
       }),
     });
 
+    useOnDocument("keydown", $((event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        if (gameContext.interface.settingsModal.isShowing) {
+          gameContext.hideSettings();
+          return;
+        }
+        gameContext.showSettings();
+      }
+    }));
+
     return (
       <>
         {/* SVG card symbols */}
@@ -175,11 +186,9 @@ export default component$(
         {/* </InverseModal> */}
 
         <div
-          class={`flex flex-col flex-grow justify-between w-full h-full p-[${
-            GAME.CONTAINER_PADDING_PERCENT
-          }%] gap-1 ${
-            gameContext.userSettings.board.isLocked ? "overflow-x-auto" : ""
-          }`}
+          class={`flex flex-col flex-grow justify-between w-full h-full p-[${GAME.CONTAINER_PADDING_PERCENT
+            }%] gap-1 ${gameContext.userSettings.board.isLocked ? "overflow-x-auto" : ""
+            }`}
           ref={containerRef}
         >
           <GameHeader
