@@ -26,13 +26,6 @@ export default component$(({
     align-items: center;
     justify-content: center;
   }
-  .popover-panel {
-    background: #1f2937;
-    border-radius: 0.5rem;
-    padding: 0.5rem;
-    color: #c0c8ff;
-    border: 1px solid #e2e8f0;
-  }
   `);
   return (
     <Popover.Root gutter={gutter} key={key} floating={floating}>
@@ -45,7 +38,7 @@ export default component$(({
           }}
         />
       </Popover.Trigger>
-      <Popover.Panel class="popover-panel">
+      <Popover.Panel class="popover-panel text-slate-100 border border-slate-200 rounded p-2 bg-slate-800">
         <Slot />
       </Popover.Panel>
     </Popover.Root>

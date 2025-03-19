@@ -16,7 +16,7 @@ export default component$<{
   return (
     <div class="flex w-full flex-grow items-center gap-[2%] py-1.5">
       <label class="w-4/12 text-left text-slate-100" for={name}>
-        Card Count:
+        Card Count: {props.userSettings.value.deck.size}
       </label>
       <input
         name={name}

@@ -1,4 +1,4 @@
-import { component$, $, useContext, useSignal } from "@builder.io/qwik";
+import { component$, $, useContext, useSignal, useTask$ } from "@builder.io/qwik";
 import { GameContext } from "~/v3/context/gameContext";
 
 import Modal from "~/v3/components/templates/modal/modal";
@@ -8,12 +8,18 @@ import ModalRow from "~/v3/components/atoms/modal-row/modal-row";
 import { GAME } from "~/v3/constants/game";
 import ModalStats from "../../atoms/modal-stats/modal-stats";
 import InfoTooltip from "../../molecules/info-tooltip/info-tooltip";
+import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";
 
 export default component$(() => {
   const gameContext = useContext(GameContext);
 
   // for adjusting deck size before restarting
   const cardCount = useSignal<string>(String(gameContext.userSettings.deck.size));
+
+  useTask$(({ track }) => {
+    track(() => gameContext.userSettings.deck.size);
+    cardCount.value = String(gameContext.userSettings.deck.size);
+  })
 
   const hideModal$ = $(() => {
     gameContext.interface.endOfGameModal.isShowing = false;
@@ -42,13 +48,6 @@ export default component$(() => {
               }`
             }
           />
-          {/* <div class="flex flex-grow justify-between text-slate-100">
-            <span>Pairs:</span>
-            <span>
-              {gameContext.game.successfulPairs.length}/
-              {gameContext.userSettings.deck.size / 2}
-            </span>
-          </div> */}
         </ModalRow>
         <ModalRow>
           <ModalStats
@@ -60,15 +59,6 @@ export default component$(() => {
                 : ""}`
             }
           />
-          {/* <div class="flex flex-grow justify-between text-slate-100">
-            <span>Mismatches:</span>
-            <span>
-              {gameContext.game.mismatchPairs.length}
-              {gameContext.userSettings.maxAllowableMismatches !== -1
-                ? `/${gameContext.userSettings.deck.size / 2} `
-                : ""}
-            </span>
-          </div> */}
         </ModalRow>
         <ModalRow>
           <ModalStats
@@ -76,12 +66,6 @@ export default component$(() => {
           >
             <FormattedTime timeMs={gameContext.timer.state.time} limit={3} />
           </ModalStats>
-          {/* <div class="flex flex-grow justify-between text-slate-100">
-            <span>Time:</span>
-            <span>
-              <FormattedTime timeMs={gameContext.timer.state.time} limit={3} />
-            </span>
-          </div> */}
         </ModalRow>
 
         <ModalRow>
@@ -90,7 +74,7 @@ export default component$(() => {
               class="w-4/12 text-left text-slate-100"
               for="deck-card-count-end-game"
             >
-              Deck Card Count:
+              Card Count: {cardCount}
             </label>
             <input
               name="deck-card-count-end-game"
@@ -103,7 +87,8 @@ export default component$(() => {
               bind:value={cardCount}
             />
             <InfoTooltip>
-              {cardCount.value} - Number of cards in the deck.
+              {cardCount} - Number of cards in the deck.{" "}
+              {settingsModalConstants.REQUIRES_RESTART}
             </InfoTooltip>
           </div>
         </ModalRow>

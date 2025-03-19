@@ -35,7 +35,6 @@ export default component$(() => {
     if (gameContext.interface.settingsModal.isShowing) {
       unsavedSettings.value = gameContext.userSettings;
     }
-    // track(() => gameContext.userSettings);
   });
 
   return (
@@ -46,7 +45,7 @@ export default component$(() => {
     >
       <GameSettings
         gameTime={gameContext.timer.state.time}
-        startShuffling$={gameContext.startShuffling}
+        // startShuffling$={gameContext.startShuffling}
         saveSettings$={saveOrResetSettings}
         unsavedUserSettings={unsavedSettings}
         gameSettings={gameContext.gameSettings}

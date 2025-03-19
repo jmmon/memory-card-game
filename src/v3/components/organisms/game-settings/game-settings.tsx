@@ -52,14 +52,15 @@ export default component$(
           <div
             class={`flex-grow flex flex-col ${settingsModalConstants.COLUMN_GAP}  items-center`}
           >
+
             {gameTime !== 0 && (
               <ModalRow>
-                <div class="tooltip flex w-full items-center justify-between">
+                <div class="flex w-full items-center justify-between">
                   <label class="text-slate-100">Played Time:</label>
                   <FormattedTime timeMs={gameTime} />
-                  <span class="tooltiptext">
+                  <InfoTooltip>
                     Total un-paused play time for this round.
-                  </span>
+                  </InfoTooltip>
                 </div>
               </ModalRow>
             )}
