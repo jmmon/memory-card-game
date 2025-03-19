@@ -1,5 +1,5 @@
 import { component$, useStyles$ } from "@builder.io/qwik";
-import { routeLoader$ } from "@builder.io/qwik-city";
+import { Link, routeLoader$ } from "@builder.io/qwik-city";
 import styles from "./styles.css?inline";
 import crypto from "node:crypto";
 import Game from "~/v3/components/pages/game/game";
@@ -50,8 +50,8 @@ export default component$(() => {
 
   return (
     <div class="flex h-full w-full flex-col items-center overflow-hidden">
-      <h1 class="absolute left-0 top-0 z-[-1] text-sm text-slate-600/80 md:text-lg lg:text-2xl">
-        Memory Card Game
+      <h1 class="absolute left-0 top-0 z-[1] text-sm text-slate-600/80 md:text-lg lg:text-2xl">
+        <Link href="/" class="text-slate-600/80 hover:text-slate-500/80">Memory Card Game</Link>
       </h1>
       {/* <SubmitScoreModal /> */}
       <Game settings={paramsSettings.value} />
