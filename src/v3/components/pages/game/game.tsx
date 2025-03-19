@@ -144,11 +144,15 @@ export default component$(
     });
 
     useOnDocument("keydown", $((event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        if (gameContext.interface.settingsModal.isShowing) {
-          gameContext.hideSettings();
-          return;
-        }
+      if (event.key !== 'Escape') {
+        return;
+      }
+      if (gameContext.interface.endOfGameModal.isShowing) {
+        return;
+      }
+      if (gameContext.interface.settingsModal.isShowing) {
+        gameContext.hideSettings();
+      } else {
         gameContext.showSettings();
       }
     }));
