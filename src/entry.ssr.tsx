@@ -21,11 +21,20 @@ export default function(opts: RenderToStreamOptions) {
   return renderToStream(<Root />, {
     manifest,
     ...opts,
+    // prefetchStrategy: {
+    //   implementation: {
+    //     linkInsert: "html-append"
+    //   },
+    // },
+    // qwikPrefetchServiceWorker: { include: true },
+
     // Use container attributes to set attributes on the html tag.
-    qwikPrefetchServiceWorker: { include: true },
     containerAttributes: {
       lang: "en-us",
       ...opts.containerAttributes,
     },
+    serverData: {
+      ...opts.serverData
+    }
   });
 }
