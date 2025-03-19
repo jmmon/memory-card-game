@@ -7,6 +7,7 @@ import Button from "~/v3/components/atoms/button/button";
 import ModalRow from "~/v3/components/atoms/modal-row/modal-row";
 import { GAME } from "~/v3/constants/game";
 import ModalStats from "../../atoms/modal-stats/modal-stats";
+import InfoTooltip from "../../molecules/info-tooltip/info-tooltip";
 
 export default component$(() => {
   const gameContext = useContext(GameContext);
@@ -70,16 +71,21 @@ export default component$(() => {
           </div> */}
         </ModalRow>
         <ModalRow>
-          <div class="flex flex-grow justify-between text-slate-100">
+          <ModalStats
+            label="Time:"
+          >
+            <FormattedTime timeMs={gameContext.timer.state.time} limit={3} />
+          </ModalStats>
+          {/* <div class="flex flex-grow justify-between text-slate-100">
             <span>Time:</span>
             <span>
               <FormattedTime timeMs={gameContext.timer.state.time} limit={3} />
             </span>
-          </div>
+          </div> */}
         </ModalRow>
 
         <ModalRow>
-          <div class="tooltip flex w-full flex-grow items-center gap-[2%]">
+          <div class="flex w-full flex-grow items-center gap-[2%]">
             <label
               class="w-4/12 text-left text-slate-100"
               for="deck-card-count-end-game"
@@ -96,9 +102,9 @@ export default component$(() => {
               step="2"
               bind:value={cardCount}
             />
-            <span class="tooltiptext">
+            <InfoTooltip>
               {cardCount.value} - Number of cards in the deck.
-            </span>
+            </InfoTooltip>
           </div>
         </ModalRow>
 

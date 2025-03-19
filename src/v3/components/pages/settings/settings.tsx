@@ -31,8 +31,11 @@ export default component$(() => {
   // fixes end-game modal changes not reflecting in settings modal
   // since before, the unsavedSettings was only set on mount
   useTask$(({ track }) => {
-    track(() => gameContext.userSettings);
-    unsavedSettings.value = gameContext.userSettings;
+    track(() => gameContext.interface.settingsModal.isShowing);
+    if (gameContext.interface.settingsModal.isShowing) {
+      unsavedSettings.value = gameContext.userSettings;
+    }
+    // track(() => gameContext.userSettings);
   });
 
   return (
