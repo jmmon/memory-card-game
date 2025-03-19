@@ -29,8 +29,6 @@
 // should hold the id of the currently flipped card (if any)
 //
 
-import type {
-  QwikMouseEvent} from "@builder.io/qwik";
 import {
   $,
   Slot,
@@ -40,7 +38,7 @@ import {
   useSignal,
   useVisibleTask$,
 } from "@builder.io/qwik";
-import type { Card} from "~/old/utils/cardUtils";
+import type { Card } from "~/old/utils/cardUtils";
 import { generateCards, shuffle_FY_algo } from "~/old/utils/cardUtils";
 import { FlippableCard } from "~/old/v2/components/FlippableCard";
 import { MatchModalContext } from "~/old/v2/context/match-modal.context";
@@ -214,7 +212,7 @@ export default component$(() => {
     selectedCards.value = [];
   });
 
-  const handleClick = $((e: QwikMouseEvent) => {
+  const handleClick = $((e: MouseEvent) => {
     // console.log("clicked board:", { event: e, target: e.target });
     const isCardFlipped = flippedCardId.value !== -1;
 
@@ -297,7 +295,7 @@ export default component$(() => {
           )}, 1fr)`,
           gridGap: `${gapPx}px`,
         }}
-        onClick$={(e: QwikMouseEvent) => handleClick(e)}
+        onClick$={(e: MouseEvent) => handleClick(e)}
       >
         {isLoading.value && (
           <div

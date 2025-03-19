@@ -22,7 +22,7 @@ export default component$(
     useVisibleTask$(({ track }) => {
       track(() => isOpen.value);
 
-      containerRef.value?.querySelectorAll('input')?.forEach((input) => {
+      containerRef.value?.querySelectorAll('input').forEach((input) => {
         input.tabIndex = isOpen.value ? 0 : -1;
       });
     });

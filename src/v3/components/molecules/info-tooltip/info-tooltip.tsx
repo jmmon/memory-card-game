@@ -1,6 +1,6 @@
 import { Slot, component$, useStyles$ } from "@builder.io/qwik";
 import { Popover } from "@qwik-ui/headless";
-import { PopoverRootProps } from "@qwik-ui/headless/components/popover/popover-root";
+import type { PopoverRootProps } from "@qwik-ui/headless/components/popover/popover-root";
 import QuestionMark from "~/media/icons/question-mark.svg?jsx";
 
 type InfoTooltipProps = PopoverRootProps & {
