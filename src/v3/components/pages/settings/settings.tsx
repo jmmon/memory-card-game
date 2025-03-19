@@ -1,4 +1,4 @@
-import { $, component$, useContext, useSignal } from "@builder.io/qwik";
+import { $, component$, useContext, useSignal, useTask$ } from "@builder.io/qwik";
 import { GameContext } from "~/v3/context/gameContext";
 
 import Modal from "~/v3/components/templates/modal/modal";
@@ -26,6 +26,13 @@ export default component$(() => {
         console.log("game reset", gameContext);
         hideModal$();
       });
+  });
+
+  // fixes end-game modal changes not reflecting in settings modal
+  // since before, the unsavedSettings was only set on mount
+  useTask$(({ track }) => {
+    track(() => gameContext.userSettings);
+    unsavedSettings.value = gameContext.userSettings;
   });
 
   return (

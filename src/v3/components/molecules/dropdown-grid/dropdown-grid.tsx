@@ -64,7 +64,7 @@ export default component$(
         </Button>
 
         <div
-          class={`dropdown-grid-container transition-all ${isOpen.value ? "is-open" : ""
+          class={`dropdown-grid-container w-full transition-all ${isOpen.value ? "is-open" : ""
             }`}
           style={{
             transitionDuration: transitionTiming + "ms",

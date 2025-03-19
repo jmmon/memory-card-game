@@ -10,6 +10,7 @@ import DropdownGrid from "~/v3/components/molecules/dropdown-grid/dropdown-grid"
 import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";
 import type { PropFunction, Signal } from "@builder.io/qwik";
 import type { iGameSettings, iUserSettings } from "~/v3/types/types";
+import InfoTooltip from "../../molecules/info-tooltip/info-tooltip";
 
 type GameSettingsProps = {
   unsavedUserSettings: Signal<iUserSettings>;
@@ -33,11 +34,14 @@ export default component$(
       <div class={`flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%] ${classes}`}>
         {startShuffling$ !== undefined && (
           <div class="mb-4 flex flex-grow items-center justify-evenly">
-            <div class="tooltip flex items-center justify-center gap-[2%]">
+            <div class="w-full grid grid-cols-[1fr_8em_1fr] items-center justify-center gap-[2%]">
+              <span></span>
               <Button onClick$={startShuffling$}>
                 <span class="text-slate-100">Shuffle Deck</span>
               </Button>
-              <span class="tooltiptext">Shuffle the card positions.</span>
+              <InfoTooltip>
+                Shuffle the card positions.
+              </InfoTooltip>
             </div>
           </div>
         )}
