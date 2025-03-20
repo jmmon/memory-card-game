@@ -1,5 +1,6 @@
 import type { QRL } from "@builder.io/qwik";
 import type { useTimer } from "~/v3/hooks/useTimer";
+import { iSchemas } from "../validation/schemas";
 
 
 export type iObj = { [key: string]: any };
@@ -43,45 +44,9 @@ export enum SelectCardEnum {
 };
 
 // settings user will be able to change
-export type iUserSettings = {
+//
+export type iUserSettings = iSchemas["userSettings"] & {
   [key: string]: any;
-
-  /* ======================================
-   * NOT IMPLEMENTED
-   * fun ideas for challenges
-   * ====================================== */
-
-  maxAllowableMismatches: number;
-  reorgnanizeBoardOnGaps: boolean;
-
-  shuffleBoardAfterPair: boolean;
-  shuffleBoardAfterMismatches: number;
-  shuffleBoardAfterEveryRound: boolean;
-  shufflePickedAfterMismatch: boolean;
-  shuffleBoardOnSelectCard: SelectCardEnum;
-
-  /* ======================================
-   * end NOT IMPLEMENTED
-   * ====================================== */
-
-  deck: {
-    size: number;
-    isLocked: boolean;
-  };
-
-  board: {
-    resize: boolean;
-    isLocked: boolean;
-  };
-
-  interface: {
-    showSelectedIds: boolean;
-    showDimensions: boolean;
-    // TODO: dark mode features
-    brightness: number;
-    // TODO: dark mode features
-    invertCardColors: boolean;
-  };
 };
 
 // settings the user will not change
