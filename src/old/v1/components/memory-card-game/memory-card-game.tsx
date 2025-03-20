@@ -97,7 +97,7 @@ export const Board = component$(() => {
         }}
       >
         {Object.entries(cards.value)
-          .sort(([posA, ], [posB, ]) => Number(posA) - Number(posB))
+          .sort(([posA,], [posB,]) => Number(posA) - Number(posB))
           .map(([position, card]) => (
             <CardUnit key={position} card={card} />
           ))}
@@ -209,9 +209,8 @@ export const CardUnit = component$(({ card }: { card: Card }) => {
   return (
     <>
       <div
-        class={`flex flex-col h-full box-border p-2 cursor-pointer border rounded-xl border-slate-900 bg-slate-800 hover:border-slate-700 hover:bg-white hover:bg-opacity-25 transition-all ${
-          isRemoved.value ? "opacity-0 pointer-events-none" : "opacity-100"
-        } `}
+        class={`flex flex-col h-full box-border p-2 cursor-pointer border rounded-xl border-slate-900 bg-slate-800 hover:border-slate-700 hover:bg-white hover:bg-opacity-25 transition-all ${isRemoved.value ? "opacity-0 pointer-events-none" : "opacity-100"
+          } `}
         style={{
           gridColumn: `${coords.value.x + 1} / ${coords.value.x + 2}`,
           gridRow: `${coords.value.y + 1} / ${coords.value.y + 2}`,
@@ -251,7 +250,7 @@ export const Settings = component$(() => {
 });
 
 export const SettingsRow = component$((props: { e: any }) => {
-console.log({props});
+  console.log({ props });
   return (
     <tr>
       {[].map((each) => (
@@ -264,12 +263,10 @@ console.log({props});
 export const generateCards = (count: number) => {
   const jabber = new Jabber();
   return new Array(count).fill(12).map(
-    (e, i) =>
-      ({
-        id: i.toString(),
-        text: jabber.createParagraph(10 + Math.ceil(8 * Math.random())),
-        position: i,
-        pairId: String(i % 2 == 0 ? i + 1 : i - 1),
-      } as Card)
-  );
+    (_, i) => ({
+      id: i.toString(),
+      text: jabber.createParagraph(10 + Math.ceil(8 * Math.random())),
+      position: i,
+      pairId: String(i % 2 == 0 ? i + 1 : i - 1),
+    } as Card));
 };

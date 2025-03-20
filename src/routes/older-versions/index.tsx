@@ -1,5 +1,6 @@
 import { component$ } from "@builder.io/qwik";
-import { Link } from "@builder.io/qwik-city";
+import { DocumentHead, Link } from "@builder.io/qwik-city";
+import HEAD_CONSTANTS from "~/v3/constants/head";
 
 export default component$(() => {
   return (
@@ -12,12 +13,17 @@ export default component$(() => {
         <h3 class="text-slate-500 mb-2 text-2xl text-center">
           Older versions:
         </h3>
-        <ul class="flex flex-col gap-2">
+        <ul class="flex flex-col gap-3">
           <li class="flex gap-1">
             <div class="w-12 text-right text-slate-400 ">v2.5</div>
-            <Link href="/older-versions/resize">
-              - Better dynamic board resizing
-            </Link>
+            <div class="flex flex-col gap-1">
+              <Link href="/older-versions/resize">
+                - Better dynamic board resizing
+              </Link>
+              <Link href="/older-versions/track">
+                - Track with Qwik tasks
+              </Link>
+            </div>
           </li>
           <li class="flex gap-1">
             <div class="w-12 text-right text-slate-400">v2</div>
@@ -36,3 +42,14 @@ export default component$(() => {
     </div>
   );
 });
+
+export const head: DocumentHead = {
+  title: `Older versions - ${HEAD_CONSTANTS.SITE_NAME} - ${HEAD_CONSTANTS.SITE_HOST}`,
+  meta: [
+    {
+      name: "description",
+      content: "List of prototypes showing some stages as the game was being developed",
+    },
+  ],
+};
+

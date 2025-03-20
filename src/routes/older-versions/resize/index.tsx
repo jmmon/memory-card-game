@@ -1,5 +1,6 @@
 import type {
-  Signal} from "@builder.io/qwik";
+  Signal
+} from "@builder.io/qwik";
 import {
   $,
   type PropFunction,
@@ -10,6 +11,8 @@ import {
   useTask$,
   useVisibleTask$,
 } from "@builder.io/qwik";
+import { DocumentHead } from "@builder.io/qwik-city";
+import HEAD_CONSTANTS from "~/v3/constants/head";
 const INITIAL_CARD_COUNT = 18;
 const CARD_RATIO = 2.25 / 3.5;
 
@@ -155,9 +158,8 @@ export default component$(() => {
 
   return (
     <div
-      class={` w-full max-h-full h-full p-4 grid ${
-        store.boardLayout.isLocked ? "overflow-x-auto" : ""
-      } `}
+      class={` w-full max-h-full h-full p-4 grid ${store.boardLayout.isLocked ? "overflow-x-auto" : ""
+        } `}
       style="grid-template-rows: 12% 88%;"
       ref={containerRef}
     >
@@ -258,9 +260,8 @@ const Settings = component$(
 
       const newVal = val * multiplier;
 
-      containerRef.value.style.gridTemplateRows = `${settings + newVal}% ${
-        board - newVal
-      }%`;
+      containerRef.value.style.gridTemplateRows = `${settings + newVal}% ${board - newVal
+        }%`;
 
       calculateBoard$();
     });
@@ -329,3 +330,13 @@ const Settings = component$(
  *
  *
  * */
+export const head: DocumentHead = {
+  title: `v2.5 - Dynamic Resizing - ${HEAD_CONSTANTS.SITE_NAME} - ${HEAD_CONSTANTS.SITE_HOST}`,
+  meta: [
+    {
+      name: "description",
+      content: "Prototype board v2.5 - dynamic resizing",
+    },
+  ],
+};
+

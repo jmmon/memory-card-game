@@ -1,5 +1,8 @@
 import { $ } from "@builder.io/qwik";
 import { GAME } from "../constants/game";
+import {
+  SelectCardEnum,
+} from "../types/types";
 import type {
   GameData,
   iGameContext,
@@ -26,33 +29,64 @@ export const INITIAL_GAME_STATE: GameData = {
   shufflingState: 0,
 };
 
+
 // user controlled settings
 export const INITIAL_USER_SETTINGS: iUserSettings = {
-  /* ===================
+  /* TODO:======================================
    * NOT IMPLEMENTED
-   * =================== */
-  maxAllowableMismatches: -1,
+   * fun ideas for challenges
+   * ====================================== */
 
-  /* shuffle board after x mismatches
-   *  0 = off
-   *  1+ = every n mismatches
+  /*
+   * TODO: maxAllowableMismatches: number;
+   * @default -1 // no limit
+   * challenge mode
+   * Player loses after x mismatches
+   * - perhaps the square root of the number of cards?
+   *   - e.g. 9 cards gives 3 chances, 3rd mismatch = fail
+   *   - e.g. 16 cards gives 4 chances, 4th mismatch = fail
+   */
+  maxAllowableMismatches: -1,
+  /*
+   * TODO:reorganizeBoardOnGaps: boolean;
+   * @default false
+   * Reorganize board on successful pair (eliminate gaps and resize)
+   */
+  reorgnanizeBoardOnGaps: false,
+
+  /* TODO:
+   * challenge mode
+   * shuffle board after successful pair
+   */
+  shuffleBoardAfterPair: false,
+  /* TODO: 
+   * shuffle board after x mismatches
+   *  0 = off (default)
+   *  1 = shuffle board after every mismatch (really difficult)
+   *  5 = shuffle board after every 5 mismatches (less difficult)
    * */
   shuffleBoardAfterMismatches: 0,
-  /* shuffle board after successful pair */
-  shuffleBoardAfterPair: false,
-  /* shuffle board after success OR mismatch */
-  shuffleBoardAfterRound: false,
-
-  /* shuffle picked cards after placed back down after mismatch */
+  /* TODO:
+   * shuffle board after every round (success OR mismatch)
+   */
+  shuffleBoardAfterEveryRound: false,
+  /* TODO:
+   * shuffle picked cards after placed back down after mismatch 
+   * e.g. possibly swap the two cards to the opposite locations?
+   */
   shufflePickedAfterMismatch: false,
+  /*
+   * TODO:shuffleBoardOnSelectCard: SelectCardEnum
+   * @default OFF
+   *  - ONE = shuffle cards after picking first card
+   *  - TWO = shuffle cards after picking second card
+   *  - BOTH = shuffle cards after picking either card (two shuffles per round!)
+   */
+  shuffleBoardOnSelectCard: SelectCardEnum.OFF,
 
-  /* recalculate board dimensions (eliminate empty spaces) on pair, on mismatch
-   * */
-  reorgnanizeBoardOnPair: false,
-  reorgnanizeBoardOnMismatch: false,
-  /* ===================
+  /* TODO:======================================
    * end NOT IMPLEMENTED
-   * =================== */
+   * ====================================== */
 
   deck: {
     size: GAME.DEFAULT_CARD_COUNT,
@@ -67,6 +101,12 @@ export const INITIAL_USER_SETTINGS: iUserSettings = {
   interface: {
     showSelectedIds: false,
     showDimensions: false,
+    // TODO: dark mode features
+    // slider to dim the cards, e.g. 100%-10% as alternate to invert
+    brightness: 100,
+    // TODO: dark mode features
+    // invert the card colors and hue rotate 180 to fix red
+    invertCardColors: false,
   },
 };
 

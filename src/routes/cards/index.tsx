@@ -2,6 +2,9 @@ import { component$ } from "@builder.io/qwik";
 import PlayingCardComponents from "~/v3/components/playing-card-components";
 import CardSymbols from "~/v3/components/playing-card-components/symbols/card-symbols";
 import FaceCardSymbols from "~/v3/components/playing-card-components/symbols/face-card-symbols";
+import ImageBackFace from "~/media/cards/_backWhite.png?jsx";
+import { DocumentHead } from "@builder.io/qwik-city";
+import HEAD_CONSTANTS from "~/v3/constants/head";
 
 export default component$(() => {
   return (
@@ -18,8 +21,20 @@ export default component$(() => {
             dangerouslySetInnerHTML={card}
           ></div>
         ))}
+
+      <ImageBackFace class="w-[14%] min-w-[250px]" loading="eager" decoding="sync" />
       <CardSymbols />
       <FaceCardSymbols />
     </div>
   );
 });
+
+export const head: DocumentHead = {
+  title: `Cards - ${HEAD_CONSTANTS.SITE_NAME} - ${HEAD_CONSTANTS.SITE_HOST}`,
+  meta: [
+    {
+      name: "description",
+      content: "SVGs and image used for the playing cards",
+    },
+  ],
+};

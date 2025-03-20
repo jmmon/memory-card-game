@@ -159,7 +159,7 @@ export default component$(
 
     return (
       <>
-        {/* SVG card symbols */}
+        {/* SVG card symbols pre-rendered but hidden; so cards can build from these */}
         <CardSymbols />
         <FaceCardSymbols />
 

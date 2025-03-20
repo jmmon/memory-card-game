@@ -6,6 +6,8 @@ import {
   useStylesScoped$,
   useTask$,
 } from "@builder.io/qwik";
+import { DocumentHead } from "@builder.io/qwik-city";
+import HEAD_CONSTANTS from "~/v3/constants/head";
 
 export const CARD_FLIP_ANIMATION_DURATION = 800;
 export const CARD_FLIP_ANIMATION_DURATION_HALF =
@@ -145,11 +147,9 @@ export const FlippableCard = component$(
 
     return (
       <div
-        class={`flip-card ${
-          isFrontShowing.value ? "flipped" : ""
-        } rounded-md transition-all cursor-pointer ${
-          isRemoved.value ? "opacity-0" : "opacity-100"
-        }`}
+        class={`flip-card ${isFrontShowing.value ? "flipped" : ""
+          } rounded-md transition-all cursor-pointer ${isRemoved.value ? "opacity-0" : "opacity-100"
+          }`}
         onClick$={handleToggle$}
       >
         <div class="flip-card-inner rounded-md">
@@ -166,3 +166,13 @@ export const FlippableCard = component$(
     );
   }
 );
+
+export const head: DocumentHead = {
+  title: `v1.5 - ${HEAD_CONSTANTS.SITE_NAME} - ${HEAD_CONSTANTS.SITE_HOST}`,
+  meta: [
+    {
+      name: "description",
+      content: "Prototype v1.5 - Flippable cards animations",
+    },
+  ],
+};

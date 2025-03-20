@@ -5,9 +5,10 @@ import {
   // useVisibleTask$
 } from "@builder.io/qwik";
 import { routeLoader$ } from "@builder.io/qwik-city";
-import type { RequestHandler } from "@builder.io/qwik-city";
+import type { DocumentHead, RequestHandler } from "@builder.io/qwik-city";
 
 import styles from "./styles.css?inline";
+import HEAD_CONSTANTS from "~/v3/constants/head";
 
 export const onGet: RequestHandler = async (requestEvent) => {
   // Control caching for this request for best performance and to reduce hosting costs:
@@ -67,3 +68,15 @@ export default component$(() => {
     </main>
   );
 });
+
+
+export const head: DocumentHead = {
+  title: `${HEAD_CONSTANTS.SITE_NAME} - ${HEAD_CONSTANTS.SITE_HOST}`,
+  meta: [
+    {
+      name: "description",
+      content: "Match pairs of cards by color to win!",
+    },
+  ],
+};
+

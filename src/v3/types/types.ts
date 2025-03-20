@@ -17,13 +17,13 @@ export type Pair = `${number}:${number}`;
 
 export type PlayingCardSvgProps =
   | {
-      color: "red";
-      symbol: "diamonds" | "hearts";
-    }
+    color: "red";
+    symbol: "diamonds" | "hearts";
+  }
   | {
-      color: "black";
-      symbol: "clubs" | "spades";
-    };
+    color: "black";
+    symbol: "clubs" | "spades";
+  };
 
 export type Card = {
   id: number;
@@ -35,19 +35,34 @@ export type Card = {
   localSVG?: string;
 };
 
+export enum SelectCardEnum {
+  OFF,
+  ONE,
+  TWO,
+  BOTH,
+};
+
 // settings user will be able to change
 export type iUserSettings = {
   [key: string]: any;
+
+  /* ======================================
+   * NOT IMPLEMENTED
+   * fun ideas for challenges
+   * ====================================== */
+
   maxAllowableMismatches: number;
+  reorgnanizeBoardOnGaps: boolean;
 
-  shuffleBoardAfterMismatches: number;
   shuffleBoardAfterPair: boolean;
-  shuffleBoardAfterRound: boolean;
-
+  shuffleBoardAfterMismatches: number;
+  shuffleBoardAfterEveryRound: boolean;
   shufflePickedAfterMismatch: boolean;
+  shuffleBoardOnSelectCard: SelectCardEnum;
 
-  reorgnanizeBoardOnPair: boolean;
-  reorgnanizeBoardOnMismatch: boolean;
+  /* ======================================
+   * end NOT IMPLEMENTED
+   * ====================================== */
 
   deck: {
     size: number;
@@ -62,6 +77,10 @@ export type iUserSettings = {
   interface: {
     showSelectedIds: boolean;
     showDimensions: boolean;
+    // TODO: dark mode features
+    brightness: number;
+    // TODO: dark mode features
+    invertCardColors: boolean;
   };
 };
 
@@ -139,9 +158,9 @@ export type iGameContext = {
     () =>
       | { isEnded: false }
       | {
-          isEnded: true;
-          isWin: boolean;
-        }
+        isEnded: true;
+        isWin: boolean;
+      }
   >;
   startShuffling: QRL<(count?: number) => void>;
   stopShuffling: QRL<() => void>;

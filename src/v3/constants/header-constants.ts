@@ -14,3 +14,4 @@ export const header = {
   COUNTER_ANIMATE_DURATION,
   SCORE_ANIMATION_CLASSES,
 }
+

@@ -10,29 +10,8 @@ import { flattenObjectToEntries } from "~/v3/utils/utils";
 
 import type { Signal } from "@builder.io/qwik";
 import type { iUserSettings } from "~/v3/types/types";
-import type { DocumentHead } from "@builder.io/qwik-city";
 
 const LI_CLASSES = "pl-2 md:pl-4";
-
-export default component$(() => {
-  return (
-    <div class="flex h-screen flex-col items-center justify-between ">
-      <div class="grid w-full max-w-[600px] items-center justify-center gap-8 text-slate-200">
-        <h1 class="text-center text-4xl text-slate-500">Memory Card Game</h1>
-        <Instructions />
-
-        <GameStarter />
-      </div>
-
-      <Link
-        href="/older-versions"
-        class="p-2 text-center text-slate-500 underline hover:text-slate-300"
-      >
-        Prototype versions...
-      </Link>
-    </div>
-  );
-});
 
 const pruneDefaultsFromQueryParams = (
   newSettings: iUserSettings,
@@ -44,11 +23,11 @@ const pruneDefaultsFromQueryParams = (
   const result: string[] = [];
 
   for (let i = 0; i < newFlatSettings.length; i++) {
-    const newEntry = newFlatSettings[i];
-    const initialEntry = initialFlatSettings[i];
+    const [newEntryKey, newEntryValue] = newFlatSettings[i];
+    const [initialEntryKey, initialEntryValue] = initialFlatSettings[i];
 
-    if (newEntry[0] === initialEntry[0] && newEntry[1] !== initialEntry[1]) {
-      result.push(`${newEntry[0]}=${newEntry[1]}`);
+    if (newEntryKey === initialEntryKey && newEntryValue !== initialEntryValue) {
+      result.push(`${newEntryKey}=${newEntryValue}`);
     }
   }
 
@@ -143,7 +122,9 @@ export const GameStarter = component$(() => {
   return (
     <>
       <Link
-        href={`/game${compQParamsString.value !== "" ? "/?" + compQParamsString.value : ""
+        href={`/game${compQParamsString.value !== ""
+          ? "/?" + compQParamsString.value
+          : ""
           }`}
         class="mx-auto rounded-lg border-slate-200 bg-slate-800 px-8 py-4 text-4xl text-slate-200 hover:bg-slate-700 hover:text-white"
       >
@@ -162,12 +143,27 @@ export const GameStarter = component$(() => {
   );
 });
 
-export const head: DocumentHead = {
-  title: "Memory Card Game - Joe Moulton dot Dev",
-  meta: [
-    {
-      name: "description",
-      content: "Match pairs of cards by color to win!",
-    },
-  ],
-};
+export default component$(() => {
+  return (
+    <div class="flex h-screen flex-col items-center justify-between ">
+      <div class="grid w-full max-w-[600px] items-center justify-center gap-8 text-slate-200">
+        <h1 class="text-center text-4xl text-slate-500">Memory Card Game</h1>
+        <Instructions />
+
+        <GameStarter />
+      </div>
+
+      <div class="mt-6 flex flex-col items-center">
+        <Link
+          href="/older-versions"
+          class="p-2 text-center text-slate-500 underline hover:text-slate-300"
+        >
+          Prototype versions...
+        </Link>
+        <Link href="/cards" class="p-2 text-center text-slate-500 underline">
+          Cards...
+        </Link>
+      </div>
+    </div>
+  );
+});

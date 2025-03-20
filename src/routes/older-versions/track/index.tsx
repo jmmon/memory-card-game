@@ -1,4 +1,6 @@
 import { component$, useSignal, useVisibleTask$, $ } from "@builder.io/qwik";
+import { DocumentHead } from "@builder.io/qwik-city";
+import HEAD_CONSTANTS from "~/v3/constants/head";
 
 /* 
 * Track Experiments
@@ -14,14 +16,14 @@ export default component$(() => {
    * Track offsetWidth/offsetHeight
    * */
   // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({track}) => {
+  useVisibleTask$(({ track }) => {
     const offsetWidth = track(
       () => (ref.value as HTMLElement).offsetWidth
     );
     console.log("track offsetWidth of ref:", offsetWidth);
   });
   // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({track}) => {
+  useVisibleTask$(({ track }) => {
     const offsetHeight = track(
       () => (ref.value as HTMLElement).offsetHeight
     );
@@ -29,7 +31,7 @@ export default component$(() => {
   });
 
   // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({track}) => {
+  useVisibleTask$(({ track }) => {
     const offsetHeight = track(
       () => (ref.value as HTMLElement).offsetHeight
     );
@@ -41,8 +43,8 @@ export default component$(() => {
 
 
   // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({track}) => {
-    const [ offsetHeight, offsetWidth ] = track(
+  useVisibleTask$(({ track }) => {
+    const [offsetHeight, offsetWidth] = track(
       () => [(ref.value as HTMLElement).offsetHeight, (ref.value as HTMLElement).offsetWidth]
     );
     console.log("COMBO ARRAY: track [offsetWidth, offsetHeight] of ref:", { offsetHeight, offsetWidth });
@@ -54,14 +56,14 @@ export default component$(() => {
    * Track styleWidth/styleHeight
    * */
   // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({track}) => {
+  useVisibleTask$(({ track }) => {
     const styleWidth = track(
       () => (ref.value as HTMLElement).style.width
     );
     console.log("track styleWidth of ref:", styleWidth);
   });
   // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({track}) => {
+  useVisibleTask$(({ track }) => {
     const styleHeight = track(
       () => (ref.value as HTMLElement).style.height
     );
@@ -72,7 +74,7 @@ export default component$(() => {
    * Track ref itself (assume it only changes on server render)
    * */
   // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({track}) => {
+  useVisibleTask$(({ track }) => {
     track(() => ref.value as HTMLElement);
     console.log("track ref itself:", ref.value);
   });
@@ -134,3 +136,13 @@ export default component$(() => {
     </div>
   );
 });
+
+export const head: DocumentHead = {
+  title: `Task testing - ${HEAD_CONSTANTS.SITE_NAME} - ${HEAD_CONSTANTS.SITE_HOST}`,
+  meta: [
+    {
+      name: "description",
+      content: "Prototype game v2.5 - testing Tasks tracking",
+    },
+  ],
+};

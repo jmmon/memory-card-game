@@ -1,4 +1,5 @@
 import { component$ } from "@builder.io/qwik";
+
 /* 
 * Symbols are pre-loaded directly in the html
 * so they can be accessed by our SVGs instantly
@@ -7,7 +8,7 @@ import { component$ } from "@builder.io/qwik";
 export default component$(() => {
   return (
     <>
-      <svg data-usage="card-symbols" style="display: none">
+      <svg data-usage="card-symbols" style="display: none;">
         <defs>
           {/*
             <!-- Symbols S H C D -->
