@@ -4,13 +4,14 @@ import Button from "~/v3/components/atoms/button/button";
 import FormattedTime from "~/v3/components/molecules/formatted-time/formatted-time";
 import ModalRow from "~/v3/components/atoms/modal-row/modal-row";
 import InputLock from "~/v3/components/atoms/input-lock/input-lock";
-import DeckSizeSlider from "~/v3/components/molecules/deck-size-slider/deck-size-slider";
+// import DeckSizeSlider from "~/v3/components/molecules/deck-size-slider/deck-size-slider";
 import DropdownGrid from "~/v3/components/molecules/dropdown-grid/dropdown-grid";
 
 import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";
 import type { PropFunction, Signal } from "@builder.io/qwik";
 import type { iGameSettings, iUserSettings } from "~/v3/types/types";
 import InfoTooltip from "../../molecules/info-tooltip/info-tooltip";
+import DeckSizeChanger from "../../molecules/deck-size-changer/deck-size-changer";
 
 type GameSettingsProps = {
   unsavedUserSettings: Signal<iUserSettings>;
@@ -66,12 +67,19 @@ export default component$(
             )}
 
             <ModalRow>
-              <DeckSizeSlider
+              <DeckSizeChanger
                 userSettings={unsavedUserSettings}
                 gameSettings={gameSettings}
                 isLocked={unsavedUserSettings.value.deck.isLocked}
                 for="game-settings"
               />
+
+              {/* <DeckSizeSlider
+                userSettings={unsavedUserSettings}
+                gameSettings={gameSettings}
+                isLocked={unsavedUserSettings.value.deck.isLocked}
+                for="game-settings"
+              /> */}
             </ModalRow>
           </div>
 
@@ -172,7 +180,7 @@ export default component$(
         </div>
 
         <DropdownGrid buttonClasses="w-full" buttonText="Show Developer Settings">
-          <div class="grid gap-1 p-3">
+          <div class="grid gap-1 p-[min(12px,2.5vw)]">
             <ModalRow>
               <InputLock
                 text="Lock Board:"
@@ -192,7 +200,7 @@ export default component$(
             <ModalRow>
               <InputLock
                 text="Lock Deck:"
-                tooltip={`Prevent deck size from changing. ${settingsModalConstants.REQUIRES_RESTART}`}
+                tooltip={`Prevent deck size from changing.`}
                 value={unsavedUserSettings.value.deck.isLocked}
                 onChange$={(e) => {
                   unsavedUserSettings.value = {

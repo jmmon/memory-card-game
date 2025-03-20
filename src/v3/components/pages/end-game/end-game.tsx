@@ -8,7 +8,6 @@ import ModalRow from "~/v3/components/atoms/modal-row/modal-row";
 import { GAME } from "~/v3/constants/game";
 import ModalStats from "../../atoms/modal-stats/modal-stats";
 import InfoTooltip from "../../molecules/info-tooltip/info-tooltip";
-import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";
 
 export default component$(() => {
   const gameContext = useContext(GameContext);
@@ -87,8 +86,7 @@ export default component$(() => {
               bind:value={cardCount}
             />
             <InfoTooltip>
-              {cardCount} - Number of cards in the deck.{" "}
-              {settingsModalConstants.REQUIRES_RESTART}
+              {cardCount} - Number of cards in the deck.
             </InfoTooltip>
           </div>
         </ModalRow>
