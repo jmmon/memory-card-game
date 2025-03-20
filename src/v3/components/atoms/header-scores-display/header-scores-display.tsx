@@ -35,7 +35,7 @@ export default component$(() => {
   const mismatchAnimation = useComputed$(() => {
     const extraMismatchFeatures =
       gameContext.userSettings.maxAllowableMismatches !== -1 ||
-      gameContext.userSettings.reorgnanizeBoardOnMismatch ||
+      // gameContext.userSettings.shuffleBoardOnSelectCard ||
       gameContext.userSettings.shufflePickedAfterMismatch ||
       gameContext.userSettings.shuffleBoardAfterMismatches > 0;
     return gameContext.interface.mismatchAnimation && extraMismatchFeatures;
