@@ -25,27 +25,34 @@
 
 
 ## hotfixes css:
-- mobile view
-> - Show Selected Card Ids - checkbox on mobile is smaller? word text takes up too much room? so box is forced to shrink
-> - tooltip popovers are overflowing!!!
-> > homescreen settings popover is also overflowing, but rest looks ok
-> > - card count slider - number wraps to next line when >= 20
-> > - homescreen button texts should change: 
-> > > - "Reset Game" => "Reset Settings"
-> > > - "Save & Reset" => "Save Settings" (or make it also start game? "Save & Play")
-> > > > - actually this button isn't even needed, changing the slider and hit play without save will still adopt the changed settings!!
-> > media query so smaller screens will restrict width of popover?
-> > - e.g. wrap text onto two lines
-> - Developer Settings dropdown padding is a bit too much on small screens
-> > make it based on vw?
-> > - on homescreen, padding looks ok...
-> -  test for scrollbars on game settings on shorter small screens?
-> > don't want the settings modal to overflow or buttons to be hidden;
-> > content of modal should be scrollable if it gets too large
-> - card count 18 - each word is on a new line on mobile! slider too wide?
-> > try a select??
-> > or move 18 to somewhere else? below?
-> > or a + and - button to change card count!!
+### mobile:
+- increase settings modal width? that will give it more room for checkboxes and slider etc
+
+- Show Selected Card Ids - checkbox on mobile is smaller? word text takes up too much room? so box is forced to shrink
+
+- tooltip popovers are overflowing!!!
+> homescreen settings popover is also overflowing, but rest looks ok
+> - card count slider - number wraps to next line when >= 20
+> - homescreen button texts should change: 
+> > - "Reset Game" => "Reset Settings"
+> > - "Save & Reset" => "Save Settings" (or make it also start game? "Save & Play")
+> > > - actually this button isn't even needed, changing the slider and hit play without save will still adopt the changed settings!!
+> media query so smaller screens will restrict width of popover?
+> - e.g. wrap text onto two lines
+
+- Developer Settings dropdown padding is a bit too much on small screens
+> make it based on vw?
+> - on homescreen, padding looks ok...
+
+-  test for scrollbars on game settings on shorter small screens?
+> don't want the settings modal to overflow or buttons to be hidden;
+> content of modal should be scrollable if it gets too large
+
+- card count 18 - each word is on a new line on mobile! slider too wide?
+> try a select??
+> or move 18 to somewhere else? below?
+> or a + and - button to change card count!!
+
 - Gap between "Goal:" and "Clear the board to win!" is pretty large, reduce by 25%?
 
 - 1. scroll down on mobile to adjust settings
@@ -55,18 +62,19 @@
   > if I scroll back up in the game, the bars reappear, taking up that space so it looks normal
   > - and can no longer scroll since the size is 100% height
 
-- General:
-- Swap "Show Developer Settings" to below the "Help" dropdown
-- dropdown: remove bottom border, or change it, kinda looks funny
-> - else: darker line maybe? less bright
-- like a inset rounded shadow around the entire dropdown area?
-
-
-## other:
+### other:
 ### mobile:
 - Memory Card Game link flows over the timer
 > - maybe change "Settings" to hamburger? 
 > - Maybe move hamburger to left? move timer to middle?
 > - maybe use left carrot for "Back", with (or replacing) "Memory Card Game" 
 > > I like having "Memory Card Game" showing though
+
+### General:
+- Swap "Show Developer Settings" to below the "Help" dropdown
+- dropdown: remove bottom border, or change it, kinda looks funny
+> - else: darker line maybe? less bright
+- like a inset rounded shadow around the entire dropdown area?
+
+
 

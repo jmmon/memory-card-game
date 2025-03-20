@@ -38,7 +38,7 @@ export default component$(({
           }}
         />
       </Popover.Trigger>
-      <Popover.Panel class="popover-panel text-slate-100 border border-slate-200 rounded p-2 bg-slate-800">
+      <Popover.Panel class="max-w-[60vw] popover-panel text-slate-100 border border-slate-200 rounded p-2 bg-slate-800">
         <Slot />
       </Popover.Panel>
     </Popover.Root>

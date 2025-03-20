@@ -20,16 +20,16 @@ export default component$(
   }) => {
     return (
       <div
-        class={`${classes ?? ""} flex gap-2 items-center justify-between w-full `}
+        class={`${classes ?? ""} flex gap-[min(.75rem,1.75vw)] items-center justify-between w-full`}
       >
         <label
           for={text}
-          class="mr-2 flex w-full cursor-pointer items-center justify-between gap-2 text-left text-slate-100"
+          class="flex w-full cursor-pointer items-center justify-between gap-2 text-left text-slate-100"
         >
           {text}
           <input
             disabled={disabled}
-            class="h-6 w-6 cursor-pointer"
+            class="h-6 w-6 flex-shrink-0 cursor-pointer"
             type="checkbox"
             id={text}
             name={text}
