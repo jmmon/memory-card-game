@@ -12,3 +12,7 @@
 - some shader over the cards front/back to darken them?
 - or inverse them
 - invert works but turns red to green, would be nice to keep red
+
+
+## TODO: lock board / etc
+- after saving game, if board is locked, do not let layout recalculate
