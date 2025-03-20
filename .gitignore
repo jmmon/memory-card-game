@@ -54,3 +54,6 @@ dist.bak
 dist.node
 server.node
 upload.zip
+
+# Cloudflare
+functions/**/*.js

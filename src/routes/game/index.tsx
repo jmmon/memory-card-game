@@ -1,7 +1,7 @@
 import { component$, useStyles$ } from "@builder.io/qwik";
 import { Link, routeLoader$ } from "@builder.io/qwik-city";
 import styles from "./styles.css?inline";
-import crypto from "node:crypto";
+// import crypto from "node:crypto";
 import Game from "~/v3/components/pages/game/game";
 import { INITIAL_USER_SETTINGS } from "~/v3/context/initialState";
 import { unflattenObject } from "~/v3/utils/utils";
@@ -11,9 +11,9 @@ import schemas from "~/v3/validation/schemas";
 import type { iUserSettings } from "~/v3/types/types";
 // import SubmitScoreModal from "~/v3/components/submit-score-modal/submit-score-modal";
 
-export const useDefaultHash = routeLoader$(() =>
-  crypto.randomBytes(20).toString("hex")
-);
+// export const useDefaultHash = routeLoader$(() =>
+//   crypto.randomBytes(20).toString("hex")
+// );
 
 const numberizeValues = (obj: object) =>
   Object.fromEntries(
