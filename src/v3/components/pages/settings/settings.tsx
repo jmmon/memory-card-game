@@ -1,10 +1,10 @@
-import { $, component$, useContext, useSignal } from "@builder.io/qwik";
+import { $, component$, useContext, useSignal, useTask$ } from "@builder.io/qwik";
 import { GameContext } from "~/v3/context/gameContext";
 
 import Modal from "~/v3/components/templates/modal/modal";
 import GameSettings from "~/v3/components/organisms/game-settings/game-settings";
 
-import type { Signal} from "@builder.io/qwik";
+import type { Signal } from "@builder.io/qwik";
 import type { iUserSettings } from "~/v3/types/types";
 
 export default component$(() => {
@@ -19,11 +19,22 @@ export default component$(() => {
     gameContext.hideSettings();
   });
 
-  const resetSettings = $(async (newSettings?: Signal<iUserSettings>) => {
-    await gameContext.resetGame(newSettings ? newSettings.value : undefined);
-    // resync and hide modal after new settings are saved
-    console.log("game reset", gameContext);
-    hideModal$();
+  const saveOrResetSettings = $(async (newSettings?: Signal<iUserSettings>) => {
+    gameContext.resetGame(newSettings ? newSettings.value : undefined)
+      .then(() => {
+        // resync and hide modal after new settings are saved
+        console.log("game reset", gameContext);
+        hideModal$();
+      });
+  });
+
+  // fixes end-game modal changes not reflecting in settings modal
+  // since before, the unsavedSettings was only set on mount
+  useTask$(({ track }) => {
+    track(() => gameContext.interface.settingsModal.isShowing);
+    if (gameContext.interface.settingsModal.isShowing) {
+      unsavedSettings.value = gameContext.userSettings;
+    }
   });
 
   return (
@@ -34,8 +45,8 @@ export default component$(() => {
     >
       <GameSettings
         gameTime={gameContext.timer.state.time}
-        startShuffling$={gameContext.startShuffling}
-        saveSettings$={resetSettings}
+        // startShuffling$={gameContext.startShuffling}
+        saveSettings$={saveOrResetSettings}
         unsavedUserSettings={unsavedSettings}
         gameSettings={gameContext.gameSettings}
       />

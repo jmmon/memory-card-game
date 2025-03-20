@@ -121,14 +121,14 @@ export const INITIAL_STATE = {
     },
   },
 
-  shuffleCardPositions: $(function (this: iGameContext) {
+  shuffleCardPositions: $(function(this: iGameContext) {
     // shuffle and set new positions, save old positions
     const newCards = deckUtils.shuffleCardPositions(this.game.cards);
     // console.log("shuffleCardPositions:", { newCards });
     this.game.cards = newCards;
   }),
 
-  startShuffling: $(function (
+  startShuffling: $(function(
     this: iGameContext,
     count: number = GAME.CARD_SHUFFLE_ROUNDS
   ) {
@@ -138,24 +138,24 @@ export const INITIAL_STATE = {
     this.interface.settingsModal.isShowing = false;
   }),
 
-  stopShuffling: $(function (this: iGameContext) {
+  stopShuffling: $(function(this: iGameContext) {
     this.game.shufflingState = 0;
     this.game.isLoading = false;
   }),
 
-  sliceDeck: $(function (this: iGameContext) {
+  sliceDeck: $(function(this: iGameContext) {
     const deckShuffledByPairs = deckUtils.shuffleDeckAndRefreshIds([
       ...this.gameSettings.deck.fullDeck,
     ]);
     const cards = deckShuffledByPairs.slice(0, this.userSettings.deck.size);
     this.game.cards = cards;
   }),
-  initializeDeck: $(async function (this: iGameContext) {
+  initializeDeck: $(async function(this: iGameContext) {
     await this.sliceDeck();
     this.startShuffling();
   }),
 
-  calculateAndResizeBoard: $(function (
+  calculateAndResizeBoard: $(function(
     this: iGameContext,
     boardRef: HTMLDivElement,
     containerRef: HTMLDivElement
@@ -173,16 +173,16 @@ export const INITIAL_STATE = {
     };
   }),
 
-  showSettings: $(function (this: iGameContext) {
+  showSettings: $(function(this: iGameContext) {
     this.timer.pause();
     this.interface.settingsModal.isShowing = true;
   }),
-  hideSettings: $(function (this: iGameContext) {
+  hideSettings: $(function(this: iGameContext) {
     this.interface.settingsModal.isShowing = false;
     this.timer.resume();
   }),
 
-  isGameEnded: $(function (this: iGameContext) {
+  isGameEnded: $(function(this: iGameContext) {
     // TODO:
     // implement other modes, like max mismatches
     const isEnded =
@@ -196,19 +196,19 @@ export const INITIAL_STATE = {
     return { isEnded, isWin };
   }),
 
-  startGame: $(function (this: iGameContext) {
+  startGame: $(function(this: iGameContext) {
     if (this.timer.state.isStarted) {
       this.timer.reset();
     }
     this.timer.start();
   }),
-  endGame: $(function (this: iGameContext, isWin: boolean) {
+  endGame: $(function(this: iGameContext, isWin: boolean) {
     this.timer.stop();
     this.interface.endOfGameModal.isWin = isWin;
     this.interface.endOfGameModal.isShowing = true;
   }),
 
-  resetGame: $(async function (
+  resetGame: $(async function(
     this: iGameContext,
     settings?: Partial<iUserSettings>
   ) {
@@ -226,11 +226,6 @@ export const INITIAL_STATE = {
     this.game.shufflingState = INITIAL_GAME_STATE.shufflingState;
     this.game.flippedCardId = INITIAL_GAME_STATE.flippedCardId;
     this.game.mismatchPair = INITIAL_GAME_STATE.mismatchPair;
-
-    // this.game.cards = [...INITIAL_GAME_STATE.cards];
-    // this.game.mismatchPairs = [...INITIAL_GAME_STATE.mismatchPairs];
-    // this.game.successfulPairs = [...INITIAL_GAME_STATE.successfulPairs];
-    // this.game.selectedCardIds = [...INITIAL_GAME_STATE.selectedCardIds];
 
     this.game.cards = INITIAL_GAME_STATE.cards;
     this.game.mismatchPairs = INITIAL_GAME_STATE.mismatchPairs;

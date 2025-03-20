@@ -4,6 +4,7 @@ import { GAME } from "~/v3/constants/game";
 
 import type { Signal } from "@builder.io/qwik";
 import type { iGameSettings, iUserSettings } from "~/v3/types/types";
+import InfoTooltip from "../info-tooltip/info-tooltip";
 
 export default component$<{
   userSettings: Signal<iUserSettings>;
@@ -13,9 +14,9 @@ export default component$<{
 }>((props) => {
   const name = `deck-size-slider${props.for ? "-" + props.for : ""}`;
   return (
-    <div class="tooltip flex w-full flex-grow items-center gap-[2%] py-1.5">
+    <div class="flex w-full flex-grow items-center gap-[2%] py-1.5">
       <label class="w-4/12 text-left text-slate-100" for={name}>
-        Card Count:
+        Card Count: {props.userSettings.value.deck.size}
       </label>
       <input
         name={name}
@@ -37,10 +38,10 @@ export default component$<{
         }}
         disabled={props.isLocked}
       />
-      <span class="tooltiptext">
+      <InfoTooltip>
         {props.userSettings.value.deck.size} - Number of cards in the deck.{" "}
         {settingsModalConstants.REQUIRES_RESTART}
-      </span>
+      </InfoTooltip>
     </div>
   );
 });

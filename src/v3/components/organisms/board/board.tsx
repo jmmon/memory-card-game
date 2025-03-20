@@ -124,9 +124,10 @@ export default component$(
       // unflip card if flipped
       if (isCardFlipped.value) {
         unflipCard();
+        return;
       }
       // card is not flipped
-      else if (isClickedOnCard) {
+      if (isClickedOnCard) {
         // initialize game timer on first click
         if (!gameContext.timer.state.isStarted) {
           gameContext.startGame();
@@ -190,6 +191,7 @@ export default component$(
 
     /*
      * niceity: esc will unflip a flipped card
+     * TODO: this plays weird with settings esc key
      * */
     useOnWindow(
       "keydown",
@@ -246,9 +248,8 @@ export default component$(
     const adjustDeckSize = $((newDeckSize: number) => {
       lastDeckSize.value = newDeckSize;
 
-      if (gameContext.userSettings.deck.isLocked) {
-        return;
-      }
+      if (gameContext.userSettings.deck.isLocked) return;
+
       gameContext.resetGame({
         ...gameContext.userSettings,
         deck: {
@@ -257,9 +258,7 @@ export default component$(
         },
       });
 
-      if (gameContext.userSettings.board.isLocked) {
-        return;
-      }
+      if (gameContext.userSettings.board.isLocked) return;
 
       gameContext.calculateAndResizeBoard(
         boardRef.value as HTMLDivElement,

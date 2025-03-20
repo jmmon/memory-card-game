@@ -36,6 +36,9 @@ importers:
       '@builder.io/qwik-city':
         specifier: ^1.12.1
         version: 1.12.1(acorn@8.14.1)(typescript@5.4.5)(vite@5.4.14)
+      '@qwik-ui/headless':
+        specifier: ^0.6.5
+        version: 0.6.5(@builder.io/qwik@1.12.1)
       '@types/compression':
         specifier: ^1.7.2
         version: 1.7.5
@@ -611,6 +614,23 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
+  /@floating-ui/core@1.6.9:
+    resolution: {integrity: sha512-uMXCuQ3BItDUbAMhIXw7UPXRfAlOAvZzdK9BWpE60MCn+Svt3aLn9jsPTi/WNGlRUu2uI0v5S7JiIUsbsvh3fw==}
+    dependencies:
+      '@floating-ui/utils': 0.2.9
+    dev: true
+
+  /@floating-ui/dom@1.6.13:
+    resolution: {integrity: sha512-umqzocjDgNRGTuO7Q8CU32dkHkECqI8ZdMZ5Swb6QAM0t5rnlrN3lGo1hdpscRd3WS8T6DKYK4ephgIH9iRh3w==}
+    dependencies:
+      '@floating-ui/core': 1.6.9
+      '@floating-ui/utils': 0.2.9
+    dev: true
+
+  /@floating-ui/utils@0.2.9:
+    resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
+    dev: true
+
   /@humanwhocodes/config-array@0.13.0:
     resolution: {integrity: sha512-DZLEEqFWQFiyK6h5YIeynKx7JlvCYWL0cImfSRXZ9l4Sg2efkFGTuFf6vzXjK1cq6IYkU+Eg/JizXw+TD2vRNw==}
     engines: {node: '>=10.10.0'}
@@ -908,6 +928,10 @@ packages:
       fastq: 1.19.1
     dev: true
 
+  /@oddbird/popover-polyfill@0.4.3:
+    resolution: {integrity: sha512-kBS0ZAwH8kZqFl0mV89KPK4cLYl2ZoKSfYngK4dz1eLAhKzTK0yu4LrvLdMeM7JhjWK6GxBtiY+cl1s6vR2pUg==}
+    dev: true
+
   /@pkgjs/parseargs@0.11.0:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
@@ -975,6 +999,20 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: false
+
+  /@qwik-ui/headless@0.6.5(@builder.io/qwik@1.12.1):
+    resolution: {integrity: sha512-351Ge7Z6ljGrGBUMbjBF3mII5UiqlpeRrxWNvp/XLfH7LNh/5caRPk2mLtcq5m2YfQHD2JN485iRUBal3rZntQ==}
+    engines: {node: '>=16.0.0'}
+    peerDependencies:
+      '@builder.io/qwik': '>=1.3.1'
+    dependencies:
+      '@builder.io/qwik': 1.12.1(vite@5.4.14)
+      '@floating-ui/core': 1.6.9
+      '@floating-ui/dom': 1.6.13
+      '@oddbird/popover-polyfill': 0.4.3
+      body-scroll-lock-upgrade: 1.1.0
+      focus-trap: 7.5.4
+    dev: true
 
   /@rollup/pluginutils@5.1.4:
     resolution: {integrity: sha512-USm05zrsFxYLPdWWq+K3STlWiT/3ELn3RcV5hJMghpeAIhxfsUIg6mt12CBJBInWMV4VneoV7SfGv8xIwo2qNQ==}
@@ -1736,6 +1774,10 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: false
+
+  /body-scroll-lock-upgrade@1.1.0:
+    resolution: {integrity: sha512-nnfVAS+tB7CS9RaksuHVTpgHWHF7fE/ptIBJnwZrMqImIvWJF1OGcLnMpBhC6qhkx9oelvyxmWXwmIJXCV98Sw==}
+    dev: true
 
   /boolbase@1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
@@ -3046,6 +3088,12 @@ packages:
 
   /flatted@3.3.3:
     resolution: {integrity: sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==}
+    dev: true
+
+  /focus-trap@7.5.4:
+    resolution: {integrity: sha512-N7kHdlgsO/v+iD/dMoJKtsSqs5Dz/dXZVebRgJw23LDk+jMi/974zyiOYDziY2JPp8xivq9BmUGwIJMiuSBi7w==}
+    dependencies:
+      tabbable: 6.2.0
     dev: true
 
   /follow-redirects@1.15.9(debug@4.3.7):
@@ -5742,6 +5790,10 @@ packages:
     requiresBuild: true
     dev: false
     optional: true
+
+  /tabbable@6.2.0:
+    resolution: {integrity: sha512-Cat63mxsVJlzYvN51JmVXIgNoUokrIaT2zLclCXjRd8boZ0004U4KCs/sToJ75C6sdlByWxpYnb5Boif1VSFew==}
+    dev: true
 
   /tailwindcss@3.3.3:
     resolution: {integrity: sha512-A0KgSkef7eE4Mf+nKJ83i75TMyq8HqY3qmFIJSWy8bNt0v1lG7jUcpGpoTFxAwYcWOphcTBLPPJg+bDfhDf52w==}

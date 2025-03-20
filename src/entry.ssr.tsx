@@ -17,14 +17,24 @@ import {
 import { manifest } from "@qwik-client-manifest";
 import Root from "./root";
 
-export default function (opts: RenderToStreamOptions) {
+export default function(opts: RenderToStreamOptions) {
   return renderToStream(<Root />, {
     manifest,
     ...opts,
+    // prefetchStrategy: {
+    //   implementation: {
+    //     linkInsert: "html-append"
+    //   },
+    // },
+    // qwikPrefetchServiceWorker: { include: true },
+
     // Use container attributes to set attributes on the html tag.
     containerAttributes: {
       lang: "en-us",
       ...opts.containerAttributes,
     },
+    serverData: {
+      ...opts.serverData
+    }
   });
 }

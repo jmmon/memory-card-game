@@ -7,6 +7,7 @@ import {
 import { RouterHead } from "./components/router-head/router-head";
 
 import "./global.css";
+import { ModulePreload } from "./components/module-preload/module-preload";
 
 export default component$(() => {
   /**
@@ -26,6 +27,7 @@ export default component$(() => {
       </head>
       <body lang="en" class=" overflow-y-hidden">
         <RouterOutlet />
+        <ModulePreload />
       </body>
     </QwikCityProvider>
   );
