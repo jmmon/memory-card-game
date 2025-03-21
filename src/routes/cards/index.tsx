@@ -3,7 +3,7 @@ import PlayingCardComponents from "~/v3/components/playing-card-components";
 import CardSymbols from "~/v3/components/playing-card-components/symbols/card-symbols";
 import FaceCardSymbols from "~/v3/components/playing-card-components/symbols/face-card-symbols";
 import ImageBackFace from "~/media/cards/_backWhite.png?jsx";
-import { DocumentHead } from "@builder.io/qwik-city";
+import type { DocumentHead } from "@builder.io/qwik-city";
 import HEAD_CONSTANTS from "~/v3/constants/head";
 
 export default component$(() => {
