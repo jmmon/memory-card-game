@@ -1,6 +1,6 @@
 import type { QRL } from "@builder.io/qwik";
 import type { useTimer } from "~/v3/hooks/useTimer";
-import { iSchemas } from "../validation/schemas";
+import type { iSchemas } from "../validation/schemas";
 
 
 export type iObj = { [key: string]: any };
@@ -41,7 +41,7 @@ export enum SelectCardEnum {
   ONE,
   TWO,
   BOTH,
-};
+}
 
 // settings user will be able to change
 //

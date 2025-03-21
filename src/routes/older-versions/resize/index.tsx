@@ -11,7 +11,7 @@ import {
   useTask$,
   useVisibleTask$,
 } from "@builder.io/qwik";
-import { DocumentHead } from "@builder.io/qwik-city";
+import type { DocumentHead } from "@builder.io/qwik-city";
 import HEAD_CONSTANTS from "~/v3/constants/head";
 const INITIAL_CARD_COUNT = 18;
 const CARD_RATIO = 2.25 / 3.5;

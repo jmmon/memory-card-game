@@ -6,7 +6,7 @@ import {
   useOnDocument,
   useStore,
 } from "@builder.io/qwik";
-import { DocumentHead } from "@builder.io/qwik-city";
+import type { DocumentHead } from "@builder.io/qwik-city";
 import MatchModal from "~/old/v2/components/match-modal/match-modal";
 import { MatchModalContext } from "~/old/v2/context/match-modal.context";
 import HEAD_CONSTANTS from "~/v3/constants/head";

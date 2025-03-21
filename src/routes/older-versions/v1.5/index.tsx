@@ -6,7 +6,7 @@ import {
   useStylesScoped$,
   useTask$,
 } from "@builder.io/qwik";
-import { DocumentHead } from "@builder.io/qwik-city";
+import type { DocumentHead } from "@builder.io/qwik-city";
 import HEAD_CONSTANTS from "~/v3/constants/head";
 
 export const CARD_FLIP_ANIMATION_DURATION = 800;
