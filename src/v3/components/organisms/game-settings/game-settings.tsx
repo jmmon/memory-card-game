@@ -4,7 +4,6 @@ import Button from "~/v3/components/atoms/button/button";
 import FormattedTime from "~/v3/components/molecules/formatted-time/formatted-time";
 import ModalRow from "~/v3/components/atoms/modal-row/modal-row";
 import InputLock from "~/v3/components/atoms/input-lock/input-lock";
-// import DeckSizeSlider from "~/v3/components/molecules/deck-size-slider/deck-size-slider";
 import DropdownGrid from "~/v3/components/molecules/dropdown-grid/dropdown-grid";
 
 import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";
@@ -73,13 +72,6 @@ export default component$(
                 isLocked={unsavedUserSettings.value.deck.isLocked}
                 for="game-settings"
               />
-
-              {/* <DeckSizeSlider
-                userSettings={unsavedUserSettings}
-                gameSettings={gameSettings}
-                isLocked={unsavedUserSettings.value.deck.isLocked}
-                for="game-settings"
-              /> */}
             </ModalRow>
           </div>
 
@@ -179,6 +171,8 @@ export default component$(
           {/* </div> */}
         </div>
 
+        <Help />
+
         <DropdownGrid buttonClasses="w-full" buttonText="Show Developer Settings">
           <div class="grid gap-1 p-[min(12px,2.5vw)]">
             <ModalRow>
@@ -248,8 +242,6 @@ export default component$(
             </ModalRow>
           </div>
         </DropdownGrid>
-
-        <Help />
 
         <div class="mt-5 flex flex-grow items-center justify-around">
           <Button onClick$={saveSettings$}>

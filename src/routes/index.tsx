@@ -59,8 +59,8 @@ const Instructions = () => {
   const actionString = "Tap/Click";
   return (
     <>
-      <h3 class="text-center">Goal:</h3>
-      <p class="text-center text-3xl">Clear the board to win!</p>
+      <h3 class="text-center text-2xl text-slate-300">Goal:</h3>
+      <p class="text-center text-3xl mt-[-2rem]">Clear the board to win!</p>
 
       <ul class="mx-auto border-box text-md grid w-full max-w-[60ch] list-disc gap-4 px-6 marker:text-slate-400 md:text-lg">
         <li class={LI_CLASSES}>
@@ -147,7 +147,9 @@ export default component$(() => {
   return (
     <div class="flex h-screen flex-col items-center justify-between ">
       <div class="grid w-full max-w-[600px] items-center justify-center gap-8 text-slate-200">
-        <h1 class="text-center text-4xl text-slate-500">Memory Card Game</h1>
+        <h1 class="text-center text-4xl text-slate-500">
+          Memory Card Game
+        </h1>
         <Instructions />
 
         <GameStarter />
