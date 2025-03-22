@@ -7,9 +7,9 @@ import InputLock from "~/v3/components/atoms/input-lock/input-lock";
 import DropdownGrid from "~/v3/components/molecules/dropdown-grid/dropdown-grid";
 
 import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";
-import type { PropFunction, Signal } from "@builder.io/qwik";
 import type { iGameSettings, iUserSettings } from "~/v3/types/types";
-import InfoTooltip from "../../molecules/info-tooltip/info-tooltip";
+import type { ClassList, PropFunction, Signal } from "@builder.io/qwik";
+import InfoTooltip from "../info-tooltip/info-tooltip";
 import DeckSizeChanger from "../../molecules/deck-size-changer/deck-size-changer";
 
 type GameSettingsProps = {
@@ -18,7 +18,7 @@ type GameSettingsProps = {
   startShuffling$?: PropFunction<() => void>;
   gameTime: number;
   gameSettings: iGameSettings;
-  classes?: string;
+  classes?: ClassList;
 };
 
 export default component$(
@@ -68,7 +68,6 @@ export default component$(
             <ModalRow>
               <DeckSizeChanger
                 userSettings={unsavedUserSettings}
-                gameSettings={gameSettings}
                 isLocked={unsavedUserSettings.value.deck.isLocked}
                 for="game-settings"
               />
@@ -173,12 +172,16 @@ export default component$(
 
         <Help />
 
-        <DropdownGrid buttonClasses="w-full" buttonText="Show Developer Settings">
+        <DropdownGrid
+          buttonClasses="underline text-slate-400 hover:text-slate-50 focus:text-slate-50 bg-transparent hover:bg-transparent focus:bg-transparent"
+          buttonClassesWhileOpen="text-slate-50"
+          buttonText="Show Developer Settings"
+          clearFocusOnClose={true}
+        >
           <div class="grid gap-1 p-[min(12px,2.5vw)]">
             <ModalRow>
               <InputLock
                 text="Lock Board:"
-                tooltip="Prevent board layout from changing."
                 value={unsavedUserSettings.value.board.isLocked}
                 onChange$={(e) => {
                   unsavedUserSettings.value = {
@@ -189,12 +192,15 @@ export default component$(
                     },
                   };
                 }}
-              />
+              >
+                <InfoTooltip>
+                  Prevent board layout from changing.
+                </InfoTooltip>
+              </InputLock>
             </ModalRow>
             <ModalRow>
               <InputLock
                 text="Lock Deck:"
-                tooltip={`Prevent deck size from changing.`}
                 value={unsavedUserSettings.value.deck.isLocked}
                 onChange$={(e) => {
                   unsavedUserSettings.value = {
@@ -205,13 +211,16 @@ export default component$(
                     },
                   };
                 }}
-              />
+              >
+                <InfoTooltip>
+                  Prevent deck size from changing.
+                </InfoTooltip>
+              </InputLock>
             </ModalRow>
 
             <ModalRow>
               <InputLock
                 text="Show Selected Card Ids"
-                tooltip="Show unique card ids for currently selected cards"
                 value={unsavedUserSettings.value.interface.showSelectedIds}
                 onChange$={(e) => {
                   unsavedUserSettings.value = {
@@ -222,12 +231,15 @@ export default component$(
                     },
                   };
                 }}
-              />
+              >
+                <InfoTooltip>
+                  Show unique card IDs for <div class="mt-1">currently selected cards</div>
+                </InfoTooltip>
+              </InputLock>
             </ModalRow>
             <ModalRow>
               <InputLock
                 text="Show Dimensions"
-                tooltip="Show board layout and window dimensions."
                 value={unsavedUserSettings.value.interface.showDimensions}
                 onChange$={(e) => {
                   unsavedUserSettings.value = {
@@ -238,7 +250,11 @@ export default component$(
                     },
                   };
                 }}
-              />
+              >
+                <InfoTooltip>
+                  Show board layout and <div class="mt-1">window dimensions.</div>
+                </InfoTooltip>
+              </InputLock>
             </ModalRow>
           </div>
         </DropdownGrid>
