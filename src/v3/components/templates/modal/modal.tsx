@@ -2,17 +2,27 @@ import { component$, $, Slot } from "@builder.io/qwik";
 
 import ModalHeader from "~/v3/components/molecules/modal-header/modal-header";
 
-import type { PropFunction } from "@builder.io/qwik";
+import type { ClassList, PropFunction } from "@builder.io/qwik";
 
 const DURATION = "duration-[300ms]";
 // const IS_SHOWING_DELAY = 50;
-const DEFAULT_CONTAINER_BG = "bg-slate-600";
+const DEFAULT_CONTAINER_BG: ClassList = "bg-slate-600";
 
 type ModalOptions = { detectClickOutside: boolean };
 
-const DEFAULT_OPTIONS = { detectClickOutside: true };
+const DEFAULT_OPTIONS: Partial<ModalOptions> = { detectClickOutside: true };
 
-export default component$(
+type ModalProps = {
+  isShowing: boolean;
+  hideModal$: PropFunction<() => void>;
+  containerClasses?: string;
+  bgClasses?: string;
+  bgStyles?: any;
+  title: string;
+  options?: Partial<ModalOptions>;
+};
+
+export default component$<ModalProps>(
   ({
     isShowing,
     hideModal$,
@@ -21,14 +31,6 @@ export default component$(
     title,
     bgStyles,
     options = DEFAULT_OPTIONS,
-  }: {
-    isShowing: boolean;
-    hideModal$: PropFunction<() => void>;
-    containerClasses?: string;
-    bgClasses?: string;
-    bgStyles?: any;
-    title: string;
-    options?: Partial<ModalOptions>;
   }) => {
     containerClasses = DEFAULT_CONTAINER_BG + " " + containerClasses;
 

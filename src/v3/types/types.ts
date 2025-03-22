@@ -2,7 +2,6 @@ import type { QRL } from "@builder.io/qwik";
 import type { useTimer } from "~/v3/hooks/useTimer";
 import type { iSchemas } from "../validation/schemas";
 
-
 export type iObj = { [key: string]: any };
 export type iObjEntries = { [key: string]: any };
 
@@ -18,13 +17,13 @@ export type Pair = `${number}:${number}`;
 
 export type PlayingCardSvgProps =
   | {
-    color: "red";
-    symbol: "diamonds" | "hearts";
-  }
+      color: "red";
+      symbol: "diamonds" | "hearts";
+    }
   | {
-    color: "black";
-    symbol: "clubs" | "spades";
-  };
+      color: "black";
+      symbol: "clubs" | "spades";
+    };
 
 export type Card = {
   id: number;
@@ -44,10 +43,7 @@ export enum SelectCardEnum {
 }
 
 // settings user will be able to change
-//
-export type iUserSettings = iSchemas["userSettings"] & {
-  [key: string]: any;
-};
+export type iUserSettings = iSchemas["userSettings"];
 
 // settings the user will not change
 export type iGameSettings = {
@@ -123,9 +119,9 @@ export type iGameContext = {
     () =>
       | { isEnded: false }
       | {
-        isEnded: true;
-        isWin: boolean;
-      }
+          isEnded: true;
+          isWin: boolean;
+        }
   >;
   startShuffling: QRL<(count?: number) => void>;
   stopShuffling: QRL<() => void>;

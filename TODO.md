@@ -1,24 +1,7 @@
-## URGENT: game-settings is using context but is rendered inside home page
-- homepage doesn't set up context!
-- homepage should be able to get the settings and then pass in to the game via params
-- perhaps conditional rendering for gamecontext:
-> 1. check in game-settings for the location, if '/' then don't render any context
-> 2. isHomePage or something like that to hide all context items
-> > - need to make sure children don't use context
-
-
-## End game modal: card changer instead of card slider
-
-## selected card glow: try green? need something more pronounced
-
 ## revisit "inverse modal"?
 ### and/or game homepage flip up/forward to reveal game
-
-
-
-## TODO: also show Mismatches and Pairs, even if game isn't over yet
-> - e.g. if game has started, show the stats
-> - having trouble with context for some reason...
+> this could be used to pre-render the game, reducing loading times for game?
+> - e.g. game is loaded on homepage, while user is reading content or clicking Play
 
 
 ## TODO: add dark mode? (darker mode)
@@ -27,20 +10,16 @@
 > - invert toggle (to invert and hue shift 180* to fix red)
 
 
-## TODO: lock board / etc
-- after saving game, if board is locked, do not let layout recalculate
-- seems like after saving, it triggers a recalculation
-
 ## TODO: challenge modes
 - implement the challenge modes in the game context!
 
 ## [Soon(TM)] TODO: finish scores!!!
-- cloudflare D1 sql server
+- cloudflare D1 sql server with drizzle to save scores
 
 
 ## hotfixes css:
 ### mobile:
-#### gameplay: LOW PRIORITY
+#### gameplay: [low priority]
 1. scroll down on mobile to adjust settings
 > the top and bottom browser bar hide, making the content show on fullscreen
 2. select 10 cards, hit play
@@ -48,7 +27,7 @@
 > if I scroll back up in the game, the bars reappear, taking up that space so it looks normal
 > - and can no longer scroll since the size is 100% height
 
-##### low priority
+##### [low priority]
 - Memory Card Game link flows over the timer
 > - maybe change "Settings" to hamburger? 
 > - Maybe move hamburger to left? move timer to middle?
@@ -56,7 +35,19 @@
 > > I like having "Memory Card Game" showing though
 
 
-## low priority: developer settings:
+## developer settings: [low priority]
 - Cancel button inside dropdown
 > - to reset checkbox states to previous settings
+
+## TODO: lock board / etc [low priority]
+- after saving game, if board is locked, do not let layout recalculate
+- seems like after saving, it triggers a recalculation
+
+
+## TODO: investigate perf improvements [low priority]
+- see if I can change around loading of functions
+> - e.g. maybe load dummy cards first while shuffling then load in actual cards later
+> - e.g. preload game during homepage? in background
+> > - like render the game on home as well, and home will simply be an overlay
+> > > - this would let game load on startup, would need to delay shuffling though
 
