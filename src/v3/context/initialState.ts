@@ -142,7 +142,7 @@ export const INITIAL_STATE = {
 
   gameSettings: INITIAL_GAME_SETTINGS,
 
-  interface: {
+  interfaceSettings: {
     isScrollable: false,
     successAnimation: false,
     mismatchAnimation: false,
