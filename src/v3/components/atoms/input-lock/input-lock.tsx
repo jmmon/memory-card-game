@@ -1,20 +1,17 @@
-import { component$ } from "@builder.io/qwik";
+import { Slot, component$ } from "@builder.io/qwik";
 import type { PropFunction } from "@builder.io/qwik";
-import InfoTooltip from "../../molecules/info-tooltip/info-tooltip";
 
 export default component$(
   ({
     text,
     onChange$,
     classes,
-    tooltip,
     disabled = false,
     value,
   }: {
     text: string;
     onChange$: PropFunction<(e: Event) => void>;
     classes?: string;
-    tooltip?: string;
     disabled?: boolean;
     value?: boolean;
   }) => {
@@ -38,11 +35,7 @@ export default component$(
           />
         </label>
 
-        {tooltip &&
-          <InfoTooltip>
-            {tooltip}
-          </InfoTooltip>
-        }
+        <Slot />
       </div>
     );
   }
