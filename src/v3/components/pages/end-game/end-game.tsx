@@ -7,7 +7,7 @@ import Button from "~/v3/components/atoms/button/button";
 import ModalRow from "~/v3/components/atoms/modal-row/modal-row";
 import { GAME } from "~/v3/constants/game";
 import ModalStats from "../../atoms/modal-stats/modal-stats";
-import InfoTooltip from "../../molecules/info-tooltip/info-tooltip";
+import InfoTooltip from "../../organisms/info-tooltip/info-tooltip";
 
 export default component$(() => {
   const gameContext = useContext(GameContext);
