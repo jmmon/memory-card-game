@@ -3,7 +3,7 @@ import { GAME } from "~/v3/constants/game";
 
 export const calculateBoardDimensions = (
   container: HTMLElement,
-  board: HTMLElement
+  board: HTMLElement,
 ) => {
   // const container = containerRef.value as HTMLElement; // or use window instead of container/game?
   // const board = boardRef.value as HTMLElement;
@@ -26,7 +26,7 @@ export const calculateBoardDimensions = (
 export const calculateLayouts = (
   width: number,
   height: number,
-  deckSize: number
+  deckSize: number,
 ) => {
   const boardWidth = width || 0;
   const boardHeight = height || 0;
@@ -77,3 +77,9 @@ export const calculateLayouts = (
 
   return { cardLayout, boardLayout };
 };
+
+const boardUtils = {
+  calculateBoardDimensions,
+  calculateLayouts,
+};
+export default boardUtils;

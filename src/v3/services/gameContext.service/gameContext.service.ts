@@ -5,20 +5,17 @@ import {
   useContextProvider,
   useStore,
 } from "@builder.io/qwik";
-import INITIAL_STATE from "./initialState";
 import { useTimer } from "~/v3/hooks/useTimer";
-import {
+import deckUtils from "~/v3/utils/deckUtils";
+import boardUtils from "~/v3/utils/boardUtils";
+import INITIAL_STATE from "./initialState";
+import { GAME } from "~/v3/constants/game";
+import type {
   iTimer,
   iGameHandlers,
   iGameState,
   iUserSettings,
 } from "~/v3/types/types";
-import { GAME } from "~/v3/constants/game";
-import deckUtils from "~/v3/utils/deckUtils";
-import {
-  calculateBoardDimensions,
-  calculateLayouts,
-} from "~/v3/utils/boardUtils";
 
 export type GameService = ReturnType<typeof useGameContextProvider>;
 const GameContext = createContextId<GameService>("gameContext2");
@@ -73,8 +70,11 @@ export const useGameContextProvider = () => {
       boardRef: HTMLDivElement,
       containerRef: HTMLDivElement,
     ) {
-      const newBoard = calculateBoardDimensions(containerRef, boardRef);
-      const { cardLayout, boardLayout } = calculateLayouts(
+      const newBoard = boardUtils.calculateBoardDimensions(
+        containerRef,
+        boardRef,
+      );
+      const { cardLayout, boardLayout } = boardUtils.calculateLayouts(
         newBoard.width,
         newBoard.height,
         state.userSettings.deck.size,
