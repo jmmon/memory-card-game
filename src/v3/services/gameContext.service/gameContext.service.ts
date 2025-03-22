@@ -19,14 +19,20 @@ import type {
 
 export type GameService = ReturnType<typeof useGameContextProvider>;
 const GameContext = createContextId<GameService>("gameContext2");
-
 export type iGameStateWithTimer = iGameState & { timer: iTimer };
 
-export const useGameContextProvider = () => {
+export const useGameContextProvider = ({
+  userSettings,
+}: {
+  userSettings: iUserSettings;
+}) => {
   // state
   const timer = useTimer();
   const state = useStore<iGameStateWithTimer>({
     ...INITIAL_STATE,
+    userSettings: {
+      ...userSettings,
+    },
     timer,
   });
 
