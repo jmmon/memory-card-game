@@ -2,8 +2,8 @@ import { $, component$ } from "@builder.io/qwik";
 import { GAME } from "~/v3/constants/game";
 
 import type { ClassList, Signal } from "@builder.io/qwik";
-import type { iGameSettings, iUserSettings } from "~/v3/types/types";
-import InfoTooltip from "../info-tooltip/info-tooltip";
+import type { iUserSettings } from "~/v3/types/types";
+import InfoTooltip from "../../organisms/info-tooltip/info-tooltip";
 
 const BUTTON_STYLES: ClassList = "p-0 w-6 h-6 bg-slate-700 border-slate-500 text-2xl rounded border flex justify-center items-center disabled:bg-slate-800 disabled:border-slate-500 disabled:text-slate-300";
 
@@ -11,7 +11,6 @@ export default component$<{
   userSettings: Signal<iUserSettings>;
   isLocked?: boolean;
   for?: string;
-  gameSettings: iGameSettings;
 }>((props) => {
   const name = `deck-size-changer${props.for ? `-${props.for}` : ""}`;
 
@@ -56,7 +55,11 @@ export default component$<{
         </button>
       </div>
       <InfoTooltip>
-        Number of cards in the deck. Range: {GAME.MIN_CARD_COUNT} to {GAME.MAX_CARD_COUNT}
+        Number of cards in the deck.
+        <br />
+        <div class="mt-1 text-slate-300">
+          (Range: <strong>{GAME.MIN_CARD_COUNT}</strong> to <strong>{GAME.MAX_CARD_COUNT}</strong>)
+        </div>
       </InfoTooltip>
     </div>
   );
