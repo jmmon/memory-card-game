@@ -1,4 +1,10 @@
-import { $, component$, useContext, useSignal, useTask$ } from "@builder.io/qwik";
+import {
+  $,
+  component$,
+  useContext,
+  useSignal,
+  useTask$,
+} from "@builder.io/qwik";
 import { GameContext } from "~/v3/context/gameContext";
 
 import Modal from "~/v3/components/templates/modal/modal";
@@ -22,7 +28,8 @@ export default component$(() => {
   });
 
   const saveOrResetSettings = $(async (newSettings?: Signal<iUserSettings>) => {
-    gameContext.resetGame(newSettings ? newSettings.value : undefined)
+    gameContext
+      .resetGame(newSettings ? newSettings.value : undefined)
       .then(() => {
         // resync and hide modal after new settings are saved
         console.log("game reset", gameContext);
@@ -44,17 +51,18 @@ export default component$(() => {
       isShowing={gameContext.interface.settingsModal.isShowing}
       hideModal$={hideModal$}
       title="Game Settings"
-      containerClasses="bg-opacity-95"
+      containerClasses="bg-opacity-[98%] shadow-2xl"
     >
       <GameSettings
         // startShuffling$={gameContext.startShuffling}
         unsavedUserSettings={unsavedSettings}
       >
-        {gameContext.timer.state.time > 0 && (
-          <GameStats q:slot="game-stats" />
-        )}
+        {gameContext.timer.state.time > 0 && <GameStats q:slot="game-stats" />}
 
-        <div q:slot="footer" class="mt-5 flex flex-grow items-center justify-around">
+        <div
+          q:slot="footer"
+          class="mt-5 flex flex-grow items-center justify-around"
+        >
           <Button onClick$={saveOrResetSettings}>
             <span class="text-slate-100">Reset Game</span>
           </Button>
