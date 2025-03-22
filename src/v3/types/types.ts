@@ -5,7 +5,7 @@ import type { iSchemas } from "../validation/schemas";
 export type iObj = Record<string, any>;
 export type iNestedObj = Record<string, string | iObj>;
 
-export type Timer = ReturnType<typeof useTimer>;
+export type iTimer = ReturnType<typeof useTimer>;
 
 export type iCoords = { x: number; y: number };
 
@@ -108,7 +108,7 @@ export type iGameState = {
   userSettings: iUserSettings;
   gameSettings: iGameSettings;
 
-  interface: iInterfaceSettings;
+  interfaceSettings: iInterfaceSettings;
 };
 
 export type iGameHandlers = {
@@ -136,6 +136,6 @@ export type iGameHandlers = {
 };
 
 export type iGameContext = {
-  timer: Timer;
+  timer: iTimer;
 } & iGameState &
   iGameHandlers;

@@ -14,20 +14,20 @@ export default component$(() => {
 
   useTimeoutObj({
     action: $(() => {
-      gameContext.interface.successAnimation = false;
+      gameContext.interfaceSettings.successAnimation = false;
     }),
     triggerCondition: useComputed$(
-      () => gameContext.interface.successAnimation
+      () => gameContext.interfaceSettings.successAnimation,
     ),
     initialDelay: header.COUNTER_ANIMATE_DURATION,
   });
 
   useTimeoutObj({
     action: $(() => {
-      gameContext.interface.mismatchAnimation = false;
+      gameContext.interfaceSettings.mismatchAnimation = false;
     }),
     triggerCondition: useComputed$(
-      () => gameContext.interface.mismatchAnimation
+      () => gameContext.interfaceSettings.mismatchAnimation,
     ),
     initialDelay: header.COUNTER_ANIMATE_DURATION,
   });
@@ -38,13 +38,16 @@ export default component$(() => {
       // gameContext.userSettings.shuffleBoardOnSelectCard ||
       gameContext.userSettings.shufflePickedAfterMismatch ||
       gameContext.userSettings.shuffleBoardAfterMismatches > 0;
-    return gameContext.interface.mismatchAnimation && extraMismatchFeatures;
+    return (
+      gameContext.interfaceSettings.mismatchAnimation && extraMismatchFeatures
+    );
   });
 
   useStylesScoped$(`
     .success, .mismatch {
-      transition: all ${header.COUNTER_ANIMATE_DURATION * 0.8
-    }ms cubic-bezier(0.2,1.29,0.42,1.075);
+      transition: all ${
+        header.COUNTER_ANIMATE_DURATION * 0.8
+      }ms cubic-bezier(0.2,1.29,0.42,1.075);
     /*   transition: all 0.2s ease-in-out; */
     }
 
@@ -66,7 +69,7 @@ export default component$(() => {
       class={`bg-slate-800 ${header.CODE_TEXT_LIGHT} grid w-[12em] gap-1 ${header.CODE_PADDING}`}
     >
       <Score
-        animate={gameContext.interface.successAnimation}
+        animate={gameContext.interfaceSettings.successAnimation}
         score={gameContext.gameData.successfulPairs.length}
         showMax={true}
         max={gameContext.userSettings.deck.size / 2}
@@ -100,8 +103,9 @@ const Score = component$(
   }) => {
     return (
       <div
-        class={`rounded mismatch ${animate ? header.SCORE_ANIMATION_CLASSES : ""
-          } grid gap-1.5 grid-cols-[2fr_1fr] ${header.CODE_TEXT_DARK}`}
+        class={`rounded mismatch ${
+          animate ? header.SCORE_ANIMATION_CLASSES : ""
+        } grid gap-1.5 grid-cols-[2fr_1fr] ${header.CODE_TEXT_DARK}`}
       >
         <span class="text-right">{label}:</span>
         <span class="text-left text-slate-100">
@@ -110,5 +114,5 @@ const Score = component$(
         </span>
       </div>
     );
-  }
+  },
 );

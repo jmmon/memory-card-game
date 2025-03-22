@@ -1,6 +1,14 @@
 import { GAME } from "~/v3/constants/game";
 import { iSelectCardEnum } from "~/v3/types/types";
-import type { iUserSettings, iGameData, iGameSettings } from "~/v3/types/types";
+import type {
+  iUserSettings,
+  iGameData,
+  iGameSettings,
+  iGameState,
+  iCardLayout,
+  iBoardLayout,
+  iInterfaceSettings,
+} from "~/v3/types/types";
 import { formattedDeck } from "~/v3/utils/cards";
 
 const GAME_DATA: iGameData = {
@@ -105,7 +113,7 @@ const GAME_SETTINGS: iGameSettings = {
   },
 };
 
-const INTERFACE_SETTINGS = {
+const INTERFACE_SETTINGS: iInterfaceSettings = {
   isScrollable: false,
   successAnimation: false,
   mismatchAnimation: false,
@@ -121,7 +129,7 @@ const INTERFACE_SETTINGS = {
   },
 };
 
-const BOARD_LAYOUT = {
+const BOARD_LAYOUT: iBoardLayout = {
   width: 291.07,
   height: 281.81,
   area: 291.07 * 281.81,
@@ -131,7 +139,7 @@ const BOARD_LAYOUT = {
   rowHeight: 281.81 / 4,
 };
 
-const CARD_LAYOUT = {
+const CARD_LAYOUT: iCardLayout = {
   width: 50.668,
   height: 70.3955,
   roundedCornersPx: 2.533,
@@ -140,7 +148,7 @@ const CARD_LAYOUT = {
   rowGapPercent: 0,
 };
 
-const INITIAL_STATE = {
+const INITIAL_STATE: iGameState = {
   boardLayout: BOARD_LAYOUT,
   cardLayout: CARD_LAYOUT,
   gameData: GAME_DATA,

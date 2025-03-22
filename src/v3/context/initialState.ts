@@ -172,7 +172,7 @@ export const INITIAL_STATE = {
     this.shuffleCardPositions();
     this.gameData.shufflingState = count - 1;
     this.gameData.isLoading = true;
-    this.interface.settingsModal.isShowing = false;
+    this.interfaceSettings.settingsModal.isShowing = false;
   }),
 
   stopShuffling: $(function (this: iGameContext) {
@@ -212,10 +212,10 @@ export const INITIAL_STATE = {
 
   showSettings: $(function (this: iGameContext) {
     this.timer.pause();
-    this.interface.settingsModal.isShowing = true;
+    this.interfaceSettings.settingsModal.isShowing = true;
   }),
   hideSettings: $(function (this: iGameContext) {
-    this.interface.settingsModal.isShowing = false;
+    this.interfaceSettings.settingsModal.isShowing = false;
     this.timer.resume();
   }),
 
@@ -241,8 +241,8 @@ export const INITIAL_STATE = {
   }),
   endGame: $(function (this: iGameContext, isWin: boolean) {
     this.timer.stop();
-    this.interface.endOfGameModal.isWin = isWin;
-    this.interface.endOfGameModal.isShowing = true;
+    this.interfaceSettings.endOfGameModal.isWin = isWin;
+    this.interfaceSettings.endOfGameModal.isShowing = true;
   }),
 
   resetGame: $(async function (

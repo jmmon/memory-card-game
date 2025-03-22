@@ -1,4 +1,10 @@
-import { component$, $, useContext, useSignal, useTask$ } from "@builder.io/qwik";
+import {
+  component$,
+  $,
+  useContext,
+  useSignal,
+  useTask$,
+} from "@builder.io/qwik";
 import { GameContext } from "~/v3/context/gameContext";
 
 import Modal from "~/v3/components/templates/modal/modal";
@@ -12,26 +18,30 @@ export default component$(() => {
   const gameContext = useContext(GameContext);
 
   // for adjusting deck size before restarting
-  const unsavedUserSettings = useSignal<iUserSettings>(gameContext.userSettings);
+  const unsavedUserSettings = useSignal<iUserSettings>(
+    gameContext.userSettings,
+  );
 
   useTask$(({ track }) => {
     track(() => gameContext.userSettings.deck.size);
     unsavedUserSettings.value.deck.size = gameContext.userSettings.deck.size;
-  })
+  });
 
   const hideModal$ = $(() => {
-    gameContext.interface.endOfGameModal.isShowing = false;
+    gameContext.interfaceSettings.endOfGameModal.isShowing = false;
     // probably unneeded thanks to task tracking
-    // unsavedUserSettings.value.deck.size = gameContext.userSettings.deck.size; 
+    // unsavedUserSettings.value.deck.size = gameContext.userSettings.deck.size;
   });
 
   return (
     <Modal
-      isShowing={gameContext.interface.endOfGameModal.isShowing}
+      isShowing={gameContext.interfaceSettings.endOfGameModal.isShowing}
       // isShowing={true}
       hideModal$={hideModal$}
       title={
-        gameContext.interface.endOfGameModal.isWin ? "You Win!" : "Game Over"
+        gameContext.interfaceSettings.endOfGameModal.isWin
+          ? "You Win!"
+          : "Game Over"
       }
       bgStyles={{ backgroundColor: "rgba(0,0,0,0.1)" }}
       options={{
@@ -58,7 +68,7 @@ export default component$(() => {
               },
             });
 
-            gameContext.interface.endOfGameModal.isShowing = false;
+            gameContext.interfaceSettings.endOfGameModal.isShowing = false;
           }}
         >
           Play Again

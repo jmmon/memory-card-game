@@ -66,7 +66,7 @@ export default component$(
         },
         timer: timer,
       },
-      { deep: true }
+      { deep: true },
     );
     useContextProvider(GameContext, gameContext);
     const containerRef = useSignal<HTMLDivElement>();
@@ -92,7 +92,8 @@ export default component$(
       }),
       triggerCondition: useComputed$(
         () =>
-          !gameContext.timer.state.isStarted && !gameContext.timer.state.isEnded
+          !gameContext.timer.state.isStarted &&
+          !gameContext.timer.state.isEnded,
       ),
       regularInterval: GAME.AUTO_SHUFFLE_INTERVAL,
       initialDelay: GAME.AUTO_SHUFFLE_DELAY,
@@ -107,9 +108,12 @@ export default component$(
         gameContext.shuffleCardPositions();
         gameContext.gameData.shufflingState -= 1;
 
-        if (gameContext.gameData.shufflingState <= 0) gameContext.stopShuffling();
+        if (gameContext.gameData.shufflingState <= 0)
+          gameContext.stopShuffling();
       }),
-      triggerCondition: useComputed$(() => gameContext.gameData.shufflingState > 0),
+      triggerCondition: useComputed$(
+        () => gameContext.gameData.shufflingState > 0,
+      ),
       initialDelay:
         BOARD.CARD_SHUFFLE_PAUSE_DURATION + BOARD.CARD_SHUFFLE_ACTIVE_DURATION,
     });
@@ -128,7 +132,7 @@ export default component$(
         gameContext.gameData.mismatchPair = "";
       }),
       triggerCondition: useComputed$(
-        () => gameContext.gameData.mismatchPair !== ""
+        () => gameContext.gameData.mismatchPair !== "",
       ),
       initialDelay:
         GAME.SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD,
@@ -143,19 +147,22 @@ export default component$(
       }),
     });
 
-    useOnDocument("keydown", $((event: KeyboardEvent) => {
-      if (event.key !== 'Escape') {
-        return;
-      }
-      if (gameContext.interface.endOfGameModal.isShowing) {
-        return;
-      }
-      if (gameContext.interface.settingsModal.isShowing) {
-        gameContext.hideSettings();
-      } else {
-        gameContext.showSettings();
-      }
-    }));
+    useOnDocument(
+      "keydown",
+      $((event: KeyboardEvent) => {
+        if (event.key !== "Escape") {
+          return;
+        }
+        if (gameContext.interfaceSettings.endOfGameModal.isShowing) {
+          return;
+        }
+        if (gameContext.interfaceSettings.settingsModal.isShowing) {
+          gameContext.hideSettings();
+        } else {
+          gameContext.showSettings();
+        }
+      }),
+    );
 
     return (
       <>
@@ -190,9 +197,11 @@ export default component$(
         {/* </InverseModal> */}
 
         <div
-          class={`flex flex-col flex-grow justify-between w-full h-full p-[${GAME.CONTAINER_PADDING_PERCENT
-            }%] gap-1 ${gameContext.userSettings.board.isLocked ? "overflow-x-auto" : ""
-            }`}
+          class={`flex flex-col flex-grow justify-between w-full h-full p-[${
+            GAME.CONTAINER_PADDING_PERCENT
+          }%] gap-1 ${
+            gameContext.userSettings.board.isLocked ? "overflow-x-auto" : ""
+          }`}
           ref={containerRef}
         >
           <GameHeader
@@ -208,5 +217,5 @@ export default component$(
         <EndGame />
       </>
     );
-  }
+  },
 );
