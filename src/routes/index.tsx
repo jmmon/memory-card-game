@@ -8,8 +8,10 @@ import {
 } from "~/v3/context/initialState";
 import { flattenObjectToEntries } from "~/v3/utils/utils";
 
-import type { Signal } from "@builder.io/qwik";
+import type { ClassList, Signal } from "@builder.io/qwik";
 import type { iUserSettings } from "~/v3/types/types";
+import Button from "~/v3/components/atoms/button/button";
+import Popover from "~/v3/components/molecules/popover/popover";
 
 const LI_CLASSES = "pl-2 md:pl-4";
 
@@ -55,6 +57,27 @@ const pruneDefaultsFromQueryParams = (
 //   return actionString;
 // }
 
+const SoonTm = ({ classes }: { classes?: ClassList }) => (<span class={`mx-[1px] ${classes}`}>Soon<sup class="align-[0.4em] text-[0.5em]">TM</sup></span>)
+const SoonTmPopover = component$(() => {
+  return (
+    <Popover panelClasses="max-w-[80vw]" rootClasses="inline mx-[-.3em]" size="1.5em">
+      <sup class="text-[.5em] align-super text-slate-500" q:slot="trigger">TM</sup>
+      <>
+        <p class="text-sm">
+          "<SoonTm />" does not imply any particular date, time, decade, century, or millenia in the past, present, and certainly not the future. "Soon" shall make no contract or warranty between NomadCoder and the end user. "Soon" will arrive some day. NomadCoder <em>does</em> guarantee that "soon" will be here before the end of time. Maybe. Do not make plans based on "soon" as NomadCoder will not be liable for any misuse, use, or even casual glancing at "soon."
+        </p>
+        <br />
+        <p class="text-sm text-slate-400">
+          Borrowed with love from Blizzard Entertainment.
+        </p>
+        <p class="mt-1 text-xs text-slate-400">
+          "<SoonTm />: Copyright pending 2004-2005 Blizzard Entertainment, Inc. All rights reserved."
+        </p>
+      </>
+    </Popover>
+  )
+});
+
 const Instructions = () => {
   const actionString = "Tap/Click";
   return (
@@ -90,7 +113,7 @@ const Instructions = () => {
           <strong>pairs found</strong>, and <strong>mismatches found</strong>.
         </li>
         <li class={`text-slate-500 ${LI_CLASSES}`}>
-          (COMING SOON:) Save your score, and see how you compare to other
+          COMING SOON<SoonTmPopover />: Save your score, and see how you compare to other
           players!
         </li>
       </ul>
@@ -99,33 +122,37 @@ const Instructions = () => {
 };
 
 export const GameStarter = component$(() => {
-  const unsavedSettings = useSignal<iUserSettings>({
-    ...INITIAL_USER_SETTINGS,
-  });
+  const unsavedSettings = useSignal<iUserSettings>(
+    INITIAL_USER_SETTINGS
+  );
 
   // all settings which were changed from initial values
   const compQParamsString = useComputed$<string>(() => {
-    const result = pruneDefaultsFromQueryParams(
+    const params = pruneDefaultsFromQueryParams(
       unsavedSettings.value,
       INITIAL_USER_SETTINGS,
     );
-    return result;
+    return params;
   });
 
   // reset the UI to the new/initial settings when finished
   const saveSettings$ = $((newSettings?: Signal<iUserSettings>) => {
-    unsavedSettings.value = newSettings
+    unsavedSettings.value = newSettings?.value
       ? newSettings.value
       : INITIAL_USER_SETTINGS;
   });
 
+  const playHref = useComputed$(() =>
+    `/game${compQParamsString.value !== ""
+      ? "/?" + compQParamsString.value
+      : ""
+    }`
+  )
+
   return (
     <>
       <Link
-        href={`/game${compQParamsString.value !== ""
-          ? "/?" + compQParamsString.value
-          : ""
-          }`}
+        href={playHref.value}
         class="mx-auto rounded-lg border-slate-200 bg-slate-800 px-8 py-4 text-4xl text-slate-200 hover:bg-slate-700 hover:text-white"
       >
         Play
