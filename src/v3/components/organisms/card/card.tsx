@@ -11,7 +11,7 @@ import { BOARD } from "~/v3/constants/board";
 import CardView from "~/v3/components/molecules/card-view/card-view";
 
 import type { BoardLayout, Coords, Card } from "~/v3/types/types";
-import type { Signal } from "@builder.io/qwik";
+import type { FunctionComponent, Signal } from "@builder.io/qwik";
 
 // underside shows immediately, but hides after this far during return transition
 export const CARD_HIDE_UNDERSIDE_AFTER_PERCENT = 0.9;
@@ -27,7 +27,11 @@ type FlipTransform = {
   scale: number;
 };
 
-export default component$(({ card }: { card: Card }) => {
+type CardProps = {
+  card: Card;
+};
+
+export default component$<CardProps>(({ card }) => {
   const gameContext = useContext(GameContext);
 
   const isThisRemoved = useComputed$(() =>
@@ -53,8 +57,8 @@ export default component$(({ card }: { card: Card }) => {
   // when card is flipped, control timers for isFaceShowing and isFaceShowing_delayedOff
   // when showing the back side, partway through we reveal the back side.
   // when going back to the board, partway through we hide the back side.
-  useTask$((taskCtx) => {
-    taskCtx.track(() => isCardFlipped.value);
+  useTask$(({ track, cleanup }) => {
+    track(() => isCardFlipped.value);
 
     let undersideRevealDelayTimer: ReturnType<typeof setTimeout>;
     let flippedDelayTimer: ReturnType<typeof setTimeout>;
@@ -80,7 +84,7 @@ export default component$(({ card }: { card: Card }) => {
       }, BOARD.CARD_FLIP_ANIMATION_DURATION);
     }
 
-    taskCtx.cleanup(() => {
+    cleanup(() => {
       clearTimeout(undersideRevealDelayTimer);
       clearTimeout(flippedDelayTimer);
       clearTimeout(returnedTimer);
@@ -105,8 +109,8 @@ export default component$(({ card }: { card: Card }) => {
 
   // shuffling will change the card position, causing this to run
   // calc & save prev/cur grid coords from that card position;
-  useTask$((taskCtx) => {
-    taskCtx.track(() => [
+  useTask$(({ track }) => {
+    track(() => [
       card.position,
       gameContext.boardLayout.width,
       gameContext.boardLayout.height,
@@ -160,22 +164,22 @@ export default component$(({ card }: { card: Card }) => {
                   ? 0
                   : flipTransform.value.translateY / 50
               )) /
-              2
+            2
           ) +
           // extra z-index for cards being flipped
           (isCardFlipped.value
             ? 120 // applies while card is first clicked
             : // : isFaceShowing.value || isFaceShowing_delayedOff.value || !isReturned.value
             isFaceShowing.value
-            ? 60 // applies when flipping down
-            : 0), // applies otherwise (when face down);
+              ? 60 // applies when flipping down
+              : 0), // applies otherwise (when face down);
         transform: shuffleTransform.value,
       }}
       data-label="card-slot-container"
       data-position={card.position}
     >
       <div
-        class={`aspect-[${BOARD.CARD_RATIO}] border border-slate-50/10 mx-auto bg-transparent`}
+        class={`aspect-[${BOARD.CARD_RATIO}] border border-slate-600 mx-auto bg-slate-800`}
         style={{
           borderRadius: gameContext.cardLayout.roundedCornersPx + "px",
           width: BOARD.CARD_RATIO_VS_CONTAINER * 100 + "%",
@@ -188,19 +192,17 @@ export default component$(({ card }: { card: Card }) => {
         <div
           data-id={card.id}
           data-label="card"
-          class={`box-border w-full border border-slate-50/25 bg-transparent transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
-            isThisRemoved.value &&
+          class={`box-border w-full border border-slate-50/25 bg-transparent transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${isThisRemoved.value &&
             gameContext.game.flippedCardId !== card.id &&
             gameContext.game.flippedCardId !== card.pairId
-              ? "pointer-events-none scale-[110%] opacity-0"
-              : "cursor-pointer opacity-100"
-          } ${
-            isThisMismatched.value &&
-            gameContext.game.isShaking &&
-            gameContext.game.flippedCardId !== card.id
+            ? "pointer-events-none scale-[110%] opacity-0"
+            : "cursor-pointer opacity-100"
+            } ${isThisMismatched.value &&
+              gameContext.game.isShaking &&
+              gameContext.game.flippedCardId !== card.id
               ? "shake-card"
               : ""
-          }
+            }
           `}
           style={{
             borderRadius: gameContext.cardLayout.roundedCornersPx + "px",
@@ -226,17 +228,7 @@ export default component$(({ card }: { card: Card }) => {
   );
 });
 
-const CardFlippingWrapper = ({
-  card,
-  isSelected,
-  isCardFlipped,
-  isRemoved,
-  isFaceShowing_delayedOff,
-  flipTransform,
-  roundedCornersPx,
-  isFaceShowing,
-  boardLayout,
-}: {
+type CardFlippingWrapperProps = {
   card: Card;
   isSelected: Signal<boolean>;
   isCardFlipped: Signal<boolean>;
@@ -246,29 +238,37 @@ const CardFlippingWrapper = ({
   flipTransform: Signal<FlipTransform>;
   roundedCornersPx: number;
   boardLayout: BoardLayout;
+};
+
+const CardFlippingWrapper: FunctionComponent<CardFlippingWrapperProps> = ({
+  card,
+  isSelected,
+  isCardFlipped,
+  isRemoved,
+  isFaceShowing_delayedOff,
+  flipTransform,
+  roundedCornersPx,
+  isFaceShowing,
+  boardLayout,
 }) => {
   return (
     <div
       data-id={card.id}
-      class={`flex flex-col items-center justify-center w-full bg-transparent card-flip relative text-center`}
+      class={`flex flex-col items-center justify-center w-full bg-slate-800 card-flip relative text-center`}
       style={{
         transform:
           isCardFlipped.value ||
-          (isRemoved.value && isFaceShowing_delayedOff.value)
-            ? `translate(${
-                (flipTransform.value.translateX * boardLayout.colWidth) / 100
-              }px, ${
-                (flipTransform.value.translateY * boardLayout.rowHeight) / 100
-              }px) 
-      rotateY(${flipTransform.value.rotateY}) 
-      scale(${flipTransform.value.scale})`
+            (isRemoved.value && isFaceShowing_delayedOff.value)
+            ? `translate(${(flipTransform.value.translateX * boardLayout.colWidth) / 100
+            }px, ${(flipTransform.value.translateY * boardLayout.rowHeight) / 100
+            }px) 
+              rotateY(${flipTransform.value.rotateY}) 
+              scale(${flipTransform.value.scale})`
             : "",
         borderRadius: roundedCornersPx + "px",
         boxShadow: isSelected.value
-          ? `0 0 ${roundedCornersPx}px ${roundedCornersPx}px var(--success-color)`
+          ? `0 0 ${roundedCornersPx}px ${roundedCornersPx}px var(--card-glow)`
           : "",
-        background: "var(--success-color)",
-
         height: "auto",
         aspectRatio: BOARD.CARD_RATIO,
       }}

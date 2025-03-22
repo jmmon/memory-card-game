@@ -6,8 +6,8 @@ import PlayingCardComponents from "~/v3/components/playing-card-components";
 import CardFace from "~/v3/components/atoms/card-face/card-face";
 
 import { BOARD } from "~/v3/constants/board";
-import type { Signal} from "@builder.io/qwik";
-import type{ Card } from "~/v3/types/types";
+import type { Signal } from "@builder.io/qwik";
+import type { Card } from "~/v3/types/types";
 
 // holds the front and back of card
 export default component$(
@@ -47,7 +47,11 @@ export default component$(
           width={gameContext.cardLayout.width * BOARD.CARD_RATIO_VS_CONTAINER}
           height={gameContext.cardLayout.height * BOARD.CARD_RATIO_VS_CONTAINER}
         >
-          <ImageBackFace loading="eager" decoding="sync" />
+          <ImageBackFace
+            loading="eager"
+            decoding="sync"
+          // fetchPriority="high"
+          />
         </CardFace>
       </>
     );
