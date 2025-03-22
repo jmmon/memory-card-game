@@ -8,21 +8,27 @@ import ModalRow from "~/v3/components/atoms/modal-row/modal-row";
 import { GAME } from "~/v3/constants/game";
 import ModalStats from "../../atoms/modal-stats/modal-stats";
 import InfoTooltip from "../../organisms/info-tooltip/info-tooltip";
+import { iUserSettings } from "~/v3/types/types";
+import DeckSizeChanger from "../../molecules/deck-size-changer/deck-size-changer";
 
 export default component$(() => {
   const gameContext = useContext(GameContext);
 
   // for adjusting deck size before restarting
-  const cardCount = useSignal<string>(String(gameContext.userSettings.deck.size));
+  // const cardCount = useSignal<string>(String(gameContext.userSettings.deck.size));
+
+  const unsavedUserSettings = useSignal<iUserSettings>(gameContext.userSettings);
 
   useTask$(({ track }) => {
     track(() => gameContext.userSettings.deck.size);
-    cardCount.value = String(gameContext.userSettings.deck.size);
+    unsavedUserSettings.value.deck.size = gameContext.userSettings.deck.size;
+    // cardCount.value = String(gameContext.userSettings.deck.size);
   })
 
   const hideModal$ = $(() => {
     gameContext.interface.endOfGameModal.isShowing = false;
-    cardCount.value = String(gameContext.userSettings.deck.size);
+    unsavedUserSettings.value.deck.size = gameContext.userSettings.deck.size;
+    // cardCount.value = String(gameContext.userSettings.deck.size);
   });
 
   return (
@@ -68,6 +74,13 @@ export default component$(() => {
         </ModalRow>
 
         <ModalRow>
+          <DeckSizeChanger
+            userSettings={unsavedUserSettings}
+            isLocked={unsavedUserSettings.value.deck.isLocked}
+            for="end-game"
+          />
+        </ModalRow>
+        {/* <ModalRow>
           <div class="flex w-full flex-grow items-center gap-[2%]">
             <label
               class="w-4/12 text-left text-slate-100"
@@ -89,14 +102,14 @@ export default component$(() => {
               {cardCount} - Number of cards in the deck.
             </InfoTooltip>
           </div>
-        </ModalRow>
+        </ModalRow> */}
 
         <Button
           onClick$={() => {
             gameContext.resetGame({
               deck: {
                 ...gameContext.userSettings.deck,
-                size: Number(cardCount.value),
+                size: Number(unsavedUserSettings.value.deck.size),
               },
             });
 
