@@ -1,6 +1,19 @@
-## low priority: developer settings:
-- Cancel button inside dropdown
-> - to reset checkbox states to previous settings
+## URGENT: game-settings is using context but is rendered inside home page
+- homepage doesn't set up context!
+- homepage should be able to get the settings and then pass in to the game via params
+- perhaps conditional rendering for gamecontext:
+> 1. check in game-settings for the location, if '/' then don't render any context
+> 2. isHomePage or something like that to hide all context items
+> > - need to make sure children don't use context
+
+
+## End game modal: card changer instead of card slider
+
+## selected card glow: try green? need something more pronounced
+
+## revisit "inverse modal"?
+### and/or game homepage flip up/forward to reveal game
+
 
 
 ## TODO: also show Mismatches and Pairs, even if game isn't over yet
@@ -16,22 +29,18 @@
 
 ## TODO: lock board / etc
 - after saving game, if board is locked, do not let layout recalculate
+- seems like after saving, it triggers a recalculation
 
 ## TODO: challenge modes
-- implement the challenge modes in the game context
+- implement the challenge modes in the game context!
 
-## [eventually] TODO: finish scores!!!
+## [Soon(TM)] TODO: finish scores!!!
 - cloudflare D1 sql server
 
 
 ## hotfixes css:
 ### mobile:
-#### homescreen button texts should change: 
-- "Reset Game" => "Reset Settings"
-- "Save & Reset" => "Save Settings" (or make it also start game? "Save & Play")
-> - actually this button isn't even needed on homescreen, changing the slider and hit play without save will still adopt the changed settings!!
-
-#### gameplay:
+#### gameplay: LOW PRIORITY
 1. scroll down on mobile to adjust settings
 > the top and bottom browser bar hide, making the content show on fullscreen
 2. select 10 cards, hit play
@@ -39,17 +48,15 @@
 > if I scroll back up in the game, the bars reappear, taking up that space so it looks normal
 > - and can no longer scroll since the size is 100% height
 
-##### less priority
+##### low priority
 - Memory Card Game link flows over the timer
 > - maybe change "Settings" to hamburger? 
 > - Maybe move hamburger to left? move timer to middle?
 > - maybe use left carrot for "Back", with (or replacing) "Memory Card Game" 
 > > I like having "Memory Card Game" showing though
 
-### General:
-- dropdown: remove bottom border, or change it, kinda looks funny
-> - else: darker line maybe? less bright
-> - like a inset rounded shadow around the entire dropdown area?
 
-
+## low priority: developer settings:
+- Cancel button inside dropdown
+> - to reset checkbox states to previous settings
 
