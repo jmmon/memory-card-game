@@ -7,6 +7,7 @@ import GameSettings from "~/v3/components/organisms/game-settings/game-settings"
 import type { Signal } from "@builder.io/qwik";
 import type { iUserSettings } from "~/v3/types/types";
 import Button from "../../atoms/button/button";
+import GameStats from "../../molecules/game-stats/game-stats";
 
 export default component$(() => {
   const gameContext = useContext(GameContext);
@@ -43,14 +44,16 @@ export default component$(() => {
       isShowing={gameContext.interface.settingsModal.isShowing}
       hideModal$={hideModal$}
       title="Game Settings"
+      containerClasses="bg-opacity-95"
     >
       <GameSettings
-        gameTime={gameContext.timer.state.time}
         // startShuffling$={gameContext.startShuffling}
-        saveSettings$={saveOrResetSettings}
         unsavedUserSettings={unsavedSettings}
-        gameSettings={gameContext.gameSettings}
       >
+        {gameContext.timer.state.time > 0 && (
+          <GameStats q:slot="game-stats" />
+        )}
+
         <div q:slot="footer" class="mt-5 flex flex-grow items-center justify-around">
           <Button onClick$={saveOrResetSettings}>
             <span class="text-slate-100">Reset Game</span>

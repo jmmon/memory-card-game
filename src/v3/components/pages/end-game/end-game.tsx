@@ -2,12 +2,11 @@ import { component$, $, useContext, useSignal, useTask$ } from "@builder.io/qwik
 import { GameContext } from "~/v3/context/gameContext";
 
 import Modal from "~/v3/components/templates/modal/modal";
-import FormattedTime from "~/v3/components/molecules/formatted-time/formatted-time";
 import Button from "~/v3/components/atoms/button/button";
 import ModalRow from "~/v3/components/atoms/modal-row/modal-row";
-import ModalStats from "../../atoms/modal-stats/modal-stats";
 import type { iUserSettings } from "~/v3/types/types";
 import DeckSizeChanger from "../../molecules/deck-size-changer/deck-size-changer";
+import GameStats from "../../molecules/game-stats/game-stats";
 
 export default component$(() => {
   const gameContext = useContext(GameContext);
@@ -40,34 +39,7 @@ export default component$(() => {
       }}
     >
       <div class="flex flex-col gap-0.5 px-[4%] py-[2%] md:gap-1">
-        <ModalRow>
-          <ModalStats
-            label="Pairs:"
-            content={
-              `${gameContext.game.successfulPairs.length
-              }/${gameContext.userSettings.deck.size / 2
-              }`
-            }
-          />
-        </ModalRow>
-        <ModalRow>
-          <ModalStats
-            label="Mismatches:"
-            content={
-              `${gameContext.game.mismatchPairs.length}
-              ${gameContext.userSettings.maxAllowableMismatches !== -1
-                ? `/${gameContext.userSettings.deck.size / 2}`
-                : ""}`
-            }
-          />
-        </ModalRow>
-        <ModalRow>
-          <ModalStats
-            label="Time:"
-          >
-            <FormattedTime timeMs={gameContext.timer.state.time} limit={3} />
-          </ModalStats>
-        </ModalRow>
+        <GameStats q:slot="game-stats" />
 
         <ModalRow>
           <DeckSizeChanger

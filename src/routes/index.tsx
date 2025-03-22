@@ -3,7 +3,6 @@ import { Link } from "@builder.io/qwik-city";
 import Dropdown from "~/v3/components/molecules/dropdown/dropdown";
 import GameSettings from "~/v3/components/organisms/game-settings/game-settings";
 import {
-  INITIAL_GAME_SETTINGS,
   INITIAL_USER_SETTINGS,
 } from "~/v3/context/initialState";
 import { flattenObjectToEntries } from "~/v3/utils/utils";
@@ -153,17 +152,14 @@ export const GameStarter = component$(() => {
     <>
       <Link
         href={playHref.value}
-        class="mx-auto rounded-lg border-slate-200 bg-slate-800 px-8 py-4 text-4xl text-slate-200 hover:bg-slate-700 hover:text-white"
+        class="mx-auto rounded-lg border border-slate-600 bg-slate-800 px-8 py-4 text-4xl text-slate-200 focus:bg-slate-700 focus:text-white hover:bg-slate-700 hover:text-white"
       >
         Play
       </Link>
 
       <Dropdown buttonText="Change Settings">
         <GameSettings
-          saveSettings$={saveSettings$}
-          gameTime={0}
           unsavedUserSettings={unsavedSettings}
-          gameSettings={INITIAL_GAME_SETTINGS}
         >
           <div q:slot="footer" class="mt-5 flex flex-grow items-center justify-around">
             <Button onClick$={saveSettings$} classes="min-w-[5em]">

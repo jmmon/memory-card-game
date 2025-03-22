@@ -1,33 +1,26 @@
 import { Slot, component$ } from "@builder.io/qwik";
 
 import Button from "~/v3/components/atoms/button/button";
-import FormattedTime from "~/v3/components/molecules/formatted-time/formatted-time";
 import ModalRow from "~/v3/components/atoms/modal-row/modal-row";
 import InputLock from "~/v3/components/atoms/input-lock/input-lock";
 import Dropdown from "~/v3/components/molecules/dropdown/dropdown";
 
 import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";
-import type { iGameSettings, iUserSettings } from "~/v3/types/types";
+import type { iUserSettings } from "~/v3/types/types";
 import type { ClassList, PropFunction, Signal } from "@builder.io/qwik";
 import InfoTooltip from "../info-tooltip/info-tooltip";
 import DeckSizeChanger from "../../molecules/deck-size-changer/deck-size-changer";
 
 type GameSettingsProps = {
   unsavedUserSettings: Signal<iUserSettings>;
-  saveSettings$: PropFunction<(newSettings?: Signal<iUserSettings>) => void>;
   startShuffling$?: PropFunction<() => void>;
-  gameTime: number;
-  gameSettings: iGameSettings;
   classes?: ClassList;
 };
 
 export default component$(
   ({
     unsavedUserSettings,
-    saveSettings$,
     startShuffling$,
-    gameTime,
-    gameSettings,
     classes = "",
   }: GameSettingsProps) => {
     return (
@@ -53,17 +46,7 @@ export default component$(
             class={`flex-grow flex flex-col ${settingsModalConstants.COLUMN_GAP}  items-center`}
           >
 
-            {gameTime !== 0 && (
-              <ModalRow>
-                <div class="flex w-full items-center justify-between">
-                  <label class="text-slate-100">Played Time:</label>
-                  <FormattedTime timeMs={gameTime} />
-                  <InfoTooltip>
-                    Total un-paused play time for this round.
-                  </InfoTooltip>
-                </div>
-              </ModalRow>
-            )}
+            <Slot name="game-stats" />
 
             <ModalRow>
               <DeckSizeChanger
