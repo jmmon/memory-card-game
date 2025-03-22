@@ -6,6 +6,7 @@ import GameSettings from "~/v3/components/organisms/game-settings/game-settings"
 
 import type { Signal } from "@builder.io/qwik";
 import type { iUserSettings } from "~/v3/types/types";
+import Button from "../../atoms/button/button";
 
 export default component$(() => {
   const gameContext = useContext(GameContext);
@@ -49,7 +50,20 @@ export default component$(() => {
         saveSettings$={saveOrResetSettings}
         unsavedUserSettings={unsavedSettings}
         gameSettings={gameContext.gameSettings}
-      />
+      >
+        <div q:slot="footer" class="mt-5 flex flex-grow items-center justify-around">
+          <Button onClick$={saveOrResetSettings}>
+            <span class="text-slate-100">Reset Game</span>
+          </Button>
+          <Button
+            onClick$={() => {
+              saveOrResetSettings(unsavedSettings);
+            }}
+          >
+            <span class="text-slate-100">Save &amp; Reset</span>
+          </Button>
+        </div>
+      </GameSettings>
     </Modal>
   );
 });

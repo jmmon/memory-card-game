@@ -1,4 +1,4 @@
-import { component$ } from "@builder.io/qwik";
+import { Slot, component$, useContext } from "@builder.io/qwik";
 
 import Button from "~/v3/components/atoms/button/button";
 import FormattedTime from "~/v3/components/molecules/formatted-time/formatted-time";
@@ -259,18 +259,7 @@ export default component$(
           </div>
         </DropdownGrid>
 
-        <div class="mt-5 flex flex-grow items-center justify-around">
-          <Button onClick$={saveSettings$}>
-            <span class="text-slate-100">Reset Game</span>
-          </Button>
-          <Button
-            onClick$={() => {
-              saveSettings$(unsavedUserSettings);
-            }}
-          >
-            <span class="text-slate-100">Save &amp; Reset</span>
-          </Button>
-        </div>
+        <Slot name="footer" />
       </div>
     );
   }

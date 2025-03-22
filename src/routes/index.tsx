@@ -164,7 +164,19 @@ export const GameStarter = component$(() => {
           gameTime={0}
           unsavedUserSettings={unsavedSettings}
           gameSettings={INITIAL_GAME_SETTINGS}
-        />
+        >
+          <div q:slot="footer" class="mt-5 flex flex-grow items-center justify-around">
+            <Button onClick$={saveSettings$} classes="min-w-[5em]">
+              <span class="text-slate-100">Reset</span>
+            </Button>
+            <Link
+              class="button p-2 min-w-[5em] border border-slate-200 bg-slate-700 rounded hover:bg-slate-500 "
+              href={playHref.value}
+            >
+              <span class="text-slate-100">Play!</span>
+            </Link>
+          </div>
+        </GameSettings>
       </DropdownGrid>
     </>
   );
