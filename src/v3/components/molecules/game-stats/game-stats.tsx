@@ -12,7 +12,7 @@ export default component$(() => {
         <ModalStats
           label="Pairs:"
           content={
-            `${gameContext.game.successfulPairs.length
+            `${gameContext.gameData.successfulPairs.length
             }/${gameContext.userSettings.deck.size / 2
             }`
           }
@@ -22,7 +22,7 @@ export default component$(() => {
         <ModalStats
           label="Mismatches:"
           content={
-            `${gameContext.game.mismatchPairs.length}
+            `${gameContext.gameData.mismatchPairs.length}
               ${gameContext.userSettings.maxAllowableMismatches !== -1
               ? `/${gameContext.userSettings.deck.size / 2}`
               : ""}`

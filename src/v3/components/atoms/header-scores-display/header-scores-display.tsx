@@ -67,7 +67,7 @@ export default component$(() => {
     >
       <Score
         animate={gameContext.interface.successAnimation}
-        score={gameContext.game.successfulPairs.length}
+        score={gameContext.gameData.successfulPairs.length}
         showMax={true}
         max={gameContext.userSettings.deck.size / 2}
         label="pairs"
@@ -75,7 +75,7 @@ export default component$(() => {
 
       <Score
         animate={mismatchAnimation.value}
-        score={gameContext.game.mismatchPairs.length}
+        score={gameContext.gameData.mismatchPairs.length}
         showMax={gameContext.userSettings.maxAllowableMismatches !== -1}
         max={gameContext.userSettings.maxAllowableMismatches}
         label="mismatches"

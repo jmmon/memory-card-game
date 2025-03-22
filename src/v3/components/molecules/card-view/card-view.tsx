@@ -7,7 +7,7 @@ import CardFace from "~/v3/components/atoms/card-face/card-face";
 
 import { BOARD } from "~/v3/constants/board";
 import type { Signal } from "@builder.io/qwik";
-import type { Card } from "~/v3/types/types";
+import type { iCard } from "~/v3/types/types";
 
 // holds the front and back of card
 export default component$(
@@ -16,7 +16,7 @@ export default component$(
     roundedCornersPx,
     isFaceShowing,
   }: {
-    card: Card;
+    card: iCard;
     roundedCornersPx: number;
     isFaceShowing: Signal<boolean>;
   }) => {

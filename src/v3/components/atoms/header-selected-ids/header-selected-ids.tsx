@@ -10,9 +10,9 @@ export default component$(() => {
     >
       <span class="mx-auto w-min">cards selected:</span>
       <div class="mx-auto grid grid-cols-[3.6em_0.6em_3.6em]">
-        <span>{gameContext.game.selectedCardIds[0] ?? "-"}</span>
+        <span>{gameContext.gameData.selectedCardIds[0] ?? "-"}</span>
         <span>:</span>
-        <span>{gameContext.game.selectedCardIds[1] ?? "-"}</span>
+        <span>{gameContext.gameData.selectedCardIds[1] ?? "-"}</span>
       </div>
     </code>
   );

@@ -17,7 +17,7 @@ import Card from "~/v3/components/organisms/card/card";
 import { BOARD } from "~/v3/constants/board";
 import { GAME } from "~/v3/constants/game";
 
-import type { Pair } from "~/v3/types/types";
+import type { iPair } from "~/v3/types/types";
 import type { Signal } from "@builder.io/qwik";
 
 export default component$(
@@ -31,30 +31,30 @@ export default component$(
     const lastClick = useSignal(-1);
 
     const isCardFlipped = useComputed$(
-      () => gameContext.game.flippedCardId !== -1
+      () => gameContext.gameData.flippedCardId !== -1
     );
 
     const handleAddToSuccessfulPairsIfMatching = $(async () => {
-      const [cardId1, cardId2] = gameContext.game.selectedCardIds;
-      const pair: Pair = `${cardId1}:${cardId2}`;
+      const [cardId1, cardId2] = gameContext.gameData.selectedCardIds;
+      const pair: iPair = `${cardId1}:${cardId2}`;
       // run checkMatch
-      const card1 = cardUtils.findCardById(gameContext.game.cards, cardId1);
-      const card2 = cardUtils.findCardById(gameContext.game.cards, cardId2);
+      const card1 = cardUtils.findCardById(gameContext.gameData.cards, cardId1);
+      const card2 = cardUtils.findCardById(gameContext.gameData.cards, cardId2);
       const isMatch = cardUtils.checkMatch(card1, card2);
 
       // console.log({ isMatch, card1, card2 });
 
       if (!isMatch) {
-        gameContext.game.mismatchPairs = [
-          ...gameContext.game.mismatchPairs,
+        gameContext.gameData.mismatchPairs = [
+          ...gameContext.gameData.mismatchPairs,
           pair
         ];
-        gameContext.game.mismatchPair = pair;
+        gameContext.gameData.mismatchPair = pair;
         gameContext.interface.mismatchAnimation = true;
       } else {
         // add to our pairs
-        gameContext.game.successfulPairs = [
-          ...gameContext.game.successfulPairs,
+        gameContext.gameData.successfulPairs = [
+          ...gameContext.gameData.successfulPairs,
           pair
         ];
 
@@ -65,7 +65,7 @@ export default component$(
       }
 
       // clear our selectedCards
-      gameContext.game.selectedCardIds = [];
+      gameContext.gameData.selectedCardIds = [];
 
       // finally finally, check for end conditions
       gameContext.isGameEnded().then(res => {
@@ -76,10 +76,10 @@ export default component$(
     });
 
     const unflipCard = $(async () => {
-      if (gameContext.game.selectedCardIds.length === 2) {
+      if (gameContext.gameData.selectedCardIds.length === 2) {
         await handleAddToSuccessfulPairsIfMatching();
       }
-      gameContext.game.flippedCardId = -1;
+      gameContext.gameData.flippedCardId = -1;
       lastClick.value = Date.now();
     });
 
@@ -93,21 +93,21 @@ export default component$(
       // console.log("handleClickUnflippedCard", { cardId });
 
       const newSelected = cardUtils.handleAddCardToSelected(
-        [...gameContext.game.selectedCardIds],
+        [...gameContext.gameData.selectedCardIds],
         cardId
       );
 
-      if (newSelected.length !== gameContext.game.selectedCardIds.length) {
-        gameContext.game.selectedCardIds = newSelected;
+      if (newSelected.length !== gameContext.gameData.selectedCardIds.length) {
+        gameContext.gameData.selectedCardIds = newSelected;
 
         const isFinalPair =
           newSelected.length === 2 &&
-          gameContext.game.successfulPairs.length ===
+          gameContext.gameData.successfulPairs.length ===
           gameContext.userSettings.deck.size / 2 - 1;
 
         // check immediately for the final pair
         if (isFinalPair) {
-          gameContext.game.flippedCardId = cardId;
+          gameContext.gameData.flippedCardId = cardId;
           gameContext.timer.pause();
           // runUnflipDebounce(BOARD.MINIMUM_TIME_BETWEEN_CLICKS);
           unflipDebounce.callDebounce();
@@ -116,7 +116,7 @@ export default component$(
       }
 
       // flip it either way
-      gameContext.game.flippedCardId = cardId;
+      gameContext.gameData.flippedCardId = cardId;
       lastClick.value = Date.now();
     });
 
@@ -153,7 +153,7 @@ export default component$(
     });
 
     const handleClickBoard$ = $((e: MouseEvent) => {
-      const isCardFlipped = gameContext.game.flippedCardId !== -1;
+      const isCardFlipped = gameContext.gameData.flippedCardId !== -1;
       // attempt to get the card id if click is on a card
       // removed cards don't intercept click events, so they're filtered out automatically
       const clickedId = Number((e.target as HTMLElement).dataset.id) || false;
@@ -395,7 +395,7 @@ export default component$(
         onClick$={handleClickBoard$}
         data-label="board"
       >
-        {gameContext.game.cards.map((card) => (
+        {gameContext.gameData.cards.map((card) => (
           <Card card={card} key={card.id} />
         ))}
       </div>

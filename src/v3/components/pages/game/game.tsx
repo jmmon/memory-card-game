@@ -105,11 +105,11 @@ export default component$(
     useTimeoutObj({
       action: $(() => {
         gameContext.shuffleCardPositions();
-        gameContext.game.shufflingState -= 1;
+        gameContext.gameData.shufflingState -= 1;
 
-        if (gameContext.game.shufflingState <= 0) gameContext.stopShuffling();
+        if (gameContext.gameData.shufflingState <= 0) gameContext.stopShuffling();
       }),
-      triggerCondition: useComputed$(() => gameContext.game.shufflingState > 0),
+      triggerCondition: useComputed$(() => gameContext.gameData.shufflingState > 0),
       initialDelay:
         BOARD.CARD_SHUFFLE_PAUSE_DURATION + BOARD.CARD_SHUFFLE_ACTIVE_DURATION,
     });
@@ -121,14 +121,14 @@ export default component$(
      * ================================ */
     useDelayedTimeoutObj({
       actionOnStart: $(() => {
-        gameContext.game.isShaking = true;
+        gameContext.gameData.isShaking = true;
       }),
       actionOnEnd: $(() => {
-        gameContext.game.isShaking = false;
-        gameContext.game.mismatchPair = "";
+        gameContext.gameData.isShaking = false;
+        gameContext.gameData.mismatchPair = "";
       }),
       triggerCondition: useComputed$(
-        () => gameContext.game.mismatchPair !== ""
+        () => gameContext.gameData.mismatchPair !== ""
       ),
       initialDelay:
         GAME.SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD,
@@ -203,7 +203,7 @@ export default component$(
           <Board containerRef={containerRef} />
         </div>
 
-        <Loading isShowing={gameContext.game.isLoading} />
+        <Loading isShowing={gameContext.gameData.isLoading} />
         <Settings />
         <EndGame />
       </>

@@ -2,20 +2,16 @@ import type { QRL } from "@builder.io/qwik";
 import type { useTimer } from "~/v3/hooks/useTimer";
 import type { iSchemas } from "../validation/schemas";
 
-export type iObj = { [key: string]: any };
-export type iObjEntries = { [key: string]: any };
-
-export type iNestedObj = { [key: string]: string | iObj };
+export type iObj = Record<string, any>;
+export type iNestedObj = Record<string, string | iObj>;
 
 export type Timer = ReturnType<typeof useTimer>;
 
-export type Coords = { x: number; y: number };
+export type iCoords = { x: number; y: number };
 
-export type ShuffleTransform = { x: number; y: number };
+export type iPair = `${number}:${number}`;
 
-export type Pair = `${number}:${number}`;
-
-export type PlayingCardSvgProps =
+export type iPlayingCardSvgProps =
   | {
       color: "red";
       symbol: "diamonds" | "hearts";
@@ -25,7 +21,7 @@ export type PlayingCardSvgProps =
       symbol: "clubs" | "spades";
     };
 
-export type Card = {
+export type iCard = {
   id: number;
   text: string; // alternate content of the card (if no img)
   position: number; // board slot index
@@ -35,7 +31,7 @@ export type Card = {
   localSVG?: string;
 };
 
-export enum SelectCardEnum {
+export enum iSelectCardEnum {
   OFF,
   ONE,
   TWO,
@@ -51,11 +47,11 @@ export type iGameSettings = {
   cardFlipAnimationDuration: number;
 
   deck: {
-    fullDeck: Card[];
+    fullDeck: iCard[];
   };
 };
 
-export type BoardLayout = {
+export type iBoardLayout = {
   width: number;
   height: number;
   columns: number;
@@ -65,7 +61,7 @@ export type BoardLayout = {
   colWidth: number;
 };
 
-export type CardLayout = {
+export type iCardLayout = {
   width: number;
   height: number;
   area: number;
@@ -74,44 +70,48 @@ export type CardLayout = {
   rowGapPercent: number;
 };
 
-export type GameData = {
+export type iGameData = {
   isStarted: boolean;
   flippedCardId: number;
   selectedCardIds: number[];
-  successfulPairs: Pair[];
-  cards: Card[];
-  mismatchPairs: Pair[];
-  mismatchPair: Pair | "";
+  successfulPairs: iPair[];
+  cards: iCard[];
+  mismatchPairs: iPair[];
+  mismatchPair: iPair | "";
   isShaking: boolean;
   isLoading: boolean;
   shufflingState: number;
 };
 
-export type iGameContext = {
-  boardLayout: BoardLayout;
-  cardLayout: CardLayout;
+export type iInterfaceSettings = {
+  isScrollable: boolean;
+  successAnimation: boolean;
+  mismatchAnimation: boolean;
+  inverseSettingsModal: {
+    isShowing: boolean;
+  };
+  settingsModal: {
+    isShowing: boolean;
+  };
+  endOfGameModal: {
+    isShowing: boolean;
+    isWin: boolean;
+  };
+};
 
-  game: GameData;
+export type iGameState = {
+  boardLayout: iBoardLayout;
+  cardLayout: iCardLayout;
+
+  gameData: iGameData;
 
   userSettings: iUserSettings;
   gameSettings: iGameSettings;
 
-  interface: {
-    isScrollable: boolean;
-    successAnimation: boolean;
-    mismatchAnimation: boolean;
-    inverseSettingsModal: {
-      isShowing: boolean;
-    };
-    settingsModal: {
-      isShowing: boolean;
-    };
-    endOfGameModal: {
-      isShowing: boolean;
-      isWin: boolean;
-    };
-  };
+  interface: iInterfaceSettings;
+};
 
+export type iGameHandlers = {
   shuffleCardPositions: QRL<() => void>;
   sliceDeck: QRL<() => void>;
   resetGame: QRL<(settings?: Partial<iUserSettings>) => void>;
@@ -133,5 +133,9 @@ export type iGameContext = {
   showSettings: QRL<() => void>;
   hideSettings: QRL<() => void>;
   endGame: QRL<(isWin: boolean) => void>;
-  timer: Timer;
 };
+
+export type iGameContext = {
+  timer: Timer;
+} & iGameState &
+  iGameHandlers;

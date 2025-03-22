@@ -5,31 +5,24 @@ import {
   useContextProvider,
   useStore,
 } from "@builder.io/qwik";
+import INITIAL_STATE from "./initialState";
 
 export type GameService = ReturnType<typeof useGameContextProvider>;
 const GameContext = createContextId<GameService>("gameContext2");
 
 export const useGameContextProvider = () => {
   // state
-  const state = useStore({
-    count: 0,
-  });
+  const state = useStore(INITIAL_STATE);
 
   // functions
   const handleFunction = $(() => {
     console.log("handleFunction", state);
   });
 
-  const handleAddToCount = $((number: number) => {
-    state.count += number;
-  });
-
   // hold the state, and the functions
   const service = {
     state,
     handleFunction,
-    handleAdd: handleAddToCount,
-    handleSubtract: $((number: number) => handleAddToCount(-number)),
   };
 
   // provide the service

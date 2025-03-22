@@ -1,10 +1,8 @@
 import { $ } from "@builder.io/qwik";
 import { GAME } from "../constants/game";
-import {
-  SelectCardEnum,
-} from "../types/types";
+import { iSelectCardEnum } from "../types/types";
 import type {
-  GameData,
+  iGameData,
   iGameContext,
   iGameSettings,
   iUserSettings,
@@ -16,7 +14,7 @@ import {
   calculateLayouts,
 } from "../utils/boardUtils";
 
-export const INITIAL_GAME_STATE: GameData = {
+export const INITIAL_GAME_STATE: iGameData = {
   isStarted: false,
   cards: [],
   mismatchPair: "",
@@ -28,7 +26,6 @@ export const INITIAL_GAME_STATE: GameData = {
   isLoading: true,
   shufflingState: 0,
 };
-
 
 // user controlled settings
 export const INITIAL_USER_SETTINGS: iUserSettings = {
@@ -59,7 +56,7 @@ export const INITIAL_USER_SETTINGS: iUserSettings = {
    * shuffle board after successful pair
    */
   shuffleBoardAfterPair: false,
-  /* TODO: 
+  /* TODO:
    * shuffle board after x mismatches
    *  0 = off (default)
    *  1 = shuffle board after every mismatch (really difficult)
@@ -71,7 +68,7 @@ export const INITIAL_USER_SETTINGS: iUserSettings = {
    */
   shuffleBoardAfterEveryRound: false,
   /* TODO:
-   * shuffle picked cards after placed back down after mismatch 
+   * shuffle picked cards after placed back down after mismatch
    * e.g. possibly swap the two cards to the opposite locations?
    */
   shufflePickedAfterMismatch: false,
@@ -82,7 +79,7 @@ export const INITIAL_USER_SETTINGS: iUserSettings = {
    *  - TWO = shuffle cards after picking second card
    *  - BOTH = shuffle cards after picking either card (two shuffles per round!)
    */
-  shuffleBoardOnSelectCard: SelectCardEnum.OFF,
+  shuffleBoardOnSelectCard: iSelectCardEnum.OFF,
 
   /* TODO:======================================
    * end NOT IMPLEMENTED
@@ -139,11 +136,11 @@ export const INITIAL_STATE = {
     rowGapPercent: 0,
   },
 
-  game: { ...INITIAL_GAME_STATE },
+  gameData: INITIAL_GAME_STATE,
 
-  userSettings: { ...INITIAL_USER_SETTINGS },
+  userSettings: INITIAL_USER_SETTINGS,
 
-  gameSettings: { ...INITIAL_GAME_SETTINGS },
+  gameSettings: INITIAL_GAME_SETTINGS,
 
   interface: {
     isScrollable: false,
@@ -161,50 +158,50 @@ export const INITIAL_STATE = {
     },
   },
 
-  shuffleCardPositions: $(function(this: iGameContext) {
+  shuffleCardPositions: $(function (this: iGameContext) {
     // shuffle and set new positions, save old positions
-    const newCards = deckUtils.shuffleCardPositions(this.game.cards);
+    const newCards = deckUtils.shuffleCardPositions(this.gameData.cards);
     // console.log("shuffleCardPositions:", { newCards });
-    this.game.cards = newCards;
+    this.gameData.cards = newCards;
   }),
 
-  startShuffling: $(function(
+  startShuffling: $(function (
     this: iGameContext,
-    count: number = GAME.CARD_SHUFFLE_ROUNDS
+    count: number = GAME.CARD_SHUFFLE_ROUNDS,
   ) {
     this.shuffleCardPositions();
-    this.game.shufflingState = count - 1;
-    this.game.isLoading = true;
+    this.gameData.shufflingState = count - 1;
+    this.gameData.isLoading = true;
     this.interface.settingsModal.isShowing = false;
   }),
 
-  stopShuffling: $(function(this: iGameContext) {
-    this.game.shufflingState = 0;
-    this.game.isLoading = false;
+  stopShuffling: $(function (this: iGameContext) {
+    this.gameData.shufflingState = 0;
+    this.gameData.isLoading = false;
   }),
 
-  sliceDeck: $(function(this: iGameContext) {
+  sliceDeck: $(function (this: iGameContext) {
     const deckShuffledByPairs = deckUtils.shuffleDeckAndRefreshIds([
       ...this.gameSettings.deck.fullDeck,
     ]);
     const cards = deckShuffledByPairs.slice(0, this.userSettings.deck.size);
-    this.game.cards = cards;
+    this.gameData.cards = cards;
   }),
-  initializeDeck: $(async function(this: iGameContext) {
+  initializeDeck: $(async function (this: iGameContext) {
     await this.sliceDeck();
     this.startShuffling();
   }),
 
-  calculateAndResizeBoard: $(function(
+  calculateAndResizeBoard: $(function (
     this: iGameContext,
     boardRef: HTMLDivElement,
-    containerRef: HTMLDivElement
+    containerRef: HTMLDivElement,
   ) {
     const newBoard = calculateBoardDimensions(containerRef, boardRef);
     const { cardLayout, boardLayout } = calculateLayouts(
       newBoard.width,
       newBoard.height,
-      this.userSettings.deck.size
+      this.userSettings.deck.size,
     );
     this.cardLayout = cardLayout;
     this.boardLayout = {
@@ -213,44 +210,44 @@ export const INITIAL_STATE = {
     };
   }),
 
-  showSettings: $(function(this: iGameContext) {
+  showSettings: $(function (this: iGameContext) {
     this.timer.pause();
     this.interface.settingsModal.isShowing = true;
   }),
-  hideSettings: $(function(this: iGameContext) {
+  hideSettings: $(function (this: iGameContext) {
     this.interface.settingsModal.isShowing = false;
     this.timer.resume();
   }),
 
-  isGameEnded: $(function(this: iGameContext) {
+  isGameEnded: $(function (this: iGameContext) {
     // TODO:
     // implement other modes, like max mismatches
     const isEnded =
-      this.game.successfulPairs.length === this.userSettings.deck.size / 2;
+      this.gameData.successfulPairs.length === this.userSettings.deck.size / 2;
 
     if (!isEnded) return { isEnded };
 
     const isWin =
-      this.game.successfulPairs.length === this.userSettings.deck.size / 2;
+      this.gameData.successfulPairs.length === this.userSettings.deck.size / 2;
 
     return { isEnded, isWin };
   }),
 
-  startGame: $(function(this: iGameContext) {
+  startGame: $(function (this: iGameContext) {
     if (this.timer.state.isStarted) {
       this.timer.reset();
     }
     this.timer.start();
   }),
-  endGame: $(function(this: iGameContext, isWin: boolean) {
+  endGame: $(function (this: iGameContext, isWin: boolean) {
     this.timer.stop();
     this.interface.endOfGameModal.isWin = isWin;
     this.interface.endOfGameModal.isShowing = true;
   }),
 
-  resetGame: $(async function(
+  resetGame: $(async function (
     this: iGameContext,
-    settings?: Partial<iUserSettings>
+    settings?: Partial<iUserSettings>,
   ) {
     if (settings !== undefined) {
       this.userSettings = {
@@ -260,17 +257,17 @@ export const INITIAL_STATE = {
     }
 
     // this.game = INITIAL_GAME_STATE;
-    this.game.isStarted = INITIAL_GAME_STATE.isStarted;
-    this.game.isLoading = INITIAL_GAME_STATE.isLoading;
-    this.game.isShaking = INITIAL_GAME_STATE.isShaking;
-    this.game.shufflingState = INITIAL_GAME_STATE.shufflingState;
-    this.game.flippedCardId = INITIAL_GAME_STATE.flippedCardId;
-    this.game.mismatchPair = INITIAL_GAME_STATE.mismatchPair;
+    this.gameData.isStarted = INITIAL_GAME_STATE.isStarted;
+    this.gameData.isLoading = INITIAL_GAME_STATE.isLoading;
+    this.gameData.isShaking = INITIAL_GAME_STATE.isShaking;
+    this.gameData.shufflingState = INITIAL_GAME_STATE.shufflingState;
+    this.gameData.flippedCardId = INITIAL_GAME_STATE.flippedCardId;
+    this.gameData.mismatchPair = INITIAL_GAME_STATE.mismatchPair;
 
-    this.game.cards = INITIAL_GAME_STATE.cards;
-    this.game.mismatchPairs = INITIAL_GAME_STATE.mismatchPairs;
-    this.game.successfulPairs = INITIAL_GAME_STATE.successfulPairs;
-    this.game.selectedCardIds = INITIAL_GAME_STATE.selectedCardIds;
+    this.gameData.cards = INITIAL_GAME_STATE.cards;
+    this.gameData.mismatchPairs = INITIAL_GAME_STATE.mismatchPairs;
+    this.gameData.successfulPairs = INITIAL_GAME_STATE.successfulPairs;
+    this.gameData.selectedCardIds = INITIAL_GAME_STATE.selectedCardIds;
 
     await this.timer.reset();
     await this.initializeDeck();

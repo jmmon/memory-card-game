@@ -1,4 +1,4 @@
-import type { Card } from "~/v3/types/types";
+import type { iCard } from "~/v3/types/types";
 
 const FULL_DECK_COUNT = 52;
 
@@ -15,7 +15,7 @@ const genId = (length = 5) =>
 
 //backup generator
 function v3GenerateDeck(total: number = FULL_DECK_COUNT) {
-  const unshuffledCards: Card[] = [];
+  const unshuffledCards: iCard[] = [];
   // build cards, pair by pair
   for (let i = 0; i < total / 2; i++) {
     const thisId = genId();
@@ -66,7 +66,7 @@ function v3Shuffle_FY_algo<T>(_array: T[]): T[] {
 
 // const buildPairType = (c1: V3Card, c2: V3Card) => `${c1.id}:${c2.id}`
 
-function refreshPairsId(pair: [Card, Card]) {
+function refreshPairsId(pair: [iCard, iCard]) {
   const newId = genId();
   const id = Number(newId + "0");
   const pairId = Number(newId + "1");
@@ -74,19 +74,19 @@ function refreshPairsId(pair: [Card, Card]) {
     ...card,
     id: i === 0 ? id : pairId,
     pairId: i === 0 ? pairId : id,
-  })) as [Card, Card];
+  })) as [iCard, iCard];
 }
 
-function buildArrOfPairs(fullDeck: Card[]) {
+function buildArrOfPairs(fullDeck: iCard[]) {
   const pairs = [];
   for (let i = 0; i < fullDeck.length; i += 2) {
     const thisPair = [fullDeck[i], fullDeck[i + 1]];
     pairs.push(thisPair);
   }
-  return pairs as Array<[Card, Card]>;
+  return pairs as Array<[iCard, iCard]>;
 }
 
-function unbuildArrOfPairs(arrOfPairs: Array<[Card, Card]>) {
+function unbuildArrOfPairs(arrOfPairs: Array<[iCard, iCard]>) {
   const deck = [];
   for (let i = 0; i < arrOfPairs.length; i++) {
     const thisPair = arrOfPairs[i];
@@ -95,7 +95,7 @@ function unbuildArrOfPairs(arrOfPairs: Array<[Card, Card]>) {
   return deck;
 }
 
-function shuffleDeckAndRefreshIds(fullDeck: Card[]) {
+function shuffleDeckAndRefreshIds(fullDeck: iCard[]) {
   const pairs = buildArrOfPairs(fullDeck);
 
   // refresh card ids between games, hopefully fixes the render issue
@@ -115,9 +115,9 @@ function shuffleDeckAndRefreshIds(fullDeck: Card[]) {
 /*
  * assign new random positions to deck of cards, and sort  by position
  * */
-function shuffleCardPositions(cards: Card[]) {
+function shuffleCardPositions(cards: iCard[]) {
   const randomOrder = v3Shuffle_FY_algo(
-    new Array(cards.length).fill(0).map((_, i) => i)
+    new Array(cards.length).fill(0).map((_, i) => i),
   );
 
   const isFirstShuffle =

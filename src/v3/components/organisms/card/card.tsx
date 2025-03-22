@@ -10,7 +10,7 @@ import cardUtils from "~/v3/utils/cardUtils";
 import { BOARD } from "~/v3/constants/board";
 import CardView from "~/v3/components/molecules/card-view/card-view";
 
-import type { BoardLayout, Coords, Card } from "~/v3/types/types";
+import type { iBoardLayout, iCoords, iCard } from "~/v3/types/types";
 import type { FunctionComponent, Signal } from "@builder.io/qwik";
 
 // underside shows immediately, but hides after this far during return transition
@@ -28,23 +28,23 @@ type FlipTransform = {
 };
 
 type CardProps = {
-  card: Card;
+  card: iCard;
 };
 
 export default component$<CardProps>(({ card }) => {
   const gameContext = useContext(GameContext);
 
   const isThisRemoved = useComputed$(() =>
-    cardUtils.isCardInPairs(gameContext.game.successfulPairs, card.id)
+    cardUtils.isCardInPairs(gameContext.gameData.successfulPairs, card.id)
   );
 
   const isThisMismatched = useComputed$(() =>
-    gameContext.game.mismatchPair.includes(String(card.id))
+    gameContext.gameData.mismatchPair.includes(String(card.id))
   );
 
   // is our card the flipped card?
   const isCardFlipped = useComputed$(
-    () => gameContext.game.flippedCardId === card.id
+    () => gameContext.gameData.flippedCardId === card.id
   );
 
   // show and hide the back face, so the backs of cards can't be inspected when face-down
@@ -105,7 +105,7 @@ export default component$<CardProps>(({ card }) => {
     rotateY: "0",
     scale: 1,
   });
-  const coords = useSignal<Coords>({ x: 0, y: 0 });
+  const coords = useSignal<iCoords>({ x: 0, y: 0 });
 
   // shuffling will change the card position, causing this to run
   // calc & save prev/cur grid coords from that card position;
@@ -138,7 +138,7 @@ export default component$<CardProps>(({ card }) => {
   });
 
   const isSelected = useComputed$(() =>
-    gameContext.game.selectedCardIds.includes(card.id)
+    gameContext.gameData.selectedCardIds.includes(card.id)
   );
 
   // if flipTrasnform.value.translateX > 0, we're moving to the right. We should be higher z-index since we are on the left. And vice versa.
@@ -193,13 +193,13 @@ export default component$<CardProps>(({ card }) => {
           data-id={card.id}
           data-label="card"
           class={`box-border w-full border border-slate-50/25 bg-transparent transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${isThisRemoved.value &&
-            gameContext.game.flippedCardId !== card.id &&
-            gameContext.game.flippedCardId !== card.pairId
+            gameContext.gameData.flippedCardId !== card.id &&
+            gameContext.gameData.flippedCardId !== card.pairId
             ? "pointer-events-none scale-[110%] opacity-0"
             : "cursor-pointer opacity-100"
             } ${isThisMismatched.value &&
-              gameContext.game.isShaking &&
-              gameContext.game.flippedCardId !== card.id
+              gameContext.gameData.isShaking &&
+              gameContext.gameData.flippedCardId !== card.id
               ? "shake-card"
               : ""
             }
@@ -229,7 +229,7 @@ export default component$<CardProps>(({ card }) => {
 });
 
 type CardFlippingWrapperProps = {
-  card: Card;
+  card: iCard;
   isSelected: Signal<boolean>;
   isCardFlipped: Signal<boolean>;
   isFaceShowing: Signal<boolean>;
@@ -237,7 +237,7 @@ type CardFlippingWrapperProps = {
   isFaceShowing_delayedOff: Signal<boolean>;
   flipTransform: Signal<FlipTransform>;
   roundedCornersPx: number;
-  boardLayout: BoardLayout;
+  boardLayout: iBoardLayout;
 };
 
 const CardFlippingWrapper: FunctionComponent<CardFlippingWrapperProps> = ({
