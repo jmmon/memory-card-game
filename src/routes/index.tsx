@@ -1,6 +1,6 @@
 import { component$, $, useSignal, useComputed$ } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
-import DropdownGrid from "~/v3/components/molecules/dropdown-grid/dropdown-grid";
+import Dropdown from "~/v3/components/molecules/dropdown/dropdown";
 import GameSettings from "~/v3/components/organisms/game-settings/game-settings";
 import {
   INITIAL_GAME_SETTINGS,
@@ -158,7 +158,7 @@ export const GameStarter = component$(() => {
         Play
       </Link>
 
-      <DropdownGrid buttonText="Change Settings">
+      <Dropdown buttonText="Change Settings">
         <GameSettings
           saveSettings$={saveSettings$}
           gameTime={0}
@@ -177,7 +177,7 @@ export const GameStarter = component$(() => {
             </Link>
           </div>
         </GameSettings>
-      </DropdownGrid>
+      </Dropdown>
     </>
   );
 });

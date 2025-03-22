@@ -1,10 +1,10 @@
-import { Slot, component$, useContext } from "@builder.io/qwik";
+import { Slot, component$ } from "@builder.io/qwik";
 
 import Button from "~/v3/components/atoms/button/button";
 import FormattedTime from "~/v3/components/molecules/formatted-time/formatted-time";
 import ModalRow from "~/v3/components/atoms/modal-row/modal-row";
 import InputLock from "~/v3/components/atoms/input-lock/input-lock";
-import DropdownGrid from "~/v3/components/molecules/dropdown-grid/dropdown-grid";
+import Dropdown from "~/v3/components/molecules/dropdown/dropdown";
 
 import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";
 import type { iGameSettings, iUserSettings } from "~/v3/types/types";
@@ -172,7 +172,7 @@ export default component$(
 
         <Help />
 
-        <DropdownGrid
+        <Dropdown
           buttonClasses="underline text-slate-400 hover:text-slate-50 focus:text-slate-50 bg-transparent hover:bg-transparent focus:bg-transparent"
           buttonClassesWhileOpen="text-slate-50"
           buttonText="Show Developer Settings"
@@ -257,7 +257,7 @@ export default component$(
               </InputLock>
             </ModalRow>
           </div>
-        </DropdownGrid>
+        </Dropdown>
 
         <Slot name="footer" />
       </div>
@@ -266,7 +266,7 @@ export default component$(
 );
 
 const Help = () => (
-  <DropdownGrid buttonText="Help" buttonClasses="w-full">
+  <Dropdown buttonText="Help" buttonClasses="w-full">
     <div class="w-full p-3">
       <ul class="grid w-full leading-5 list-disc gap-2 text-left text-slate-100">
         <li>Select cards by clicking on them.</li>
@@ -280,6 +280,6 @@ const Help = () => (
         </li>
       </ul>
     </div>
-  </DropdownGrid>
+  </Dropdown>
 );
 
