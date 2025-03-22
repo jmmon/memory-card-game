@@ -15,8 +15,8 @@ const DEFAULT_OPTIONS: Partial<ModalOptions> = { detectClickOutside: true };
 type ModalProps = {
   isShowing: boolean;
   hideModal$: PropFunction<() => void>;
-  containerClasses?: string;
-  bgClasses?: string;
+  containerClasses?: ClassList;
+  bgClasses?: ClassList;
   bgStyles?: any;
   title: string;
   options?: Partial<ModalOptions>;
@@ -43,19 +43,21 @@ export default component$<ModalProps>(
 
     return (
       <div
-        class={`top-0 left-0 absolute w-full h-full bg-black flex justify-center items-center transition-all ${DURATION} ${isShowing
-          ? `pointer-events-auto ${bgClasses} z-[1000] bg-opacity-30 `
-          : "pointer-events-none z-[-1] bg-opacity-0"
-          }`}
+        class={`top-0 left-0 absolute w-full h-full bg-black flex justify-center items-center transition-all ${DURATION} ${
+          isShowing
+            ? `pointer-events-auto ${bgClasses} z-[1000] bg-opacity-30 `
+            : "pointer-events-none z-[-1] bg-opacity-0"
+        }`}
         data-name="background"
         onClick$={closeModal$}
         style={bgStyles}
       >
         <div
-          class={`min-w-[19rem] w-[60vw] max-w-[32rem] max-h-[90vh] relative mx-auto text-center ${containerClasses} rounded-lg lg:rounded-3xl flex flex-col gap-1 p-[1.5%] transition-all ${DURATION} ${isShowing
-            ? "pointer-events-auto z-[1000] scale-100 opacity-100"
-            : "pointer-events-none z-[-1] scale-[120%] opacity-0"
-            }`}
+          class={`min-w-[19rem] w-[60vw] max-w-[32rem] max-h-[90vh] relative mx-auto text-center ${containerClasses} rounded-lg lg:rounded-3xl flex flex-col gap-1 p-[1.5%] transition-all ${DURATION} ${
+            isShowing
+              ? "pointer-events-auto z-[1000] scale-100 opacity-100"
+              : "pointer-events-none z-[-1] scale-[120%] opacity-0"
+          }`}
           data-name="modal"
         >
           <ModalHeader hideModal$={hideModal$} title={title} />
@@ -65,5 +67,5 @@ export default component$<ModalProps>(
         </div>
       </div>
     );
-  }
+  },
 );

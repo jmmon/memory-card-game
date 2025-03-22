@@ -51,7 +51,7 @@ export default component$(() => {
       isShowing={gameContext.interfaceSettings.settingsModal.isShowing}
       hideModal$={hideModal$}
       title="Game Settings"
-      containerClasses="bg-opacity-95"
+      containerClasses="bg-opacity-[98%] shadow-2xl"
     >
       <GameSettings
         // startShuffling$={gameContext.startShuffling}
