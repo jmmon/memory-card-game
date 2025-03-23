@@ -190,7 +190,7 @@ export default component$<CardProps>(({ card }) => {
         <div
           data-id={card.id}
           data-label="card"
-          class={`box-border w-full border border-slate-50/25 bg-transparent transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
+          class={`box-border w-full border border-slate-400 bg-slate-800 transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
             isThisRemoved.value &&
             ctx.state.gameData.flippedCardId !== card.id &&
             ctx.state.gameData.flippedCardId !== card.pairId
@@ -254,7 +254,7 @@ const CardFlippingWrapper: FunctionComponent<CardFlippingWrapperProps> = ({
   return (
     <div
       data-id={card.id}
-      class={`flex flex-col items-center justify-center w-full bg-slate-800 card-flip relative text-center`}
+      class={`flex flex-col items-center justify-center w-full card-flip relative text-center`}
       style={{
         transform:
           isCardFlipped.value ||
