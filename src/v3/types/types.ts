@@ -4,6 +4,7 @@ import type { iSchemas } from "../validation/schemas";
 
 export type iObj = Record<string, any>;
 export type iNestedObj = Record<string, string | iObj>;
+export type iEntriesStrings = [string, string][];
 
 export type iTimer = ReturnType<typeof useTimer>;
 

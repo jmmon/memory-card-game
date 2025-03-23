@@ -2,39 +2,15 @@ import { component$, $, useSignal, useComputed$ } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
 import Dropdown from "~/v3/components/molecules/dropdown/dropdown";
 import GameSettings from "~/v3/components/organisms/game-settings/game-settings";
-import { flattenObjectToEntries } from "~/v3/utils/utils";
+import { pruneDefaultsFromSettings } from "~/v3/utils/utils";
 
-import type { ClassList, Signal } from "@builder.io/qwik";
+import type { ClassList } from "@builder.io/qwik";
 import type { iUserSettings } from "~/v3/types/types";
 import Button from "~/v3/components/atoms/button/button";
 import Popover from "~/v3/components/molecules/popover/popover";
 import { USER_SETTINGS } from "~/v3/services/gameContext.service/initialState";
 
 const LI_CLASSES = "pl-2 md:pl-4";
-
-const pruneDefaultsFromQueryParams = (
-  newSettings: iUserSettings,
-  initialSettings: iUserSettings,
-) => {
-  const newFlatSettings = flattenObjectToEntries(newSettings);
-  const initialFlatSettings = flattenObjectToEntries(initialSettings);
-
-  const result: string[] = [];
-
-  for (let i = 0; i < newFlatSettings.length; i++) {
-    const [newEntryKey, newEntryValue] = newFlatSettings[i];
-    const [initialEntryKey, initialEntryValue] = initialFlatSettings[i];
-
-    if (
-      newEntryKey === initialEntryKey &&
-      newEntryValue !== initialEntryValue
-    ) {
-      result.push(`${newEntryKey}=${newEntryValue}`);
-    }
-  }
-
-  return result.join("&");
-};
 
 // function is_touch_enabled() {
 //   return isBrowser && (
@@ -141,30 +117,17 @@ const Instructions = () => {
 };
 
 export const GameStarter = component$(() => {
-  const unsavedSettings = useSignal<iUserSettings>(USER_SETTINGS);
+  const unsavedUserSettings = useSignal<iUserSettings>(USER_SETTINGS);
+  const playHref = useSignal<string>("");
 
-  // all settings which were changed from initial values
-  const compQParamsString = useComputed$<string>(() => {
-    const params = pruneDefaultsFromQueryParams(
-      unsavedSettings.value,
-      USER_SETTINGS,
-    );
-    return params;
+
+  useTask$(({ track }) => {
+    track(() => unsavedUserSettings.value);
+    // all settings which were changed from initial values
+    const params = pruneDefaultsFromSettings(unsavedUserSettings.value);
+    playHref.value = `/game/${params}`;
+    console.log({ unsavedUserSettings: unsavedUserSettings.value, params });
   });
-
-  // reset the UI to the new/initial settings when finished
-  const saveSettings$ = $((newSettings?: Signal<iUserSettings>) => {
-    unsavedSettings.value = newSettings?.value
-      ? newSettings.value
-      : USER_SETTINGS;
-  });
-
-  const playHref = useComputed$(
-    () =>
-      `/game${
-        compQParamsString.value !== "" ? "/?" + compQParamsString.value : ""
-      }`,
-  );
 
   return (
     <>
@@ -176,12 +139,15 @@ export const GameStarter = component$(() => {
       </Link>
 
       <Dropdown buttonText="Change Settings">
-        <GameSettings unsavedUserSettings={unsavedSettings}>
+        <GameSettings unsavedUserSettings={unsavedUserSettings}>
           <div
             q:slot="footer"
             class="mt-5 flex flex-grow items-center justify-around"
           >
-            <Button onClick$={saveSettings$} classes="min-w-[5em]">
+            <Button
+              onClick$={() => (unsavedUserSettings.value = USER_SETTINGS)}
+              classes="min-w-[5em]"
+            >
               <span class="text-slate-100">Reset</span>
             </Button>
             <Link
@@ -198,6 +164,7 @@ export const GameStarter = component$(() => {
 });
 
 export default component$(() => {
+  // get invert-card-colors from local storage
   return (
     <div class="flex h-screen flex-col items-center justify-between ">
       <div class="grid w-full max-w-[600px] items-center justify-center gap-8 text-slate-200">
