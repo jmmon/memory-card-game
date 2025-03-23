@@ -2,38 +2,15 @@ import { component$, $, useSignal, useComputed$ } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
 import Dropdown from "~/v3/components/molecules/dropdown/dropdown";
 import GameSettings from "~/v3/components/organisms/game-settings/game-settings";
-import {
-  INITIAL_USER_SETTINGS,
-} from "~/v3/context/initialState";
-import { flattenObjectToEntries } from "~/v3/utils/utils";
+import { pruneDefaultsFromSettings } from "~/v3/utils/utils";
 
-import type { ClassList, Signal } from "@builder.io/qwik";
+import type { ClassList } from "@builder.io/qwik";
 import type { iUserSettings } from "~/v3/types/types";
 import Button from "~/v3/components/atoms/button/button";
 import Popover from "~/v3/components/molecules/popover/popover";
+import { USER_SETTINGS } from "~/v3/services/gameContext.service/initialState";
 
 const LI_CLASSES = "pl-2 md:pl-4";
-
-const pruneDefaultsFromQueryParams = (
-  newSettings: iUserSettings,
-  initialSettings: iUserSettings,
-) => {
-  const newFlatSettings = flattenObjectToEntries(newSettings);
-  const initialFlatSettings = flattenObjectToEntries(initialSettings);
-
-  const result: string[] = [];
-
-  for (let i = 0; i < newFlatSettings.length; i++) {
-    const [newEntryKey, newEntryValue] = newFlatSettings[i];
-    const [initialEntryKey, initialEntryValue] = initialFlatSettings[i];
-
-    if (newEntryKey === initialEntryKey && newEntryValue !== initialEntryValue) {
-      result.push(`${newEntryKey}=${newEntryValue}`);
-    }
-  }
-
-  return result.join("&");
-};
 
 // function is_touch_enabled() {
 //   return isBrowser && (
@@ -56,25 +33,42 @@ const pruneDefaultsFromQueryParams = (
 //   return actionString;
 // }
 
-const SoonTm = ({ classes }: { classes?: ClassList }) => (<span class={`mx-[1px] ${classes}`}>Soon<sup class="align-[0.4em] text-[0.5em]">TM</sup></span>)
+const SoonTm = ({ classes }: { classes?: ClassList }) => (
+  <span class={`mx-[1px] ${classes}`}>
+    Soon<sup class="align-[0.4em] text-[0.5em]">TM</sup>
+  </span>
+);
 const SoonTmPopover = component$(() => {
   return (
-    <Popover panelClasses="max-w-[80vw]" rootClasses="inline mx-[-.3em]" size="1.5em">
-      <sup class="text-[.5em] align-super text-slate-500" q:slot="trigger">TM</sup>
+    <Popover
+      panelClasses="max-w-[80vw]"
+      rootClasses="inline mx-[-.3em]"
+      size="1.5em"
+    >
+      <sup class="text-[.5em] align-super text-slate-500" q:slot="trigger">
+        TM
+      </sup>
       <>
         <p class="text-sm">
-          "<SoonTm />" does not imply any particular date, time, decade, century, or millenia in the past, present, and certainly not the future. "Soon" shall make no contract or warranty between NomadCoder and the end user. "Soon" will arrive some day. NomadCoder <em>does</em> guarantee that "soon" will be here before the end of time. Maybe. Do not make plans based on "soon" as NomadCoder will not be liable for any misuse, use, or even casual glancing at "soon."
+          "<SoonTm />" does not imply any particular date, time, decade,
+          century, or millenia in the past, present, and certainly not the
+          future. "Soon" shall make no contract or warranty between NomadCoder
+          and the end user. "Soon" will arrive some day. NomadCoder{" "}
+          <em>does</em> guarantee that "soon" will be here before the end of
+          time. Maybe. Do not make plans based on "soon" as NomadCoder will not
+          be liable for any misuse, use, or even casual glancing at "soon."
         </p>
         <br />
         <p class="text-sm text-slate-400">
           Borrowed with love from Blizzard Entertainment.
         </p>
         <p class="mt-1 text-xs text-slate-400">
-          "<SoonTm />: Copyright pending 2004-2005 Blizzard Entertainment, Inc. All rights reserved."
+          "<SoonTm />: Copyright pending 2004-2005 Blizzard Entertainment, Inc.
+          All rights reserved."
         </p>
       </>
     </Popover>
-  )
+  );
 });
 
 const Instructions = () => {
@@ -97,11 +91,12 @@ const Instructions = () => {
           <code>
             (e.g. <strong>Queen</strong> of <strong>Spades</strong> with{" "}
             <strong>Queen</strong> of <strong>Clubs</strong>; or{" "}
-            <strong>2</strong> of <strong>Hearts</strong> with <strong>2</strong>{" "}
-            of <strong>Diamonds</strong>,)
+            <strong>2</strong> of <strong>Hearts</strong> with{" "}
+            <strong>2</strong> of <strong>Diamonds</strong>,)
           </code>{" "}
           <br />
-          ...you found a <strong>pair</strong> and they're removed from the board!
+          ...you found a <strong>pair</strong> and they're removed from the
+          board!
         </li>
         <li class={LI_CLASSES}>
           <strong>Clear</strong> the <strong>board</strong> to{" "}
@@ -112,41 +107,27 @@ const Instructions = () => {
           <strong>pairs found</strong>, and <strong>mismatches found</strong>.
         </li>
         <li class={`text-slate-500 ${LI_CLASSES}`}>
-          COMING SOON<SoonTmPopover />: Save your score, and see how you compare to other
+          COMING SOON
+          <SoonTmPopover />: Save your score, and see how you compare to other
           players!
         </li>
       </ul>
     </>
-  )
+  );
 };
 
 export const GameStarter = component$(() => {
-  const unsavedSettings = useSignal<iUserSettings>(
-    INITIAL_USER_SETTINGS
-  );
+  const unsavedUserSettings = useSignal<iUserSettings>(USER_SETTINGS);
+  const playHref = useSignal<string>("");
 
-  // all settings which were changed from initial values
-  const compQParamsString = useComputed$<string>(() => {
-    const params = pruneDefaultsFromQueryParams(
-      unsavedSettings.value,
-      INITIAL_USER_SETTINGS,
-    );
-    return params;
+
+  useTask$(({ track }) => {
+    track(() => unsavedUserSettings.value);
+    // all settings which were changed from initial values
+    const params = pruneDefaultsFromSettings(unsavedUserSettings.value);
+    playHref.value = `/game/${params}`;
+    console.log({ unsavedUserSettings: unsavedUserSettings.value, params });
   });
-
-  // reset the UI to the new/initial settings when finished
-  const saveSettings$ = $((newSettings?: Signal<iUserSettings>) => {
-    unsavedSettings.value = newSettings?.value
-      ? newSettings.value
-      : INITIAL_USER_SETTINGS;
-  });
-
-  const playHref = useComputed$(() =>
-    `/game${compQParamsString.value !== ""
-      ? "/?" + compQParamsString.value
-      : ""
-    }`
-  )
 
   return (
     <>
@@ -158,11 +139,15 @@ export const GameStarter = component$(() => {
       </Link>
 
       <Dropdown buttonText="Change Settings">
-        <GameSettings
-          unsavedUserSettings={unsavedSettings}
-        >
-          <div q:slot="footer" class="mt-5 flex flex-grow items-center justify-around">
-            <Button onClick$={saveSettings$} classes="min-w-[5em]">
+        <GameSettings unsavedUserSettings={unsavedUserSettings}>
+          <div
+            q:slot="footer"
+            class="mt-5 flex flex-grow items-center justify-around"
+          >
+            <Button
+              onClick$={() => (unsavedUserSettings.value = USER_SETTINGS)}
+              classes="min-w-[5em]"
+            >
               <span class="text-slate-100">Reset</span>
             </Button>
             <Link
@@ -179,12 +164,11 @@ export const GameStarter = component$(() => {
 });
 
 export default component$(() => {
+  // get invert-card-colors from local storage
   return (
     <div class="flex h-screen flex-col items-center justify-between ">
       <div class="grid w-full max-w-[600px] items-center justify-center gap-8 text-slate-200">
-        <h1 class="text-center text-4xl text-slate-500">
-          Memory Card Game
-        </h1>
+        <h1 class="text-center text-4xl text-slate-500">Memory Card Game</h1>
         <Instructions />
 
         <GameStarter />
