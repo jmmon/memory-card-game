@@ -16,6 +16,9 @@
 - added options in interface object
 > - brightness (number) slider e.g. 100%-10%
 > - invert toggle (to invert and hue shift 180* to fix red)
+> > localstorage
+> > - consumeParams => when game with params is loaded, consume them and refresh without params, but save the params into the settings
+> > - ensure darkmode settings changes later are also stored to localStorage
 
 
 ## TODO: challenge modes
