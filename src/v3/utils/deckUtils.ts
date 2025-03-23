@@ -78,12 +78,12 @@ function refreshPairsId(pair: [iCard, iCard]) {
 }
 
 function buildArrOfPairs(fullDeck: iCard[]) {
-  const pairs = [];
+  const pairs: [iCard, iCard][] = [];
   for (let i = 0; i < fullDeck.length; i += 2) {
-    const thisPair = [fullDeck[i], fullDeck[i + 1]];
+    const thisPair: [iCard, iCard] = [fullDeck[i], fullDeck[i + 1]];
     pairs.push(thisPair);
   }
-  return pairs as Array<[iCard, iCard]>;
+  return pairs;
 }
 
 function unbuildArrOfPairs(arrOfPairs: Array<[iCard, iCard]>) {
@@ -112,22 +112,25 @@ function shuffleDeckAndRefreshIds(fullDeck: iCard[]) {
   return shuffledPairs;
 }
 
+const buildIndexArray = (length: number) =>
+  new Array(length).fill(0).map((_, i) => i);
 /*
  * assign new random positions to deck of cards, and sort  by position
  * */
 function shuffleCardPositions(cards: iCard[]) {
-  const randomOrder = v3Shuffle_FY_algo(
-    new Array(cards.length).fill(0).map((_, i) => i),
-  );
+  const randomOrder = v3Shuffle_FY_algo(buildIndexArray(cards.length));
 
   const isFirstShuffle =
     cards.filter((c) => c.position === 0).length === cards.length;
 
-  return cards.map((card, i) => ({
-    ...card,
-    prevPosition: isFirstShuffle ? null : card.position,
-    position: randomOrder[i],
-  }));
+  return cards.map(
+    (card, i) =>
+      ({
+        ...card,
+        prevPosition: isFirstShuffle ? null : card.position,
+        position: randomOrder[i],
+      }) as iCard,
+  );
 }
 
 const deckUtils = {

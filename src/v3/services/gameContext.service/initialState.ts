@@ -105,7 +105,7 @@ const USER_SETTINGS: iUserSettings = {
 };
 
 // unadjustable settings
-const GAME_SETTINGS: iGameSettings = {
+export const GAME_SETTINGS: iGameSettings = {
   cardFlipAnimationDuration: 800,
 
   deck: {

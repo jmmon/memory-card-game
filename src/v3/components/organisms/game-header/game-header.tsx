@@ -1,6 +1,5 @@
-import { component$, useContext } from "@builder.io/qwik";
+import { component$ } from "@builder.io/qwik";
 import Button from "../../atoms/button/button";
-import { GameContext } from "~/v3/context/gameContext";
 import HeaderSection from "~/v3/components/atoms/header-section/header-section";
 import HeaderSelectedIds from "~/v3/components/atoms/header-selected-ids/header-selected-ids";
 import HeaderGameDimensions from "~/v3/components/atoms/header-game-dimensions/header-game-dimensions";
@@ -8,20 +7,21 @@ import HeaderTimerDisplay from "~/v3/components/atoms/header-timer-display/heade
 import HeaderScoresDisplay from "~/v3/components/atoms/header-scores-display/header-scores-display";
 
 import type { PropFunction } from "@builder.io/qwik";
+import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 
 export default component$(
   ({ showSettings$ }: { showSettings$: PropFunction<() => void> }) => {
-    const gameContext = useContext(GameContext);
+    const ctx = useGameContextService();
 
     return (
       <header
         class={`mx-auto text-center text-xs md:text-sm flex justify-around w-full h-min`}
       >
         <HeaderSection classes="justify-around">
-          {gameContext.userSettings.interface.showSelectedIds && (
+          {ctx.state.userSettings.interface.showSelectedIds && (
             <HeaderSelectedIds />
           )}
-          {gameContext.userSettings.interface.showDimensions && (
+          {ctx.state.userSettings.interface.showDimensions && (
             <HeaderGameDimensions />
           )}
           <HeaderTimerDisplay />
@@ -36,5 +36,5 @@ export default component$(
         </HeaderSection>
       </header>
     );
-  }
+  },
 );

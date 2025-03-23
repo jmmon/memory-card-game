@@ -1,11 +1,4 @@
-import {
-  $,
-  component$,
-  useContext,
-  useSignal,
-  useTask$,
-} from "@builder.io/qwik";
-import { GameContext } from "~/v3/context/gameContext";
+import { $, component$, useSignal, useTask$ } from "@builder.io/qwik";
 
 import Modal from "~/v3/components/templates/modal/modal";
 import GameSettings from "~/v3/components/organisms/game-settings/game-settings";
@@ -14,25 +7,26 @@ import type { Signal } from "@builder.io/qwik";
 import type { iUserSettings } from "~/v3/types/types";
 import Button from "../../atoms/button/button";
 import GameStats from "../../molecules/game-stats/game-stats";
+import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 
 export default component$(() => {
-  const gameContext = useContext(GameContext);
+  const ctx = useGameContextService();
   const unsavedSettings = useSignal<iUserSettings>({
-    ...gameContext.userSettings,
+    ...ctx.state.userSettings,
   });
 
   const hideModal$ = $(() => {
     // resync when hiding modal
-    unsavedSettings.value = gameContext.userSettings;
-    gameContext.hideSettings();
+    unsavedSettings.value = ctx.state.userSettings;
+    ctx.handle.hideSettings();
   });
 
   const saveOrResetSettings = $(async (newSettings?: Signal<iUserSettings>) => {
-    gameContext
+    ctx.handle
       .resetGame(newSettings ? newSettings.value : undefined)
       .then(() => {
         // resync and hide modal after new settings are saved
-        console.log("game reset", gameContext);
+        console.log("game reset", ctx);
         hideModal$();
       });
   });
@@ -40,24 +34,24 @@ export default component$(() => {
   // fixes end-game modal changes not reflecting in settings modal
   // since before, the unsavedSettings was only set on mount
   useTask$(({ track }) => {
-    track(() => gameContext.interfaceSettings.settingsModal.isShowing);
-    if (gameContext.interfaceSettings.settingsModal.isShowing) {
-      unsavedSettings.value = gameContext.userSettings;
+    track(() => ctx.state.interfaceSettings.settingsModal.isShowing);
+    if (ctx.state.interfaceSettings.settingsModal.isShowing) {
+      unsavedSettings.value = ctx.state.userSettings;
     }
   });
 
   return (
     <Modal
-      isShowing={gameContext.interfaceSettings.settingsModal.isShowing}
+      isShowing={ctx.state.interfaceSettings.settingsModal.isShowing}
       hideModal$={hideModal$}
       title="Game Settings"
       containerClasses="bg-opacity-[98%] shadow-2xl"
     >
       <GameSettings
-        // startShuffling$={gameContext.startShuffling}
+        startShuffling$={ctx.handle.startShuffling}
         unsavedUserSettings={unsavedSettings}
       >
-        {gameContext.timer.state.time > 0 && <GameStats q:slot="game-stats" />}
+        {ctx.timer.state.time > 0 && <GameStats q:slot="game-stats" />}
 
         <div
           q:slot="footer"

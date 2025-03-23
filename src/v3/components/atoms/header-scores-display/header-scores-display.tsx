@@ -2,46 +2,48 @@ import {
   $,
   component$,
   useComputed$,
-  useContext,
   useStylesScoped$,
 } from "@builder.io/qwik";
 import { header } from "~/v3/constants/header-constants";
-import { GameContext } from "~/v3/context/gameContext";
 import { useTimeoutObj } from "~/v3/hooks/useTimeout";
+import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
+import { iPair } from "~/v3/types/types";
 
 export default component$(() => {
-  const gameContext = useContext(GameContext);
+  const ctx = useGameContextService();
 
   useTimeoutObj({
     action: $(() => {
-      gameContext.interfaceSettings.successAnimation = false;
+      ctx.state.interfaceSettings.successAnimation = false;
     }),
     triggerCondition: useComputed$(
-      () => gameContext.interfaceSettings.successAnimation,
+      () => ctx.state.interfaceSettings.successAnimation,
     ),
     initialDelay: header.COUNTER_ANIMATE_DURATION,
   });
 
   useTimeoutObj({
     action: $(() => {
-      gameContext.interfaceSettings.mismatchAnimation = false;
+      ctx.state.interfaceSettings.mismatchAnimation = false;
     }),
     triggerCondition: useComputed$(
-      () => gameContext.interfaceSettings.mismatchAnimation,
+      () => ctx.state.interfaceSettings.mismatchAnimation,
     ),
     initialDelay: header.COUNTER_ANIMATE_DURATION,
   });
 
-  const mismatchAnimation = useComputed$(() => {
-    const extraMismatchFeatures =
-      gameContext.userSettings.maxAllowableMismatches !== -1 ||
-      // gameContext.userSettings.shuffleBoardOnSelectCard ||
-      gameContext.userSettings.shufflePickedAfterMismatch ||
-      gameContext.userSettings.shuffleBoardAfterMismatches > 0;
-    return (
-      gameContext.interfaceSettings.mismatchAnimation && extraMismatchFeatures
-    );
-  });
+  // const mismatchAnimation = useComputed$(() => {
+  //   if (!ctx.state.interfaceSettings.mismatchAnimation) return false;
+  //
+  //   const extraMismatchFeatures =
+  //     ctx.state.userSettings.maxAllowableMismatches !== -1 ||
+  //     // ctx.state.userSettings.shuffleBoardOnSelectCard ||
+  //     ctx.state.userSettings.shufflePickedAfterMismatch ||
+  //     ctx.state.userSettings.shuffleBoardAfterMismatches > 0;
+  //   return (
+  //     extraMismatchFeatures
+  //   );
+  // });
 
   useStylesScoped$(`
     .success, .mismatch {
@@ -69,50 +71,59 @@ export default component$(() => {
       class={`bg-slate-800 ${header.CODE_TEXT_LIGHT} grid w-[12em] gap-1 ${header.CODE_PADDING}`}
     >
       <Score
-        animate={gameContext.interfaceSettings.successAnimation}
-        score={gameContext.gameData.successfulPairs.length}
+        animate={ctx.state.interfaceSettings.successAnimation}
+        // score={ctx.state.gameData.successfulPairs}
+        score={ctx.state.gameData.successfulPairs.length}
         showMax={true}
-        max={gameContext.userSettings.deck.size / 2}
+        max={ctx.state.userSettings.deck.size / 2}
         label="pairs"
+        type="success"
       />
 
       <Score
-        animate={mismatchAnimation.value}
-        score={gameContext.gameData.mismatchPairs.length}
-        showMax={gameContext.userSettings.maxAllowableMismatches !== -1}
-        max={gameContext.userSettings.maxAllowableMismatches}
+        animate={ctx.state.interfaceSettings.mismatchAnimation}
+        // animate={mismatchAnimation.value}
+        // score={ctx.state.gameData.mismatchPairs}
+        score={ctx.state.gameData.mismatchPairs.length}
+        showMax={ctx.state.userSettings.maxAllowableMismatches !== -1}
+        max={ctx.state.userSettings.maxAllowableMismatches}
         label="mismatches"
+        type="mismatch"
       />
     </code>
   );
 });
 
-const Score = component$(
-  ({
-    animate,
-    score,
-    showMax = false,
-    max = -1,
-    label,
-  }: {
-    animate: boolean;
-    score: number;
-    showMax: boolean;
-    max: number;
-    label: string;
-  }) => {
-    return (
-      <div
-        class={`rounded mismatch ${
-          animate ? header.SCORE_ANIMATION_CLASSES : ""
-        } grid gap-1.5 grid-cols-[2fr_1fr] ${header.CODE_TEXT_DARK}`}
-      >
-        <span class="text-right">{label}:</span>
-        <span class="text-left text-slate-100">
-          {score}
-          {showMax && <span class="text-slate-400">/{max}</span>}
-        </span>
-      </div>
-    );
-  },
-);
+const Score = ({
+  animate,
+  score,
+  showMax = false,
+  max = -1,
+  label,
+  type,
+}: {
+  animate: boolean;
+  // score: iPair[];
+  score: number;
+  showMax: boolean;
+  max: number;
+  label: string;
+  type: "success" | "mismatch";
+}) => {
+  return (
+    <div
+      class={`${type} rounded ${
+        animate ? header.SCORE_ANIMATION_CLASSES : ""
+      } grid gap-1.5 grid-cols-[2fr_1fr] ${header.CODE_TEXT_DARK}`}
+    >
+      <span class="text-right">{label}:</span>
+      <span class="text-left text-slate-100">
+        {/*
+          {score.length}
+*/}
+        {score}
+        {showMax && <span class="text-slate-400">/{max}</span>}
+      </span>
+    </div>
+  );
+};

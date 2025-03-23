@@ -1,4 +1,4 @@
-import { Slot, component$ } from "@builder.io/qwik";
+import { $, Slot, component$ } from "@builder.io/qwik";
 
 import Button from "~/v3/components/atoms/button/button";
 import ModalRow from "~/v3/components/atoms/modal-row/modal-row";
@@ -23,18 +23,26 @@ export default component$(
     startShuffling$,
     classes = "",
   }: GameSettingsProps) => {
+    const handleToggle$ = $((e: Event) => {
+      const properties = (e.target as HTMLInputElement).name.split(".");
+      unsavedUserSettings.value = {
+        ...unsavedUserSettings.value,
+        [properties[0]]: {
+          ...unsavedUserSettings.value[properties[0]],
+          [properties[1]]: (e.target as HTMLInputElement).checked,
+        },
+      };
+    });
     return (
       <div class={`flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%] ${classes}`}>
         {startShuffling$ !== undefined && (
           <div class="mb-4 flex flex-grow items-center justify-evenly">
             <div class="w-full grid grid-cols-[1fr_8em_1fr] items-center justify-center gap-[2%]">
               <span></span>
-              <Button onClick$={startShuffling$}>
+              <Button onClick$={() => startShuffling$()}>
                 <span class="text-slate-100">Shuffle Deck</span>
               </Button>
-              <InfoTooltip>
-                Shuffle the card positions.
-              </InfoTooltip>
+              <InfoTooltip>Shuffle the card positions.</InfoTooltip>
             </div>
           </div>
         )}
@@ -45,7 +53,6 @@ export default component$(
           <div
             class={`flex-grow flex flex-col ${settingsModalConstants.COLUMN_GAP}  items-center`}
           >
-
             <Slot name="game-stats" />
 
             <ModalRow>
@@ -165,77 +172,47 @@ export default component$(
             <ModalRow>
               <InputLock
                 text="Lock Board:"
-                value={unsavedUserSettings.value.board.isLocked}
-                onChange$={(e) => {
-                  unsavedUserSettings.value = {
-                    ...unsavedUserSettings.value,
-                    board: {
-                      ...unsavedUserSettings.value.board,
-                      isLocked: (e.target as HTMLInputElement).checked,
-                    },
-                  };
-                }}
+                name="board.isLocked"
+                settings={unsavedUserSettings.value}
+                onChange$={handleToggle$}
               >
-                <InfoTooltip>
-                  Prevent board layout from changing.
-                </InfoTooltip>
+                <InfoTooltip>Prevent board layout from changing.</InfoTooltip>
               </InputLock>
             </ModalRow>
             <ModalRow>
               <InputLock
                 text="Lock Deck:"
-                value={unsavedUserSettings.value.deck.isLocked}
-                onChange$={(e) => {
-                  unsavedUserSettings.value = {
-                    ...unsavedUserSettings.value,
-                    deck: {
-                      ...unsavedUserSettings.value.deck,
-                      isLocked: (e.target as HTMLInputElement).checked,
-                    },
-                  };
-                }}
+                name="deck.isLocked"
+                settings={unsavedUserSettings.value}
+                onChange$={handleToggle$}
               >
-                <InfoTooltip>
-                  Prevent deck size from changing.
-                </InfoTooltip>
+                <InfoTooltip>Prevent deck size from changing.</InfoTooltip>
               </InputLock>
             </ModalRow>
 
             <ModalRow>
               <InputLock
                 text="Show Selected Card Ids"
-                value={unsavedUserSettings.value.interface.showSelectedIds}
-                onChange$={(e) => {
-                  unsavedUserSettings.value = {
-                    ...unsavedUserSettings.value,
-                    interface: {
-                      ...unsavedUserSettings.value.interface,
-                      showSelectedIds: (e.target as HTMLInputElement).checked,
-                    },
-                  };
-                }}
+                name="interface.showSelectedIds"
+                settings={unsavedUserSettings.value}
+                onChange$={handleToggle$}
               >
                 <InfoTooltip>
-                  Show unique card IDs for <div class="mt-1">currently selected cards</div>
+                  Show unique card IDs for{" "}
+                  <div class="mt-1">currently selected cards</div>
                 </InfoTooltip>
               </InputLock>
             </ModalRow>
             <ModalRow>
               <InputLock
                 text="Show Dimensions"
-                value={unsavedUserSettings.value.interface.showDimensions}
-                onChange$={(e) => {
-                  unsavedUserSettings.value = {
-                    ...unsavedUserSettings.value,
-                    interface: {
-                      ...unsavedUserSettings.value.interface,
-                      showDimensions: (e.target as HTMLInputElement).checked,
-                    },
-                  };
-                }}
+                name="interface.showDimensions"
+                settings={unsavedUserSettings.value}
+                onChange$={handleToggle$}
               >
                 <InfoTooltip>
-                  Show board layout and <div class="mt-1">window dimensions.</div>
+                  Show board layout and{" "}
+                  <div class="mt-1">window dimensions.</div>
                 </InfoTooltip>
               </InputLock>
             </ModalRow>
@@ -245,7 +222,7 @@ export default component$(
         <Slot name="footer" />
       </div>
     );
-  }
+  },
 );
 
 const Help = () => (
@@ -254,15 +231,14 @@ const Help = () => (
       <ul class="grid w-full leading-5 list-disc gap-2 text-left text-slate-100">
         <li>Select cards by clicking on them.</li>
         <li>
-          Cards are matched when the two selected cards have the same number
-          and the color matches (i.e. red with red, black with black).
+          Cards are matched when the two selected cards have the same number and
+          the color matches (i.e. red with red, black with black).
         </li>
         <li>
-          Game time starts when you select your first card, and stops when
-          the last pair of cards disappears.
+          Game time starts when you select your first card, and stops when the
+          last pair of cards disappears.
         </li>
       </ul>
     </div>
   </Dropdown>
 );
-
