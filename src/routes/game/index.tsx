@@ -4,11 +4,10 @@ import styles from "./styles.css?inline";
 import Game from "~/v3/components/pages/game/game";
 import { typeEntryValues, unflattenObject } from "~/v3/utils/utils";
 import { validate } from "~/v3/validation/validate";
-import schemas from "~/v3/validation/schemas";
-
-import type { iUserSettings } from "~/v3/types/types";
 import { USER_SETTINGS } from "~/v3/services/gameContext.service/initialState";
-// import SubmitScoreModal from "~/v3/components/submit-score-modal/submit-score-modal";
+
+import schemas from "~/v3/validation/schemas";
+import type { iUserSettings } from "~/v3/types/types";
 
 import { toString } from "~/v3/utils/utils";
 export { toString };
@@ -60,11 +59,13 @@ export default component$(() => {
 
   useTask$(({ track }) => {
     track(() => paramsSettings.value);
-    if (paramsSettings.value && !isParamsConsumed.value) {
-      isParamsConsumed.value = true;
-      consumedSettings.value = paramsSettings.value;
-      nav("/game/");
-    }
+    if (isParamsConsumed.value) return;
+
+    isParamsConsumed.value = true;
+    consumedSettings.value = paramsSettings.value;
+    nav("/game/", {
+      replaceState: true,
+    });
   });
 
   useStyles$(styles);
@@ -76,7 +77,6 @@ export default component$(() => {
           Memory Card Game
         </Link>
       </h1>
-      {/* <SubmitScoreModal /> */}
       {isParamsConsumed.value && <Game settings={consumedSettings.value} />}
     </div>
   );

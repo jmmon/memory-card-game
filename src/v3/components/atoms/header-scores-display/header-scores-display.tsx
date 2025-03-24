@@ -7,7 +7,6 @@ import {
 import { header } from "~/v3/constants/header-constants";
 import { useTimeoutObj } from "~/v3/hooks/useTimeout";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
-import { iPair } from "~/v3/types/types";
 
 export default component$(() => {
   const ctx = useGameContextService();

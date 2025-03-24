@@ -1,18 +1,23 @@
-import { component$ } from '@builder.io/qwik';
-import { manifest } from '@qwik-client-manifest';
+import { component$ } from "@builder.io/qwik";
+import { manifest } from "@qwik-client-manifest";
 
-export const PreloadAll = component$(({ rel = "modulepreload" }: { rel?: "modulepreload" | "prefetch" | "preload" }) => {
-  const bundles = Object.keys(manifest.bundles ?? {}).map((bundle) => `/build/${bundle}`);
-  return (
-    <template id="offline-preload">
-      {bundles.map((bundle, i) => (
-        <link
-          key={i}
-          rel={rel}
-          href={bundle}
-          fetchPriority="low"
-        />
-      ))}
-    </template>
-  );
-})
+type iRel = "modulepreload" | "prefetch" | "preload";
+type PreloadAllProps = {
+  rel?: iRel;
+};
+
+export const PreloadAll = component$<PreloadAllProps>(
+  ({ rel = "modulepreload" }) => {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+    const bundles = Object.keys(manifest.bundles ?? {}).map(
+      (bundle) => `/build/${bundle}`,
+    );
+    return (
+      <template id="offline-preload">
+        {bundles.map((bundle, i) => (
+          <link key={i} rel={rel} href={bundle} fetchPriority="low" />
+        ))}
+      </template>
+    );
+  },
+);

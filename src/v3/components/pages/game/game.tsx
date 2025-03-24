@@ -22,10 +22,10 @@ import Board from "~/v3/components/organisms/board/board";
 
 import { GAME } from "~/v3/constants/game";
 import { BOARD } from "~/v3/constants/board";
-import { INITIAL_USER_SETTINGS } from "~/v3/context/initialState";
 import { useVisibilityChange } from "~/v3/hooks/useVisibilityChange/useVisibilityChange";
 import type { iUserSettings } from "~/v3/types/types";
 import { useGameContextProvider } from "~/v3/services/gameContext.service/gameContext.service";
+import { USER_SETTINGS } from "~/v3/services/gameContext.service/initialState";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
 // export const getKeysIfObject = (obj: object, prefix?: string) => {
@@ -46,10 +46,10 @@ import { useGameContextProvider } from "~/v3/services/gameContext.service/gameCo
 //   return keys;
 // };
 //
-// export const keysSettings = getKeysIfObject(INITIAL_USER_SETTINGS);
+// export const keysSettings = getKeysIfObject(USER_SETTINGS);
 
 export default component$(
-  ({ settings = INITIAL_USER_SETTINGS }: { settings: iUserSettings }) => {
+  ({ settings = USER_SETTINGS }: { settings: iUserSettings }) => {
     // console.log("game component settings:", { settings });
     const containerRef = useSignal<HTMLDivElement>();
 

@@ -1,3 +1,4 @@
+// /* eslint @typescript-eslint/no-unnecessary-condition: "off" */
 import {
   $,
   createContextId,
@@ -26,7 +27,7 @@ export const useGameContextProvider = ({
 }: {
   userSettings: iUserSettings;
 }) => {
-  const DEBUG = true;
+  const DEBUG = import.meta.env.DEV;
   // state
   const timer = useTimer();
   const state = useStore<iGameStateWithTimer>({
@@ -83,10 +84,10 @@ export const useGameContextProvider = ({
       });
   });
 
-  const initializeDeck = $(async function () {
-    if (DEBUG) console.log("initializeDeck:");
+  const initializeDeck = $(async function (isStartup: boolean = false) {
+    if (DEBUG) console.log("initializeDeck:", isStartup ? "isStartup" : null);
     await sliceDeck();
-    await startShuffling();
+    await startShuffling(isStartup ? 6 : GAME.CARD_SHUFFLE_ROUNDS);
   });
 
   const calculateAndResizeBoard = $(function (
@@ -242,7 +243,7 @@ export const useGameContextProvider = ({
       startGame,
       endGame,
       resetGame,
-    },
+    } as iGameHandlers,
     timer,
   };
   // e.g. ctx.state.gameData, ctx.state.boardLayout,
