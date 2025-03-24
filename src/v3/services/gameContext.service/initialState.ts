@@ -25,7 +25,7 @@ const GAME_DATA: iGameData = {
 };
 
 // user controlled settings
-const USER_SETTINGS: iUserSettings = {
+export const USER_SETTINGS: iUserSettings = {
   /* TODO:======================================
    * NOT IMPLEMENTED
    * fun ideas for challenges
