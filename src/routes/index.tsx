@@ -1,4 +1,4 @@
-import { component$, $, useSignal, useComputed$ } from "@builder.io/qwik";
+import { component$, useSignal, useTask$ } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
 import Dropdown from "~/v3/components/molecules/dropdown/dropdown";
 import GameSettings from "~/v3/components/organisms/game-settings/game-settings";
@@ -119,7 +119,6 @@ const Instructions = () => {
 export const GameStarter = component$(() => {
   const unsavedUserSettings = useSignal<iUserSettings>(USER_SETTINGS);
   const playHref = useSignal<string>("");
-
 
   useTask$(({ track }) => {
     track(() => unsavedUserSettings.value);
