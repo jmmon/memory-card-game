@@ -1,8 +1,8 @@
-import type {QRL} from "@builder.io/qwik";
+import type { QRL } from "@builder.io/qwik";
 
 export type Status = "RUNNING" | "STOPPED";
 
-export interface State {
+export type iTimerState = {
   status: Status;
 
   time: number;
@@ -12,7 +12,7 @@ export interface State {
   isPaused: boolean;
   isEnded: boolean;
   blink: boolean;
-}
+};
 
 export type UseTimerOpts = {
   onPause$: QRL<() => void>;

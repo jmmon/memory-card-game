@@ -1,10 +1,10 @@
-import { component$, useContext } from "@builder.io/qwik";
-import { GameContext } from "~/v3/context/gameContext";
+import { component$ } from "@builder.io/qwik";
 import FormattedTime from "~/v3/components/molecules/formatted-time/formatted-time";
 import { header } from "~/v3/constants/header-constants";
+import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 
 export default component$(() => {
-  const gameContext = useContext(GameContext);
+  const ctx = useGameContextService();
 
   return (
     <code
@@ -12,12 +12,10 @@ export default component$(() => {
     >
       <span
         class={
-          gameContext.timer.state.isPaused && gameContext.timer.state.blink
-            ? "opacity-0"
-            : ""
+          ctx.timer.state.isPaused && ctx.timer.state.blink ? "opacity-0" : ""
         }
       >
-        <FormattedTime timeMs={gameContext.timer.state.time} limit={2} />
+        <FormattedTime timeMs={ctx.timer.state.time} limit={2} />
       </span>
     </code>
   );

@@ -1,6 +1,6 @@
-import type { PlayingCardSvgProps } from "~/v3/types/types";
+import type { iPlayingCardSvgProps } from "~/v3/types/types";
 
-export default ({ color, symbol }: PlayingCardSvgProps) => {
+export default ({ color, symbol }: iPlayingCardSvgProps) => {
   const symbolHref = `#symbol-${symbol}`;
   const numberHref = `#8-${color}`;
   return `<svg

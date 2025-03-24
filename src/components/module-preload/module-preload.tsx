@@ -5,10 +5,11 @@ export const ModulePreload = component$(() => {
     "load",
     sync$(async () => {
       // for safari support
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
       if (!window.requestIdleCallback) {
         window.requestIdleCallback = (
           callback: IdleRequestCallback,
-          options?: IdleRequestOptions
+          options?: IdleRequestOptions,
         ): number => {
           const opts = options || {};
           const relaxation = 1;
@@ -21,7 +22,8 @@ export const ModulePreload = component$(() => {
                   ? false
                   : performance.now() - start - relaxation > timeout;
               },
-              timeRemaining: () => Math.max(0, relaxation + (performance.now() - start))
+              timeRemaining: () =>
+                Math.max(0, relaxation + (performance.now() - start)),
             });
           }, relaxation) as unknown as number;
         };
@@ -32,7 +34,7 @@ export const ModulePreload = component$(() => {
 
         // Check prefetch bundles
         const prefetchScript = document.querySelector(
-          'script[q\\:type="prefetch-bundles"]'
+          'script[q\\:type="prefetch-bundles"]',
         );
         if (prefetchScript?.textContent) {
           const content = prefetchScript.textContent;
@@ -67,7 +69,7 @@ export const ModulePreload = component$(() => {
       };
 
       await requestIdleCallback(await startPreloading);
-    })
+    }),
   );
 
   return <></>;

@@ -2,13 +2,11 @@ import {
   $,
   component$,
   useComputed$,
-  useContext,
   useOnWindow,
   useSignal,
   useStyles$,
   useVisibleTask$,
 } from "@builder.io/qwik";
-import { GameContext } from "~/v3/context/gameContext";
 import cardUtils from "~/v3/utils/cardUtils";
 import useDebounceSignal from "~/v3/hooks/useDebounce";
 import { useTimeoutObj } from "~/v3/hooks/useTimeout";
@@ -17,69 +15,70 @@ import Card from "~/v3/components/organisms/card/card";
 import { BOARD } from "~/v3/constants/board";
 import { GAME } from "~/v3/constants/game";
 
-import type { Pair } from "~/v3/types/types";
+import type { iPair } from "~/v3/types/types";
 import type { Signal } from "@builder.io/qwik";
+import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 
 export default component$(
   ({ containerRef }: { containerRef: Signal<HTMLElement | undefined> }) => {
-    const gameContext = useContext(GameContext);
+    const ctx = useGameContextService();
     const boardRef = useSignal<HTMLDivElement>();
 
-    const lastDeckSize = useSignal(gameContext.userSettings.deck.size);
-    const lastRefresh = useSignal(gameContext.userSettings.board.resize);
+    const lastDeckSize = useSignal(ctx.state.userSettings.deck.size);
+    const lastRefresh = useSignal(ctx.state.userSettings.board.resize);
 
     const lastClick = useSignal(-1);
 
     const isCardFlipped = useComputed$(
-      () => gameContext.game.flippedCardId !== -1
+      () => ctx.state.gameData.flippedCardId !== -1,
     );
 
     const handleAddToSuccessfulPairsIfMatching = $(async () => {
-      const [cardId1, cardId2] = gameContext.game.selectedCardIds;
-      const pair: Pair = `${cardId1}:${cardId2}`;
+      const [cardId1, cardId2] = ctx.state.gameData.selectedCardIds;
+      const pair: iPair = `${cardId1}:${cardId2}`;
       // run checkMatch
-      const card1 = cardUtils.findCardById(gameContext.game.cards, cardId1);
-      const card2 = cardUtils.findCardById(gameContext.game.cards, cardId2);
+      const card1 = cardUtils.findCardById(ctx.state.gameData.cards, cardId1);
+      const card2 = cardUtils.findCardById(ctx.state.gameData.cards, cardId2);
       const isMatch = cardUtils.checkMatch(card1, card2);
 
       // console.log({ isMatch, card1, card2 });
 
       if (!isMatch) {
-        gameContext.game.mismatchPairs = [
-          ...gameContext.game.mismatchPairs,
-          pair
+        ctx.state.gameData.mismatchPairs = [
+          ...ctx.state.gameData.mismatchPairs,
+          pair,
         ];
-        gameContext.game.mismatchPair = pair;
-        gameContext.interface.mismatchAnimation = true;
+        ctx.state.gameData.mismatchPair = pair;
+        ctx.state.interfaceSettings.mismatchAnimation = true;
       } else {
         // add to our pairs
-        gameContext.game.successfulPairs = [
-          ...gameContext.game.successfulPairs,
-          pair
+        ctx.state.gameData.successfulPairs = [
+          ...ctx.state.gameData.successfulPairs,
+          pair,
         ];
 
         // TODO:
         // some success animation to indicate a pair,
         // like a sparkle or a background blur around the pairs count
-        gameContext.interface.successAnimation = true;
+        ctx.state.interfaceSettings.successAnimation = true;
       }
 
       // clear our selectedCards
-      gameContext.game.selectedCardIds = [];
+      ctx.state.gameData.selectedCardIds = [];
 
       // finally finally, check for end conditions
-      gameContext.isGameEnded().then(res => {
+      ctx.handle.isGameEnded().then((res) => {
         if (res.isEnded) {
-          gameContext.endGame(res.isWin);
+          ctx.handle.endGame(res.isWin);
         }
       });
     });
 
     const unflipCard = $(async () => {
-      if (gameContext.game.selectedCardIds.length === 2) {
+      if (ctx.state.gameData.selectedCardIds.length === 2) {
         await handleAddToSuccessfulPairsIfMatching();
       }
-      gameContext.game.flippedCardId = -1;
+      ctx.state.gameData.flippedCardId = -1;
       lastClick.value = Date.now();
     });
 
@@ -93,22 +92,22 @@ export default component$(
       // console.log("handleClickUnflippedCard", { cardId });
 
       const newSelected = cardUtils.handleAddCardToSelected(
-        [...gameContext.game.selectedCardIds],
-        cardId
+        [...ctx.state.gameData.selectedCardIds],
+        cardId,
       );
 
-      if (newSelected.length !== gameContext.game.selectedCardIds.length) {
-        gameContext.game.selectedCardIds = newSelected;
+      if (newSelected.length !== ctx.state.gameData.selectedCardIds.length) {
+        ctx.state.gameData.selectedCardIds = newSelected;
 
         const isFinalPair =
           newSelected.length === 2 &&
-          gameContext.game.successfulPairs.length ===
-          gameContext.userSettings.deck.size / 2 - 1;
+          ctx.state.gameData.successfulPairs.length ===
+            ctx.state.userSettings.deck.size / 2 - 1;
 
         // check immediately for the final pair
         if (isFinalPair) {
-          gameContext.game.flippedCardId = cardId;
-          gameContext.timer.pause();
+          ctx.state.gameData.flippedCardId = cardId;
+          ctx.timer.pause();
           // runUnflipDebounce(BOARD.MINIMUM_TIME_BETWEEN_CLICKS);
           unflipDebounce.callDebounce();
           return;
@@ -116,7 +115,7 @@ export default component$(
       }
 
       // flip it either way
-      gameContext.game.flippedCardId = cardId;
+      ctx.state.gameData.flippedCardId = cardId;
       lastClick.value = Date.now();
     });
 
@@ -129,8 +128,8 @@ export default component$(
       // card is not flipped
       if (isClickedOnCard) {
         // initialize game timer on first click
-        if (!gameContext.timer.state.isStarted) {
-          gameContext.startGame();
+        if (!ctx.timer.state.isStarted) {
+          ctx.handle.startGame();
         }
 
         // runClickUnflippedCardDebounce(clickedId);
@@ -142,18 +141,17 @@ export default component$(
       isClickedOnCard: boolean;
       clickedId: number;
     }>({
-      _action$: $((newValue: {
-        isClickedOnCard: boolean;
-        clickedId: number;
-      }) => {
-        const { isClickedOnCard, clickedId } = newValue;
-        handleClickCard(isClickedOnCard, clickedId as number);
-      }),
+      _action$: $(
+        (newValue: { isClickedOnCard: boolean; clickedId: number }) => {
+          const { isClickedOnCard, clickedId } = newValue;
+          handleClickCard(isClickedOnCard, clickedId as number);
+        },
+      ),
       _delay: BOARD.MINIMUM_TIME_BETWEEN_CLICKS,
     });
 
     const handleClickBoard$ = $((e: MouseEvent) => {
-      const isCardFlipped = gameContext.game.flippedCardId !== -1;
+      const isCardFlipped = ctx.state.gameData.flippedCardId !== -1;
       // attempt to get the card id if click is on a card
       // removed cards don't intercept click events, so they're filtered out automatically
       const clickedId = Number((e.target as HTMLElement).dataset.id) || false;
@@ -175,15 +173,15 @@ export default component$(
     // auto pause after some inactivity
     useTimeoutObj({
       action: $(() => {
-        gameContext.timer.pause();
-        gameContext.interface.settingsModal.isShowing = true;
+        ctx.timer.pause();
+        ctx.state.interfaceSettings.settingsModal.isShowing = true;
         lastClick.value === -1;
       }),
       triggerCondition: useComputed$(
         () =>
-          gameContext.timer.state.isStarted &&
-          !gameContext.timer.state.isEnded &&
-          lastClick.value !== -1
+          ctx.timer.state.isStarted &&
+          !ctx.timer.state.isEnded &&
+          lastClick.value !== -1,
       ),
       initialDelay: BOARD.AUTO_PAUSE_DELAY_MS,
       checkConditionOnTimeout: true,
@@ -206,7 +204,7 @@ export default component$(
           //   BOARD.MINIMUM_TIME_BETWEEN_CLICKS - (Date.now() - lastClick.value)
           // );
         }
-      })
+      }),
     );
 
     /*
@@ -215,7 +213,7 @@ export default component$(
     useOnWindow(
       "resize",
       $(() => {
-        if (gameContext.userSettings.board.isLocked) return;
+        if (ctx.state.userSettings.board.isLocked) return;
 
         const container = containerRef.value as HTMLElement; // or use window instead of container/game?
         const board = boardRef.value as HTMLElement;
@@ -234,35 +232,35 @@ export default component$(
         const { cardLayout, boardLayout } = calculateLayouts(
           boardWidth,
           boardHeight,
-          gameContext.userSettings.deck.size
+          ctx.state.userSettings.deck.size,
         );
 
-        gameContext.cardLayout = cardLayout;
-        gameContext.boardLayout = {
-          ...gameContext.boardLayout,
+        ctx.state.cardLayout = cardLayout;
+        ctx.state.boardLayout = {
+          ...ctx.state.boardLayout,
           ...boardLayout,
         };
-      })
+      }),
     );
 
     const adjustDeckSize = $((newDeckSize: number) => {
       lastDeckSize.value = newDeckSize;
 
-      if (gameContext.userSettings.deck.isLocked) return;
+      if (ctx.state.userSettings.deck.isLocked) return;
 
-      gameContext.resetGame({
-        ...gameContext.userSettings,
+      ctx.handle.resetGame({
+        ...ctx.state.userSettings,
         deck: {
-          ...gameContext.userSettings.deck,
-          size: gameContext.userSettings.deck.size,
+          ...ctx.state.userSettings.deck,
+          size: ctx.state.userSettings.deck.size,
         },
       });
 
-      if (gameContext.userSettings.board.isLocked) return;
+      if (ctx.state.userSettings.board.isLocked) return;
 
-      gameContext.calculateAndResizeBoard(
+      ctx.handle.calculateAndResizeBoard(
         boardRef.value as HTMLDivElement,
-        containerRef.value as HTMLDivElement
+        containerRef.value as HTMLDivElement,
       );
     });
 
@@ -272,47 +270,41 @@ export default component$(
      * - also when "resize" flip-flops, or when deck.size changes
      * ================================ */
     // eslint-disable-next-line qwik/no-use-visible-task
-    useVisibleTask$(
-      async ({ track }) => {
-        const newDeckSize = track(
-          () => gameContext.userSettings.deck.size
-        );
-        const newRefresh = track(
-          () => gameContext.userSettings.board.resize
-        );
-        const isDeckChanged = lastDeckSize.value !== newDeckSize;
-        const isBoardRefreshed = lastRefresh.value !== newRefresh;
+    useVisibleTask$(async ({ track }) => {
+      const newDeckSize = track(() => ctx.state.userSettings.deck.size);
+      const newRefresh = track(() => ctx.state.userSettings.board.resize);
+      const isDeckChanged = lastDeckSize.value !== newDeckSize;
+      const isBoardRefreshed = lastRefresh.value !== newRefresh;
 
-        // detect if resize caused the task to run
-        if (isDeckChanged) {
-          // console.log("~~ uvt$ deckSize changed:", {
-          //   last: lastDeckSize.value,
-          //   new: newDeckSize,
-          // });
-          adjustDeckSize(newDeckSize);
-          return;
-        }
-
-        if (isBoardRefreshed) {
-          // console.log("~~ uvt$ refreshBoard");
-          lastRefresh.value = newRefresh;
-          gameContext.calculateAndResizeBoard(
-            boardRef.value as HTMLDivElement,
-            containerRef.value as HTMLDivElement
-          );
-          return;
-        }
-
-        // runs on mount only
-        // console.log("~~ uvt$ should be only on mount!");
-
-        await gameContext.calculateAndResizeBoard(
-          boardRef.value as HTMLDivElement,
-          containerRef.value as HTMLDivElement
-        );
-        gameContext.initializeDeck();
+      // detect if resize caused the task to run
+      if (isDeckChanged) {
+        // console.log("~~ uvt$ deckSize changed:", {
+        //   last: lastDeckSize.value,
+        //   new: newDeckSize,
+        // });
+        adjustDeckSize(newDeckSize);
+        return;
       }
-    );
+
+      if (isBoardRefreshed) {
+        // console.log("~~ uvt$ refreshBoard");
+        lastRefresh.value = newRefresh;
+        ctx.handle.calculateAndResizeBoard(
+          boardRef.value as HTMLDivElement,
+          containerRef.value as HTMLDivElement,
+        );
+        return;
+      }
+
+      // runs on mount only
+      // console.log("~~ uvt$ should be only on mount!");
+
+      await ctx.handle.calculateAndResizeBoard(
+        boardRef.value as HTMLDivElement,
+        containerRef.value as HTMLDivElement,
+      );
+      ctx.handle.initializeDeck(true);
+    });
 
     useStyles$(`
       .card-face img {
@@ -347,8 +339,9 @@ export default component$(
       .card-shuffle-transform {
         transition-property: transform;
         transition-timing-function: cubic-bezier(0.40, 1.3, 0.62, 1.045);
-        transition-duration: ${BOARD.CARD_SHUFFLE_PAUSE_DURATION + BOARD.CARD_SHUFFLE_ACTIVE_DURATION
-      }ms;
+        transition-duration: ${
+          BOARD.CARD_SHUFFLE_PAUSE_DURATION + BOARD.CARD_SHUFFLE_ACTIVE_DURATION
+        }ms;
       }
 
       .shake-card {
@@ -395,10 +388,10 @@ export default component$(
         onClick$={handleClickBoard$}
         data-label="board"
       >
-        {gameContext.game.cards.map((card) => (
+        {ctx.state.gameData.cards.map((card) => (
           <Card card={card} key={card.id} />
         ))}
       </div>
     );
-  }
+  },
 );

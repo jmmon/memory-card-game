@@ -1,5 +1,5 @@
 import { $, useStore, useTask$ } from "@builder.io/qwik";
-import type {UseTimerOpts, State} from "./types";
+import type { UseTimerOpts, iTimerState } from "./types";
 
 export const useTimer = ({
   onPause$,
@@ -8,7 +8,7 @@ export const useTimer = ({
   onReset$,
   onResume$,
 }: Partial<UseTimerOpts> = {}) => {
-  const state = useStore<State>({
+  const state = useStore<iTimerState>({
     /**
      * @param status - actually controls the timer
      * */
@@ -109,7 +109,7 @@ export const useTimer = ({
   /**
    * Creates and destroys the setIntervals based on status
    * */
-  useTask$(({track, cleanup}) => {
+  useTask$(({ track, cleanup }) => {
     const status = track(() => state.status);
 
     // resume and pause have no effect if not started (first run)
@@ -167,4 +167,3 @@ export const useTimer = ({
 
   return timer;
 };
-

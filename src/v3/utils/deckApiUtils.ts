@@ -5,7 +5,7 @@
  *
  * */
 
-import type { Card } from "~/v3/types/types";
+import type { iCard } from "~/v3/types/types";
 import deckUtils from "./deckUtils";
 
 const PARTIAL_DECK_API = "https://deckofcardsapi.com/api/deck/new/?cards=";
@@ -17,7 +17,7 @@ export const deckCardsDrawApi = {
   generate: function (
     this: { base: string; remainder: string; generate: any },
     deckId: string,
-    cardCount: number
+    cardCount: number,
   ): string {
     return this.base + deckId + this.remainder + cardCount;
   },
@@ -92,7 +92,7 @@ export const getCardsFromApi = async (cardCount: number) => {
 
     // draw cardCount cards
     const cardsResponse = await fetch(
-      deckCardsDrawApi.generate(deckJson.deck_id, cardCount)
+      deckCardsDrawApi.generate(deckJson.deck_id, cardCount),
     );
     const drawnCardsJson =
       (await cardsResponse.json()) as DeckOfCardsApi_DeckWithCards;
@@ -106,7 +106,7 @@ export const getCardsFromApi = async (cardCount: number) => {
 };
 
 export const formatCards = (cards: DeckOfCardsApi_Card[]) => {
-  const outputCards: Card[] = [];
+  const outputCards: iCard[] = [];
   for (let i = 0; i < cards.length / 2; i++) {
     const num = i * 2;
     const thisCard1 = cards[num];

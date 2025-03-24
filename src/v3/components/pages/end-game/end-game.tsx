@@ -1,36 +1,39 @@
-import { component$, $, useContext, useSignal, useTask$ } from "@builder.io/qwik";
-import { GameContext } from "~/v3/context/gameContext";
+import { component$, $, useSignal, useTask$ } from "@builder.io/qwik";
 
 import Modal from "~/v3/components/templates/modal/modal";
-import FormattedTime from "~/v3/components/molecules/formatted-time/formatted-time";
 import Button from "~/v3/components/atoms/button/button";
 import ModalRow from "~/v3/components/atoms/modal-row/modal-row";
-import { GAME } from "~/v3/constants/game";
-import ModalStats from "../../atoms/modal-stats/modal-stats";
-import InfoTooltip from "../../molecules/info-tooltip/info-tooltip";
+import type { iUserSettings } from "~/v3/types/types";
+import DeckSizeChanger from "../../molecules/deck-size-changer/deck-size-changer";
+import GameStats from "../../molecules/game-stats/game-stats";
+import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 
 export default component$(() => {
-  const gameContext = useContext(GameContext);
+  const ctx = useGameContextService();
 
   // for adjusting deck size before restarting
-  const cardCount = useSignal<string>(String(gameContext.userSettings.deck.size));
+  const unsavedUserSettings = useSignal<iUserSettings>(ctx.state.userSettings);
 
   useTask$(({ track }) => {
-    track(() => gameContext.userSettings.deck.size);
-    cardCount.value = String(gameContext.userSettings.deck.size);
-  })
+    track(() => ctx.state.userSettings.deck.size);
+    unsavedUserSettings.value.deck.size = ctx.state.userSettings.deck.size;
+  });
 
   const hideModal$ = $(() => {
-    gameContext.interface.endOfGameModal.isShowing = false;
-    cardCount.value = String(gameContext.userSettings.deck.size);
+    ctx.state.interfaceSettings.endOfGameModal.isShowing = false;
+    // probably unneeded thanks to task tracking
+    // unsavedUserSettings.value.deck.size = ctx.state.userSettings.deck.size;
   });
 
   return (
     <Modal
-      isShowing={gameContext.interface.endOfGameModal.isShowing}
+      isShowing={ctx.state.interfaceSettings.endOfGameModal.isShowing}
+      // isShowing={true}
       hideModal$={hideModal$}
       title={
-        gameContext.interface.endOfGameModal.isWin ? "You Win!" : "Game Over"
+        ctx.state.interfaceSettings.endOfGameModal.isWin
+          ? "You Win!"
+          : "Game Over"
       }
       bgStyles={{ backgroundColor: "rgba(0,0,0,0.1)" }}
       options={{
@@ -38,77 +41,36 @@ export default component$(() => {
       }}
     >
       <div class="flex flex-col gap-0.5 px-[4%] py-[2%] md:gap-1">
-        <ModalRow>
-          <ModalStats
-            label="Pairs:"
-            content={
-              `${gameContext.game.successfulPairs.length
-              }/${gameContext.userSettings.deck.size / 2
-              }`
-            }
-          />
-        </ModalRow>
-        <ModalRow>
-          <ModalStats
-            label="Mismatches:"
-            content={
-              `${gameContext.game.mismatchPairs.length}
-              ${gameContext.userSettings.maxAllowableMismatches !== -1
-                ? `/${gameContext.userSettings.deck.size / 2}`
-                : ""}`
-            }
-          />
-        </ModalRow>
-        <ModalRow>
-          <ModalStats
-            label="Time:"
-          >
-            <FormattedTime timeMs={gameContext.timer.state.time} limit={3} />
-          </ModalStats>
-        </ModalRow>
+        <GameStats q:slot="game-stats" />
 
         <ModalRow>
-          <div class="flex w-full flex-grow items-center gap-[2%]">
-            <label
-              class="w-4/12 text-left text-slate-100"
-              for="deck-card-count-end-game"
-            >
-              Card Count: {cardCount}
-            </label>
-            <input
-              name="deck-card-count-end-game"
-              id="deck-card-count-end-game"
-              class="w-8/12 flex-grow"
-              type="range"
-              min={GAME.MIN_CARD_COUNT}
-              max={GAME.MAX_CARD_COUNT}
-              step="2"
-              bind:value={cardCount}
-            />
-            <InfoTooltip>
-              {cardCount} - Number of cards in the deck.
-            </InfoTooltip>
-          </div>
+          <DeckSizeChanger
+            userSettings={unsavedUserSettings}
+            isLocked={unsavedUserSettings.value.deck.isLocked}
+            for="end-game"
+          />
         </ModalRow>
 
         <Button
           onClick$={() => {
-            gameContext.resetGame({
+            ctx.handle.resetGame({
               deck: {
-                ...gameContext.userSettings.deck,
-                size: Number(cardCount.value),
+                ...ctx.state.userSettings.deck,
+                size: Number(unsavedUserSettings.value.deck.size),
               },
             });
 
-            gameContext.interface.endOfGameModal.isShowing = false;
+            ctx.state.interfaceSettings.endOfGameModal.isShowing = false;
           }}
         >
           Play Again
         </Button>
 
+        {/*
         <Button onClick$={hideModal$} >
           Close
         </Button>
+*/}
       </div>
     </Modal>
   );

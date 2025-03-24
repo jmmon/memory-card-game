@@ -3,7 +3,7 @@ import { GAME } from "~/v3/constants/game";
 
 import type { Signal } from "@builder.io/qwik";
 import type { iGameSettings, iUserSettings } from "~/v3/types/types";
-import InfoTooltip from "../info-tooltip/info-tooltip";
+import InfoTooltip from "../../organisms/info-tooltip/info-tooltip";
 
 export default component$<{
   userSettings: Signal<iUserSettings>;

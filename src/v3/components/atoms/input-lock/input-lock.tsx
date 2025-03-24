@@ -1,23 +1,24 @@
-import { component$ } from "@builder.io/qwik";
+import { Slot, component$ } from "@builder.io/qwik";
 import type { PropFunction } from "@builder.io/qwik";
-import InfoTooltip from "../../molecules/info-tooltip/info-tooltip";
+import type { iUserSettings } from "~/v3/types/types";
 
 export default component$(
   ({
     text,
+    name,
     onChange$,
     classes,
-    tooltip,
     disabled = false,
-    value,
+    settings,
   }: {
     text: string;
+    name: string;
     onChange$: PropFunction<(e: Event) => void>;
     classes?: string;
-    tooltip?: string;
     disabled?: boolean;
-    value?: boolean;
+    settings: iUserSettings;
   }) => {
+    const properties = name.split(".");
     return (
       <div
         class={`${classes ?? ""} flex gap-[min(.75rem,1.75vw)] items-center justify-between w-full`}
@@ -32,18 +33,14 @@ export default component$(
             class="h-6 w-6 flex-shrink-0 cursor-pointer"
             type="checkbox"
             id={text}
-            name={text}
+            name={name || text}
             onChange$={onChange$}
-            checked={value}
+            checked={settings[properties[0]][properties[1]]}
           />
         </label>
 
-        {tooltip &&
-          <InfoTooltip>
-            {tooltip}
-          </InfoTooltip>
-        }
+        <Slot />
       </div>
     );
-  }
+  },
 );

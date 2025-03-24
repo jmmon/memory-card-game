@@ -1,10 +1,10 @@
-import { component$, useContext } from "@builder.io/qwik";
+import { component$ } from "@builder.io/qwik";
 import { header } from "~/v3/constants/header-constants";
-import { GameContext } from "~/v3/context/gameContext";
+import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 import { roundToDecimals } from "~/v3/utils/formatTime";
 
 export default component$(() => {
-  const gameContext = useContext(GameContext);
+  const ctx = useGameContextService();
   return (
     <code
       class={` bg-slate-800 flex gap-1.5 text-center ${header.CODE_TEXT_LIGHT} ${header.CODE_PADDING}`}
@@ -16,8 +16,8 @@ export default component$(() => {
       </div>
       <div class="flex gap-0.5">
         <div class="flex flex-col text-right">
-          <span>{roundToDecimals(gameContext.boardLayout.width)}</span>
-          <span>{roundToDecimals(gameContext.boardLayout.width)}</span>
+          <span>{roundToDecimals(ctx.state.boardLayout.width)}</span>
+          <span>{roundToDecimals(ctx.state.boardLayout.width)}</span>
           <span>{roundToDecimals(window.innerWidth)}</span>
         </div>
         <div class={` flex flex-col ${header.CODE_TEXT_DARK}`}>
@@ -27,15 +27,12 @@ export default component$(() => {
         </div>
         <div class={` text-left flex flex-col `}>
           <span>
-            {roundToDecimals(
-              window.innerHeight - gameContext.boardLayout.height
-            )}
+            {roundToDecimals(window.innerHeight - ctx.state.boardLayout.height)}
           </span>
-          <span>{roundToDecimals(gameContext.boardLayout.height)}</span>
+          <span>{roundToDecimals(ctx.state.boardLayout.height)}</span>
           <span>{roundToDecimals(window.innerHeight)}</span>
         </div>
       </div>
     </code>
   );
 });
-

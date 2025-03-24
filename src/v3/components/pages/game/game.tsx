@@ -2,14 +2,10 @@ import {
   $,
   component$,
   useComputed$,
-  useContextProvider,
   useOnDocument,
   useSignal,
-  useStore,
 } from "@builder.io/qwik";
-import { GameContext } from "~/v3/context/gameContext";
 
-import { useTimer } from "~/v3/hooks/useTimer";
 import {
   useDelayedTimeoutObj,
   useIntervalObj,
@@ -26,12 +22,10 @@ import Board from "~/v3/components/organisms/board/board";
 
 import { GAME } from "~/v3/constants/game";
 import { BOARD } from "~/v3/constants/board";
-import {
-  INITIAL_STATE,
-  INITIAL_USER_SETTINGS,
-} from "~/v3/context/initialState";
 import { useVisibilityChange } from "~/v3/hooks/useVisibilityChange/useVisibilityChange";
-import type { iUserSettings, iGameContext } from "~/v3/types/types";
+import type { iUserSettings } from "~/v3/types/types";
+import { useGameContextProvider } from "~/v3/services/gameContext.service/gameContext.service";
+import { USER_SETTINGS } from "~/v3/services/gameContext.service/initialState";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
 // export const getKeysIfObject = (obj: object, prefix?: string) => {
@@ -52,24 +46,16 @@ import type { iUserSettings, iGameContext } from "~/v3/types/types";
 //   return keys;
 // };
 //
-// export const keysSettings = getKeysIfObject(INITIAL_USER_SETTINGS);
+// export const keysSettings = getKeysIfObject(USER_SETTINGS);
 
 export default component$(
-  ({ settings = INITIAL_USER_SETTINGS }: { settings: iUserSettings }) => {
+  ({ settings = USER_SETTINGS }: { settings: iUserSettings }) => {
     // console.log("game component settings:", { settings });
-    const timer = useTimer();
-    const gameContext = useStore<iGameContext>(
-      {
-        ...INITIAL_STATE,
-        userSettings: {
-          ...settings,
-        },
-        timer: timer,
-      },
-      { deep: true }
-    );
-    useContextProvider(GameContext, gameContext);
     const containerRef = useSignal<HTMLDivElement>();
+
+    const ctx = useGameContextProvider({
+      userSettings: settings,
+    });
 
     // /* ================================
     //  * Set up scroll detection
@@ -88,11 +74,10 @@ export default component$(
      * ================================ */
     useIntervalObj({
       action: $(() => {
-        gameContext.shuffleCardPositions();
+        ctx.handle.shuffleCardPositions();
       }),
       triggerCondition: useComputed$(
-        () =>
-          !gameContext.timer.state.isStarted && !gameContext.timer.state.isEnded
+        () => !ctx.timer.state.isStarted && !ctx.timer.state.isEnded,
       ),
       regularInterval: GAME.AUTO_SHUFFLE_INTERVAL,
       initialDelay: GAME.AUTO_SHUFFLE_DELAY,
@@ -104,12 +89,14 @@ export default component$(
      * ================================ */
     useTimeoutObj({
       action: $(() => {
-        gameContext.shuffleCardPositions();
-        gameContext.game.shufflingState -= 1;
+        ctx.handle.shuffleCardPositions();
+        ctx.state.gameData.shufflingState -= 1;
 
-        if (gameContext.game.shufflingState <= 0) gameContext.stopShuffling();
+        if (ctx.state.gameData.shufflingState <= 0) ctx.handle.stopShuffling();
       }),
-      triggerCondition: useComputed$(() => gameContext.game.shufflingState > 0),
+      triggerCondition: useComputed$(
+        () => ctx.state.gameData.shufflingState > 0,
+      ),
       initialDelay:
         BOARD.CARD_SHUFFLE_PAUSE_DURATION + BOARD.CARD_SHUFFLE_ACTIVE_DURATION,
     });
@@ -121,14 +108,14 @@ export default component$(
      * ================================ */
     useDelayedTimeoutObj({
       actionOnStart: $(() => {
-        gameContext.game.isShaking = true;
+        ctx.state.gameData.isShaking = true;
       }),
       actionOnEnd: $(() => {
-        gameContext.game.isShaking = false;
-        gameContext.game.mismatchPair = "";
+        ctx.state.gameData.isShaking = false;
+        ctx.state.gameData.mismatchPair = "";
       }),
       triggerCondition: useComputed$(
-        () => gameContext.game.mismatchPair !== ""
+        () => ctx.state.gameData.mismatchPair !== "",
       ),
       initialDelay:
         GAME.SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD,
@@ -139,23 +126,26 @@ export default component$(
 
     useVisibilityChange({
       onHidden$: $(() => {
-        gameContext.showSettings();
+        ctx.handle.showSettings();
       }),
     });
 
-    useOnDocument("keydown", $((event: KeyboardEvent) => {
-      if (event.key !== 'Escape') {
-        return;
-      }
-      if (gameContext.interface.endOfGameModal.isShowing) {
-        return;
-      }
-      if (gameContext.interface.settingsModal.isShowing) {
-        gameContext.hideSettings();
-      } else {
-        gameContext.showSettings();
-      }
-    }));
+    useOnDocument(
+      "keydown",
+      $((event: KeyboardEvent) => {
+        if (event.key !== "Escape") {
+          return;
+        }
+        if (ctx.state.interfaceSettings.endOfGameModal.isShowing) {
+          return;
+        }
+        if (ctx.state.interfaceSettings.settingsModal.isShowing) {
+          ctx.handle.hideSettings();
+        } else {
+          ctx.handle.showSettings();
+        }
+      }),
+    );
 
     return (
       <>
@@ -190,23 +180,25 @@ export default component$(
         {/* </InverseModal> */}
 
         <div
-          class={`flex flex-col flex-grow justify-between w-full h-full p-[${GAME.CONTAINER_PADDING_PERCENT
-            }%] gap-1 ${gameContext.userSettings.board.isLocked ? "overflow-x-auto" : ""
-            }`}
+          class={`flex flex-col flex-grow justify-between w-full h-full p-[${
+            GAME.CONTAINER_PADDING_PERCENT
+          }%] gap-1 ${
+            ctx.state.userSettings.board.isLocked ? "overflow-x-auto" : ""
+          }`}
           ref={containerRef}
         >
           <GameHeader
             showSettings$={() => {
-              gameContext.showSettings();
+              ctx.handle.showSettings();
             }}
           />
           <Board containerRef={containerRef} />
         </div>
 
-        <Loading isShowing={gameContext.game.isLoading} />
+        <Loading isShowing={ctx.state.gameData.isLoading} />
         <Settings />
         <EndGame />
       </>
     );
-  }
+  },
 );
