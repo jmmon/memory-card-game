@@ -166,10 +166,10 @@ export default component$<CardProps>(({ card }) => {
           ) +
           // extra z-index for cards being flipped
           (isCardFlipped.value
-            ? 120 // applies while card is first clicked
+            ? 240 // applies while card is first clicked
             : // : isFaceShowing.value || isFaceShowing_delayedOff.value || !isReturned.value
               isFaceShowing.value
-              ? 60 // applies when flipping down
+              ? 180 // applies when flipping down
               : 0), // applies otherwise (when face down);
         transform: shuffleTransform.value,
       }}
