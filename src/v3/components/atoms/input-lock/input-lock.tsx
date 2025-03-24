@@ -1,6 +1,6 @@
 import { Slot, component$ } from "@builder.io/qwik";
 import type { PropFunction } from "@builder.io/qwik";
-import { iUserSettings } from "~/v3/types/types";
+import type { iUserSettings } from "~/v3/types/types";
 
 export default component$(
   ({

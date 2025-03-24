@@ -1,4 +1,5 @@
-import { ClassList, Slot, component$ } from "@builder.io/qwik";
+import type { ClassList} from "@builder.io/qwik";
+import { Slot, component$ } from "@builder.io/qwik";
 import { Popover } from "@qwik-ui/headless";
 import type { PopoverRootProps } from "@qwik-ui/headless/components/popover/popover-root";
 
