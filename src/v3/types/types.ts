@@ -126,7 +126,7 @@ export type iGameHandlers = {
   >;
   startShuffling: QRL<(count?: number) => void>;
   stopShuffling: QRL<() => void>;
-  initializeDeck: QRL<() => void>;
+  initializeDeck: QRL<(isStartup?: boolean) => void>;
   calculateAndResizeBoard: QRL<
     (boardRef: HTMLDivElement, containerRef: HTMLDivElement) => void
   >;

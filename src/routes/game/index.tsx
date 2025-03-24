@@ -59,13 +59,13 @@ export default component$(() => {
 
   useTask$(({ track }) => {
     track(() => paramsSettings.value);
-    if (paramsSettings.value && !isParamsConsumed.value) {
-      isParamsConsumed.value = true;
-      consumedSettings.value = paramsSettings.value;
-      nav("/game/", {
-        replaceState: true,
-      });
-    }
+    if (isParamsConsumed.value) return;
+
+    isParamsConsumed.value = true;
+    consumedSettings.value = paramsSettings.value;
+    nav("/game/", {
+      replaceState: true,
+    });
   });
 
   useStyles$(styles);

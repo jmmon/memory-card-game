@@ -303,7 +303,7 @@ export default component$(
         boardRef.value as HTMLDivElement,
         containerRef.value as HTMLDivElement,
       );
-      ctx.handle.initializeDeck();
+      ctx.handle.initializeDeck(true);
     });
 
     useStyles$(`
