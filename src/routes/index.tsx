@@ -174,15 +174,15 @@ export default component$(() => {
       </div>
 
       <div class="mt-6 flex flex-col items-center">
-        <Link
+        <a
           href="/older-versions"
           class="p-2 text-center text-slate-500 underline hover:text-slate-300"
         >
           Prototype versions...
-        </Link>
-        <Link href="/cards" class="p-2 text-center text-slate-500 underline">
+        </a>
+        <a href="/cards" class="p-2 text-center text-slate-500 underline">
           Cards...
-        </Link>
+        </a>
       </div>
     </div>
   );
