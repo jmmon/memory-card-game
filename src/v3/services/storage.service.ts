@@ -15,11 +15,20 @@ function getTheme() {
   return get<iTheme | null>(GAME.STORAGE_KEY_THEME);
 }
 
+function setBrightness(value: number) {
+  set(GAME.STORAGE_KEY_BRIGHTNESS, value.toString());
+}
+function getBrightness() {
+  return get<number | null>(GAME.STORAGE_KEY_BRIGHTNESS);
+}
+
 const storageService = {
-  set,
   get,
-  setTheme,
+  set,
   getTheme,
+  setTheme,
+  getBrightness,
+  setBrightness,
 };
 
 export default storageService;

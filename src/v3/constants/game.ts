@@ -67,14 +67,14 @@ const SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD =
     START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE -
   START_SHAKE_ANIMATION_EAGER_MS;
 
-const DEFAULT_CARD_COUNT = 18 as const;
+const DEFAULT_CARD_COUNT = 6 as const;
 
 const CONTAINER_PADDING_PERCENT = 1.5 as const;
 const MIN_CARD_COUNT = 6 as const;
 const MAX_CARD_COUNT = 52 as const;
 
-const DATA_THEME = "data-theme" as const;
 const STORAGE_KEY_THEME = "theme" as const;
+const STORAGE_KEY_BRIGHTNESS = "brightness" as const;
 // separate export since it's circular
 
 const GAME = {
@@ -88,8 +88,8 @@ const GAME = {
   CONTAINER_PADDING_PERCENT,
   MIN_CARD_COUNT,
   MAX_CARD_COUNT,
-  DATA_THEME,
   STORAGE_KEY_THEME,
+  STORAGE_KEY_BRIGHTNESS,
   ThemeEnum,
   DEBUG,
 } as const;
