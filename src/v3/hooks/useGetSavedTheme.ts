@@ -29,12 +29,12 @@ type States = {
  * > or hide modal from render
  * */
 const useGetSavedTheme = (states?: States) => {
-  const savedTheme = useSignal<iTheme | null>(null);
+  // only used for startup visibleTask$
+  const _savedTheme = useSignal<iTheme | null>(null);
 
   const setSavedTheme$ = $((newTheme: iTheme) => {
     themeService.set(newTheme);
-
-    savedTheme.value = newTheme;
+    _savedTheme.value = newTheme;
 
     logger(DebugTypeEnum.HOOK, LogLevel.ONE, "~~ setSavedTheme$:", {
       newTheme,
@@ -77,7 +77,11 @@ const useGetSavedTheme = (states?: States) => {
     }
   });
 
-  const handleGetAndSetTheme = $((logString?: string) => {
+  /**
+   * this is called only from onShown and onLoad
+   * so only needs to happen once per route
+   * */
+  const handleGetAndSetTheme$ = $((logString?: string) => {
     const currentTheme = themeService.get();
     logger(DebugTypeEnum.HOOK, LogLevel.ONE, logString, { currentTheme });
     const newTheme = currentTheme ?? DEFAULT_THEME;
@@ -86,22 +90,24 @@ const useGetSavedTheme = (states?: States) => {
     setSavedTheme$(newTheme);
   });
 
-  // resync theme from localstorage to state when page is loaded
+  // resync theme from localstorage to states when page is loaded
   useOnWindow(
     "load",
     $(() => {
-      handleGetAndSetTheme("useGetSavedTheme: running onload:");
+      handleGetAndSetTheme$("useGetSavedTheme: running onload:");
     }),
   );
 
-  // resync theme from localstorage to state when coming back from other tab
+  // resync theme from localstorage to states when coming back from other tab
   useVisibilityChange({
     onShown$: $(() => {
-      handleGetAndSetTheme("useGetSavedTheme onShown:");
+      handleGetAndSetTheme$("useGetSavedTheme onShown:");
     }),
   });
 
   // on load of component e.g. settings modal, update theme in state
+  // only runs on startup since modals are rendered but hidden
+  // syncs ctx and unsavedUserSettings
   useVisibleTask$(() => {
     const currentTheme = themeService.get();
     logger(
@@ -111,37 +117,37 @@ const useGetSavedTheme = (states?: States) => {
       { currentTheme },
     );
 
-    if (currentTheme !== null && currentTheme !== savedTheme.value) {
+    if (currentTheme && currentTheme !== _savedTheme.value) {
       logger(DebugTypeEnum.HOOK, LogLevel.TWO, "~~ updating theme to:", {
         currentTheme,
       });
-      savedTheme.value = currentTheme;
       setSavedTheme$(currentTheme);
     }
   });
 
   // resync theme from settings to localstorage & state
+  // only for end-game, settings-modal, and initial settings
+  // but other syncing has to sync with settings as well
   useVisibleTask$(({ track }) => {
     const invertCardColors = track(
       () => states?.unsavedUserSettings?.value.interface.invertCardColors,
     );
+    const currentTheme = themeService.get();
+    const newTheme = invertCardColors ? "dark" : "light";
     logger(
       DebugTypeEnum.HOOK,
       LogLevel.ONE,
       "useGetSavedTheme: visibleTask$ to update theme from unsavedUserSettings",
-      { newTheme: invertCardColors },
+      { newTheme },
     );
 
-    const newTheme = invertCardColors ? "dark" : "light";
-    if (themeService.get() !== newTheme) {
+    if (currentTheme !== newTheme) {
       logger(DebugTypeEnum.HOOK, LogLevel.TWO, "~~ updating theme to:", {
         newTheme,
       });
       setSavedTheme$(newTheme);
     }
   });
-
-  return savedTheme;
 };
 
 export default useGetSavedTheme;
