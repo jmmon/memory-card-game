@@ -60,7 +60,7 @@ export const useDelayedTimeoutObj = ({
 
     const endTimer = setTimeout(
       actionOnEnd,
-      startDelay.value + intervalSignal.value
+      startDelay.value + intervalSignal.value,
     );
 
     taskCtx.cleanup(() => {
@@ -74,7 +74,7 @@ export const useDelayedTimeoutObj = ({
       ({ start, interval }: Partial<{ start: number; interval: number }>) => {
         if (start !== undefined) startDelay.value = start;
         if (interval !== undefined) intervalSignal.value = interval;
-      }
+      },
     ),
   };
 };
@@ -95,7 +95,7 @@ export const useIntervalObj = ({
   const runInterval = useSignal(false);
 
   // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({track, cleanup}) => {
+  useVisibleTask$(({ track, cleanup }) => {
     track(() => triggerCondition.value);
 
     runInterval.value = false;
@@ -128,7 +128,7 @@ export const useIntervalObj = ({
       ({ start, interval }: Partial<{ start: number; interval: number }>) => {
         if (start !== undefined) startDelay.value = start;
         if (interval !== undefined) intervalSignal.value = interval;
-      }
+      },
     ),
   };
 };

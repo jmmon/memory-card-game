@@ -18,12 +18,12 @@ import Settings from "~/v3/components/pages/settings/settings";
 import Loading from "~/v3/components/pages/loading/loading";
 import Board from "~/v3/components/organisms/board/board";
 
-import { GAME } from "~/v3/constants/game";
-import { BOARD } from "~/v3/constants/board";
+import GAME from "~/v3/constants/game";
+import BOARD from "~/v3/constants/board";
 import { useVisibilityChange } from "~/v3/hooks/useVisibilityChange/useVisibilityChange";
-import type { iUserSettings } from "~/v3/types/types";
 import { useGameContextProvider } from "~/v3/services/gameContext.service/gameContext.service";
-import { USER_SETTINGS } from "~/v3/services/gameContext.service/initialState";
+import INITIAL_STATE from "~/v3/services/gameContext.service/initialState";
+import type { iUserSettings } from "~/v3/types/types";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
 // export const getKeysIfObject = (obj: object, prefix?: string) => {
@@ -44,10 +44,11 @@ import { USER_SETTINGS } from "~/v3/services/gameContext.service/initialState";
 //   return keys;
 // };
 //
-// export const keysSettings = getKeysIfObject(USER_SETTINGS);
+// export const keysSettings = getKeysIfObject(INITIAL_STATE.userSettings);
 
-export default component$(
-  ({ settings = USER_SETTINGS }: { settings: iUserSettings }) => {
+type GameProps = { settings: iUserSettings };
+export default component$<GameProps>(
+  ({ settings = INITIAL_STATE.userSettings }) => {
     // console.log("game component settings:", { settings });
     const containerRef = useSignal<HTMLDivElement>();
 
@@ -71,18 +72,18 @@ export default component$(
      * - gives it a nice look if you leave the tab open (and you haven't started the game)
      * ================================ */
     useIntervalObj({
-      action: $(() => {
-        ctx.handle.shuffleCardPositions();
-      }),
       triggerCondition: useComputed$(
         () => !ctx.timer.state.isStarted && !ctx.timer.state.isEnded,
       ),
+      action: $(() => {
+        ctx.handle.shuffleCardPositions();
+      }),
       regularInterval: GAME.AUTO_SHUFFLE_INTERVAL,
       initialDelay: GAME.AUTO_SHUFFLE_DELAY,
     });
 
     /* ================================
-     * Handles shuffling
+     * Handles shuffling rounds
      * - when shuffling state > 0, we shuffle a round and then decrement
      * ================================ */
     useTimeoutObj({
@@ -105,6 +106,9 @@ export default component$(
      *   - wait until card is returned before starting
      * ================================ */
     useDelayedTimeoutObj({
+      triggerCondition: useComputed$(
+        () => ctx.state.gameData.mismatchPair !== "",
+      ),
       actionOnStart: $(() => {
         ctx.state.gameData.isShaking = true;
       }),
@@ -112,9 +116,6 @@ export default component$(
         ctx.state.gameData.isShaking = false;
         ctx.state.gameData.mismatchPair = "";
       }),
-      triggerCondition: useComputed$(
-        () => ctx.state.gameData.mismatchPair !== "",
-      ),
       initialDelay:
         GAME.SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD,
       interval:
@@ -122,6 +123,7 @@ export default component$(
         BOARD.CARD_SHAKE_ANIMATION_DURATION,
     });
 
+    // when switching tabs, show settings to pause the game
     useVisibilityChange({
       onHidden$: $(() => {
         ctx.handle.showSettings();
@@ -131,12 +133,15 @@ export default component$(
     useOnDocument(
       "keydown",
       $((event: KeyboardEvent) => {
-        if (event.key !== "Escape") {
+        if (event.key !== "Escape") return;
+        if (
+          ctx.state.gameData.flippedCardId !==
+          INITIAL_STATE.gameData.flippedCardId
+        )
           return;
-        }
-        if (ctx.state.interfaceSettings.endOfGameModal.isShowing) {
-          return;
-        }
+        // if (ctx.state.gameData.isLoading) return;
+        if (ctx.state.interfaceSettings.endOfGameModal.isShowing) return;
+
         if (ctx.state.interfaceSettings.settingsModal.isShowing) {
           ctx.handle.hideSettings();
         } else {
@@ -181,11 +186,7 @@ export default component$(
           }`}
           ref={containerRef}
         >
-          <GameHeader
-            showSettings$={() => {
-              ctx.handle.showSettings();
-            }}
-          />
+          <GameHeader showSettings$={ctx.handle.showSettings} />
           <Board containerRef={containerRef} />
         </div>
 

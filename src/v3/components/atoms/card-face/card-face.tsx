@@ -1,18 +1,16 @@
+import type { ClassList} from "@builder.io/qwik";
 import { Slot, component$ } from "@builder.io/qwik";
-import { BOARD } from "~/v3/constants/board";
+import BOARD from "~/v3/constants/board";
 
-export default component$(
-  ({
-    roundedCornersPx,
-    classes = "",
-    label = "card-front",
-  }: {
-    roundedCornersPx: number;
-    classes: string;
-    width: number;
-    height: number;
-    label: string;
-  }) => {
+type CardFaceProps = {
+  roundedCornersPx: number;
+  classes: ClassList;
+  width: number;
+  height: number;
+  label: string;
+};
+export default component$<CardFaceProps>(
+  ({ roundedCornersPx, classes = "", label = "card-front" }) => {
     return (
       <div
         class={`card-face absolute flex items-center justify-center [backface-visibility:hidden] ${classes}`}
@@ -29,5 +27,5 @@ export default component$(
         <Slot />
       </div>
     );
-  }
+  },
 );

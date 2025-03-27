@@ -1,4 +1,4 @@
-import { BOARD } from "~/v3/constants/board";
+import BOARD from "~/v3/constants/board";
 import type {
   iBoardLayout,
   iCardLayout,

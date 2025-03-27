@@ -1,17 +1,19 @@
 import { $, component$ } from "@builder.io/qwik";
-import { GAME } from "~/v3/constants/game";
+import GAME from "~/v3/constants/game";
 
 import type { ClassList, Signal } from "@builder.io/qwik";
 import type { iUserSettings } from "~/v3/types/types";
 import InfoTooltip from "../../organisms/info-tooltip/info-tooltip";
 
-const BUTTON_STYLES: ClassList = "p-0 w-6 h-6 bg-slate-700 border-slate-500 text-2xl rounded border flex justify-center items-center disabled:bg-slate-800 disabled:border-slate-500 disabled:text-slate-300";
+const BUTTON_STYLES: ClassList =
+  "p-0 w-6 h-6 bg-slate-700 border-slate-500 text-2xl rounded border flex justify-center items-center disabled:bg-slate-800 disabled:border-slate-500 disabled:text-slate-300";
 
-export default component$<{
+type DeckSizeChangerProps = {
   userSettings: Signal<iUserSettings>;
   isLocked?: boolean;
   for?: string;
-}>((props) => {
+};
+export default component$<DeckSizeChangerProps>((props) => {
   const name = `deck-size-changer${props.for ? `-${props.for}` : ""}`;
 
   const handleChangeSize$ = $((_: Event, t: HTMLButtonElement) => {
@@ -39,7 +41,10 @@ export default component$<{
           id={name + "-decrement"}
           class={BUTTON_STYLES}
           onClick$={handleChangeSize$}
-          disabled={props.isLocked || props.userSettings.value.deck.size <= GAME.MIN_CARD_COUNT}
+          disabled={
+            props.isLocked ||
+            props.userSettings.value.deck.size <= GAME.MIN_CARD_COUNT
+          }
         >
           -
         </button>
@@ -49,7 +54,10 @@ export default component$<{
           id={name + "-increment"}
           class={BUTTON_STYLES}
           onClick$={handleChangeSize$}
-          disabled={props.isLocked || props.userSettings.value.deck.size >= GAME.MAX_CARD_COUNT}
+          disabled={
+            props.isLocked ||
+            props.userSettings.value.deck.size >= GAME.MAX_CARD_COUNT
+          }
         >
           +
         </button>
@@ -58,10 +66,10 @@ export default component$<{
         Number of cards in the deck.
         <br />
         <div class="mt-1 text-slate-300">
-          (Range: <strong>{GAME.MIN_CARD_COUNT}</strong> to <strong>{GAME.MAX_CARD_COUNT}</strong>)
+          (Range: <strong>{GAME.MIN_CARD_COUNT}</strong> to{" "}
+          <strong>{GAME.MAX_CARD_COUNT}</strong>)
         </div>
       </InfoTooltip>
     </div>
   );
 });
-

@@ -1,14 +1,15 @@
 import CloseButton from "~/v3/components/atoms/modal-close-button/modal-close-button";
-import type { QRL } from "@builder.io/qwik";
+import type { FunctionComponent, QRL } from "@builder.io/qwik";
 
-export default ({
-  hideModal$,
-  title,
-  buttonOpts = { onLeft: false, text: "x" },
-}: {
+type ModalHeaderProps = {
   hideModal$: QRL<() => void>;
   title: string;
   buttonOpts?: Partial<{ onLeft?: boolean; text?: string }>;
+};
+const ModalHeader: FunctionComponent<ModalHeaderProps> = ({
+  hideModal$,
+  title,
+  buttonOpts = { onLeft: false, text: "x" },
 }) => {
   const button = <CloseButton hideModal$={hideModal$} text={buttonOpts.text} />;
 
@@ -20,3 +21,4 @@ export default ({
     </header>
   );
 };
+export default ModalHeader;

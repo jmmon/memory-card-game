@@ -1,5 +1,5 @@
 import { $ } from "@builder.io/qwik";
-import { GAME } from "../constants/game";
+import GAME from "../constants/game";
 import { iSelectCardEnum } from "../types/types";
 import type {
   iGameData,

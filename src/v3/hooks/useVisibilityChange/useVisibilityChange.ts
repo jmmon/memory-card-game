@@ -1,5 +1,12 @@
 import { useVisibleTask$ } from "@builder.io/qwik";
-import type { UseVisibilityChangeProps } from "./types";
+
+import type { QRL } from "@builder.io/qwik";
+
+export type UseVisibilityChangeProps = {
+  onHidden$?: QRL<() => void>;
+  onShown$?: QRL<() => void>;
+  onChange$?: QRL<() => void>;
+};
 
 /* ============================
  * pause game when switching tabs
@@ -17,23 +24,23 @@ export const useVisibilityChange = ({
 
     // Standards:
     if (hidden in document) {
-      document.addEventListener("visibilitychange", onchange);
+      document.addEventListener("visibilitychange", _onchange);
       state = 1;
     } else if ((hidden = "mozHidden") in document) {
-      document.addEventListener("mozvisibilitychange", onchange);
+      document.addEventListener("mozvisibilitychange", _onchange);
       state = 2;
     } else if ((hidden = "webkitHidden") in document) {
-      document.addEventListener("webkitvisibilitychange", onchange);
+      document.addEventListener("webkitvisibilitychange", _onchange);
       state = 3;
     } else if ((hidden = "msHidden") in document) {
-      document.addEventListener("msvisibilitychange", onchange);
+      document.addEventListener("msvisibilitychange", _onchange);
       state = 4;
     }
     // IE 9 and lower:
     else if ("onfocusin" in document) {
       (document as Document & { onfocusin: any; onfocusout: any }).onfocusin = (
         document as Document & { onfocusin: any; onfocusout: any }
-      ).onfocusout = onchange;
+      ).onfocusout = _onchange;
       state = 5;
     }
     // All others:
@@ -42,10 +49,10 @@ export const useVisibilityChange = ({
         window.onpagehide =
         window.onfocus =
         window.onblur =
-          onchange;
+          _onchange;
     }
 
-    function onchange(evt: any) {
+    function _onchange(evt: any) {
       const v = "visible",
         h = "hidden",
         evtMap: { [key: string]: string } = {
@@ -78,7 +85,7 @@ export const useVisibilityChange = ({
 
     // set the initial state (but only if browser supports the Page Visibility API)
     if ((document as Document & { [key: string]: any })[hidden] !== undefined) {
-      onchange({
+      _onchange({
         type: (document as Document & { [key: string]: any })[hidden]
           ? "blur"
           : "focus",
@@ -87,13 +94,13 @@ export const useVisibilityChange = ({
 
     cleanup(() => {
       if (state === 1) {
-        document.removeEventListener("visibilitychange", onchange);
+        document.removeEventListener("visibilitychange", _onchange);
       } else if (state === 2) {
-        document.removeEventListener("mozvisibilitychange", onchange);
+        document.removeEventListener("mozvisibilitychange", _onchange);
       } else if (state === 3) {
-        document.removeEventListener("webkitvisibilitychange", onchange);
+        document.removeEventListener("webkitvisibilitychange", _onchange);
       } else if (state === 4) {
-        document.removeEventListener("msvisibilitychange", onchange);
+        document.removeEventListener("msvisibilitychange", _onchange);
       } else if (state === 5) {
         (document as Document & { onfocusin: any }).onfocusin = (
           document as Document & { onfocusout: any }

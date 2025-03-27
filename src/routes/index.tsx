@@ -1,14 +1,15 @@
-import { component$, useSignal, useTask$ } from "@builder.io/qwik";
+import { component$, useComputed$, useSignal } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
 import Dropdown from "~/v3/components/molecules/dropdown/dropdown";
 import GameSettings from "~/v3/components/organisms/game-settings/game-settings";
 import { pruneDefaultsFromSettings } from "~/v3/utils/utils";
 
-import type { ClassList } from "@builder.io/qwik";
+import type { ClassList, FunctionComponent } from "@builder.io/qwik";
 import type { iUserSettings } from "~/v3/types/types";
 import Button from "~/v3/components/atoms/button/button";
 import Popover from "~/v3/components/molecules/popover/popover";
-import { USER_SETTINGS } from "~/v3/services/gameContext.service/initialState";
+import INITIAL_STATE from "~/v3/services/gameContext.service/initialState";
+import useGetSavedTheme from "~/v3/hooks/useGetSavedTheme";
 
 const LI_CLASSES = "pl-2 md:pl-4";
 
@@ -33,7 +34,8 @@ const LI_CLASSES = "pl-2 md:pl-4";
 //   return actionString;
 // }
 
-const SoonTm = ({ classes }: { classes?: ClassList }) => (
+type SoonTmProps = { classes?: ClassList };
+const SoonTm: FunctionComponent<SoonTmProps> = ({ classes }) => (
   <span class={`mx-[1px] ${classes}`}>
     Soon<sup class="align-[0.4em] text-[0.5em]">TM</sup>
   </span>
@@ -71,7 +73,7 @@ const SoonTmPopover = component$(() => {
   );
 });
 
-const Instructions = () => {
+const Instructions: FunctionComponent = () => {
   const actionString = "Tap/Click";
   return (
     <>
@@ -117,15 +119,14 @@ const Instructions = () => {
 };
 
 export const GameStarter = component$(() => {
-  const unsavedUserSettings = useSignal<iUserSettings>(USER_SETTINGS);
-  const playHref = useSignal<string>("");
+  const unsavedUserSettings = useSignal<iUserSettings>(
+    INITIAL_STATE.userSettings,
+  );
+  useGetSavedTheme({ unsavedUserSettings });
 
-  useTask$(({ track }) => {
-    track(() => unsavedUserSettings.value);
-    // all settings which were changed from initial values
+  const playHref = useComputed$(() => {
     const params = pruneDefaultsFromSettings(unsavedUserSettings.value);
-    playHref.value = `/game/${params}`;
-    console.log({ unsavedUserSettings: unsavedUserSettings.value, params });
+    return `/game/${params}`;
   });
 
   return (
@@ -137,6 +138,10 @@ export const GameStarter = component$(() => {
         Play
       </Link>
 
+      <div class="w-full flex items-ceter justify-center">
+        <span class="home-theme-dark text-2xl">Theme: Dark</span>
+        <span class="home-theme-light text-2xl">Theme: Light</span>
+      </div>
       <Dropdown buttonText="Change Settings">
         <GameSettings unsavedUserSettings={unsavedUserSettings}>
           <div
@@ -144,7 +149,9 @@ export const GameStarter = component$(() => {
             class="mt-5 flex flex-grow items-center justify-around"
           >
             <Button
-              onClick$={() => (unsavedUserSettings.value = USER_SETTINGS)}
+              onClick$={() =>
+                (unsavedUserSettings.value = INITIAL_STATE.userSettings)
+              }
               classes="min-w-[5em]"
             >
               <span class="text-slate-100">Reset</span>
@@ -162,7 +169,7 @@ export const GameStarter = component$(() => {
   );
 });
 
-export default component$(() => {
+const HomeComponent: FunctionComponent = () => {
   // get invert-card-colors from local storage
   return (
     <div class="flex h-screen flex-col items-center justify-between ">
@@ -186,4 +193,5 @@ export default component$(() => {
       </div>
     </div>
   );
-});
+};
+export default HomeComponent;

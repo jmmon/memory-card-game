@@ -1,25 +1,10 @@
-## TODO: try useGameContext hook to fix not-found error with shuffle?
-- useGameStateProvider() => {
-    set up Store for state;
-    define functions;
+## TODO: darkmode brightness adjust: dim the brightness of cards via another filter?
+- brightness (number) slider e.g. 100%-10%
+> - also save in localstorage
 
-    create Service object with state and functions
-
-    useContextProvider(GameContext, service);
-    return Service;
-}
-> - use in parent Game.tsx
-- useGameState() => () => useContext(GameContext); // aka Service object
-> - use everywhere else needed
-
-## TODO: add dark mode? (darker mode)
-- added options in interface object
-> - brightness (number) slider e.g. 100%-10%
-> - invert toggle (to invert and hue shift 180* to fix red)
-> > localstorage
-> > - consumeParams => when game with params is loaded, consume them and refresh without params, but save the params into the settings
-> > - ensure darkmode settings changes later are also stored to localStorage
-
+## TODO: less extra work for dark mode.
+- break up single hook into multiple
+> - only need one onLoad and one onShow per route
 
 ## TODO: challenge modes
 - implement the challenge modes in the game context!
