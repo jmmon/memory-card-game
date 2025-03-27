@@ -1,4 +1,4 @@
-// /* eslint @typescript-eslint/no-unnecessary-condition: "off" */
+/* eslint @typescript-eslint/no-unnecessary-condition: "off" */
 import {
   $,
   createContextId,
@@ -9,14 +9,15 @@ import {
 import { useTimer } from "~/v3/hooks/useTimer";
 import deckUtils from "~/v3/utils/deckUtils";
 import boardUtils from "~/v3/utils/boardUtils";
-import INITIAL_STATE, { GAME_SETTINGS } from "./initialState";
-import { GAME } from "~/v3/constants/game";
+import INITIAL_STATE from "./initialState";
+import GAME, { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
 import type {
   iTimer,
   iGameHandlers,
   iGameState,
   iUserSettings,
 } from "~/v3/types/types";
+import logger from "../logger";
 
 export type GameService = ReturnType<typeof useGameContextProvider>;
 const GameContext = createContextId<GameService>("gameContext2");
@@ -27,7 +28,6 @@ export const useGameContextProvider = ({
 }: {
   userSettings: iUserSettings;
 }) => {
-  const DEBUG = import.meta.env.DEV;
   // state
   const timer = useTimer();
   const state = useStore<iGameStateWithTimer>({
@@ -41,51 +41,52 @@ export const useGameContextProvider = ({
   const shuffleCardPositions = $(function () {
     // shuffle and set new positions, save old positions
     const newCards = deckUtils.shuffleCardPositions(state.gameData.cards);
-    if (DEBUG) console.log("shuffleCardPositions:", { newCards });
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "shuffleCardPositions:", {
+      newCards,
+    });
     state.gameData.cards = newCards;
   });
 
   const startShuffling = $(async function (
     count: number = GAME.CARD_SHUFFLE_ROUNDS,
   ) {
-    if (DEBUG) console.log("startShuffling");
+    if (GAME.DEBUG.HANDLER) console.log("startShuffling");
     await shuffleCardPositions();
     state.gameData.shufflingState = count - 1;
     state.gameData.isLoading = true;
     state.interfaceSettings.settingsModal.isShowing = false;
-    if (DEBUG)
-      console.log("~~startShuffling:", {
-        gameDataShufflingState: state.gameData.shufflingState,
-        gameDataIsLoading: state.gameData.isLoading,
-        interfaceSettingsSettingsModalIsShowing:
-          state.interfaceSettings.settingsModal.isShowing,
-      });
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "~~startShuffling:", {
+      gameDataShufflingState: state.gameData.shufflingState,
+      gameDataIsLoading: state.gameData.isLoading,
+      interfaceSettingsSettingsModalIsShowing:
+        state.interfaceSettings.settingsModal.isShowing,
+    });
   });
 
   const stopShuffling = $(function () {
     state.gameData.shufflingState = 0;
     state.gameData.isLoading = false;
-    if (DEBUG)
-      console.log("stopShuffling:", {
-        gameDataShufflingState: state.gameData.shufflingState,
-        gameDataIsLoading: state.gameData.isLoading,
-      });
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "stopShuffling:", {
+      gameDataShufflingState: state.gameData.shufflingState,
+      gameDataIsLoading: state.gameData.isLoading,
+    });
   });
 
   const sliceDeck = $(function () {
     const deckShuffledByPairs = deckUtils.shuffleDeckAndRefreshIds(
-      GAME_SETTINGS.deck.fullDeck,
+      INITIAL_STATE.gameSettings.deck.fullDeck,
     );
     const cards = deckShuffledByPairs.slice(0, state.userSettings.deck.size);
     state.gameData.cards = cards;
-    if (DEBUG)
-      console.log("sliceDeck", {
-        gameDataCards: state.gameData.cards,
-      });
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "sliceDeck", {
+      gameDataCards: state.gameData.cards,
+    });
   });
 
   const initializeDeck = $(async function (isStartup: boolean = false) {
-    if (DEBUG) console.log("initializeDeck:", isStartup ? "isStartup" : null);
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "initializeDeck:", {
+      isStartup,
+    });
     await sliceDeck();
     await startShuffling(isStartup ? 6 : GAME.CARD_SHUFFLE_ROUNDS);
   });
@@ -108,33 +109,30 @@ export const useGameContextProvider = ({
       ...state.boardLayout,
       ...boardLayout,
     };
-    if (DEBUG)
-      console.log("calculateAndResizeBoard:", {
-        boardLayout: state.boardLayout,
-        cardLayout: state.cardLayout,
-      });
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "calculateAndResizeBoard:", {
+      boardLayout: state.boardLayout,
+      cardLayout: state.cardLayout,
+    });
   });
 
   const showSettings = $(function () {
     timer.pause();
     state.interfaceSettings.settingsModal.isShowing = true;
-    if (DEBUG)
-      console.log("showSettings:", {
-        timerIsPaused: timer.state.isPaused,
-        ingerfaceSettingsSettingsModalIsShowing:
-          state.interfaceSettings.settingsModal.isShowing,
-      });
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "showSettings:", {
+      timerIsPaused: timer.state.isPaused,
+      ingerfaceSettingsSettingsModalIsShowing:
+        state.interfaceSettings.settingsModal.isShowing,
+    });
   });
 
   const hideSettings = $(function () {
     state.interfaceSettings.settingsModal.isShowing = false;
     timer.resume();
-    if (DEBUG)
-      console.log("hideSettings:", {
-        timerIsPaused: timer.state.isPaused,
-        ingerfaceSettingsSettingsModalIsShowing:
-          state.interfaceSettings.settingsModal.isShowing,
-      });
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "hideSettings:", {
+      timerIsPaused: timer.state.isPaused,
+      ingerfaceSettingsSettingsModalIsShowing:
+        state.interfaceSettings.settingsModal.isShowing,
+    });
   });
 
   const isGameEnded = $(function () {
@@ -148,21 +146,19 @@ export const useGameContextProvider = ({
       state.gameData.successfulPairs.length ===
       state.userSettings.deck.size / 2;
 
-    if (DEBUG)
-      console.log("isGameEnded:", {
-        isEnded,
-        isWin,
-      });
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "isGameEnded:", {
+      isEnded,
+      isWin,
+    });
 
     if (!isEnded) return { isEnded };
     return { isEnded, isWin };
   });
 
   const startGame = $(function () {
-    if (DEBUG)
-      console.log("startGame:", {
-        isResetting: timer.state.isStarted,
-      });
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "startGame:", {
+      isResetting: timer.state.isStarted,
+    });
     if (timer.state.isStarted) {
       timer.reset();
     }
@@ -173,20 +169,17 @@ export const useGameContextProvider = ({
     timer.stop();
     state.interfaceSettings.endOfGameModal.isWin = isWin;
     state.interfaceSettings.endOfGameModal.isShowing = true;
-    if (DEBUG)
-      console.log("endGame:", {
-        isResetting: timer.state.isStarted,
-        isWin: state.interfaceSettings.endOfGameModal.isWin,
-        endOfGameModalIsShowing:
-          state.interfaceSettings.endOfGameModal.isShowing,
-      });
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "endGame:", {
+      isResetting: timer.state.isStarted,
+      isWin: state.interfaceSettings.endOfGameModal.isWin,
+      endOfGameModalIsShowing: state.interfaceSettings.endOfGameModal.isShowing,
+    });
   });
 
   const resetGame = $(async function (settings?: Partial<iUserSettings>) {
-    if (DEBUG)
-      console.log("resetGame:", {
-        newSettings: settings,
-      });
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "resetGame:", {
+      newSettings: settings,
+    });
     if (settings !== undefined) {
       state.userSettings = {
         ...state.userSettings,
@@ -217,10 +210,9 @@ export const useGameContextProvider = ({
     state.gameData.mismatchPairs.length = 0;
     state.gameData.successfulPairs.length = 0;
 
-    if (DEBUG)
-      console.log("~~resetGame:", {
-        gameData: state.gameData,
-      });
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "~~resetGame:", {
+      gameData: state.gameData,
+    });
 
     await timer.reset();
     await initializeDeck();

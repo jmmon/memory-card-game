@@ -1,23 +1,17 @@
 import { Slot, component$ } from "@builder.io/qwik";
-import type { PropFunction } from "@builder.io/qwik";
+import type { ClassList, PropFunction } from "@builder.io/qwik";
 import type { iUserSettings } from "~/v3/types/types";
 
-export default component$(
-  ({
-    text,
-    name,
-    onChange$,
-    classes,
-    disabled = false,
-    settings,
-  }: {
-    text: string;
-    name: string;
-    onChange$: PropFunction<(e: Event) => void>;
-    classes?: string;
-    disabled?: boolean;
-    settings: iUserSettings;
-  }) => {
+type InputLock = {
+  text: string;
+  name: string;
+  onChange$: PropFunction<(e: Event) => void>;
+  classes?: ClassList;
+  disabled?: boolean;
+  settings: iUserSettings;
+};
+export default component$<InputLock>(
+  ({ text, name, onChange$, classes, disabled = false, settings }) => {
     const properties = name.split(".");
     return (
       <div

@@ -8,48 +8,45 @@ import type { iUserSettings } from "~/v3/types/types";
 import Button from "../../atoms/button/button";
 import GameStats from "../../molecules/game-stats/game-stats";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
+import useGetSavedTheme from "~/v3/hooks/useGetSavedTheme";
 
 export default component$(() => {
   const ctx = useGameContextService();
-  const unsavedSettings = useSignal<iUserSettings>({
+  const unsavedUserSettings = useSignal<iUserSettings>({
     ...ctx.state.userSettings,
   });
 
-  const hideModal$ = $(() => {
-    // resync when hiding modal
-    unsavedSettings.value = ctx.state.userSettings;
-    ctx.handle.hideSettings();
-  });
+  useGetSavedTheme({ ctx, unsavedUserSettings });
 
   const saveOrResetSettings = $(async (newSettings?: Signal<iUserSettings>) => {
     ctx.handle
       .resetGame(newSettings ? newSettings.value : undefined)
       .then(() => {
         // resync and hide modal after new settings are saved
-        console.log("game reset", ctx);
-        hideModal$();
+        // console.log("game reset", ctx);
+        ctx.handle.hideSettings();
       });
   });
 
-  // fixes end-game modal changes not reflecting in settings modal
-  // since before, the unsavedSettings was only set on mount
+  // resync when showing or hiding modal e.g. if home changed settings but didn't save
   useTask$(({ track }) => {
     track(() => ctx.state.interfaceSettings.settingsModal.isShowing);
-    if (ctx.state.interfaceSettings.settingsModal.isShowing) {
-      unsavedSettings.value = ctx.state.userSettings;
-    }
+    // first save interface changes without requiring save to be clicked
+    // then update signal to match all state settings
+    ctx.state.userSettings.interface = unsavedUserSettings.value.interface;
+    unsavedUserSettings.value = ctx.state.userSettings;
   });
 
   return (
     <Modal
       isShowing={ctx.state.interfaceSettings.settingsModal.isShowing}
-      hideModal$={hideModal$}
+      hideModal$={ctx.handle.hideSettings}
       title="Game Settings"
       containerClasses="bg-opacity-[98%] shadow-2xl"
     >
       <GameSettings
         startShuffling$={ctx.handle.startShuffling}
-        unsavedUserSettings={unsavedSettings}
+        unsavedUserSettings={unsavedUserSettings}
       >
         {ctx.timer.state.time > 0 && <GameStats q:slot="game-stats" />}
 
@@ -62,7 +59,7 @@ export default component$(() => {
           </Button>
           <Button
             onClick$={() => {
-              saveOrResetSettings(unsavedSettings);
+              saveOrResetSettings(unsavedUserSettings);
             }}
           >
             <span class="text-slate-100">Save &amp; Reset</span>

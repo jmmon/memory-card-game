@@ -74,6 +74,6 @@ const cards: { [key: string]: any } = {
   KS: kingSpadesCard(),
   KD: kingDiamondsCard(),
   KH: kingHeartsCard(),
-};
+} as const;
 
 export default cards;

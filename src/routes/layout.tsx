@@ -69,7 +69,6 @@ export default component$(() => {
   );
 });
 
-
 export const head: DocumentHead = {
   title: `${HEAD_CONSTANTS.SITE_NAME} - ${HEAD_CONSTANTS.SITE_HOST}`,
   meta: [
@@ -79,4 +78,3 @@ export const head: DocumentHead = {
     },
   ],
 };
-

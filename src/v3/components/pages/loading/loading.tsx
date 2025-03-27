@@ -1,19 +1,17 @@
-import { component$ } from "@builder.io/qwik";
+import type { FunctionComponent } from "@builder.io/qwik/jsx-runtime";
 
-export default component$(
-  ({ isShowing, blur = true }: { isShowing: boolean; blur?: boolean }) => (
-    <>
-      <div
-        class={`${
-          isShowing
-            ? `${
-                blur ? "backdrop-blur-[2px]" : ""
-              } opacity-100 z-50 pointer-events-auto`
-            : "pointer-events-none z-[-1] opacity-0"
-        } text-slate-200 transition-all bg-black bg-opacity-20 absolute top-0 left-0 text-4xl w-full flex-grow h-full flex justify-center items-center `}
-      >
-        Loading...
-      </div>
-    </>
-  )
+type LoadingProps = { blur?: boolean };
+const Loading: FunctionComponent<LoadingProps> = ({ blur = true }) => (
+  <>
+    <div
+      class={`${
+        blur ? "backdrop-blur-[2px]" : ""
+      } opacity-100 z-50 pointer-events-auto bg-black bg-opacity-20 
+      text-slate-200 text-4xl transition-all absolute top-0 left-0 
+      flex flex-grow justify-center items-center w-full h-full `}
+    >
+      Loading...
+    </div>
+  </>
 );
+export default Loading;

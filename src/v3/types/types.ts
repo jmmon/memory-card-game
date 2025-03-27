@@ -2,6 +2,11 @@ import type { QRL } from "@builder.io/qwik";
 import type { useTimer } from "~/v3/hooks/useTimer";
 import type { iSchemas } from "../validation/schemas";
 
+export enum ThemeEnum {
+  light = "light",
+  dark = "dark",
+}
+export type iTheme = keyof typeof ThemeEnum;
 export type iObj = Record<string, any>;
 export type iNestedObj = Record<string, string | iObj>;
 export type iEntriesStrings = [string, string][];
