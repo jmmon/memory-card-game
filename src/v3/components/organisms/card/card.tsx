@@ -5,24 +5,21 @@ import {
   useTask$,
 } from "@builder.io/qwik";
 import cardUtils from "~/v3/utils/cardUtils";
-import { BOARD } from "~/v3/constants/board";
+import BOARD from "~/v3/constants/board";
 import CardView from "~/v3/components/molecules/card-view/card-view";
 
 import type { iBoardLayout, iCoords, iCard } from "~/v3/types/types";
 import type { FunctionComponent, Signal } from "@builder.io/qwik";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 
-// underside shows immediately, but hides after this far during return transition
-export const CARD_HIDE_UNDERSIDE_AFTER_PERCENT = 0.9;
-
-// if matching, delay return animation by this amount
-// e.g. time allowed for card to vanish (before it would return to board)
-export const CARD_FLIPPED_DELAYED_OFF_DURATION_MS = 250;
-
 type FlipTransform = {
+  /** percent to translate the card during flip animation (to get to center) */
   translateX: number;
+  /** percent to translate the card during flip animation (to get to center) */
   translateY: number;
+  /** 180 or -180 degrees, depending on if coming from left or right */
   rotateY: string;
+  /** percent to scale the card during flip animation (to make big) */
   scale: number;
 };
 
@@ -72,11 +69,11 @@ export default component$<CardProps>(({ card }) => {
       // when hiding card, keep the underside visible for a while
       undersideRevealDelayTimer = setTimeout(() => {
         isFaceShowing.value = isCardFlipped.value;
-      }, BOARD.CARD_FLIP_ANIMATION_DURATION * CARD_HIDE_UNDERSIDE_AFTER_PERCENT);
+      }, BOARD.CARD_FLIP_ANIMATION_DURATION * BOARD.CARD_HIDE_UNDERSIDE_AFTER_PERCENT);
 
       flippedDelayTimer = setTimeout(() => {
         isFaceShowing_delayedOff.value = isCardFlipped.value;
-      }, CARD_FLIPPED_DELAYED_OFF_DURATION_MS);
+      }, BOARD.CARD_FLIPPED_DELAYED_OFF_DURATION_MS);
 
       returnedTimer = setTimeout(() => {
         isReturned.value = !isCardFlipped.value;
@@ -177,7 +174,7 @@ export default component$<CardProps>(({ card }) => {
       data-position={card.position}
     >
       <div
-        class={`aspect-[${BOARD.CARD_RATIO}] border border-slate-600 mx-auto bg-slate-800`}
+        class={`aspect-[${BOARD.CARD_RATIO}] border border-slate-600 mx-auto bg-[var(--card-bg)]`}
         style={{
           borderRadius: ctx.state.cardLayout.roundedCornersPx + "px",
           width: BOARD.CARD_RATIO_VS_CONTAINER * 100 + "%",
@@ -185,12 +182,12 @@ export default component$<CardProps>(({ card }) => {
           height: "auto",
           aspectRatio: BOARD.CARD_RATIO,
         }}
-        data-label="card-outline"
+        data-label="card-removed"
       >
         <div
           data-id={card.id}
           data-label="card"
-          class={`box-border w-full border border-slate-400 bg-slate-800 transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
+          class={`box-border w-full border border-slate-400 bg-[var(--card-bg)] transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
             isThisRemoved.value &&
             ctx.state.gameData.flippedCardId !== card.id &&
             ctx.state.gameData.flippedCardId !== card.pairId
@@ -271,6 +268,7 @@ const CardFlippingWrapper: FunctionComponent<CardFlippingWrapperProps> = ({
         boxShadow: isSelected.value
           ? `0 0 ${roundedCornersPx}px ${roundedCornersPx}px var(--card-glow)`
           : "",
+        background: isSelected.value ? "var(--card-glow)" : "",
         height: "auto",
         aspectRatio: BOARD.CARD_RATIO,
       }}

@@ -1,28 +1,32 @@
-import { component$, $, useSignal, useTask$ } from "@builder.io/qwik";
-
+import type { Signal } from "@builder.io/qwik";
+import { component$, $, useSignal } from "@builder.io/qwik";
 import Modal from "~/v3/components/templates/modal/modal";
 import Button from "~/v3/components/atoms/button/button";
-import ModalRow from "~/v3/components/atoms/modal-row/modal-row";
 import type { iUserSettings } from "~/v3/types/types";
-import DeckSizeChanger from "../../molecules/deck-size-changer/deck-size-changer";
 import GameStats from "../../molecules/game-stats/game-stats";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
+import useGetSavedTheme from "~/v3/hooks/useGetSavedTheme";
+import GameSettings from "../../organisms/game-settings/game-settings";
 
 export default component$(() => {
   const ctx = useGameContextService();
-
   // for adjusting deck size before restarting
   const unsavedUserSettings = useSignal<iUserSettings>(ctx.state.userSettings);
 
-  useTask$(({ track }) => {
-    track(() => ctx.state.userSettings.deck.size);
-    unsavedUserSettings.value.deck.size = ctx.state.userSettings.deck.size;
-  });
+  useGetSavedTheme({ ctx, unsavedUserSettings });
 
   const hideModal$ = $(() => {
     ctx.state.interfaceSettings.endOfGameModal.isShowing = false;
-    // probably unneeded thanks to task tracking
-    // unsavedUserSettings.value.deck.size = ctx.state.userSettings.deck.size;
+  });
+
+  const saveOrResetSettings$ = $((newSettings?: Signal<iUserSettings>) => {
+    ctx.handle
+      .resetGame(newSettings ? newSettings.value : undefined)
+      .then(() => {
+        // resync and hide modal after new settings are saved
+        // console.log("game reset", ctx);
+        ctx.state.interfaceSettings.endOfGameModal.isShowing = false;
+      });
   });
 
   return (
@@ -35,12 +39,41 @@ export default component$(() => {
           ? "You Win!"
           : "Game Over"
       }
-      bgStyles={{ backgroundColor: "rgba(0,0,0,0.1)" }}
+      containerClasses="bg-opacity-[98%] shadow-2xl"
       options={{
         detectClickOutside: false,
       }}
     >
-      <div class="flex flex-col gap-0.5 px-[4%] py-[2%] md:gap-1">
+      <GameSettings unsavedUserSettings={unsavedUserSettings}>
+        <GameStats q:slot="game-stats" />
+
+        <div
+          q:slot="footer"
+          class="mt-5 flex flex-grow items-center justify-around w-full"
+        >
+          <Button
+            classes="w-full"
+            // onClick$={() => {
+            //   ctx.handle.resetGame({
+            //     deck: {
+            //       ...ctx.state.userSettings.deck,
+            //       size: Number(unsavedUserSettings.value.deck.size),
+            //     },
+            //   });
+            //
+            //   ctx.state.interfaceSettings.endOfGameModal.isShowing = false;
+            // }}
+            onClick$={() => {
+              saveOrResetSettings$(unsavedUserSettings);
+            }}
+          >
+            Play Again
+          </Button>
+        </div>
+      </GameSettings>
+
+      {/* <div class="flex flex-col gap-0.5 px-[4%] py-[2%] md:gap-1">
+
         <GameStats q:slot="game-stats" />
 
         <ModalRow>
@@ -66,12 +99,10 @@ export default component$(() => {
           Play Again
         </Button>
 
-        {/*
         <Button onClick$={hideModal$} >
           Close
         </Button>
-*/}
-      </div>
+      </div> */}
     </Modal>
   );
 });

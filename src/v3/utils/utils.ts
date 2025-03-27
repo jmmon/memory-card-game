@@ -4,7 +4,7 @@ import type {
   iObj,
   iUserSettings,
 } from "~/v3/types/types";
-import { USER_SETTINGS } from "../services/gameContext.service/initialState";
+import INITIAL_STATE from "../services/gameContext.service/initialState";
 
 const toType = (value: string) => {
   switch (true) {
@@ -62,8 +62,6 @@ export const flattenObjectToEntries = (
   return result.sort(([k1], [k2]) => k1.localeCompare(k2));
 };
 
-// console.log("flattened:", flattenObjectToEntries(USER_SETTINGS));
-
 export const unflattenObject = (obj: iObj) => {
   const unflattened: iNestedObj = {};
 
@@ -96,12 +94,9 @@ export const unflattenObject = (obj: iObj) => {
   return unflattened;
 };
 
-// console.log(
-//   "unflattened:",
-//   unflattenObject(typeEntryValues(flattenObjectToEntries(USER_SETTINGS))),
-// );
-
-const DEFAULT_FLAT_SETTINGS = flattenObjectToEntries(USER_SETTINGS);
+const DEFAULT_FLAT_SETTINGS = flattenObjectToEntries(
+  INITIAL_STATE.userSettings,
+);
 
 export const pruneDefaultsFromSettings = (newSettings: iUserSettings) => {
   const newFlatSettings = flattenObjectToEntries(newSettings);

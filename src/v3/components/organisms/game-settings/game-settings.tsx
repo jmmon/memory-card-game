@@ -16,14 +16,9 @@ type GameSettingsProps = {
   startShuffling$?: PropFunction<() => void>;
   classes?: ClassList;
 };
-
-export default component$(
-  ({
-    unsavedUserSettings,
-    startShuffling$,
-    classes = "",
-  }: GameSettingsProps) => {
-    const handleToggle$ = $((e: Event) => {
+export default component$<GameSettingsProps>(
+  ({ unsavedUserSettings, startShuffling$, classes = "" }) => {
+    const handleChange$ = $((e: Event) => {
       const properties = (e.target as HTMLInputElement).name.split(".");
       unsavedUserSettings.value = {
         ...unsavedUserSettings.value,
@@ -63,7 +58,6 @@ export default component$(
               />
             </ModalRow>
           </div>
-
 
           {/* right column */}
           {/* <div class={`flex-grow flex flex-col ${COLUMN_GAP} items-center`}> */}
@@ -165,6 +159,31 @@ export default component$(
         <Dropdown
           buttonClasses="underline text-slate-400 hover:text-slate-50 focus:text-slate-50 bg-transparent hover:bg-transparent focus:bg-transparent"
           buttonClassesWhileOpen="text-slate-50"
+          buttonText="Interface Settings"
+          clearFocusOnClose={true}
+          /* startAsOpen={true} */
+        >
+          <div class="grid gap-1 p-[min(12px,2.5vw)]">
+            <ModalRow>
+              <InputLock
+                text="Invert"
+                name="interface.invertCardColors"
+                onChange$={handleChange$}
+                settings={unsavedUserSettings.value}
+              >
+                <InfoTooltip>
+                  Invert cards for dark mode.
+                  <br />
+                  Takes effect immediately.
+                </InfoTooltip>
+              </InputLock>
+            </ModalRow>
+          </div>
+        </Dropdown>
+
+        <Dropdown
+          buttonClasses="underline text-slate-400 hover:text-slate-50 focus:text-slate-50 bg-transparent hover:bg-transparent focus:bg-transparent"
+          buttonClassesWhileOpen="text-slate-50"
           buttonText="Show Developer Settings"
           clearFocusOnClose={true}
         >
@@ -174,7 +193,7 @@ export default component$(
                 text="Lock Board:"
                 name="board.isLocked"
                 settings={unsavedUserSettings.value}
-                onChange$={handleToggle$}
+                onChange$={handleChange$}
               >
                 <InfoTooltip>Prevent board layout from changing.</InfoTooltip>
               </InputLock>
@@ -184,7 +203,7 @@ export default component$(
                 text="Lock Deck:"
                 name="deck.isLocked"
                 settings={unsavedUserSettings.value}
-                onChange$={handleToggle$}
+                onChange$={handleChange$}
               >
                 <InfoTooltip>Prevent deck size from changing.</InfoTooltip>
               </InputLock>
@@ -195,7 +214,7 @@ export default component$(
                 text="Show Selected Card Ids"
                 name="interface.showSelectedIds"
                 settings={unsavedUserSettings.value}
-                onChange$={handleToggle$}
+                onChange$={handleChange$}
               >
                 <InfoTooltip>
                   Show unique card IDs for{" "}
@@ -208,7 +227,7 @@ export default component$(
                 text="Show Dimensions"
                 name="interface.showDimensions"
                 settings={unsavedUserSettings.value}
-                onChange$={handleToggle$}
+                onChange$={handleChange$}
               >
                 <InfoTooltip>
                   Show board layout and{" "}

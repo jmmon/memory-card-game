@@ -1,22 +1,24 @@
-type iTheme = "light" | "dark";
+import GAME from "../constants/game";
+import type { iTheme } from "../types/types";
 
-function save(key: string, value: string) {
+function set(key: string, value: string) {
   localStorage.setItem(key, value);
-  document.getElementsByTagName("html")[0].setAttribute("data-" + key, value);
 }
-function get(key: string) {
-  return localStorage.getItem(key);
+function get<T>(key: string) {
+  return localStorage.getItem(key) as T;
 }
-function saveTheme(value: iTheme) {
-  save("theme", value);
+
+function setTheme(value: iTheme) {
+  set(GAME.STORAGE_KEY_THEME, value);
 }
 function getTheme() {
-  return get("theme") as iTheme | null;
+  return get<iTheme | null>(GAME.STORAGE_KEY_THEME);
 }
+
 const storageService = {
-  save,
+  set,
   get,
-  saveTheme,
+  setTheme,
   getTheme,
 };
 
