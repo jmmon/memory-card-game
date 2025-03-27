@@ -118,21 +118,6 @@ const Instructions: FunctionComponent = () => {
   );
 };
 
-/**
- * SERVER:
- *  - user_settings as default unsavedUserSettings
- *  - "/game/" as playHref
- *  - savedTheme as null
- *
- * BROWSER:
- *  - initialize theme => savedTheme is NOT NULL
- *  - task runs from change
- *  - playHref is calculated based on unsavedUserSettings && savedTheme
- *
- *  - need to update unsavedUserSettings based on savedTheme
- *
- * */
-
 export const GameStarter = component$(() => {
   const unsavedUserSettings = useSignal<iUserSettings>(
     INITIAL_STATE.userSettings,
