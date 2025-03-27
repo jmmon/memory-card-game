@@ -48,10 +48,37 @@ html[data-theme="dark"] span.home-theme-light {
   display: none;
 }
 
+.playing-card {
+  --card-background-color: #fff;
+  --card-border-color: #000;
+}
 
-html[data-brightness]:not([data-brightness="100"]) .card-face>*,
-html[data-brightness]:not([data-brightness="100"]) .card-face>* {
-  filter: brightness(var(--brightness));
+/* html[data-theme="dark"] .playing-card { */
+/*   --card-background-color: #fff; */
+/*   --card-border-color: #000; */
+/* } */
+
+/* color the card symbols */
+.playing-card.red * {
+  color: red;
+  stroke: red;
+}
+
+.playing-card.black * {
+  color: black;
+  stroke: black;
+}
+
+html[data-theme="dark"] .card-face[data-label="card-back"]>* {
+  /* filter: brightness(0.25); */
+  filter: invert(calc(15/16));
+}
+
+html[data-theme="dark"] .card-face[data-label="card-front"]>* {
+  /* filter: brightness(0.25); */
+  --card-background-color: #111;
+  --card-border-color: #eee;
+  /*filter: invert(100%) hue-rotate(180deg); */
 }
 
 /* HEADINGS ------------------------------------- */

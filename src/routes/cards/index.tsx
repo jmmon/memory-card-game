@@ -1,30 +1,19 @@
 import { component$ } from "@builder.io/qwik";
 import PlayingCardComponents from "~/v3/components/playing-card-components";
-import CardSymbols from "~/v3/components/playing-card-components/symbols/card-symbols";
-import FaceCardSymbols from "~/v3/components/playing-card-components/symbols/face-card-symbols";
 import ImageBackFace from "~/media/cards/_backWhite.png?jsx";
 import type { DocumentHead } from "@builder.io/qwik-city";
 import HEAD_CONSTANTS from "~/v3/constants/head";
 
 export default component$(() => {
   return (
-    <div
-      class="mx-auto flex h-screen flex-wrap justify-center"
-      style={{ overflowY: "scroll" }}
-    >
+    <div class="mx-auto grid grid-cols-2 sm:grid-cols-4 sm:max-w-[1000px] h-screen flex-wrap justify-center">
       {Object.values(PlayingCardComponents)
         .reverse()
         .map((card, i) => (
-          <div
-            key={i}
-            style={{ width: "14%", minWidth: "250px" }}
-            dangerouslySetInnerHTML={card}
-          ></div>
+          <div class="w-full" key={i} dangerouslySetInnerHTML={card}></div>
         ))}
 
-      <ImageBackFace class="w-[14%] min-w-[250px]" loading="eager" decoding="sync" />
-      <CardSymbols />
-      <FaceCardSymbols />
+      <ImageBackFace class="w-full" loading="eager" decoding="sync" />
     </div>
   );
 });
