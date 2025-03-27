@@ -200,9 +200,9 @@ export default component$<GameProps>(
           <Board containerRef={containerRef} />
         </div>
 
-        {ctx.state.gameData.isLoading && <Loading />}
-        {ctx.state.interfaceSettings.settingsModal.isShowing && <Settings />}
-        {ctx.state.interfaceSettings.endOfGameModal.isShowing && <EndGame />}
+        <Loading isShowing={ctx.state.gameData.isLoading} />
+        <Settings />
+        <EndGame />
       </>
     );
   },

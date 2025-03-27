@@ -1,5 +1,10 @@
 ## TODO: darkmode brightness adjust: dim the brightness of cards via another filter?
-> - brightness (number) slider e.g. 100%-10%
+- brightness (number) slider e.g. 100%-10%
+> - also save in localstorage
+
+## TODO: less extra work for dark mode.
+- break up single hook into multiple
+> - only need one onLoad and one onShow per route
 
 ## TODO: challenge modes
 - implement the challenge modes in the game context!
