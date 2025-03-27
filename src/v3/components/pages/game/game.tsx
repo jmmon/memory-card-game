@@ -12,8 +12,6 @@ import {
   useTimeoutObj,
 } from "~/v3/hooks/useTimeout";
 
-import FaceCardSymbols from "~/v3/components/playing-card-components/symbols/face-card-symbols";
-import CardSymbols from "~/v3/components/playing-card-components/symbols/card-symbols";
 import EndGame from "~/v3/components/pages/end-game/end-game";
 import GameHeader from "~/v3/components/organisms/game-header/game-header";
 import Settings from "~/v3/components/pages/settings/settings";
@@ -154,10 +152,6 @@ export default component$<GameProps>(
 
     return (
       <>
-        {/* SVG card symbols pre-rendered but hidden; so cards can build from these */}
-        <CardSymbols />
-        <FaceCardSymbols />
-
         {/* <InverseModal */}
         {/*   isShowing={appStore.interface.inverseSettingsModal.isShowing} */}
         {/*   hideModal$={() => { */}
@@ -192,11 +186,7 @@ export default component$<GameProps>(
           }`}
           ref={containerRef}
         >
-          <GameHeader
-            showSettings$={() => {
-              ctx.handle.showSettings();
-            }}
-          />
+          <GameHeader showSettings$={ctx.handle.showSettings} />
           <Board containerRef={containerRef} />
         </div>
 
