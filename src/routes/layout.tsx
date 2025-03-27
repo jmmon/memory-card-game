@@ -66,9 +66,6 @@ export default component$(() => {
   // });
   return (
     <main class="full">
-      {/* SVG card symbols pre-rendered but hidden; so cards can build from these */}
-      <CardSymbols />
-      <FaceCardSymbols />
       <Slot />
       {/* SVG card symbols pre-rendered but hidden; so cards can build from these */}
       <CardSymbols />
