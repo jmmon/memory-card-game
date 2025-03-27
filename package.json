@@ -16,7 +16,6 @@
     "build.types": "tsc --incremental --noEmit",
     "db.seed": "node src/v3/db/seed.mjs",
     "deploy": "wrangler pages deploy ./dist",
-    "deploy:preview": "wrangler pages deploy ./dist --branch=cloudflare-stage",
     "dev": "vite --mode ssr",
     "dev.debug": "node --inspect-brk ./node_modules/vite/bin/vite.js --mode ssr --force",
     "fmt": "prettier --write .",
