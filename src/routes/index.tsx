@@ -170,7 +170,6 @@ export const GameStarter = component$(() => {
 });
 
 const HomeComponent: FunctionComponent = () => {
-  // get invert-card-colors from local storage
   return (
     <div class="flex h-screen flex-col items-center justify-between ">
       <div class="grid w-full max-w-[600px] items-center justify-center gap-8 text-slate-200">
