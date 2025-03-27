@@ -1,5 +1,5 @@
-import { GAME } from "~/v3/constants/game";
-import { iSelectCardEnum } from "~/v3/types/types";
+import GAME from "~/v3/constants/game";
+import { ThemeEnum, iSelectCardEnum } from "~/v3/types/types";
 import type {
   iUserSettings,
   iGameData,
@@ -8,6 +8,7 @@ import type {
   iCardLayout,
   iBoardLayout,
   iInterfaceSettings,
+  iTheme,
 } from "~/v3/types/types";
 import { formattedDeck } from "~/v3/utils/cards";
 
@@ -25,7 +26,7 @@ const GAME_DATA: iGameData = {
 };
 
 // user controlled settings
-export const USER_SETTINGS: iUserSettings = {
+const USER_SETTINGS: iUserSettings = {
   /* TODO:======================================
    * NOT IMPLEMENTED
    * fun ideas for challenges
@@ -105,7 +106,7 @@ export const USER_SETTINGS: iUserSettings = {
 };
 
 // unadjustable settings
-export const GAME_SETTINGS: iGameSettings = {
+const GAME_SETTINGS: iGameSettings = {
   cardFlipAnimationDuration: 800,
 
   deck: {
@@ -156,4 +157,8 @@ const INITIAL_STATE: iGameState = {
   gameSettings: GAME_SETTINGS,
   interfaceSettings: INTERFACE_SETTINGS,
 };
+
 export default INITIAL_STATE;
+export const DEFAULT_THEME: iTheme = USER_SETTINGS.interface.invertCardColors
+  ? ThemeEnum.dark
+  : ThemeEnum.light;
