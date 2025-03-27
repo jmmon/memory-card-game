@@ -49,6 +49,11 @@ html[data-theme="dark"] span.home-theme-light {
 }
 
 
+html[data-brightness]:not([data-brightness="100"]) .card-face>*,
+html[data-brightness]:not([data-brightness="100"]) .card-face>* {
+  filter: brightness(var(--brightness));
+}
+
 /* HEADINGS ------------------------------------- */
 h1,
 h2,
