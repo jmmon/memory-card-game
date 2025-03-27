@@ -14,8 +14,8 @@ export default () => (
         height="335"
         x="-119.5"
         y="-167.5"
-        fill="#fff"
-        stroke="#000"
+        fill="var(--card-background-color)"
+        stroke="var(--card-border-color)"
         rx="12"
         ry="12"
       />

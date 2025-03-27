@@ -48,6 +48,16 @@ html[data-theme="dark"] span.home-theme-light {
   display: none;
 }
 
+.playing-card {
+  --card-background-color: #fff;
+  --card-border-color: #000;
+}
+
+html[data-theme="dark"] .playing-card {
+  --card-background-color: #fff;
+  --card-border-color: #000;
+}
+
 .playing-card.red {
   color: red;
   stroke: red;
@@ -57,6 +67,7 @@ html[data-theme="dark"] span.home-theme-light {
   color: black;
   stroke: black;
 }
+
 
 
 /* HEADINGS ------------------------------------- */
