@@ -175,7 +175,7 @@ export default component$<CardProps>(({ card }) => {
       data-position={card.position}
     >
       <div
-        class={`aspect-[${BOARD.CARD_RATIO}] border border-slate-600 mx-auto bg-[var(--card-bg)]`}
+        class={`aspect-[${BOARD.CARD_RATIO}] border border-slate-600 mx-auto bg-[var(--card-slot-bg)]`}
         style={{
           borderRadius: ctx.state.cardLayout.roundedCornersPx + "px",
           width: BOARD.CARD_RATIO_VS_CONTAINER * 100 + "%",
@@ -188,7 +188,7 @@ export default component$<CardProps>(({ card }) => {
         <div
           data-id={card.id}
           data-label="card"
-          class={`box-border w-full border border-slate-400 bg-[var(--card-bg)] transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
+          class={`box-border w-full border border-slate-400 bg-[var(--card-slot-bg)] transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
             isThisRemoved.value &&
             ctx.state.gameData.flippedCardId !== card.id &&
             ctx.state.gameData.flippedCardId !== card.pairId

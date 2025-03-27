@@ -3,7 +3,7 @@ import storageService from "./storage.service";
 import GAME, { LogLevel, DebugTypeEnum } from "../constants/game";
 import logger from "./logger";
 
-function setHtml(theme: iTheme) {
+function setHtmlTheme(theme: iTheme) {
   const html = document.getElementsByTagName("html")[0];
   html.setAttribute("data-" + GAME.STORAGE_KEY_THEME, theme);
 }
