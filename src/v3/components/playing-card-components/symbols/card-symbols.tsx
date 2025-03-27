@@ -23,7 +23,11 @@ export default () => (
       {/*
             <!-- inner square -->
           */}
-      <path id="card-square" d="M-82.4-130.4H82.4v260.8H-82.4z" />
+      <path
+        id="card-square"
+        stroke="#4444FF"
+        d="M-82.4-130.4H82.4v260.8H-82.4z"
+      />
 
       {/*
             <!-- Symbols S H C D -->

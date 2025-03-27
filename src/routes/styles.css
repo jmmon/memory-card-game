@@ -81,6 +81,11 @@ html[data-theme="dark"] .card-face[data-label="card-front"]>* {
   filter: invert(100%) hue-rotate(180deg);
 }
 
+/* #cards-route .card-face[data-label="card-front"]>*, */
+/* #cards-route .card-face[data-label="card-back"]>* { */
+/*   filter: brightness(--brightness); */
+/* } */
+
 /* HEADINGS ------------------------------------- */
 h1,
 h2,
