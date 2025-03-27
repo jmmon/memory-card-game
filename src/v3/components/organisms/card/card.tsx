@@ -148,6 +148,7 @@ export default component$<CardProps>(({ card }) => {
         borderRadius: ctx.state.cardLayout.roundedCornersPx + "px",
         zIndex:
           // use coords to create gradient of z-index, lowest in center and highest on edges/corners
+          // // is this needed?
           Math.floor(
             (Math.abs(
               (flipTransform.value.translateX === 0

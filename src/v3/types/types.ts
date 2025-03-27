@@ -17,15 +17,9 @@ export type iCoords = { x: number; y: number };
 
 export type iPair = `${number}:${number}`;
 
-export type iPlayingCardSvgProps =
-  | {
-      color: "red";
-      symbol: "diamonds" | "hearts";
-    }
-  | {
-      color: "black";
-      symbol: "clubs" | "spades";
-    };
+export type iPlayingCardSvgProps = {
+  symbol: "diamonds" | "hearts" | "clubs" | "spades";
+};
 
 export type iCard = {
   id: number;

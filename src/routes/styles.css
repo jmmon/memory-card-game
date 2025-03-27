@@ -48,6 +48,16 @@ html[data-theme="dark"] span.home-theme-light {
   display: none;
 }
 
+.playing-card.red {
+  color: red;
+  stroke: red;
+}
+
+.playing-card.black {
+  color: black;
+  stroke: black;
+}
+
 
 /* HEADINGS ------------------------------------- */
 h1,
