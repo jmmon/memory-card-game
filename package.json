@@ -6,6 +6,8 @@
   },
   "private": true,
   "scripts": {
+    "drizzle:update": "drizzle-kit generate --out ./src/v3/db/migrations --schema ./src/v3/db/*.schema.ts --dialect sqlite"
+
     "build": "qwik build",
     "build.client": "vite build",
     "build.preview": "vite build --ssr src/entry.preview.tsx",
