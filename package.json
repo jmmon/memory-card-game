@@ -2,7 +2,7 @@
   "name": "my-qwik-basic-starter",
   "description": "Demo App with Routing built-in (recommended)",
   "engines": {
-    "node": ">=15.0.0"
+    "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
   },
   "private": true,
   "scripts": {
@@ -25,34 +25,31 @@
     "qwik": "qwik"
   },
   "devDependencies": {
-    "@builder.io/qwik": "^1.2.10",
-    "@builder.io/qwik-city": "^1.2.10",
-    "@qwik-ui/headless": "^0.1.14",
+    "@builder.io/qwik": "^1.12.1",
+    "@builder.io/qwik-city": "^1.12.1",
+    "@types/eslint": "8.56.10",
+    "@types/node": "20.14.11",
+    "@typescript-eslint/eslint-plugin": "7.16.1",
+    "@typescript-eslint/parser": "7.16.1",
+    "drizzle-kit": "^0.30.6",
+    "eslint": "9.23.0",
+    "eslint-plugin-qwik": "^1.12.1",
+    "prettier": "3.3.3",
+    "typescript": "5.4.5",
+    "undici": "*",
+    "vite": "5.3.5",
+    "vite-tsconfig-paths": "^4.2.1",
+
     "@types/compression": "^1.7.2",
-    "@types/eslint": "8.40.2",
-    "@types/node": "^20.4.0",
-    "@types/pg": "^8.10.2",
-    "@typescript-eslint/eslint-plugin": "5.61.0",
-    "@typescript-eslint/parser": "5.61.0",
     "autoprefixer": "^10.4.14",
     "compression": "^1.7.4",
-    "drizzle-kit": "^0.19.13",
-    "eslint": "^8.48.0",
-    "eslint-plugin-qwik": "^1.2.10",
     "node-env-run": "^4.0.2",
     "postcss": "^8.4.23",
-    "prettier": "2.8.8",
-    "tailwindcss": "^3.3.1",
-    "typescript": "5.1.6",
-    "undici": "5.22.1",
-    "vite": "^4.4.9",
-    "vite-tsconfig-paths": "^4.2.0"
+    "tailwindcss": "^3.3.1"
   },
   "dependencies": {
+    "drizzle-orm": "^0.41.0",
     "dotenv": "^16.3.1",
-    "drizzle-orm": "^0.28.5",
-    "jabber": "^1.5.3",
-    "pm2": "^5.3.0",
-    "postgres": "^3.3.5"
+    "jabber": "^1.5.3"
   }
 }
