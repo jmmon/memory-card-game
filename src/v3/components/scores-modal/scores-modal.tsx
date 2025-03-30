@@ -82,7 +82,7 @@ const DEFAULT_SORT_BY_COLUMNS_MAP: {
 };
 
 export const DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY = Object.values(
-  DEFAULT_SORT_BY_COLUMNS_MAP
+  DEFAULT_SORT_BY_COLUMNS_MAP,
 );
 
 const MAX_SORT_COLUMN_HISTORY = 2;
@@ -105,7 +105,7 @@ export default component$(() => {
     {
       sortByColumnHistory: DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY.slice(
         0,
-        MAX_SORT_COLUMN_HISTORY
+        MAX_SORT_COLUMN_HISTORY,
       ),
       deckSizesFilter: [gameContext.settings.deck.size], // default to our deck.size
       pageNumber: 1,
@@ -113,7 +113,7 @@ export default component$(() => {
       totalResults: 1,
       totalPages: 1,
     },
-    { deep: true }
+    { deep: true },
   );
 
   useTask$(({ track }) => {
@@ -165,7 +165,7 @@ export default component$(() => {
 
     const totalCount = Object.values(totals).reduce(
       (accum, cur) => (accum += cur),
-      0
+      0,
     );
 
     console.log({ totalCount, scores, deckSizeList: deckSizeList.value });
@@ -226,7 +226,7 @@ export default component$(() => {
 
   const onChangeResultsPerPage$ = $(async (e: QwikChangeEvent) => {
     const selectedResultsPerPage = Number(
-      (e.target as HTMLSelectElement).value
+      (e.target as HTMLSelectElement).value,
     );
 
     const now = Date.now();
@@ -273,7 +273,7 @@ export default component$(() => {
 
       if (indexIfExists !== -1) {
         queryStore.deckSizesFilter = queryStore.deckSizesFilter.filter(
-          (size) => size !== selectedDeckSize
+          (size) => size !== selectedDeckSize,
         );
         console.log("~~ existed");
       } else {
@@ -503,7 +503,7 @@ const SelectEl = component$(
         </option>
       ))}
     </select>
-  )
+  ),
 );
 
 const DECK_SIZES_WIDTH = "3em";
@@ -528,13 +528,13 @@ const TableDecksizeFilterHeader = component$(
     });
     const deckSizesSelected = useComputed$(() =>
       deckSizeList.value.filter((each) =>
-        queryStore.deckSizesFilter.includes(each)
-      )
+        queryStore.deckSizesFilter.includes(each),
+      ),
     );
     const deckSizesUnselected = useComputed$(() =>
       deckSizeList.value.filter(
-        (each) => !queryStore.deckSizesFilter.includes(each)
-      )
+        (each) => !queryStore.deckSizesFilter.includes(each),
+      ),
     );
     const widthCutoffLength = 100;
     return (
@@ -548,7 +548,7 @@ const TableDecksizeFilterHeader = component$(
             {deckSizesFilterString.value.length > widthCutoffLength
               ? deckSizesFilterString.value.substring(
                   0,
-                  widthCutoffLength - 3
+                  widthCutoffLength - 3,
                 ) + "..."
               : deckSizesFilterString.value}
           </option>
@@ -572,7 +572,7 @@ const TableDecksizeFilterHeader = component$(
         </select>
       </div>
     );
-  }
+  },
 );
 
 const TablePagingFooter = component$(
@@ -642,25 +642,25 @@ const TablePagingFooter = component$(
 
     const onClick$ = $((e: QwikMouseEvent) => {
       const label = (e.target as HTMLButtonElement).dataset["label"]?.split(
-        "-"
+        "-",
       ) ?? [0, 0];
       let pageNumber = queryStore.pageNumber;
       pageNumber =
         label[0] === "page"
           ? Number(label[2])
           : label[0] === "first"
-          ? 1
-          : label[0] === "previous"
-          ? pageNumber - 1 < 1
             ? 1
-            : pageNumber - 1
-          : label[0] === "next"
-          ? pageNumber + 1 > queryStore.totalPages
-            ? queryStore.totalPages
-            : pageNumber + 1
-          : label[0] === "last"
-          ? queryStore.totalPages
-          : queryStore.pageNumber;
+            : label[0] === "previous"
+              ? pageNumber - 1 < 1
+                ? 1
+                : pageNumber - 1
+              : label[0] === "next"
+                ? pageNumber + 1 > queryStore.totalPages
+                  ? queryStore.totalPages
+                  : pageNumber + 1
+                : label[0] === "last"
+                  ? queryStore.totalPages
+                  : queryStore.pageNumber;
       console.log("clicked page number button:", { label, pageNumber });
       buttons.prevPage = queryStore.pageNumber;
       queryStore.pageNumber = pageNumber;
@@ -729,5 +729,5 @@ const TablePagingFooter = component$(
         <div class="flex-grow">Total Pages: {queryStore.totalPages}</div>
       </div>
     );
-  }
+  },
 );

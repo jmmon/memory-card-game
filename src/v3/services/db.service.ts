@@ -1,12 +1,13 @@
-import type { NewScore, Score, ScoreCounts } from "../db/types";
+import type { NewScore, NewScoreCounts, Score, ScoreCounts } from "../db/types";
 import { server$ } from "@builder.io/qwik-city";
 import type {
+  Env,
   LessThanOurScoreObj,
   ScoreWithPercentiles,
   SortColumnWithDirection,
 } from "../types/types";
-import { DATE_JAN_1_1970 } from "../components/scores-modal/scores-modal";
-import type { ScoreQueryProps } from "./types";
+import { JAN_1_1970_STRING } from "../components/scores-modal/scores-modal";
+import type { CountsQueryProps, DrizzleDb, ScoreQueryProps } from "./types";
 import { DEFAULT_QUERY_PROPS } from "./constants";
 
 import scoreService from "./score.service";
@@ -14,6 +15,7 @@ import scoreCountsService from "./scoreCounts.service";
 import CONSTANTS from "../utils/constants";
 import { timestampToMs } from "../utils/formatTime";
 import { roundToDecimals } from "../components/game-header/game-header";
+import { drizzle } from "drizzle-orm/d1";
 
 /*
  * These functions are wrapped with server$() before exported, so
@@ -42,33 +44,32 @@ const generateScoreWithPercentiles = (
   entriesLtMismatchesObjSortedDesc: Array<[string, number]>,
   ltGameTimeObjSortedDesc: LessThanOurScoreObj,
   ltMismatchesObjSortedDesc: LessThanOurScoreObj,
-  total: number
+  total: number,
 ) => {
   // get next lt game time count, so we can average between ours and the next better
   const nextGameTimeIndex =
     entriesLtGameTimeObjSortedDesc.findIndex(
-      ([gameTime]) => gameTime === (score.gameTime as string)
+      ([gameTime]) => Number(gameTime) === score.gameTime,
     ) - 1;
   const nextLtGameTimeCount =
     entriesLtGameTimeObjSortedDesc?.[nextGameTimeIndex]?.[1] ?? total;
 
-  // get next lt mismatches count
-  const nextMismatchIndex =
-    entriesLtMismatchesObjSortedDesc.findIndex(
-      ([mismatches]) => Number(mismatches) === (score.mismatches as number)
-    ) - 1;
-  const nextLtMismatchCount =
-    entriesLtMismatchesObjSortedDesc?.[nextMismatchIndex]?.[1] ?? total;
-
   const timePercentileObj = {
     total,
-    lessThanCount: ltGameTimeObjSortedDesc[score.gameTime as string],
+    lessThanCount: ltGameTimeObjSortedDesc[score.gameTime],
     nextHighestLessThanCount: nextLtGameTimeCount,
   };
   const thisTimePercentile = calculatePercentile(timePercentileObj);
   // console.log({ timePercentileObj, thisTimePercentile });
 
-  // calculate mismatch percentile
+  // get next lt mismatches count
+  const nextMismatchIndex =
+    entriesLtMismatchesObjSortedDesc.findIndex(
+      ([mismatches]) => Number(mismatches) === score.mismatches,
+    ) - 1;
+  const nextLtMismatchCount =
+    entriesLtMismatchesObjSortedDesc?.[nextMismatchIndex]?.[1] ?? total;
+
   const mismatchPercentileObj = {
     total,
     lessThanCount: ltMismatchesObjSortedDesc[score.mismatches as number],
@@ -86,22 +87,22 @@ const generateScoreWithPercentiles = (
 
 const calculatePercentilesForScores = (
   scores: Score[],
-  counts: ScoreCounts
+  counts: ScoreCounts,
 ) => {
   const entriesLtGameTimeObjSortedDesc = Object.entries(
-    counts.worseThanOurGameTimeMap as LessThanOurScoreObj
+    counts.worseThanOurGameTimeMap as LessThanOurScoreObj,
   ).sort((a, b) => timestampToMs(a[0]) - timestampToMs(b[0]));
 
   const ltGameTimeObjSortedDesc = Object.fromEntries(
-    entriesLtGameTimeObjSortedDesc
+    entriesLtGameTimeObjSortedDesc,
   ) as LessThanOurScoreObj;
 
   const entriesLtMismatchesObjSortedDesc = Object.entries(
-    counts.worseThanOurMismatchesMap as LessThanOurScoreObj
+    counts.worseThanOurMismatchesMap as LessThanOurScoreObj,
   ).sort((a, b) => Number(a[0]) - Number(b[0]));
 
   const ltMismatchesObjSortedDesc = Object.fromEntries(
-    entriesLtMismatchesObjSortedDesc
+    entriesLtMismatchesObjSortedDesc,
   ) as LessThanOurScoreObj;
 
   const total = counts.totalScores as number;
@@ -115,8 +116,8 @@ const calculatePercentilesForScores = (
       entriesLtMismatchesObjSortedDesc,
       ltGameTimeObjSortedDesc,
       ltMismatchesObjSortedDesc,
-      total
-    )
+      total,
+    ),
   );
 };
 
@@ -145,15 +146,15 @@ const sortFunctions: {
   },
   createdAt: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
     const value =
-      (b.createdAt ?? DATE_JAN_1_1970).getTime() -
-      (a.createdAt ?? DATE_JAN_1_1970).getTime();
+      new Date(b.createdAt ?? JAN_1_1970_STRING).getTime() -
+      new Date(a.createdAt ?? JAN_1_1970_STRING).getTime();
     return value;
   },
 };
 
 const sortScores = (
   scores: ScoreWithPercentiles[],
-  sortByColumnHistory: Array<SortColumnWithDirection>
+  sortByColumnHistory: Array<SortColumnWithDirection>,
 ) => {
   const result = [...scores];
 
@@ -176,20 +177,23 @@ const sortScores = (
   return result;
 };
 
-const queryScoresAndCalculatePercentiles = async ({
-  pageNumber = DEFAULT_QUERY_PROPS.pageNumber,
-  resultsPerPage = DEFAULT_QUERY_PROPS.resultsPerPage,
-  deckSizesFilter = DEFAULT_QUERY_PROPS.deckSizesFilter,
-  sortByColumnHistory = DEFAULT_QUERY_PROPS.sortByColumnHistory,
-}: Partial<ScoreQueryProps>) => {
+const queryScoresAndCalculatePercentiles = async (
+  db: DrizzleDb,
+  {
+    pageNumber = DEFAULT_QUERY_PROPS.pageNumber,
+    resultsPerPage = DEFAULT_QUERY_PROPS.resultsPerPage,
+    deckSizesFilter = DEFAULT_QUERY_PROPS.deckSizesFilter,
+    sortByColumnHistory = DEFAULT_QUERY_PROPS.sortByColumnHistory,
+  }: Partial<ScoreQueryProps>,
+) => {
   const [resScores, resCounts] = await Promise.allSettled([
-    scoreService.query({
+    scoreService.query(db, {
       pageNumber,
       resultsPerPage,
       deckSizesFilter,
       sortByColumnHistory,
     }),
-    scoreCountsService.getByDeckSize(deckSizesFilter),
+    scoreCountsService.getByDeckSize(db, deckSizesFilter),
   ]);
 
   if (resScores.status !== "fulfilled" || resCounts.status !== "fulfilled") {
@@ -204,7 +208,7 @@ const queryScoresAndCalculatePercentiles = async ({
 
   const allScores = resScores.value as Score[];
   const counts = resCounts.value as ScoreCounts[];
-  console.log('fresh from query:', {allScores});
+  console.log("fresh from query:", { allScores });
 
   let allScoresWithPercentiles: ScoreWithPercentiles[] = [];
   const totals: { [key: number]: number } = {};
@@ -213,15 +217,15 @@ const queryScoresAndCalculatePercentiles = async ({
   for (let i = 0; i < counts.length; i++) {
     const thisCounts = counts[i];
     const scores = allScores.filter(
-      (score) => score.deckSize === thisCounts.deckSize
+      (score) => score.deckSize === thisCounts.deckSize,
     );
     const scoresWithPercentiles = calculatePercentilesForScores(
       scores,
-      thisCounts
+      thisCounts,
     );
 
     allScoresWithPercentiles = allScoresWithPercentiles.concat(
-      scoresWithPercentiles
+      scoresWithPercentiles,
     );
 
     totals[thisCounts.deckSize ?? CONSTANTS.CARD.COUNT] =
@@ -234,44 +238,113 @@ const queryScoresAndCalculatePercentiles = async ({
   };
 };
 
+// export const useDb = server$(function () {
+//   return drizzle((this.platform.env as Env).DB);
+// });
+
 const serverDbService = {
   scores: {
-    clear: server$(scoreService.clear),
-    query: server$(scoreService.query),
-    getByDeckSize: server$(scoreService.getByDeckSize),
-    create: server$(scoreService.create),
-    getAll: server$(scoreService.getAll),
-    queryWithPercentiles: server$(queryScoresAndCalculatePercentiles),
+    clear: server$(async function () {
+      const db = drizzle((this.platform.env as Env).DB);
+
+      // const db = await useDb();
+      return scoreService.clear(db);
+    }),
+    query: server$(async function (data: Partial<ScoreQueryProps>) {
+      const db = drizzle((this.platform.env as Env).DB);
+      return scoreService.query(db, data);
+    }),
+    getByDeckSize: server$(async function (deckSize: number) {
+      const db = drizzle((this.platform.env as Env).DB);
+      return scoreService.getByDeckSize(db, deckSize);
+    }),
+    create: server$(async function (score: NewScore) {
+      const db = drizzle((this.platform.env as Env).DB);
+      return scoreService.create(db, score);
+    }),
+    getAll: server$(async function () {
+      const db = drizzle((this.platform.env as Env).DB);
+      return scoreService.getAll(db);
+    }),
+    queryWithPercentiles: server$(async function (
+      data: Partial<ScoreQueryProps>,
+    ) {
+      const db = drizzle((this.platform.env as Env).DB);
+      return queryScoresAndCalculatePercentiles(db, data);
+    }),
   },
-  saveNewScore: server$(async (score: NewScore) => {
-    const newScore = await scoreService.create(score);
+  saveNewScore: server$(async function (score: NewScore) {
+    const db = drizzle((this.platform.env as Env).DB);
+    const newScore = await scoreService.create(db, score);
     const newScoreCounts = await scoreCountsService.saveScore(
-      newScore as Score
+      db,
+      newScore as Score,
     );
     // console.log({newScore, newScoreCounts});
     return { newScore, newScoreCounts };
   }),
 
   scoreCounts: {
-    clear: server$(scoreCountsService.clear),
-    query: server$(scoreCountsService.query),
-    getDeckSizes: server$(scoreCountsService.getDeckSizes),
-    create: server$(scoreCountsService.create),
-    getByDeckSize: server$(scoreCountsService.getByDeckSize),
-    updateById: server$(scoreCountsService.updateById),
-    addScoreToCountsById: server$(scoreCountsService.addScoreToCountsById),
-    updateByDeckSize: server$(scoreCountsService.updateByDeckSize),
-    getAll: server$(scoreCountsService.getAll),
+    clear: server$(async function () {
+      const db = drizzle((this.platform.env as Env).DB);
+      return scoreCountsService.clear(db);
+    }),
+    query: server$(async function (data: Partial<CountsQueryProps>) {
+      const db = drizzle((this.platform.env as Env).DB);
+      return scoreCountsService.query(db, data);
+    }),
+    getDeckSizes: server$(async function () {
+      const db = drizzle((this.platform.env as Env).DB);
+      return scoreCountsService.getDeckSizes(db);
+    }),
+    create: server$(async function (score: Score) {
+      const db = drizzle((this.platform.env as Env).DB);
+      return scoreCountsService.create(db, score);
+    }),
+    getByDeckSize: server$(async function (deckSizes: number[]) {
+      const db = drizzle((this.platform.env as Env).DB);
+      return scoreCountsService.getByDeckSize(db, deckSizes);
+    }),
+    updateById: server$(async function (id: number, update: NewScoreCounts) {
+      const db = drizzle((this.platform.env as Env).DB);
+      return scoreCountsService.updateById(db, id, update);
+    }),
+    addScoreToCountsById: server$(async function (
+      foundOneScoreCounts: ScoreCounts,
+      score: Score,
+    ) {
+      const db = drizzle((this.platform.env as Env).DB);
+      return scoreCountsService.addScoreToCountsById(
+        db,
+        foundOneScoreCounts,
+        score,
+      );
+    }),
+    updateByDeckSize: server$(async function (
+      deckSize: number,
+      update: NewScoreCounts,
+    ) {
+      const db = drizzle((this.platform.env as Env).DB);
+      return scoreCountsService.updateByDeckSize(db, deckSize, update);
+    }),
+    getAll: server$(async function () {
+      const db = drizzle((this.platform.env as Env).DB);
+      return scoreCountsService.getAll(db);
+    }),
     // /*
     //  * the main way to add a score: also updates the scoreCounts
     //  *  - creates Score
     //  *  - creates or updates ScoreCounts
     //  * */
-    saveScore: server$(scoreCountsService.saveScore),
+    saveScore: server$(async function (score: Score) {
+      const db = drizzle((this.platform.env as Env).DB);
+      return scoreCountsService.saveScore(db, score);
+    }),
   },
-  clearData: server$(async () => {
-    await scoreCountsService.clear();
-    await scoreService.clear();
+  clearData: server$(async function () {
+    const db = drizzle((this.platform.env as Env).DB);
+    await scoreCountsService.clear(db);
+    await scoreService.clear(db);
     // Promise.all([scoreCountsService.clear(), scoreService.clear()])
   }),
 };

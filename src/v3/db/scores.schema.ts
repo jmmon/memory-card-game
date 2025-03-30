@@ -1,9 +1,5 @@
-import {
-  // relations,
-  sql,
-} from "drizzle-orm";
-
 import { text, integer, sqliteTable } from "drizzle-orm/sqlite-core";
+// import { scoreCounts } from "./scoreCounts.schema";
 // import { scoreCounts } from "./scoreCounts.schema";
 // import {ulid} from 'ulid';
 
@@ -34,7 +30,7 @@ export const scores = sqliteTable("scores", {
   createdAt: text("created_at")
     .$type<string>()
     .notNull()
-    .default(sql`datetime('subsec')`),
+    .default(`(datetime('subsec'))`),
   deckSize: integer("deck_size").$type<number>().notNull(),
   gameTime: text("game_time").$type<number>().notNull(),
   mismatches: integer("mismatches").$type<number>().notNull(),

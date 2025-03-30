@@ -67,6 +67,10 @@ export const scoreCounts = sqliteTable("score_counts", {
     .$type<LessThanOurScoreObj>()
     .notNull(),
   totalScores: integer("total_scores").$type<number>().notNull().default(0),
+  createdAt: integer("created_at")
+    .$type<string>()
+    .notNull()
+    .default(`(datetime('subsec'))`),
 });
 
 // // each scoreCounts has many scores

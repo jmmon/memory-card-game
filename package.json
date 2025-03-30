@@ -6,8 +6,7 @@
   },
   "private": true,
   "scripts": {
-    "drizzle:update": "drizzle-kit generate --out ./src/v3/db/migrations --schema ./src/v3/db/*.schema.ts --dialect sqlite"
-
+    "drizzle:update": "drizzle-kit generate",
     "build": "qwik build",
     "build.client": "vite build",
     "build.preview": "vite build --ssr src/entry.preview.tsx",
@@ -20,7 +19,7 @@
     "fmt": "prettier --write .",
     "fmt.check": "prettier --check .",
     "lint": "eslint \"src/**/*.ts*\"",
-    "lint.fix": "eslint \"src/**/*.ts*\" --fix",
+    "lint:fix": "eslint \"src/**/*.ts*\" --fix",
     "preview": "qwik build preview && yarn vite preview --open",
     "serve": "wrangler pages dev ./dist --compatibility-flags=nodejs_als",
     "start": "vite --open --mode ssr",
@@ -50,8 +49,11 @@
     "wrangler": "^4.0.0"
   },
   "dependencies": {
-    "drizzle-orm": "^0.41.0",
+    "@cloudflare/workers-types": "^4.20250327.0",
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.23.0",
     "dotenv": "^16.3.1",
+    "drizzle-orm": "^0.41.0",
     "jabber": "^1.5.3"
   }
 }

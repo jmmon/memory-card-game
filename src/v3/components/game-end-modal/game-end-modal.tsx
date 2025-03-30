@@ -1,5 +1,3 @@
-import type {
-  QwikFocusEvent} from "@builder.io/qwik";
 import {
   component$,
   $,
@@ -21,9 +19,11 @@ import type { NewScore } from "~/v3/db/types";
 import serverDbService from "~/v3/services/db.service";
 import CONSTANTS from "~/v3/utils/constants";
 
-const getRandomBytes = server$((bytes: number = CONSTANTS.GAME.HASH_LENGTH_BYTES) => {
-  return crypto.randomBytes(bytes).toString("hex");
-});
+const getRandomBytes = server$(
+  (bytes: number = CONSTANTS.GAME.HASH_LENGTH_BYTES) => {
+    return crypto.randomBytes(bytes).toString("hex");
+  },
+);
 
 export function bufferToHexString(byteArray: Uint8Array) {
   const hexCodes = [...byteArray].map((value) => {
@@ -33,9 +33,9 @@ export function bufferToHexString(byteArray: Uint8Array) {
   return hexCodes.join("");
 }
 
-export const serverGetHash = server$(function(
+export const serverGetHash = server$(function (
   message: string,
-  bytes: number = CONSTANTS.GAME.HASH_LENGTH_BYTES
+  bytes: number = CONSTANTS.GAME.HASH_LENGTH_BYTES,
 ) {
   return crypto
     .createHash("sha256")
@@ -45,16 +45,12 @@ export const serverGetHash = server$(function(
 });
 
 const computeAvatarSize = (val: number, min: number = 60, max: number = 100) =>
-  Math.max(min,
-    Math.min(max,
-      val
-    )
-  );
+  Math.max(min, Math.min(max, val));
 
 export default component$(() => {
   const gameContext = useContext(GameContext);
   const defaultHash = useDefaultHash();
-  const data = useSignal('');
+  const data = useSignal("");
 
   // for adjusting deck size before restarting
   const cardCount = useSignal<string>(String(gameContext.settings.deck.size));
@@ -70,21 +66,22 @@ export default component$(() => {
     identifier.value = await getRandomBytes();
   });
 
-  const selectFieldOnFocus$ = $((e: QwikFocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    e.target.select();
-  });
-
+  const selectFieldOnFocus$ = $(
+    (_: FocusEvent, t: HTMLInputElement | HTMLTextAreaElement) => {
+      t.focus();
+    },
+  );
 
   const saveScore$ = $(async () => {
     if (gameContext.game.isSaved) return;
 
-    const [dimensions, pixelData] = data.value.split(':');
-    const [cols, rows] = dimensions.split('x');
-    const [halfPixels, color] = pixelData.split('.');
+    const [dimensions, pixelData] = data.value.split(":");
+    const [cols, rows] = dimensions.split("x");
+    const [halfPixels, color] = pixelData.split(".");
 
     const newScore: NewScore = {
       deckSize: gameContext.settings.deck.size,
-      gameTime: `${gameContext.timer.state.timeDs} millisecond`,
+      gameTime: gameContext.timer.state.timeDs,
       mismatches: gameContext.game.mismatchPairs.length,
       pairs: gameContext.game.successfulPairs.length,
       userId: identifier.value,
@@ -107,31 +104,27 @@ export default component$(() => {
     } catch (err) {
       console.error(err);
     }
-
   });
 
   const computedAvatarSize = useSignal(
-    computeAvatarSize((typeof window !== 'undefined'
-      ? window.innerHeight
-      : 300)
-      * 0.14
-    )
+    computeAvatarSize(
+      (typeof window !== "undefined" ? window.innerHeight : 300) * 0.14,
+    ),
   );
 
-  useOnWindow('resize', $(() => {
-    computedAvatarSize.value = computeAvatarSize((typeof window !== 'undefined'
-      ? window.innerWidth
-      : 300)
-      * 0.14
-    );
-    console.log('new avater size:', computedAvatarSize.value);
-  }));
+  useOnWindow(
+    "resize",
+    $(() => {
+      computedAvatarSize.value = computeAvatarSize(
+        (typeof window !== "undefined" ? window.innerWidth : 300) * 0.14,
+      );
+      console.log("new avater size:", computedAvatarSize.value);
+    }),
+  );
 
   useVisibleTask$(() => {
-    computedAvatarSize.value = computeAvatarSize((typeof window !== 'undefined'
-      ? window.innerWidth
-      : 300)
-      * 0.14
+    computedAvatarSize.value = computeAvatarSize(
+      (typeof window !== "undefined" ? window.innerWidth : 300) * 0.14,
     );
   });
 
@@ -182,27 +175,31 @@ export default component$(() => {
           </SettingsRow>
         </div>
 
-        <hr class={gameContext.game.isSaved ? 'hidden' : ''} />
+        <hr class={gameContext.game.isSaved ? "hidden" : ""} />
 
-        <div class={`w-full h-full ${gameContext.game.isSaved ? 'hidden' : ''}`}>
+        <div
+          class={`w-full h-full ${gameContext.game.isSaved ? "hidden" : ""}`}
+        >
           <div class="w-full flex flex-col gap-2 items-center justify-center py-[2%] px-[4%]">
             <h3 class="text-sm md:text-lg ">Avatar:</h3>
             <PixelAvatar
               width={computedAvatarSize.value}
               height={computedAvatarSize.value}
-
-
               text={identifier}
               colorFrom={initials}
-              outputTo$={({ cols, rows, halfPixels, color }) => { data.value = `${cols}x${rows}:${halfPixels}.${color}` }}
+              outputTo$={({ cols, rows, halfPixels, color }) => {
+                data.value = `${cols}x${rows}:${halfPixels}.${color}`;
+              }}
             />
           </div>
           <div class="flex py-[2%] px-[4%]">
             <SettingsRow>
               <div class="flex flex-col gap-1 items-center w-full">
-
                 <div class="w-full text-xs md:text-sm">
-                  <label class="w-full flex justify-center gap-2" for="game-end-modal-input-initials">
+                  <label
+                    class="w-full flex justify-center gap-2"
+                    for="game-end-modal-input-initials"
+                  >
                     Username or Initials:
                   </label>
                   <input
@@ -241,14 +238,15 @@ export default component$(() => {
                     disabled={gameContext.game.isSaved}
                     class="overflow-y-hidden mx-auto px-1.5 monospace max-w-[34ch] h-[4em] md:h-[3em] block w-full bg-slate-800 text-slate-100 resize-none"
                     onFocus$={selectFieldOnFocus$}
-                    bind: value={identifier}
+                    bind:value={identifier}
                   />
                 </div>
                 <span class="text-xs text-slate-100">
-                  <Asterisk /> Identifier is never saved or sent anywhere. It's only to
-                  generate your avatar. If you want your avatar to be
-                  consistent across games and devices, use something unique and consistent
-                  like your name or email. The data is hashed and used to determine pixel placement.
+                  <Asterisk /> Identifier is never saved or sent anywhere. It's
+                  only to generate your avatar. If you want your avatar to be
+                  consistent across games and devices, use something unique and
+                  consistent like your name or email. The data is hashed and
+                  used to determine pixel placement.
                 </span>
               </div>
             </SettingsRow>
@@ -263,18 +261,21 @@ export default component$(() => {
               Save Score
             </Button>
           </div>
-
         </div>
 
         <hr />
 
         <div class="flex flex-col gap-2 py-[2%] px-[4%]">
-          <h3 class="text-sm" style="text-shadow: 1px 1px 2px black">Want to play again?</h3>
+          <h3 class="text-sm" style="text-shadow: 1px 1px 2px black">
+            Want to play again?
+          </h3>
 
           <SettingsRow>
-
             <div class="flex flex-grow gap-[2%] items-center tooltip w-full">
-              <label class="w-4/12 text-left text-xs md:text-sm" for="deck-card-count-end-game">
+              <label
+                class="w-4/12 text-left text-xs md:text-sm"
+                for="deck-card-count-end-game"
+              >
                 Card Count:
               </label>
               <input
@@ -285,7 +286,7 @@ export default component$(() => {
                 min={gameContext.settings.deck.MINIMUM_CARDS}
                 max={gameContext.settings.deck.MAXIMUM_CARDS}
                 step="2"
-                bind: value={cardCount}
+                bind:value={cardCount}
               />
               <span class="tooltiptext">
                 {cardCount.value} - Number of cards in the deck.
@@ -309,12 +310,10 @@ export default component$(() => {
           >
             Play Again
           </Button>
-          <Button onClick$={hideModal$} >
-            Close
-          </Button>
+          <Button onClick$={hideModal$}>Close</Button>
         </div>
       </div>
     </Modal>
   );
 });
-const Asterisk = () => (<span class="text-red-300">*</span>)
+const Asterisk = () => <span class="text-red-300">*</span>;

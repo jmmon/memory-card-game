@@ -7,7 +7,8 @@
 	"name": "recover-scores",
 	"compatibility_date": "2025-03-27",
 	"compatibility_flags": [
-		"nodejs_compat"
+		"nodejs_compat",
+		"nodejs_als"
 	],
 	"pages_build_output_dir": "./dist",
 	"observability": {
@@ -28,11 +29,14 @@
 
 
 	"d1_databases": [
-		{
-			"binding": "DB",
-			"database_name": "recover-scores-test",
-			"database_id": "e621efba-00f5-4f16-8d28-2e36572f131d"
-		}
+
+        {
+            "binding": "DB",
+            "database_name": "recover-scores-test-2",
+            "database_id": "798f1015-3470-48cc-ac81-9a6f6fbadfff",
+            "migrations_dir": "./src/v3/db/migrations"
+        }
+		
 	]
 
 

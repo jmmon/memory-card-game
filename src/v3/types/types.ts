@@ -2,8 +2,14 @@ import type { QRL } from "@builder.io/qwik";
 import type { useTimer } from "../utils/useTimer";
 import type { Score } from "../db/types";
 
+import type { D1Database } from "@cloudflare/workers-types";
+
+export type Env = {
+  DB: D1Database;
+};
+
 // for mapping our current score to find how many other scores are less than it
-export type LessThanOurScoreObj = { [key: number | string]: number };
+export type LessThanOurScoreObj = Record<number, number>;
 export type ScoreCountColumnOptions = "gameTime" | "mismatches";
 
 /* =====================================================
@@ -179,5 +185,5 @@ export type iGameContext = {
   hideSettings: QRL<() => void>;
   endGame: QRL<(isWin: boolean) => void>;
   timer: Timer;
-  fetchScores: QRL<() => void>;
+  fetchScores: QRL<() => Promise<Score[] | undefined>>;
 };

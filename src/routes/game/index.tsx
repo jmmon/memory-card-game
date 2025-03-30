@@ -1,4 +1,9 @@
-import { component$, useContextProvider, useStore, useStyles$ } from "@builder.io/qwik";
+import {
+  component$,
+  useContextProvider,
+  useStore,
+  useStyles$,
+} from "@builder.io/qwik";
 import styles from "./styles.css?inline";
 import Game from "~/v3/components/game/game";
 import { routeLoader$ } from "@builder.io/qwik-city";
@@ -11,7 +16,7 @@ import type { iGameContext } from "~/v3/types/types";
 
 // for game end modal, provides default hash
 export const useDefaultHash = routeLoader$(() =>
-  crypto.randomBytes(CONSTANTS.GAME.HASH_LENGTH_BYTES).toString("hex")
+  crypto.randomBytes(CONSTANTS.GAME.HASH_LENGTH_BYTES).toString("hex"),
 );
 
 export default component$(() => {
@@ -22,7 +27,7 @@ export default component$(() => {
       ...INITIAL_STATE,
       timer: timer,
     },
-    { deep: true }
+    { deep: true },
   );
   useContextProvider(GameContext, gameContext);
 
