@@ -1,10 +1,14 @@
-import { eq, inArray, sql } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { scoreCounts } from "../db";
-import type { LessThanOurScoreObj } from "../types/types";
+import {
+  ScoreTableColumnEnum,
+  SortDirectionEnum,
+  type LessThanOurScoreObj,
+} from "../types/types";
 import { DEFAULT_QUERY_PROPS } from "./constants";
 import type { CountsQueryProps, DrizzleDb } from "./types";
 import type { NewScoreCounts, Score, ScoreCounts } from "../db/types";
-import { timestampToMs } from "../utils/formatTime";
+import { buildOrderBySqlStringWrapped } from "./score.service";
 
 const getAllScoreCounts = (db: DrizzleDb) => db.select().from(scoreCounts);
 
@@ -20,7 +24,12 @@ const queryScoreCounts = (
     .from(scoreCounts)
     .where(inArray(scoreCounts.deckSize, deckSizesFilter))
     .orderBy(
-      sortDirection === "asc" ? sql`"deckSize" asc` : sql`"deckSize" desc`,
+      buildOrderBySqlStringWrapped([
+        {
+          column: ScoreTableColumnEnum.deck_size,
+          direction: sortDirection,
+        },
+      ]),
     )
     .execute();
 
@@ -33,9 +42,16 @@ const getDeckSizeList = (db: DrizzleDb) =>
   db
     .select({ deckSize: scoreCounts.deckSize })
     .from(scoreCounts)
-    .orderBy(sql`"deckSize" asc`) // sort by deckSize
+    .orderBy(
+      buildOrderBySqlStringWrapped([
+        {
+          column: ScoreTableColumnEnum.deck_size,
+          direction: SortDirectionEnum.asc,
+        },
+      ]),
+    ) // sort by deckSize
     .execute()
-    .then((set) => set.map((each) => each.deckSize)) // map to number[]
+    .then((set) => set.map(({ deckSize }) => deckSize)) // map to number[]
     .then((deckSizes) => deckSizes.filter((each) => each !== null) as number[]); // filter null
 
 const createScoreCounts = async (db: DrizzleDb, score: Score) => {
@@ -45,14 +61,15 @@ const createScoreCounts = async (db: DrizzleDb, score: Score) => {
       db
         .insert(scoreCounts)
         .values({
+          createdAt: Date.now(),
           deckSize: score.deckSize,
-          worseThanOurMismatchesMap: {
+          worseThanOurMismatchesMap: JSON.stringify({
             [score.mismatches]: 0,
-          },
-          worseThanOurGameTimeMap: {
-            [score.gameTime]: 0,
-          },
-          // WARNING: this is causing TS error! scores relation does not exist on scoreCounts
+          }),
+          worseThanOurGameTimeMap: JSON.stringify({
+            [score.gameTimeDs]: 0,
+          }),
+          // WARNING: for relations, this is causing TS error! scores relation does not exist on scoreCounts
           totalScores: 1,
         })
         .returning()
@@ -60,7 +77,7 @@ const createScoreCounts = async (db: DrizzleDb, score: Score) => {
   );
 };
 
-const getScoreCountsByDeckSize = (db: DrizzleDb, deckSizes: number[]) =>
+const getScoreCountsByDeckSize = async (db: DrizzleDb, deckSizes: number[]) =>
   db.select().from(scoreCounts).where(inArray(scoreCounts.deckSize, deckSizes));
 
 const updateScoreCountsById = async (
@@ -158,12 +175,10 @@ const updateWorseThanOurMismatchesJson = (
   total: number,
   oldJson: LessThanOurScoreObj,
 ) => {
-  const newScore = score.mismatches as number;
-
   let resultObj: LessThanOurScoreObj = {};
-  const sortedOldJsonEntries = Object.entries(oldJson).sort(
-    (a, b) => Number(a[0]) - Number(b[0]),
-  );
+  const sortedOldJsonEntries = Object.entries(oldJson)
+    .map(([k, v]) => [Number(k), Number(v)])
+    .sort(([mismatchesA], [mismatchesB]) => mismatchesA - mismatchesB);
   // console.log("sorted by mismatches ascending:", sortedOldJsonEntries);
 
   let nextBetterCount = total;
@@ -171,29 +186,31 @@ const updateWorseThanOurMismatchesJson = (
 
   // looping from worst scores to best scores
   for (let i = 0; i < sortedOldJsonEntries.length; i++) {
-    const [curMismatches, curCount] = sortedOldJsonEntries[i].map(Number);
+    const [thisMismatches, thisCount] = sortedOldJsonEntries[i];
 
-    if (newScore > curMismatches) {
-      resultObj[curMismatches] = curCount + 1;
+    if (score.mismatches > thisMismatches) {
+      resultObj[thisMismatches] = thisCount + 1;
 
       // save the old score in case it's just above our new one
-      nextBetterCount = curCount;
-    } else if (newScore < curMismatches) {
+      nextBetterCount = thisCount;
+    } else if (score.mismatches < thisMismatches) {
       // we did better than this score
       // this score did not lift
-      resultObj[curMismatches] = curCount; // don't change the worse score, it did not improve
-    } else if (curMismatches === newScore) {
+      resultObj[thisMismatches] = thisCount; // don't change the worse score, it did not improve
+    } else if (thisMismatches === score.mismatches) {
       // if same score is found, we just keep the previous score
       isNeedToInsert = false;
-      resultObj[curMismatches] = curCount; // don't change the worse score
+      resultObj[thisMismatches] = thisCount; // don't change the worse score
     }
   }
 
   if (isNeedToInsert) {
-    resultObj[newScore] = nextBetterCount;
+    resultObj[score.mismatches] = nextBetterCount;
     // sort for looks, unnecessary
     resultObj = Object.fromEntries(
-      Object.entries(resultObj).sort((a, b) => Number(a[0]) - Number(b[0])),
+      Object.entries(resultObj)
+        .map(([k, v]) => [Number(k), Number(v)])
+        .sort(([mismatchesA], [mismatchesB]) => mismatchesA - mismatchesB),
     );
   }
 
@@ -303,40 +320,35 @@ const updateWorseThanOurGameTimeJson = (
   total: number,
   oldJson: LessThanOurScoreObj,
 ) => {
-  const ourGameTime = String(score.gameTime);
-  const ourTimeMs = timestampToMs(ourGameTime);
-
   const newLessThanOurScoreJson: LessThanOurScoreObj = {};
-  const entries = Object.entries(oldJson).sort(
-    (a, b) => timestampToMs(a[0]) - timestampToMs(b[0]),
-  );
-  // console.log("sorted by gameTime asc:", entries);
+  const entries = Object.entries(oldJson)
+    .map(([k, v]) => [Number(k), Number(v)])
+    .sort(([timeA], [timeB]) => timeA - timeB);
 
   let nextBetterCount = total;
   let isNeedToInsert = true;
 
   for (let i = 0; i < entries.length; i++) {
-    const [curGameTime, curLessThanCount] = entries[i];
-    const curTimeMs = timestampToMs(curGameTime);
+    const [thisGameTime, thisLessThanCount] = entries[i].map(Number);
 
-    if (ourTimeMs > curTimeMs) {
-      newLessThanOurScoreJson[Number(curGameTime)] = curLessThanCount + 1;
-      nextBetterCount = curLessThanCount;
-    } else if (ourTimeMs < curTimeMs) {
+    if (score.gameTimeDs > thisGameTime) {
+      newLessThanOurScoreJson[Number(thisGameTime)] = thisLessThanCount + 1;
+      nextBetterCount = thisLessThanCount;
+    } else if (score.gameTimeDs < thisGameTime) {
       // do nothing
-      newLessThanOurScoreJson[Number(curGameTime)] = curLessThanCount;
+      newLessThanOurScoreJson[Number(thisGameTime)] = thisLessThanCount;
     } else {
       // equal
       isNeedToInsert = false;
-      newLessThanOurScoreJson[Number(curGameTime)] = curLessThanCount;
+      newLessThanOurScoreJson[Number(thisGameTime)] = thisLessThanCount;
     }
   }
 
   if (isNeedToInsert) {
-    newLessThanOurScoreJson[Number(ourGameTime)] = nextBetterCount;
-    const final = Object.entries(newLessThanOurScoreJson).sort(
-      (a, b) => timestampToMs(a[0]) - timestampToMs(b[0]),
-    );
+    newLessThanOurScoreJson[score.gameTimeDs] = nextBetterCount;
+    const final = Object.entries(newLessThanOurScoreJson)
+      .map(([k, v]) => [Number(k), Number(v)])
+      .sort(([timeA], [timeB]) => timeA - timeB);
     return Object.fromEntries(final);
   }
   return newLessThanOurScoreJson;
@@ -352,28 +364,32 @@ const addScoreToExistingCounts = async (
 ) => {
   const updatedWorseThanMismatches = updateWorseThanOurMismatchesJson(
     score,
-    foundOneScoreCounts.totalScores as number,
-    foundOneScoreCounts.worseThanOurMismatchesMap as LessThanOurScoreObj,
+    foundOneScoreCounts.totalScores,
+    JSON.parse(foundOneScoreCounts.worseThanOurMismatchesMap),
   );
   const updatedWorseThanGameTime = updateWorseThanOurGameTimeJson(
     score,
-    foundOneScoreCounts.totalScores as number,
-    foundOneScoreCounts.worseThanOurGameTimeMap as LessThanOurScoreObj,
+    foundOneScoreCounts.totalScores,
+    JSON.parse(foundOneScoreCounts.worseThanOurGameTimeMap),
   );
 
   return updateScoreCountsById(db, foundOneScoreCounts.id, {
+    createdAt: Date.now(),
     deckSize: foundOneScoreCounts.deckSize,
-    worseThanOurMismatchesMap: updatedWorseThanMismatches,
-    worseThanOurGameTimeMap: updatedWorseThanGameTime,
-    totalScores: (foundOneScoreCounts.totalScores as number) + 1,
+    worseThanOurMismatchesMap: JSON.stringify(updatedWorseThanMismatches),
+    worseThanOurGameTimeMap: JSON.stringify(updatedWorseThanGameTime),
+    totalScores: foundOneScoreCounts.totalScores + 1,
   });
 };
 
 // in the end, we will end up with 52 - 6 = 46 / 2 + 1 = 24 different deckSizes
 const saveScoreToCounts = async (db: DrizzleDb, score: Score) => {
+  // console.log("saveScoreToCounts:", { score });
   const foundOneScoreCounts = (
-    await getScoreCountsByDeckSize(db, [score.deckSize as number])
+    await getScoreCountsByDeckSize(db, [score.deckSize])
   )[0] as ScoreCounts | undefined;
+
+  // console.log("saveScoreToCounts:", { foundOneScoreCounts });
 
   if (foundOneScoreCounts === undefined) {
     // creating a new scoreCounts

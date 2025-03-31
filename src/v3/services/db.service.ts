@@ -1,19 +1,17 @@
 import type { NewScore, NewScoreCounts, Score, ScoreCounts } from "../db/types";
 import { server$ } from "@builder.io/qwik-city";
-import type {
-  Env,
-  LessThanOurScoreObj,
-  ScoreWithPercentiles,
-  SortColumnWithDirection,
+import {
+  SortDirectionEnum,
+  type Env,
+  type LessThanOurScoreObj,
+  type ScoreWithPercentiles,
+  type SortColumnWithDirection,
 } from "../types/types";
-import { JAN_1_1970_STRING } from "../components/scores-modal/scores-modal";
 import type { CountsQueryProps, DrizzleDb, ScoreQueryProps } from "./types";
 import { DEFAULT_QUERY_PROPS } from "./constants";
 
 import scoreService from "./score.service";
 import scoreCountsService from "./scoreCounts.service";
-import CONSTANTS from "../utils/constants";
-import { timestampToMs } from "../utils/formatTime";
 import { roundToDecimals } from "../components/game-header/game-header";
 import { drizzle } from "drizzle-orm/d1";
 
@@ -40,8 +38,8 @@ const calculatePercentile = ({
 
 const generateScoreWithPercentiles = (
   score: Score,
-  entriesLtGameTimeObjSortedDesc: Array<[string, number]>,
-  entriesLtMismatchesObjSortedDesc: Array<[string, number]>,
+  entriesLtGameTimeObjSortedDesc: Array<[number, number]>,
+  entriesLtMismatchesObjSortedDesc: Array<[number, number]>,
   ltGameTimeObjSortedDesc: LessThanOurScoreObj,
   ltMismatchesObjSortedDesc: LessThanOurScoreObj,
   total: number,
@@ -49,14 +47,14 @@ const generateScoreWithPercentiles = (
   // get next lt game time count, so we can average between ours and the next better
   const nextGameTimeIndex =
     entriesLtGameTimeObjSortedDesc.findIndex(
-      ([gameTime]) => Number(gameTime) === score.gameTime,
+      ([gameTime]) => gameTime === score.gameTimeDs,
     ) - 1;
   const nextLtGameTimeCount =
-    entriesLtGameTimeObjSortedDesc?.[nextGameTimeIndex]?.[1] ?? total;
+    entriesLtGameTimeObjSortedDesc[nextGameTimeIndex]?.[1] ?? total;
 
   const timePercentileObj = {
     total,
-    lessThanCount: ltGameTimeObjSortedDesc[score.gameTime],
+    lessThanCount: ltGameTimeObjSortedDesc[score.gameTimeDs],
     nextHighestLessThanCount: nextLtGameTimeCount,
   };
   const thisTimePercentile = calculatePercentile(timePercentileObj);
@@ -65,14 +63,14 @@ const generateScoreWithPercentiles = (
   // get next lt mismatches count
   const nextMismatchIndex =
     entriesLtMismatchesObjSortedDesc.findIndex(
-      ([mismatches]) => Number(mismatches) === score.mismatches,
+      ([mismatches]) => mismatches === score.mismatches,
     ) - 1;
   const nextLtMismatchCount =
-    entriesLtMismatchesObjSortedDesc?.[nextMismatchIndex]?.[1] ?? total;
+    entriesLtMismatchesObjSortedDesc[nextMismatchIndex]?.[1] ?? total;
 
   const mismatchPercentileObj = {
     total,
-    lessThanCount: ltMismatchesObjSortedDesc[score.mismatches as number],
+    lessThanCount: ltMismatchesObjSortedDesc[score.mismatches],
     nextHighestLessThanCount: nextLtMismatchCount,
   };
   const thisMismatchPercentile = calculatePercentile(mismatchPercentileObj);
@@ -90,22 +88,26 @@ const calculatePercentilesForScores = (
   counts: ScoreCounts,
 ) => {
   const entriesLtGameTimeObjSortedDesc = Object.entries(
-    counts.worseThanOurGameTimeMap as LessThanOurScoreObj,
-  ).sort((a, b) => timestampToMs(a[0]) - timestampToMs(b[0]));
+    JSON.parse(counts.worseThanOurGameTimeMap) as LessThanOurScoreObj,
+  )
+    .map(([k, v]) => [Number(k), Number(v)] as [number, number])
+    .sort(([timeA], [timeB]) => timeA - timeB);
 
   const ltGameTimeObjSortedDesc = Object.fromEntries(
     entriesLtGameTimeObjSortedDesc,
   ) as LessThanOurScoreObj;
 
   const entriesLtMismatchesObjSortedDesc = Object.entries(
-    counts.worseThanOurMismatchesMap as LessThanOurScoreObj,
-  ).sort((a, b) => Number(a[0]) - Number(b[0]));
+    JSON.parse(counts.worseThanOurMismatchesMap) as LessThanOurScoreObj,
+  )
+    .map(([k, v]) => [Number(k), Number(v)] as [number, number])
+    .sort(([mismatchesA], [mismatchesB]) => mismatchesA - mismatchesB);
 
   const ltMismatchesObjSortedDesc = Object.fromEntries(
     entriesLtMismatchesObjSortedDesc,
   ) as LessThanOurScoreObj;
 
-  const total = counts.totalScores as number;
+  const total = counts.totalScores;
 
   // console.log({ ltGameTimeObjSortedDesc, ltMismatchesObjSortedDesc, total });
 
@@ -121,33 +123,39 @@ const calculatePercentilesForScores = (
   );
 };
 
-const sortFunctions: {
+const clientSortFunctions: {
   [key: string]: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => number;
 } = {
   initials: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
-    const value = (b.initials ?? "").localeCompare(a.initials ?? "");
+    const value = b.initials.localeCompare(a.initials);
     return value;
   },
-  deckSize: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
-    const value = (b.deckSize ?? 0) - (a.deckSize ?? 0);
+  deck_size: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
+    const value = b.deckSize - a.deckSize;
     return value;
   },
   pairs: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
-    const value = (b.pairs ?? 0) - (a.pairs ?? 0);
+    const value = b.pairs - a.pairs;
     return value;
   },
-  timePercentile: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
-    const value = (b.timePercentile ?? 0) - (a.timePercentile ?? 0);
+  // timePercentile: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
+  //   const value = (b.timePercentile ?? 0) - (a.timePercentile ?? 0);
+  //   return value;
+  // },
+  // mismatchPercentile: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
+  //   const value = (b.mismatchPercentile ?? 0) - (a.mismatchPercentile ?? 0);
+  //   return value;
+  // },
+  game_time: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
+    const value = b.gameTimeDs - a.gameTimeDs;
     return value;
   },
-  mismatchPercentile: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
-    const value = (b.mismatchPercentile ?? 0) - (a.mismatchPercentile ?? 0);
+  mismatches: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
+    const value = b.mismatches - a.mismatches;
     return value;
   },
-  createdAt: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
-    const value =
-      new Date(b.createdAt ?? JAN_1_1970_STRING).getTime() -
-      new Date(a.createdAt ?? JAN_1_1970_STRING).getTime();
+  created_at: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
+    const value = b.createdAt - a.createdAt;
     return value;
   },
 };
@@ -158,21 +166,28 @@ const sortScores = (
 ) => {
   const result = [...scores];
 
-  result.sort((a, b) => {
-    let value = 0;
-    let nextKeyIndex = 0;
-    let { column } = sortByColumnHistory[0];
-    const { direction } = sortByColumnHistory[0];
+  try {
+    console.log("sorting fetched scores");
+    result.sort((a, b) => {
+      let value = 0;
+      let nextKeyIndex = 0;
+      let { column } = sortByColumnHistory[0];
+      const { direction } = sortByColumnHistory[0];
 
-    while (value === 0 && nextKeyIndex < sortByColumnHistory.length) {
-      const sortingInstructions = sortByColumnHistory[nextKeyIndex];
-      column = sortingInstructions.column;
+      // go through each sortBy in the array
+      while (value === 0 && nextKeyIndex < sortByColumnHistory.length) {
+        const sortingInstructions = sortByColumnHistory[nextKeyIndex];
+        column = sortingInstructions.column;
 
-      value = sortFunctions[column](a, b);
-      nextKeyIndex++;
-    }
-    return direction === "desc" ? value : 0 - value;
-  });
+        const sortFunction = clientSortFunctions[column];
+        value = sortFunction(a, b);
+        nextKeyIndex++;
+      }
+      return direction === SortDirectionEnum.desc ? value : 0 - value;
+    });
+  } catch (err) {
+    console.log("sorting fetched scores error:", { err });
+  }
 
   return result;
 };
@@ -208,7 +223,7 @@ const queryScoresAndCalculatePercentiles = async (
 
   const allScores = resScores.value as Score[];
   const counts = resCounts.value as ScoreCounts[];
-  console.log("fresh from query:", { allScores });
+  console.log("fresh from query:", { length: allScores.length });
 
   let allScoresWithPercentiles: ScoreWithPercentiles[] = [];
   const totals: { [key: number]: number } = {};
@@ -228,8 +243,7 @@ const queryScoresAndCalculatePercentiles = async (
       scoresWithPercentiles,
     );
 
-    totals[thisCounts.deckSize ?? CONSTANTS.CARD.COUNT] =
-      thisCounts.totalScores ?? 0;
+    totals[thisCounts.deckSize] = thisCounts.totalScores;
   }
 
   return {
@@ -280,7 +294,7 @@ const serverDbService = {
       db,
       newScore as Score,
     );
-    // console.log({newScore, newScoreCounts});
+    // console.log("saveNewScore:", { newScore, newScoreCounts });
     return { newScore, newScoreCounts };
   }),
 

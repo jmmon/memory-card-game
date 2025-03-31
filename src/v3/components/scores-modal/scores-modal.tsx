@@ -15,7 +15,7 @@ import { GameContext } from "~/v3/context/gameContext";
 import serverDbService from "~/v3/services/db.service";
 import type {
   ScoreWithPercentiles,
-  ScoreColumn,
+  ScoreTableColumn,
   SortColumnWithDirection,
 } from "~/v3/types/types";
 import { server$ } from "@builder.io/qwik-city";
@@ -37,7 +37,7 @@ export const HEADER_LIST = [
   "Date",
 ];
 
-export const MAP_COL_TITLE_TO_OBJ_KEY: { [key: string]: ScoreColumn } = {
+export const MAP_COL_TITLE_TO_OBJ_KEY: { [key: string]: ScoreTableColumn } = {
   initials: "initials",
   "deck-size": "deck_size",
   pairs: "pairs",

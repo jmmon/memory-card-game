@@ -1,15 +1,13 @@
-import { type QRL, Signal, component$ } from "@builder.io/qwik";
-import type {
-  ScoreWithPercentiles,
-  SortColumnWithDirection,
-} from "~/v3/types/types";
+import type { Signal } from "@builder.io/qwik";
+import { type QRL, component$ } from "@builder.io/qwik";
+import type { ScoreWithPercentiles } from "~/v3/types/types";
 import PixelAvatar from "../pixel-avatar/pixel-avatar";
+import type { QueryStore } from "./scores-modal";
 import {
   DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY,
   HEADER_LIST,
   JAN_1_1970_STRING,
   MAP_COL_TITLE_TO_OBJ_KEY,
-  QueryStore,
 } from "./scores-modal";
 
 const hyphenateTitle = (text: string) => text.toLowerCase().replace(" ", "-");
@@ -37,10 +35,10 @@ export default component$(
               // console.log({key});
               const classes =
                 queryStore.sortByColumnHistory.find(
-                  ({ column }: SortColumnWithDirection) => column === key,
+                  ({ column }) => column === key,
                 )?.direction ??
                 DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY.find(
-                  ({ column }: SortColumnWithDirection) => column === key,
+                  ({ column }) => column === key,
                 )?.direction ??
                 "desc";
               return (

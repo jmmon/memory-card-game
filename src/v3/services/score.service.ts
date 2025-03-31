@@ -1,4 +1,10 @@
-import { and, eq, gte, inArray, sql } from "drizzle-orm";
+import {
+  // and,
+  eq,
+  // gte,
+  inArray,
+  sql,
+} from "drizzle-orm";
 import { scores } from "../db";
 import type { SortColumnWithDirection } from "../types/types";
 import { DEFAULT_QUERY_PROPS } from "./constants";
@@ -22,13 +28,12 @@ import type { NewScore } from "../db/types";
 // getCategory(deckSize): returns list of scores matching deck size
 const getAllScores = (db: DrizzleDb) => db.select().from(scores);
 
-const buildOrderBySqlString = (
+export const buildOrderBySqlStringWrapped = (
   sortByColumnHistory: Array<SortColumnWithDirection>,
-) => {
-  return sortByColumnHistory
+) =>
+  sql`${sortByColumnHistory
     .map(({ column, direction }) => `"${column}" ${direction}`)
-    .join(" ");
-};
+    .join(", ")}`;
 
 const clearScoresTable = (db: DrizzleDb) => db.delete(scores);
 
@@ -53,7 +58,7 @@ const queryScores = async (
   sortByColumnHistory =
     sortByColumnHistory ?? DEFAULT_QUERY_PROPS.sortByColumnHistory;
 
-  const sqlOrderBy = sql`${buildOrderBySqlString(sortByColumnHistory)}`;
+  const sqlOrderBy = buildOrderBySqlStringWrapped(sortByColumnHistory);
   console.log({
     pageNumber,
     resultsPerPage,
@@ -75,17 +80,19 @@ const queryScores = async (
   //   pageNumber * resultsPerPage,
   // );
 
-  return (
-    db
-      .select()
-      .from(scores)
-      // grab scores with deckSize in our array of deckSizes
-      .where(inArray(scores.deckSize, deckSizesFilter))
-      // sort using multiple sort column priorities
-      // .orderBy(sqlOrderBy)
-      .offset((pageNumber - 1) * resultsPerPage)
-      .limit(resultsPerPage)
-  );
+  const sqlQuery = db
+    .select()
+    .from(scores)
+    // grab scores with deckSize in our array of deckSizes
+    .where(inArray(scores.deckSize, deckSizesFilter))
+    // sort using multiple sort column priorities
+    .orderBy(sqlOrderBy)
+    .offset((pageNumber - 1) * resultsPerPage)
+    .limit(resultsPerPage);
+
+  console.log("sqlQuery:", sqlQuery.toSQL());
+
+  return sqlQuery;
 };
 
 /*  TODO: figure out how to filter results properly
@@ -104,63 +111,67 @@ const queryScores = async (
  *  - i.e. if last query ended  with 12 results, and it sent 10 (+ 1 for the pointer),
  *      we use that pointer.id as where our next "page" will start
  * */
-const queryScoresWithPointer = async (
-  db: DrizzleDb,
-  {
-    pointerId = -1,
-    resultsPerPage,
-    deckSizesFilter,
-    sortByColumnHistory,
-  }: Partial<{
-    pointerId: number;
-    resultsPerPage: number;
-    deckSizesFilter: number[];
-    sortByColumnHistory: SortColumnWithDirection[];
-  }>,
-) => {
-  resultsPerPage = resultsPerPage ?? DEFAULT_QUERY_PROPS.resultsPerPage;
-  deckSizesFilter = deckSizesFilter ?? DEFAULT_QUERY_PROPS.deckSizesFilter;
-  sortByColumnHistory =
-    sortByColumnHistory ?? DEFAULT_QUERY_PROPS.sortByColumnHistory;
-
-  const sqlOrderBy = sql`${buildOrderBySqlString(sortByColumnHistory)}`;
-  console.log({
-    pointer: pointerId,
-    resultsPerPage,
-    deckSizesFilter,
-    sortByColumnHistory,
-    sqlOrderBy,
-  });
-
-  const queriedScores = await db
-    .select()
-    .from(scores)
-    // grab scores with deckSize in our array of deckSizes
-    .where(
-      and(inArray(scores.deckSize, deckSizesFilter), gte(scores.id, pointerId)),
-    )
-    // sort using multiple sort column priorities
-    .orderBy(sqlOrderBy)
-    .limit(resultsPerPage + 1);
-
-  return {
-    scores: queriedScores.slice(0, resultsPerPage),
-    nextPointer: queriedScores[resultsPerPage].id,
-  };
-};
+// const queryScoresWithPointer = async (
+//   db: DrizzleDb,
+//   {
+//     pointerId = -1,
+//     resultsPerPage,
+//     deckSizesFilter,
+//     sortByColumnHistory,
+//   }: Partial<{
+//     pointerId: number;
+//     resultsPerPage: number;
+//     deckSizesFilter: number[];
+//     sortByColumnHistory: SortColumnWithDirection[];
+//   }>,
+// ) => {
+//   resultsPerPage = resultsPerPage ?? DEFAULT_QUERY_PROPS.resultsPerPage;
+//   deckSizesFilter = deckSizesFilter ?? DEFAULT_QUERY_PROPS.deckSizesFilter;
+//   sortByColumnHistory =
+//     sortByColumnHistory ?? DEFAULT_QUERY_PROPS.sortByColumnHistory;
+//
+//   const sqlOrderBy = buildOrderBySqlString(sortByColumnHistory);
+//   console.log({
+//     pointer: pointerId,
+//     resultsPerPage,
+//     deckSizesFilter,
+//     sortByColumnHistory,
+//     sqlOrderBy,
+//   });
+//
+//   const queriedScores = await db
+//     .select()
+//     .from(scores)
+//     // grab scores with deckSize in our array of deckSizes
+//     .where(
+//       and(inArray(scores.deckSize, deckSizesFilter), gte(scores.id, pointerId)),
+//     )
+//     // sort using multiple sort column priorities
+//     .orderBy(sqlOrderBy)
+//     .limit(resultsPerPage + 1);
+//
+//   return {
+//     scores: queriedScores.slice(0, resultsPerPage),
+//     nextPointer: queriedScores[resultsPerPage].id,
+//   };
+// };
 
 const getScoresByDeckSize = (db: DrizzleDb, deckSize: number) =>
   getAllScores(db).where(eq(scores.deckSize, deckSize));
 
 const createScore = async (db: DrizzleDb, newScore: NewScore) => {
-  if (!newScore.createdAt) newScore.createdAt = new Date().toISOString();
-  return (await db.insert(scores).values(newScore).returning())[0];
+  if (!newScore.createdAt) newScore.createdAt = Date.now();
+  const returnedScore = (
+    await db.insert(scores).values(newScore).returning()
+  )[0] as NewScore;
+  // console.log("createScore: after insert:", { returnedScore });
+  return returnedScore;
 };
 
 const scoreService = {
   clear: clearScoresTable,
   query: queryScores,
-  queryWithPointer: queryScoresWithPointer,
+  // queryWithPointer: queryScoresWithPointer,
   getByDeckSize: getScoresByDeckSize,
   create: createScore,
   getAll: getAllScores,

@@ -113,14 +113,23 @@ const PIXEL_AVATAR_ROWS = 16;
 const PIXEL_AVATAR_COLS = 16;
 const PIXEL_AVATAR_HALF_COLS = PIXEL_AVATAR_COLS / 2;
 
-const generateScoreData = (deckSize: number) => {
-  const userId = getRandomBytes();
-  const initials = getRandomInitials();
-  const halfPixels = generateHalfPixels(
-    PIXEL_AVATAR_HALF_COLS,
-    PIXEL_AVATAR_ROWS,
-  );
-  const mismatches = Math.max(
+const CREATED_AT_DATE_RANGE_MS = 60 * 60 * 24 * 365 * 1000; // one year
+const generateRandomMsWithinRange = (
+  rangeMS: number = CREATED_AT_DATE_RANGE_MS,
+  end: number = Date.now(),
+) => {
+  const start = end - rangeMS;
+  return new Date(Math.floor(Math.random() * (end - start)) + start).getTime();
+};
+
+/**
+ * in decaseconds (tenths)
+ * */
+const generateRandomGameTimeDs = (deckSize: number) =>
+  (deckSize * 1000 + Math.round(Math.random() * 1000) * 100) / 100;
+
+const generateRandomMismatches = (deckSize: number) =>
+  Math.max(
     0,
     Math.round(
       2 * (deckSize / 6) +
@@ -128,10 +137,17 @@ const generateScoreData = (deckSize: number) => {
     ),
   );
 
+const generateScoreData = (deckSize: number) => {
+  const initials = getRandomInitials();
+  const halfPixels = generateHalfPixels(
+    PIXEL_AVATAR_HALF_COLS,
+    PIXEL_AVATAR_ROWS,
+  );
   const newScore: NewScore = {
+    createdAt: generateRandomMsWithinRange(),
     deckSize,
-    gameTime: (deckSize * 1000 + Math.round(Math.random() * 1000) * 100) / 1000,
-    mismatches,
+    gameTimeDs: generateRandomGameTimeDs(deckSize), // decaseconds
+    mismatches: generateRandomMismatches(deckSize),
     userId: getRandomBytes(),
     initials,
     pairs: deckSize / 2,

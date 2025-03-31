@@ -1,4 +1,4 @@
-import { text, integer, sqliteTable } from "drizzle-orm/sqlite-core";
+import { text, integer, sqliteTable, index } from "drizzle-orm/sqlite-core";
 // import { scoreCounts } from "./scoreCounts.schema";
 // import { scoreCounts } from "./scoreCounts.schema";
 // import {ulid} from 'ulid';
@@ -22,24 +22,35 @@ import { text, integer, sqliteTable } from "drizzle-orm/sqlite-core";
 // so:
 // email is for UUID, displayName is just a displayName
 // email could be used to generate a sprite icon
-export const scores = sqliteTable("scores", {
-  id: integer("id")
-    .$type<number>()
-    .notNull()
-    .primaryKey({ autoIncrement: true }),
-  createdAt: text("created_at")
-    .$type<string>()
-    .notNull()
-    .default(`(datetime('subsec'))`),
-  deckSize: integer("deck_size").$type<number>().notNull(),
-  gameTime: text("game_time").$type<number>().notNull(),
-  mismatches: integer("mismatches").$type<number>().notNull(),
-  pairs: integer("pairs").$type<number>().notNull(),
-  userId: text("user_id").$type<string>().notNull(), // some uuid, hashed value of an identifier/hash
-  initials: text("initials").$type<string>().notNull(), // some optional inputted string??
-  color: text("color").$type<string>().notNull(), // hsl(xxx, xxx%, xxx%)
-  pixelData: text("pixel_data").$type<string>().notNull(), // binary
-});
+export const scores = sqliteTable(
+  "scores",
+  {
+    id: integer("id")
+      .$type<number>()
+      .notNull()
+      .primaryKey({ autoIncrement: true }),
+
+    // these all have indices
+    createdAt: integer("created_at").$type<number>().notNull(),
+    deckSize: integer("deck_size").$type<number>().notNull(),
+    gameTimeDs: integer("game_time_ds").$type<number>().notNull(),
+    mismatches: integer("mismatches").$type<number>().notNull(),
+    pairs: integer("pairs").$type<number>().notNull(),
+    // end inexed columns
+
+    userId: text("user_id").$type<string>().notNull(), // some uuid, hashed value of an identifier/hash
+    initials: text("initials").$type<string>().notNull(), // some optional inputted string??
+    color: text("color").$type<string>().notNull(), // hsl(xxx, xxx%, xxx%)
+    pixelData: text("pixel_data").$type<string>().notNull(), // binary
+  },
+  (table) => [
+    index("s_created_at_idx").on(table.createdAt),
+    index("s_deck_size_idx").on(table.deckSize),
+    index("s_game_time_ds_idx").on(table.gameTimeDs),
+    index("s_mismatches_idx").on(table.mismatches),
+    index("s_pairs_idx").on(table.pairs),
+  ],
+);
 //
 // // each score has one scoreCounts
 // export const scoresRelations = relations(scores, ({ one }) => ({

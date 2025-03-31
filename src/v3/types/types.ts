@@ -53,21 +53,37 @@ export type ScoreWithPercentiles = Score & {
 };
 
 export type SortColumnWithDirection = {
-  column: ScoreColumn;
+  column: ScoreTableColumn;
   direction: SortDirection;
 };
+export enum ScoreTableColumnEnum {
+  initials = "initials",
+  deck_size = "deck_size",
+  pairs = "pairs",
+  game_time_ds = "game_time_ds",
+  mismatches = "mismatches",
+  // time_percentile = "time_percentile",
+  // mismatch_percentile = "mismatch_percentile",
+  created_at = "created_at",
+}
 
-export type ScoreColumn =
-  | "initials"
-  | "deckSize"
-  | "pairs"
-  | "timePercentile"
-  | "mismatchPercentile"
-  | "createdAt";
+export type ScoreTableColumn = keyof typeof ScoreTableColumnEnum;
+// | "initials"
+// | "deck_size"
+// | "pairs"
+// | "game_time_ds"
+// | "mismatches"
+// // | "time_percentile"
+// // | "mismatch_percentile"
+// | "created_at";
 
 export type DeckSizesDictionary = { [key: string]: Score[] };
 
-export type SortDirection = "asc" | "desc";
+export enum SortDirectionEnum {
+  asc = "asc",
+  desc = "desc",
+}
+export type SortDirection = keyof typeof SortDirectionEnum;
 
 /* =====================================================
  * Game Context and Settings

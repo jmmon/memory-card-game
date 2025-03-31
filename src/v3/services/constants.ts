@@ -1,4 +1,8 @@
-import type { SortColumnWithDirection, SortDirection } from "../types/types";
+import {
+  ScoreTableColumnEnum,
+  SortDirectionEnum,
+  type SortColumnWithDirection,
+} from "../types/types";
 import CONSTANTS from "../utils/constants";
 
 export const DEFAULT_QUERY_PROPS = {
@@ -7,7 +11,10 @@ export const DEFAULT_QUERY_PROPS = {
   maxDeckSizes: 24,
   deckSizesFilter: [CONSTANTS.CARD.COUNT],
   sortByColumnHistory: [
-    { column: "deckSize", direction: "desc" },
+    {
+      column: ScoreTableColumnEnum.deck_size,
+      direction: SortDirectionEnum.desc,
+    },
   ] as Array<SortColumnWithDirection>,
-  sortDirection: "asc" as SortDirection,
+  sortDirection: SortDirectionEnum.asc,
 };

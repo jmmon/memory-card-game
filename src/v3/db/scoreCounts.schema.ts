@@ -1,5 +1,4 @@
-import { text, integer, sqliteTable } from "drizzle-orm/sqlite-core";
-import type { LessThanOurScoreObj } from "../types/types";
+import { text, integer, sqliteTable, index } from "drizzle-orm/sqlite-core";
 // import { relations } from "drizzle-orm";
 // import { scores } from "./scores.schema";
 
@@ -54,24 +53,28 @@ import type { LessThanOurScoreObj } from "../types/types";
  *
  * */
 
-export const scoreCounts = sqliteTable("score_counts", {
-  id: integer("id")
-    .$type<number>()
-    .notNull()
-    .primaryKey({ autoIncrement: true }),
-  deckSize: integer("deck_size").$type<number>().notNull(),
-  worseThanOurMismatchesMap: text("worse_than_our_mismatches_map")
-    .$type<LessThanOurScoreObj>()
-    .notNull(),
-  worseThanOurGameTimeMap: text("worse_than_our_game_time_map")
-    .$type<LessThanOurScoreObj>()
-    .notNull(),
-  totalScores: integer("total_scores").$type<number>().notNull().default(0),
-  createdAt: integer("created_at")
-    .$type<string>()
-    .notNull()
-    .default(`(datetime('subsec'))`),
-});
+export const scoreCounts = sqliteTable(
+  "score_counts",
+  {
+    id: integer("id")
+      .$type<number>()
+      .notNull()
+      .primaryKey({ autoIncrement: true }),
+    deckSize: integer("deck_size").$type<number>().notNull(),
+    worseThanOurMismatchesMap: text("worse_than_our_mismatches_map")
+      .$type<string>()
+      .notNull(), // json string
+    worseThanOurGameTimeMap: text("worse_than_our_game_time_map")
+      .$type<string>()
+      .notNull(), // json string
+    totalScores: integer("total_scores").$type<number>().notNull().default(0),
+    createdAt: integer("created_at").$type<number>().notNull(),
+  },
+  (table) => [
+    // index("created_at_idx").on(table.createdAt),
+    index("sc_deck_size_idx").on(table.deckSize),
+  ],
+);
 
 // // each scoreCounts has many scores
 // export const scoreCountsRelations = relations(scoreCounts, ({many}) => ({
