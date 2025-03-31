@@ -6,24 +6,25 @@ import {
   useOnWindow,
   useVisibleTask$,
 } from "@builder.io/qwik";
-import { server$ } from "@builder.io/qwik-city";
+// import { server$ } from "@builder.io/qwik-city";
 import Modal from "../modal/modal";
 import { SettingsRow } from "../settings-modal/settings-modal";
 import Button from "../button/button";
 import { GameContext } from "~/v3/context/gameContext";
 import { FormattedTime } from "../formatted-time/formatted-time";
-import crypto from "node:crypto";
+// import crypto from "node:crypto";
 import { useDefaultHash } from "~/routes/game";
 import PixelAvatar from "../pixel-avatar/pixel-avatar";
 import type { NewScore } from "~/v3/db/types";
 import serverDbService from "~/v3/services/db.service";
 import CONSTANTS from "~/v3/utils/constants";
+import { getRandomBytes } from "~/v3/services/seed";
 
-const getRandomBytes = server$(
-  (bytes: number = CONSTANTS.GAME.HASH_LENGTH_BYTES) => {
-    return crypto.randomBytes(bytes).toString("hex");
-  },
-);
+// const getRandomBytes = server$(
+//   (bytes: number = CONSTANTS.GAME.HASH_LENGTH_BYTES) => {
+//     return crypto.randomBytes(bytes).toString("hex");
+//   },
+// );
 
 export function bufferToHexString(byteArray: Uint8Array) {
   const hexCodes = [...byteArray].map((value) => {
@@ -33,16 +34,16 @@ export function bufferToHexString(byteArray: Uint8Array) {
   return hexCodes.join("");
 }
 
-export const serverGetHash = server$(function (
-  message: string,
-  bytes: number = CONSTANTS.GAME.HASH_LENGTH_BYTES,
-) {
-  return crypto
-    .createHash("sha256")
-    .update(message)
-    .digest("hex")
-    .substring(0, bytes);
-});
+// export const serverGetHash = server$(function (
+//   message: string,
+//   bytes: number = CONSTANTS.GAME.HASH_LENGTH_BYTES,
+// ) {
+//   return crypto
+//     .createHash("sha256")
+//     .update(message)
+//     .digest("hex")
+//     .substring(0, bytes);
+// });
 
 const computeAvatarSize = (val: number, min: number = 60, max: number = 100) =>
   Math.max(min, Math.min(max, val));

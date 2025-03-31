@@ -26,18 +26,25 @@
     "qwik": "qwik"
   },
   "devDependencies": {
+
+    "@typescript-eslint/eslint-plugin": "^7.7.1",
+    "@typescript-eslint/parser": "^7.7.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-qwik": "^1.12.0",
+
+
+
+
+
+
     "@builder.io/qwik": "^1.12.1",
     "@builder.io/qwik-city": "^1.12.1",
     "@types/compression": "^1.7.2",
     "@types/eslint": "8.56.10",
     "@types/node": "20.14.11",
-    "@typescript-eslint/eslint-plugin": "7.16.1",
-    "@typescript-eslint/parser": "7.16.1",
     "autoprefixer": "^10.4.14",
     "compression": "^1.7.4",
     "drizzle-kit": "^0.30.6",
-    "eslint": "9.23.0",
-    "eslint-plugin-qwik": "^1.12.1",
     "node-env-run": "^4.0.2",
     "postcss": "^8.4.23",
     "prettier": "3.3.3",

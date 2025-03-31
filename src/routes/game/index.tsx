@@ -7,16 +7,18 @@ import {
 import styles from "./styles.css?inline";
 import Game from "~/v3/components/game/game";
 import { routeLoader$ } from "@builder.io/qwik-city";
-import crypto from "node:crypto";
+// import crypto from "node:crypto";
 import CONSTANTS from "~/v3/utils/constants";
 import { useTimer } from "~/v3/utils/useTimer";
 import { INITIAL_STATE } from "~/v3/context/initial";
 import { GameContext } from "~/v3/context/gameContext";
 import type { iGameContext } from "~/v3/types/types";
+import { getRandomBytes } from "~/v3/services/seed";
 
 // for game end modal, provides default hash
-export const useDefaultHash = routeLoader$(() =>
-  crypto.randomBytes(CONSTANTS.GAME.HASH_LENGTH_BYTES).toString("hex"),
+export const useDefaultHash = routeLoader$(
+  () => getRandomBytes(CONSTANTS.GAME.HASH_LENGTH_BYTES),
+  // crypto.randomBytes(CONSTANTS.GAME.HASH_LENGTH_BYTES).toString("hex"),
 );
 
 export default component$(() => {

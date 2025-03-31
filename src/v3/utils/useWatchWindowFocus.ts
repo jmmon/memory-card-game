@@ -1,4 +1,4 @@
-import { $, useSignal, useVisibleTask$ } from "@builder.io/qwik";
+import { useSignal, useVisibleTask$ } from "@builder.io/qwik";
 import type { QRL } from "@builder.io/qwik";
 
 type UseWatchWindowFocusProps = {
@@ -11,8 +11,8 @@ const DEFAULT_OPTS = {
   onVisible: undefined,
 };
 
-export const useWatchWindowFocus = function(
-  props: Partial<UseWatchWindowFocusProps>
+export const useWatchWindowFocus = function (
+  props: Partial<UseWatchWindowFocusProps>,
 ) {
   const isVisible = useSignal(true);
   const opts = { ...DEFAULT_OPTS, ...props };
@@ -23,7 +23,7 @@ export const useWatchWindowFocus = function(
     // console.log("useWatchWindowFocus: setup");
     let hidden = "hidden";
     let state = 0;
-    let docEl = document as Document & {
+    const docEl = document as Document & {
       [key: string]: any;
       onfocusin: any;
       onfocusout: any;
@@ -55,7 +55,7 @@ export const useWatchWindowFocus = function(
         window.onpagehide =
         window.onfocus =
         window.onblur =
-        onchange;
+          onchange;
     }
 
     function onchange(this: any, evt: any) {
@@ -117,7 +117,7 @@ export const useWatchWindowFocus = function(
           window.onpagehide =
           window.onfocus =
           window.onblur =
-          null;
+            null;
       }
     });
   });

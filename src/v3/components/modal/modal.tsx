@@ -9,7 +9,8 @@ type ModalOptions = { detectClickOutside: boolean };
 
 const DEFAULT_OPTIONS = { detectClickOutside: true };
 
-const lowercaseHyphenate = (str: string) => str.toLowerCase().replace(/ /g, "-");
+const lowercaseHyphenate = (str: string) =>
+  str.toLowerCase().replace(/ /g, "-");
 
 export default component$(
   ({
@@ -51,11 +52,11 @@ export default component$(
         style={bgStyles}
       >
         <div
-          class={`min-w-[16rem] w-[50vw] max-w-max max-h-[90vh] relative mx-auto text-center ${containerClasses} rounded-lg lg:rounded-3xl flex flex-col gap-1 p-[1.5%] transition-all ${DURATION} ${
+          class={`min-w-[18rem] w-[60vw] max-h-[90vh] relative mx-auto text-center rounded-lg lg:rounded-3xl flex flex-col gap-1 p-[1.5%] transition-all ${DURATION} ${
             isShowing
               ? "pointer-events-auto z-[100]"
               : "pointer-events-none z-[-1]"
-          } ${isShowing ? "opacity-100 scale-100" : "opacity-0 scale-[120%]"}`}
+          } ${isShowing ? "opacity-100 scale-100" : "opacity-0 scale-[120%]"} ${containerClasses}`}
           data-id="modal-container"
         >
           <ModalHeader hideModal$={hideModal$} title={title} />
@@ -65,7 +66,7 @@ export default component$(
         </div>
       </div>
     );
-  }
+  },
 );
 
 export const CloseButton = ({

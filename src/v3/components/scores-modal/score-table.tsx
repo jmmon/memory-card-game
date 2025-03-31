@@ -100,10 +100,10 @@ const ScoreTableHeader = component$(
 const TIME_LABEL_COLOR = "text-slate-300/90";
 
 const GameTime = component$(({ gameTime }: { gameTime: number }) => {
-  let [seconds, ms] = String(gameTime)
+  const [seconds, ms] = String(gameTime)
     .split(".")
     .map((n) => Number(n));
-  let minutes = Math.floor(seconds / 60);
+  const minutes = Math.floor(seconds / 60);
   const haveMinutes = minutes !== 0;
   return (
     <>

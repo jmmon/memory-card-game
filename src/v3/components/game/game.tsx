@@ -4,7 +4,7 @@ import {
   useComputed$,
   useContext,
   useSignal,
-  useVisibleTask$,
+  // useVisibleTask$,
 } from "@builder.io/qwik";
 import { GameContext } from "../../context/gameContext";
 import SettingsModal from "../settings-modal/settings-modal";
@@ -22,7 +22,7 @@ import Board from "../board/board";
 import CONSTANTS from "~/v3/utils/constants";
 // import InverseModal from "../inverse-modal/inverse-modal";
 // import GameSettings from "../settings-modal/game-settings";
-import type { iGameSettings } from "~/v3/types/types";
+// import type { iGameSettings } from "~/v3/types/types";
 import { useWatchWindowFocus } from "~/v3/utils/useWatchWindowFocus";
 
 export default component$(() => {
@@ -39,10 +39,10 @@ export default component$(() => {
     }),
     useComputed$(
       () =>
-        !gameContext.timer.state.isStarted && !gameContext.timer.state.isEnded
+        !gameContext.timer.state.isStarted && !gameContext.timer.state.isEnded,
     ),
     CONSTANTS.GAME.AUTO.SHUFFLE_INTERVAL,
-    CONSTANTS.GAME.AUTO.SHUFFLE_DELAY
+    CONSTANTS.GAME.AUTO.SHUFFLE_DELAY,
   );
 
   /* ================================
@@ -58,7 +58,7 @@ export default component$(() => {
     }),
     useComputed$(() => gameContext.game.shufflingState > 0),
     CONSTANTS.CARD.ANIMATIONS.SHUFFLE_PAUSE +
-      CONSTANTS.CARD.ANIMATIONS.SHUFFLE_ACTIVE
+      CONSTANTS.CARD.ANIMATIONS.SHUFFLE_ACTIVE,
   );
 
   /* ================================
@@ -77,7 +77,7 @@ export default component$(() => {
     useComputed$(() => gameContext.game.mismatchPair !== ""),
     CONSTANTS.CARD.ANIMATIONS.SHAKE_DELAY_AFTER_STARTING_RETURN,
     CONSTANTS.CARD.ANIMATIONS.SHAKE_DELAY_AFTER_STARTING_RETURN +
-      CONSTANTS.CARD.ANIMATIONS.SHAKE
+      CONSTANTS.CARD.ANIMATIONS.SHAKE,
   );
 
   /* ============================
@@ -182,7 +182,7 @@ const LoadingPage = component$(
         Loading...
       </div>
     </>
-  )
+  ),
 );
 
 /*

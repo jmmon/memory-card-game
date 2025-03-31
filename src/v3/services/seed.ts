@@ -1,11 +1,11 @@
-import crypto from "node:crypto";
+// import crypto from "node:crypto";
 import dbService from "./db.service";
 import { server$ } from "@builder.io/qwik-city";
-import { NewScore } from "../db/types";
+import type { NewScore } from "../db/types";
 
 let timeout: ReturnType<typeof setTimeout> | null = null;
-const delay = (ms: number) =>
-  new Promise((resolve) => (timeout = setTimeout(resolve, ms)));
+// const delay = (ms: number) =>
+//   new Promise((resolve) => (timeout = setTimeout(resolve, ms)));
 
 const DEFAULT_HASH_LENGTH_BYTES = 32;
 
@@ -62,8 +62,9 @@ const stringToColor = (
   return `hsla(${hue}, ${sat}%, ${light}%, 1)`;
 };
 
-const getRandomBytes = (bytes = DEFAULT_HASH_LENGTH_BYTES) => {
-  return crypto.randomBytes(bytes).toString("hex");
+export const getRandomBytes = (bytes = DEFAULT_HASH_LENGTH_BYTES) => {
+  return (Math.random() * 10 ** bytes).toString(16);
+  // return crypto.randomBytes(bytes).toString("hex");
 };
 
 const ACode = 65;
@@ -80,26 +81,26 @@ const getRandomInitials = () => {
  *0001110110111000001000000000010011100110011001111110101001010111110001011010001100110010010011000011011111101100101101011010110111110010010011110111000000001110001011011011010000000110011000001111101111011111000101000010100001100110011001100111100000011110
  *
  * */
-const getRandomMirroredPixels = () => {
-  const dimensions = 16;
-  const pixelsHalfCount = dimensions * (dimensions / 2);
-  const halfPixels = Array(pixelsHalfCount)
-    .fill(0)
-    .map(() => (Math.random() > 0.5 ? 1 : 0));
-
-  const resultPixelsArray = [];
-  for (let i = 0; i < pixelsHalfCount; i += pixelsHalfCount / dimensions) {
-    const thisSlice = halfPixels.slice(i, i + pixelsHalfCount / dimensions);
-    const forward = thisSlice.join("");
-    const reversed = [...thisSlice].reverse().join("");
-    const combined = forward + reversed;
-    // console.log({ thisSlice, forward, reversed });
-    // console.log({ combined });
-    resultPixelsArray.push(combined);
-  }
-
-  return resultPixelsArray.join("");
-};
+// const getRandomMirroredPixels = () => {
+//   const dimensions = 16;
+//   const pixelsHalfCount = dimensions * (dimensions / 2);
+//   const halfPixels = Array(pixelsHalfCount)
+//     .fill(0)
+//     .map(() => (Math.random() > 0.5 ? 1 : 0));
+//
+//   const resultPixelsArray = [];
+//   for (let i = 0; i < pixelsHalfCount; i += pixelsHalfCount / dimensions) {
+//     const thisSlice = halfPixels.slice(i, i + pixelsHalfCount / dimensions);
+//     const forward = thisSlice.join("");
+//     const reversed = [...thisSlice].reverse().join("");
+//     const combined = forward + reversed;
+//     // console.log({ thisSlice, forward, reversed });
+//     // console.log({ combined });
+//     resultPixelsArray.push(combined);
+//   }
+//
+//   return resultPixelsArray.join("");
+// };
 
 const generateHalfPixels = (halfCols: number = 32, rows: number = 64) => {
   const halfPixels = Array(halfCols * rows)
@@ -131,7 +132,7 @@ const generateScoreData = (deckSize: number) => {
     deckSize,
     gameTime: (deckSize * 1000 + Math.round(Math.random() * 1000) * 100) / 1000,
     mismatches,
-    userId,
+    userId: getRandomBytes(),
     initials,
     pairs: deckSize / 2,
     color: stringToColor(initials),
@@ -152,12 +153,14 @@ const createManyScores = async ({
     deckSize <= maxDeckSize;
     deckSize += stepBetweenDeckSizes
   ) {
-    // console.log("deckSize:", deckSize);
+    const start = Date.now();
+    console.log("starting deckSize:", deckSize);
     for (let i = 0; i < scoresPerDeckSize; i++) {
       const newScoreData = generateScoreData(deckSize);
 
-      const newScorePromise = await dbService.saveNewScore(newScoreData);
-      console.log("\nsaved new score:", JSON.stringify({ newScorePromise }));
+      const newScore = await dbService.saveNewScore(newScoreData);
+      newScore;
+      // console.log("\nsaved new score:", JSON.stringify({ newScore }));
 
       // await delay(20);
       if (timeout) {
@@ -165,6 +168,9 @@ const createManyScores = async ({
         timeout = null;
       }
     }
+    console.log(
+      `...DONE with ${deckSize}! ~ ${(Date.now() - start) / 1000} seconds for ${scoresPerDeckSize} scores`,
+    );
   }
 };
 
@@ -173,11 +179,12 @@ type RunSeedData = {
   scoresPerDeckSize: number;
 };
 const runSeed = async function ({
-  totalDeckSizes = 2,
-  scoresPerDeckSize = 7,
+  totalDeckSizes,
+  scoresPerDeckSize,
 }: RunSeedData) {
   try {
     await dbService.clearData();
+    console.log("db cleared... seeding now!");
 
     const minDeckSize = 6;
     const maxDeckSize = 52;
@@ -192,19 +199,19 @@ const runSeed = async function ({
       scoresPerDeckSize,
     });
 
-    console.log(
-      "\n" +
-        (
-          await Promise.all([
-            dbService.scores.getAll(),
-            dbService.scoreCounts.getAll(),
-          ])
-        )
-          .map((listPromise) =>
-            listPromise.map((item) => JSON.stringify(item)).join("\n"),
-          )
-          .join("\n\n------===------\n\n"),
-    );
+    // console.log(
+    //   "\n" +
+    //     (
+    //       await Promise.all([
+    //         dbService.scores.getAll(),
+    //         dbService.scoreCounts.getAll(),
+    //       ])
+    //     )
+    //       .map((listPromise) =>
+    //         listPromise.map((item) => JSON.stringify(item)).join("\n"),
+    //       )
+    //       .join("\n\n------===------\n\n"),
+    // );
   } catch (err) {
     console.log(err);
   }

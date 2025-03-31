@@ -1,7 +1,9 @@
 import type { PropFunction, Signal } from "@builder.io/qwik";
 import { component$, useSignal, useTask$ } from "@builder.io/qwik";
-import { isServer } from "@builder.io/qwik/build";
-import crypto from "crypto";
+import { getRandomBytes } from "~/v3/services/seed";
+// import { isServer } from "@builder.io/qwik/build";
+// import { getRandomBytes } from "~/v3/services/seed";
+// import crypto from "crypto";
 import { stringToColor } from "~/v3/utils/avatarUtils";
 
 const DEFAULT_COLOR_OPTIONS = {
@@ -22,19 +24,22 @@ export function bufferToHexString(buffer: ArrayBuffer) {
   return hexCodes.join("");
 }
 
-export function getHash(message: string) {
-  if (isServer) {
-    return crypto.createHash("sha256").update(message).digest();
-  }
-  return window.crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(message)
-  );
-}
+// export function getHash(message: string) {
+//   // if (isServer) {
+//   //   return getRandomBytes();
+//   //   // return crypto.createHash("sha256").update(message).digest();
+//   // }
+//   return window.crypto.subtle.digest(
+//     "SHA-256",
+//     new TextEncoder().encode(message),
+//   );
+// }
 
 export async function getHexHashString(userInput: string) {
-  const hash = bufferToHexString(await getHash(userInput));
-  return hash;
+  userInput;
+  return getRandomBytes();
+  // const hash = bufferToHexString(await getHash(userInput));
+  // return hash;
 }
 
 export function hexCharToBase(hex: string, base: number) {
@@ -44,15 +49,15 @@ export function hexCharToBase(hex: string, base: number) {
     .padStart(OLD_BASE / base, "0");
 }
 
-// 
+//
 /**
-* calculates base needed to achieve the target string length 
-* by reducing the base of the hex string until we have enough digits
-*
-* @param hex - input string to generate the base
-* @param targetMinimumStringLength - the half of pixels required
-* @return the new base
-*/
+ * calculates base needed to achieve the target string length
+ * by reducing the base of the hex string until we have enough digits
+ *
+ * @param hex - input string to generate the base
+ * @param targetMinimumStringLength - the half of pixels required
+ * @return the new base
+ */
 function calculateBaseChange(hex: string, targetMinimumStringLength: number) {
   const initialBase = 16; // the base of hex numbers
   let toDivideBaseBy = Math.ceil(targetMinimumStringLength / hex.length);
@@ -60,7 +65,9 @@ function calculateBaseChange(hex: string, targetMinimumStringLength: number) {
 
   while (toDivideBaseBy > 1) {
     if (newBase === 2) {
-      throw new Error(`too long: { targetMinimumStringLength: ${targetMinimumStringLength}, hex: ${hex}, toDivideBaseBy: ${toDivideBaseBy} }`);
+      throw new Error(
+        `too long: { targetMinimumStringLength: ${targetMinimumStringLength}, hex: ${hex}, toDivideBaseBy: ${toDivideBaseBy} }`,
+      );
     }
     newBase /= 2;
     toDivideBaseBy /= 2;
@@ -98,7 +105,7 @@ export function getPixels(
   hash: string,
   cols: number,
   rows: number,
-  base: number = 2
+  base: number = 2,
 ) {
   // convert 40char hash to 4 * 7 (mirrored for 7 * 7) matrix, 28bits
   let pixels = "";
@@ -121,7 +128,7 @@ export function getPixels(
 }
 
 function mirrorPixels(cols: number, rows: number, halfPixels: string) {
-  let pixels = '';
+  let pixels = "";
 
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
@@ -140,7 +147,7 @@ export async function calculatePixelData(
   cols: number,
   rows: number,
   saturation: { min: number; max: number },
-  lightness: { min: number; max: number }
+  lightness: { min: number; max: number },
 ) {
   const hash = await getHexHashString(text);
 
@@ -148,7 +155,7 @@ export async function calculatePixelData(
   const requiredLength = rows * Math.ceil(cols / 2);
   const { rebasedHash, base } = hexHash2BaseOfLength(
     allButLast3,
-    requiredLength
+    requiredLength,
   );
 
   const pixels = getPixels(rebasedHash, cols, rows, base);
@@ -171,7 +178,7 @@ async function calculateOnlyPixels(text: string, cols: number, rows: number) {
 export async function calculateOnlyColor(
   text: string,
   saturation: { min: number; max: number } = DEFAULT_COLOR_OPTIONS.saturation,
-  lightness: { min: number; max: number } = DEFAULT_COLOR_OPTIONS.lightness
+  lightness: { min: number; max: number } = DEFAULT_COLOR_OPTIONS.lightness,
 ) {
   const hash = await getHexHashString(text);
   console.log("calculating color only for text:", text, hash);
@@ -179,52 +186,29 @@ export async function calculateOnlyColor(
 }
 
 interface PixelProps {
-  pixel: string;
   index: number;
-  avatarData: any;
   eachBlockSizePx: number;
   cols: number;
-  coloredSquaresStrokeWidth: number;
+  pixelColor: string;
 }
 
-export const Pixel = component$(
-  ({
-    pixel,
-    index,
-    avatarData: data,
-    eachBlockSizePx,
-    cols,
-    coloredSquaresStrokeWidth,
-  }: PixelProps) => {
-    // const isThisPixelBlank = (pixel === "0") !== data.value.shouldBeInversed;
-
-    // if (isBlank) return null;
-    const isThisPixelColored = pixel === "1";
-    // if (isMoreColored (base is colored) && isColored) return null;
-    // if (isMoreColored (base is colored) && !isColored) return white
-    // if (!isMoreColored (base is white) && isColored) return color;
-    // if (!isMoreColored (base is white) && !isColored (is white))return null
-    if (data.value.isMoreColored === isThisPixelColored) return <></>;
-    const color =
-      data.value.isMoreColored && !isThisPixelColored
-        ? "#fff"
-        : data.value.color;
-    const x = eachBlockSizePx * (index % cols);
-    const y = eachBlockSizePx * Math.floor(index / cols);
-    return (
-      <rect
-        key={index}
-        stroke-width={coloredSquaresStrokeWidth}
-        stroke={color}
-        width={eachBlockSizePx}
-        height={eachBlockSizePx}
-        x={x}
-        y={y}
-        fill={color}
-      />
-    );
-  }
-);
+export const Pixel = ({
+  index,
+  eachBlockSizePx,
+  cols,
+  pixelColor,
+}: PixelProps) => {
+  return (
+    <rect
+      key={index}
+      width={eachBlockSizePx}
+      height={eachBlockSizePx}
+      x={eachBlockSizePx * (index % cols)}
+      y={eachBlockSizePx * Math.floor(index / cols)}
+      fill={pixelColor}
+    />
+  );
+};
 
 interface PixelAvatarProps {
   width?: number;
@@ -244,7 +228,17 @@ interface PixelAvatarProps {
   color?: string;
   halfPixels?: string;
   outputTo$?: PropFunction<
-    ({ cols, rows, halfPixels, color }: { cols: number; rows: number; halfPixels: string; color: string }) => void
+    ({
+      cols,
+      rows,
+      halfPixels,
+      color,
+    }: {
+      cols: number;
+      rows: number;
+      halfPixels: string;
+      color: string;
+    }) => void
   >;
 }
 
@@ -256,8 +250,7 @@ export default component$(
     height = 100,
     text,
     // forceLighter = "nochange",
-    coloredSquaresStrokeWidth = 0,
-    eachBlockSizePx = 20,
+    eachBlockSizePx = 1,
     classes = "",
     colorOptions = DEFAULT_COLOR_OPTIONS,
     colorFrom,
@@ -298,7 +291,7 @@ export default component$(
         generatedColor = await calculateOnlyColor(
           colorSlice,
           colorOptions.saturation,
-          colorOptions.lightness
+          colorOptions.lightness,
         );
       }
 
@@ -309,7 +302,7 @@ export default component$(
         generatedPixels = await calculateOnlyPixels(
           textToUseForPixels,
           cols,
-          rows
+          rows,
         );
       }
 
@@ -338,7 +331,12 @@ export default component$(
       // if isMoreColored !== forceLighter  we can use color for base and white for blocks
       // if isMoreColored == forceLighter  we can use white for base and color for blocks
       if (outputTo$ !== undefined) {
-        outputTo$({ cols, rows, halfPixels: generatedPixels, color: generatedColor });
+        outputTo$({
+          cols,
+          rows,
+          halfPixels: generatedPixels,
+          color: generatedColor,
+        });
       }
     });
 
@@ -351,30 +349,35 @@ export default component$(
             } `}
             width={width}
             height={height}
-            style={`mx-auto stroke-width: 0px; background-color: ${
+            style={`stroke-width: 0px; background-color: ${
               data.value.isMoreColored ? data.value.color : "#fff"
             }; `}
             class={classes}
             data-colored={meta.value.totalColored}
             data-total={meta.value.totalPixels}
             data-avg={meta.value.avg}
+            shape-rendering="crispEdges"
           >
-            {data.value.pixels.split("").map((pixel, index) => (
-              <Pixel
-                key={`${index}:${pixel}`}
-                pixel={pixel}
-                index={index}
-                avatarData={data}
-                eachBlockSizePx={eachBlockSizePx}
-                cols={cols}
-                coloredSquaresStrokeWidth={coloredSquaresStrokeWidth}
-              />
-            ))}
+            {data.value.pixels
+              .split("")
+              .map((pixel, index) =>
+                data.value.isMoreColored === (pixel === "1") ? null : (
+                  <Pixel
+                    key={`${index}:${pixel}`}
+                    index={index}
+                    pixelColor={
+                      data.value.isMoreColored ? "#fff" : data.value.color
+                    }
+                    eachBlockSizePx={eachBlockSizePx}
+                    cols={cols}
+                  />
+                ),
+              )}
           </svg>
         )}
       </>
     );
-  }
+  },
 );
 
 /*

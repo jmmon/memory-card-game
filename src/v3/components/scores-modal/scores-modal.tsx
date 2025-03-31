@@ -1,9 +1,4 @@
-import type {
-  PropFunction,
-  QwikChangeEvent,
-  QwikMouseEvent,
-  Signal,
-} from "@builder.io/qwik";
+import type { PropFunction, Signal } from "@builder.io/qwik";
 import {
   $,
   component$,
@@ -18,7 +13,6 @@ import {
 import Modal from "../modal/modal";
 import { GameContext } from "~/v3/context/gameContext";
 import serverDbService from "~/v3/services/db.service";
-// import Tabulation from "../tabulation//tabulation";
 import type {
   ScoreWithPercentiles,
   ScoreColumn,
@@ -45,30 +39,40 @@ export const HEADER_LIST = [
 
 export const MAP_COL_TITLE_TO_OBJ_KEY: { [key: string]: ScoreColumn } = {
   initials: "initials",
-  "deck-size": "deckSize",
+  "deck-size": "deck_size",
   pairs: "pairs",
-  "game-time": "timePercentile",
-  mismatches: "mismatchPercentile",
-  date: "createdAt",
+  "game-time": "game_time_ds",
+  mismatches: "mismatches",
+  // "game-time": "timePercentile",
+  // mismatches: "mismatchPercentile",
+  date: "created_at",
 };
 
 const DEFAULT_SORT_BY_COLUMNS_MAP: {
   [key: string]: SortColumnWithDirection;
 } = {
   deckSize: {
-    column: "deckSize",
+    column: "deck_size",
     direction: "desc",
   },
-  timePercentile: {
-    column: "timePercentile",
-    direction: "desc",
+  // timePercentile: {
+  //   column: "timePercentile",
+  //   direction: "desc",
+  // },
+  // mismatchPercentile: {
+  //   column: "mismatchPercentile",
+  //   direction: "desc",
+  // },
+  gameTime: {
+    column: "game_time_ds",
+    direction: "asc",
   },
-  mismatchPercentile: {
-    column: "mismatchPercentile",
-    direction: "desc",
+  mismatches: {
+    column: "mismatches",
+    direction: "asc",
   },
   createdAt: {
-    column: "createdAt",
+    column: "created_at",
     direction: "desc",
   },
   initials: {
@@ -109,7 +113,7 @@ export default component$(() => {
       ),
       deckSizesFilter: [gameContext.settings.deck.size], // default to our deck.size
       pageNumber: 1,
-      resultsPerPage: 10,
+      resultsPerPage: 100,
       totalResults: 1,
       totalPages: 1,
     },
@@ -197,7 +201,7 @@ export default component$(() => {
     return { scores };
   });
 
-  const handleClickColumnHeader = $(async (e: QwikMouseEvent) => {
+  const handleClickColumnHeader = $(async (e: MouseEvent) => {
     isLoading.value = true;
     // console.log({ e });
     const clickedDataAttr = (e.target as HTMLButtonElement).dataset[
@@ -224,7 +228,7 @@ export default component$(() => {
     queryAndSaveScores();
   });
 
-  const onChangeResultsPerPage$ = $(async (e: QwikChangeEvent) => {
+  const onChangeResultsPerPage$ = $(async (e: Event) => {
     const selectedResultsPerPage = Number(
       (e.target as HTMLSelectElement).value,
     );
@@ -251,7 +255,7 @@ export default component$(() => {
     }
   });
 
-  const onChangeSelect$ = $((e: QwikChangeEvent) => {
+  const onChangeSelect$ = $((e: Event) => {
     console.log("select changed");
 
     const selectedDeckSize = Number((e.target as HTMLSelectElement).value);
@@ -339,7 +343,7 @@ export default component$(() => {
 
   useStyles$(`
   table {
-position: relative;
+    position: relative;
     overflow: hidden;
   }
 
@@ -444,7 +448,7 @@ position: relative;
         gameContext.interface.scoresModal.isShowing = false;
       }}
       title="Scoreboard"
-      containerClasses="flex w-[80vw]"
+      containerClasses="flex w-[80vw] max-w-[100vw] min-w-[18rem]"
     >
       <div class="flex flex-col max-w-full">
         {/* TODO: instead of Select + Options, use a dropdown with checkboxes 
@@ -487,7 +491,7 @@ const SelectEl = component$(
     classes = "",
   }: {
     value: number;
-    onChange$: PropFunction<(e: QwikChangeEvent) => void>;
+    onChange$: PropFunction<(e: Event) => void>;
     listOfOptions: Array<number>;
     classes?: string;
   }) => (
@@ -513,10 +517,10 @@ const TableDecksizeFilterHeader = component$(
     onChangeSelect$,
     queryStore,
     deckSizeList,
-    windowSignal,
+    // windowSignal,
   }: {
     selectValue: Signal<string>;
-    onChangeSelect$: PropFunction<(e: QwikChangeEvent) => void>;
+    onChangeSelect$: PropFunction<(e: Event) => void>;
     queryStore: QueryStore;
     deckSizeList: Signal<number[]>;
     windowSignal: Signal<
@@ -583,7 +587,7 @@ const TablePagingFooter = component$(
   }: {
     queryStore: QueryStore;
     queryScores$: PropFunction<() => any>;
-    onChangeResultsPerPage$: PropFunction<(e: QwikChangeEvent) => any>;
+    onChangeResultsPerPage$: PropFunction<(e: Event) => any>;
   }) => {
     const buttons = useStore({
       first: true,
@@ -640,7 +644,7 @@ const TablePagingFooter = component$(
       remainingPageButtons.value = await calculateRemainingPageButtons();
     });
 
-    const onClick$ = $((e: QwikMouseEvent) => {
+    const onClick$ = $((e: MouseEvent) => {
       const label = (e.target as HTMLButtonElement).dataset["label"]?.split(
         "-",
       ) ?? [0, 0];

@@ -1,6 +1,6 @@
-import { DrizzleD1Database } from "drizzle-orm/d1";
+import type { DrizzleD1Database } from "drizzle-orm/d1";
 import type { SortColumnWithDirection, SortDirection } from "../types/types";
-import { D1Database } from "@cloudflare/workers-types";
+import type { D1Database } from "@cloudflare/workers-types";
 
 export type ScoreQueryProps = {
   pageNumber: number;

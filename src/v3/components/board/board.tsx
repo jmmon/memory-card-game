@@ -17,7 +17,7 @@ import { useDebounce } from "~/v3/utils/useDebounce";
 import { useTimeout } from "~/v3/utils/useTimeout";
 import CONSTANTS from "~/v3/utils/constants";
 import Card from "../card/card";
-import { useWindowSize } from "~/v3/utils/useWindowSize";
+// import { useWindowSize } from "~/v3/utils/useWindowSize";
 
 export default component$(
   ({ containerRef }: { containerRef: Signal<HTMLElement | undefined> }) => {
@@ -82,7 +82,7 @@ export default component$(
 
     const unflipDebounce = useDebounce<number>(
       unflipCard,
-      CONSTANTS.GAME.MINIMUM_TIME_BETWEEN_CLICKS
+      CONSTANTS.GAME.MINIMUM_TIME_BETWEEN_CLICKS,
     );
 
     const runUnflipDebounce = $((time: number) => {
@@ -96,7 +96,7 @@ export default component$(
 
       const newSelected = v3CardUtils.handleAddCardToSelected(
         [...gameContext.game.selectedCardIds],
-        cardId
+        cardId,
       );
       console.log({
         newSelected,
@@ -156,7 +156,7 @@ export default component$(
           handleClickUnflippedCard(clickedId);
         }
       }),
-      CONSTANTS.GAME.MINIMUM_TIME_BETWEEN_CLICKS
+      CONSTANTS.GAME.MINIMUM_TIME_BETWEEN_CLICKS,
     );
 
     const runClickCardDebounce = $(
@@ -171,7 +171,7 @@ export default component$(
       }) => {
         clickCardDebounce.setDelay(
           CONSTANTS.GAME.MINIMUM_TIME_BETWEEN_CLICKS -
-            (Date.now() - lastClick.value)
+            (Date.now() - lastClick.value),
           // MINIMUM_TIME_BETWEEN_CLICKS
         );
         clickCardDebounce.setValue({
@@ -179,7 +179,7 @@ export default component$(
           isClickedOnCard,
           clickedId,
         });
-      }
+      },
     );
 
     const handleClickBoard$ = $((e: QwikMouseEvent) => {
@@ -217,10 +217,10 @@ export default component$(
         () =>
           gameContext.timer.state.isStarted &&
           !gameContext.timer.state.isEnded &&
-          lastClick.value !== -1
+          lastClick.value !== -1,
       ),
       CONSTANTS.GAME.AUTO.PAUSE_DELAY_MS,
-      true
+      true,
     );
 
     /*
@@ -232,10 +232,10 @@ export default component$(
         if ((e as KeyboardEvent).key === "Escape") {
           runUnflipDebounce(
             CONSTANTS.GAME.MINIMUM_TIME_BETWEEN_CLICKS -
-              (Date.now() - lastClick.value)
+              (Date.now() - lastClick.value),
           );
         }
-      })
+      }),
     );
 
     /*
@@ -248,9 +248,9 @@ export default component$(
 
         gameContext.calculateAndResizeBoard(
           containerRef.value as HTMLDivElement,
-          boardRef.value as HTMLDivElement
+          boardRef.value as HTMLDivElement,
         );
-      })
+      }),
     );
 
     const adjustDeckSize = $((newDeckSize: number) => {
@@ -273,7 +273,7 @@ export default component$(
 
       gameContext.calculateAndResizeBoard(
         boardRef.value as HTMLDivElement,
-        containerRef.value as HTMLDivElement
+        containerRef.value as HTMLDivElement,
       );
     });
 
@@ -286,7 +286,7 @@ export default component$(
       async (taskCtx) => {
         const newDeckSize = taskCtx.track(() => gameContext.settings.deck.size);
         const newRefresh = taskCtx.track(
-          () => gameContext.settings.resizeBoard
+          () => gameContext.settings.resizeBoard,
         );
         const isDeckChanged = lastDeckSize.value !== newDeckSize;
         const isBoardRefreshed = lastRefresh.value !== newRefresh;
@@ -306,7 +306,7 @@ export default component$(
           lastRefresh.value = newRefresh;
           gameContext.calculateAndResizeBoard(
             boardRef.value as HTMLDivElement,
-            containerRef.value as HTMLDivElement
+            containerRef.value as HTMLDivElement,
           );
           return;
         }
@@ -316,11 +316,11 @@ export default component$(
 
         await gameContext.calculateAndResizeBoard(
           boardRef.value as HTMLDivElement,
-          containerRef.value as HTMLDivElement
+          containerRef.value as HTMLDivElement,
         );
         gameContext.initializeDeck();
       },
-      { strategy: "document-idle" }
+      { strategy: "document-idle" },
     );
 
     useStyles$(`
@@ -449,5 +449,5 @@ export default component$(
         ))}
       </div>
     );
-  }
+  },
 );
