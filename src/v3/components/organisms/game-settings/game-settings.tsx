@@ -10,6 +10,7 @@ import type { iUserSettings } from "~/v3/types/types";
 import type { ClassList, PropFunction, Signal } from "@builder.io/qwik";
 import InfoTooltip from "../info-tooltip/info-tooltip";
 import DeckSizeChanger from "../../molecules/deck-size-changer/deck-size-changer";
+import InputToggle from "../../atoms/input-toggle/input-toggle";
 
 type GameSettingsProps = {
   unsavedUserSettings: Signal<iUserSettings>;
@@ -165,8 +166,8 @@ export default component$<GameSettingsProps>(
         >
           <div class="grid gap-1 p-[min(12px,2.5vw)]">
             <ModalRow>
-              <InputLock
-                text="Invert"
+              <InputToggle
+                text="Invert Card Colors"
                 name="interface.invertCardColors"
                 onChange$={handleChange$}
                 settings={unsavedUserSettings.value}
@@ -176,7 +177,7 @@ export default component$<GameSettingsProps>(
                   <br />
                   Takes effect immediately.
                 </InfoTooltip>
-              </InputLock>
+              </InputToggle>
             </ModalRow>
           </div>
         </Dropdown>
