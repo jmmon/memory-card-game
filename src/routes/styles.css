@@ -69,6 +69,10 @@ html[data-theme="dark"] span.home-theme-light {
   stroke: black;
 }
 
+.card-face>* {
+  transition: filter 0.2s ease-in-out;
+}
+
 html[data-theme="dark"] .card-face[data-label="card-back"]>* {
   /* filter: brightness(0.25); */
   filter: invert(calc(15/16));
