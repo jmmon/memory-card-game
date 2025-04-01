@@ -19,7 +19,7 @@ const CARD_HIDE_UNDERSIDE_AFTER_PERCENT = 0.9 as const;
 
 // if matching, delay return animation by this amount
 // e.g. time allowed for card to vanish (before it would return to board)
-const CARD_FLIPPED_DELAYED_OFF_DURATION_MS = 250 as const;
+const CARD_MATCH_HIDE_DELAY_DURATION_MS = 250 as const;
 
 const BOARD = {
   CARD_RATIO,
@@ -32,7 +32,7 @@ const BOARD = {
   MINIMUM_TIME_BETWEEN_CLICKS,
   CARD_RATIO_VS_CONTAINER,
   CARD_HIDE_UNDERSIDE_AFTER_PERCENT,
-  CARD_FLIPPED_DELAYED_OFF_DURATION_MS,
+  CARD_MATCH_HIDE_DELAY_DURATION_MS,
 } as const;
 
 export default BOARD;

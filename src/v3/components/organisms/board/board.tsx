@@ -383,8 +383,8 @@ export default component$<BoardProps>(({ containerRef }) => {
       onClick$={handleClickBoard$}
       data-label="board"
     >
-      {ctx.state.gameData.cards.map((card) => (
-        <Card card={card} key={card.id} />
+      {ctx.state.gameData.cards.map((card, i) => (
+        <Card card={card} key={card.id} index={i} />
       ))}
     </div>
   );

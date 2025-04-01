@@ -25,9 +25,11 @@ type FlipTransform = {
 
 type CardProps = {
   card: iCard;
+  /** index of card in gameData.cards array */
+  index: number;
 };
 
-export default component$<CardProps>(({ card }) => {
+export default component$<CardProps>(({ card, index }) => {
   const ctx = useGameContextService();
 
   const isThisRemoved = useComputed$(() =>
@@ -46,44 +48,35 @@ export default component$<CardProps>(({ card }) => {
   // show and hide the back face, so the backs of cards can't be inspected when face-down
   const isFaceShowing = useSignal(false);
   // When pair is matched, instead of unflipping the card, wait this duration and then disappear the two cards
-  const isFaceShowing_delayedOff = useSignal(false);
+  const matchHideDelay = useSignal(false);
 
-  const isReturned = useSignal(true);
-
-  // when card is flipped, control timers for isFaceShowing and isFaceShowing_delayedOff
-  // when showing the back side, partway through we reveal the back side.
-  // when going back to the board, partway through we hide the back side.
+  // when card is flipped/unflipped, control timers for isFaceShowing and isFaceShowing_delayedOff
+  // - when clicking, reveal the face immediately (though it is hidden behind the card back)
+  // - when returning, keep the face showing a little bit before hiding again
   useTask$(({ track, cleanup }) => {
     track(() => isCardFlipped.value);
 
-    let undersideRevealDelayTimer: ReturnType<typeof setTimeout>;
-    let flippedDelayTimer: ReturnType<typeof setTimeout>;
-    let returnedTimer: ReturnType<typeof setTimeout>;
+    let faceHideDelayTimer: ReturnType<typeof setTimeout>;
+    let matchHideDelayTimer: ReturnType<typeof setTimeout>;
 
     if (isCardFlipped.value) {
       // when showing card
       isFaceShowing.value = true;
-      isFaceShowing_delayedOff.value = true;
-      isReturned.value = false;
+      matchHideDelay.value = true;
     } else {
       // when hiding card, keep the underside visible for a while
-      undersideRevealDelayTimer = setTimeout(() => {
+      faceHideDelayTimer = setTimeout(() => {
         isFaceShowing.value = isCardFlipped.value;
-      }, BOARD.CARD_FLIP_ANIMATION_DURATION * BOARD.CARD_HIDE_UNDERSIDE_AFTER_PERCENT);
+      }, BOARD.CARD_FLIP_ANIMATION_DURATION * 0.1);
 
-      flippedDelayTimer = setTimeout(() => {
-        isFaceShowing_delayedOff.value = isCardFlipped.value;
-      }, BOARD.CARD_FLIPPED_DELAYED_OFF_DURATION_MS);
-
-      returnedTimer = setTimeout(() => {
-        isReturned.value = !isCardFlipped.value;
-      }, BOARD.CARD_FLIP_ANIMATION_DURATION);
+      matchHideDelayTimer = setTimeout(() => {
+        matchHideDelay.value = isCardFlipped.value;
+      }, BOARD.CARD_MATCH_HIDE_DELAY_DURATION_MS);
     }
 
     cleanup(() => {
-      clearTimeout(undersideRevealDelayTimer);
-      clearTimeout(flippedDelayTimer);
-      clearTimeout(returnedTimer);
+      clearTimeout(faceHideDelayTimer);
+      clearTimeout(matchHideDelayTimer);
     });
   });
 
@@ -141,12 +134,15 @@ export default component$<CardProps>(({ card }) => {
   // (middle should have the lowest z-index)
   return (
     <div
-      class={`card-shuffle-transform absolute top-0 left-0 aspect-[${BOARD.CARD_RATIO}] flex flex-col justify-center`}
+      class={`card-shuffle-transform absolute top-0 left-0 flex flex-col justify-center`}
       style={{
+        // has the correct ratios
         width: ctx.state.cardLayout.width + "px",
         height: ctx.state.cardLayout.height + "px",
         borderRadius: ctx.state.cardLayout.roundedCornersPx + "px",
+        aspectRatio: BOARD.CARD_RATIO,
         zIndex:
+          index +
           // use coords to create gradient of z-index, lowest in center and highest on edges/corners
           // // is this needed?
           Math.floor(
@@ -165,30 +161,30 @@ export default component$<CardProps>(({ card }) => {
           // extra z-index for cards being flipped
           (isCardFlipped.value
             ? 240 // applies while card is first clicked
-            : // : isFaceShowing.value || isFaceShowing_delayedOff.value || !isReturned.value
-              isFaceShowing.value
+            : isFaceShowing.value || matchHideDelay.value
               ? 180 // applies when flipping down
               : 0), // applies otherwise (when face down);
+
         transform: shuffleTransform.value,
       }}
       data-label="card-slot-container"
       data-position={card.position}
     >
       <div
-        class={`aspect-[${BOARD.CARD_RATIO}] border border-slate-600 mx-auto bg-[var(--card-bg)]`}
+        class={`box-content border border-slate-600 mx-auto bg-[var(--card-bg)]`}
         style={{
+          // slightly smaller to give some gap between the rows
           borderRadius: ctx.state.cardLayout.roundedCornersPx + "px",
           width: BOARD.CARD_RATIO_VS_CONTAINER * 100 + "%",
-          // height: BOARD.CARD_RATIO_VS_CONTAINER * 100 + "%",
           height: "auto",
           aspectRatio: BOARD.CARD_RATIO,
         }}
-        data-label="card-removed"
+        data-label="card-slot-removed"
       >
         <div
           data-id={card.id}
-          data-label="card"
-          class={`box-border w-full border border-slate-400 bg-[var(--card-bg)] transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
+          data-label="card-slot-shaking"
+          class={`box-content w-full border border-slate-400 bg-[var(--card-bg)] transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
             isThisRemoved.value &&
             ctx.state.gameData.flippedCardId !== card.id &&
             ctx.state.gameData.flippedCardId !== card.pairId
@@ -215,7 +211,7 @@ export default component$<CardProps>(({ card }) => {
             isCardFlipped={isCardFlipped}
             isFaceShowing={isFaceShowing}
             isRemoved={isThisRemoved}
-            isFaceShowing_delayedOff={isFaceShowing_delayedOff}
+            isFaceShowing_delayedOff={matchHideDelay}
             flipTransform={flipTransform}
             roundedCornersPx={ctx.state.cardLayout.roundedCornersPx}
             boardLayout={ctx.state.boardLayout}
@@ -252,10 +248,13 @@ const CardFlippingWrapper: FunctionComponent<CardFlippingWrapperProps> = ({
   return (
     <div
       data-id={card.id}
-      class={`flex flex-col items-center justify-center w-full card-flip relative text-center`}
+      data-label="card-flipping"
+      class={`w-full card-flip relative`}
       style={{
         transform:
+          // controls flip transform
           isCardFlipped.value ||
+          // also keep transformed for a bit after it is removed, if it is currently flipped
           (isRemoved.value && isFaceShowing_delayedOff.value)
             ? `translate(${
                 (flipTransform.value.translateX * boardLayout.colWidth) / 100
@@ -266,19 +265,15 @@ const CardFlippingWrapper: FunctionComponent<CardFlippingWrapperProps> = ({
               scale(${flipTransform.value.scale})`
             : "",
         borderRadius: roundedCornersPx + "px",
+        // green selected border and background
         boxShadow: isSelected.value
           ? `0 0 ${roundedCornersPx}px ${roundedCornersPx}px var(--card-glow)`
           : "",
-        background: isSelected.value ? "var(--card-glow)" : "",
-        height: "auto",
+        background: "var(--card-background-color)",
         aspectRatio: BOARD.CARD_RATIO,
       }}
     >
-      <CardView
-        card={card}
-        roundedCornersPx={roundedCornersPx}
-        isFaceShowing={isFaceShowing}
-      />
+      <CardView card={card} isFaceShowing={isFaceShowing} />
     </div>
   );
 };
