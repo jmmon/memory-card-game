@@ -8,7 +8,8 @@ html {
   --success-color: rgba(123, 255, 123, 1);
   --card-glow: rgba(123, 255, 123, 1);
   --mismatch-color: rgba(255, 123, 123, 1);
-  --card-bg: #334155;
+  --card-bg: #1e293b;
+  /* --card-bg: #334155; */
 }
 
 html[data-theme="dark"] {
@@ -16,13 +17,16 @@ html[data-theme="dark"] {
   --success-color: rgba(63, 123, 63, 1);
   --card-glow: rgba(63, 123, 63, 1);
   --mismatch-color: rgba(123, 63, 63, 1);
-  --card-bg: #1e293b;
+  /* --card-bg: #1e293b; */
+  --qwik-dark-background: #0a0c19;
 }
 
 body {
+
   background: var(--qwik-dark-background);
   color: var(--qwik-dark-text);
   overflow-x: hidden;
+
 }
 
 .full {

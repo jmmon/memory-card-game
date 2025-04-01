@@ -137,12 +137,6 @@ export const GameStarter = component$(() => {
         Play
       </Link>
 
-      {/*
-      <div class="w-full flex items-ceter justify-center">
-        <span class="home-theme-dark text-2xl">Theme: Dark</span>
-        <span class="home-theme-light text-2xl">Theme: Light</span>
-      </div>
-*/}
       <Dropdown buttonText="Change Settings">
         <GameSettings unsavedUserSettings={unsavedUserSettings}>
           <div
