@@ -6,15 +6,13 @@ type CardFaceProps = {
   classes?: ClassList;
 };
 export default component$<CardFaceProps>(
-  ({ label = "card-front", classes = "" }) => {
-    return (
-      <div
-        // absolute positioning so the faces are stacked back to back
-        class={`card-face w-full absolute [backface-visibility:hidden] ${classes}`}
-        data-label={label}
-      >
-        <Slot />
-      </div>
-    );
-  },
+  ({ label = "card-front", classes = "" }) => (
+    <div
+      // absolute positioning so the faces are stacked back to back
+      class={`card-face w-full absolute [backface-visibility:hidden] ${classes}`}
+      data-label={label}
+    >
+      <Slot />
+    </div>
+  ),
 );
