@@ -40,7 +40,7 @@ const DEFAULT_OPTS = {
  * and two for the two modals
  * > or hide modal from render
  * */
-const useGetSavedTheme = (states: States, opts: Opts) => {
+const useGetSavedTheme = (states?: States, opts?: Opts) => {
   opts = {
     ...DEFAULT_OPTS,
     ...opts,
@@ -58,7 +58,7 @@ const useGetSavedTheme = (states: States, opts: Opts) => {
 
     const isInverted = newTheme === "dark";
     if (
-      states.ctx &&
+      states?.ctx &&
       states.ctx.state.userSettings.interface.invertCardColors !== isInverted
     ) {
       logger(
@@ -72,7 +72,7 @@ const useGetSavedTheme = (states: States, opts: Opts) => {
       states.ctx.state.userSettings.interface.invertCardColors = isInverted;
     }
     if (
-      states.unsavedUserSettings &&
+      states?.unsavedUserSettings &&
       states.unsavedUserSettings.value.interface.invertCardColors !== isInverted
     ) {
       logger(
@@ -161,7 +161,7 @@ const useGetSavedTheme = (states: States, opts: Opts) => {
     }
 
     const invertFromTracked = track(
-      () => states.unsavedUserSettings?.value.interface.invertCardColors,
+      () => states?.unsavedUserSettings?.value.interface.invertCardColors,
     );
     const currentTheme = themeService.get();
     const trackedTheme = invertFromTracked ? "dark" : "light";

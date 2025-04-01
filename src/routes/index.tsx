@@ -116,12 +116,7 @@ export const GameStarter = component$(() => {
   const unsavedUserSettings = useSignal<iUserSettings>(
     INITIAL_STATE.userSettings,
   );
-  useGetSavedTheme(
-    { unsavedUserSettings },
-    {
-      onVisible: false,
-    },
-  );
+  useGetSavedTheme({ unsavedUserSettings });
 
   const playHref = useComputed$(() => {
     const params = pruneDefaultsFromSettings(unsavedUserSettings.value);
