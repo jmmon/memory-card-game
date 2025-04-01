@@ -48,7 +48,7 @@ type Debug = {
 const isProd = import.meta.env.PROD;
 const DEBUG: Debug = {
   HANDLER: isProd ? 0 : 0,
-  HOOK: isProd ? 0 : LogLevel.TWO,
+  HOOK: isProd ? 0 : 0, //LogLevel.TWO,
   TASK: isProd ? 0 : 0,
   SERVICE: isProd ? 0 : 0,
   RENDER: isProd ? 0 : 0,

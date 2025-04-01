@@ -8,7 +8,7 @@ export default () => (
       {/* Ace of spades */}
 
       <symbol
-        id="symbol-ace-spades"
+        id="symbol-spades-ace"
         preserveAspectRatio="none"
         viewBox="0 0 1300 2000"
       >
@@ -352,7 +352,7 @@ jack diamonds
       {/* jack spades */}
 
       <symbol
-        id="jack-spades-6"
+        id="jack-spades-f"
         preserveAspectRatio="none"
         viewBox="0 0 1300 2000"
       >
@@ -384,7 +384,7 @@ jack diamonds
         ></use>
       </symbol>
       <symbol
-        id="jack-spades-5"
+        id="jack-spades-e"
         preserveAspectRatio="none"
         viewBox="0 0 1300 2000"
       >
@@ -398,7 +398,7 @@ jack diamonds
         ></path>
       </symbol>
       <symbol
-        id="jack-spades-4"
+        id="jack-spades-d"
         preserveAspectRatio="none"
         viewBox="0 0 1300 2000"
       >
@@ -408,7 +408,7 @@ jack diamonds
         ></path>
       </symbol>
       <symbol
-        id="jack-spades-3"
+        id="jack-spades-c"
         preserveAspectRatio="none"
         viewBox="0 0 1300 2000"
       >
@@ -418,7 +418,7 @@ jack diamonds
         ></path>
       </symbol>
       <symbol
-        id="jack-spades-2"
+        id="jack-spades-b"
         preserveAspectRatio="none"
         viewBox="0 0 1300 2000"
       >
@@ -428,7 +428,7 @@ jack diamonds
         ></path>
       </symbol>
       <symbol
-        id="jack-spades-1"
+        id="jack-spades-a"
         preserveAspectRatio="none"
         viewBox="0 0 1300 2000"
       >

@@ -302,85 +302,79 @@ export default component$<BoardProps>(({ containerRef }) => {
   });
 
   useStyles$(`
-      .card-face img {
-        width: 100%;
-        height: auto;
-        display: block;
-      }
-      html[data-theme="dark"] .card-face img {
-        filter: invert(100%);
-      }
-      html[data-theme="dark"] .card-face div {
-        filter: invert(100%) hue-rotate(180deg);
-      }
+    .card-face img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
 
-      /* diable clicks  and mouse highlighting for all the innards */
-      .card-flip * {
-        pointer-events: none;
-        user-select: none;
-      }
+    /* diable clicks  and mouse highlighting for all the innards */
+    .card-flip * {
+      pointer-events: none;
+      user-select: none;
+    }
 
-      .card-flip {
-        /*
-          understanding cubic bezier: we control the two middle points
-          [ t:0, p:0 ], (t:0.2, p:1.285), (t:0.32, p:1.075), [t:1, p:1]
-          t == time, p == animationProgress
-          e.g.:
-          - so at 20%, our animation will be 128.5% complete,
-          - then at 32% ouranimation will be 107.5% complete,
-          - then finally at 100% our animation will complete
-        * */
-        transition-property: all;
+    .card-flip {
+      /*
+        understanding cubic bezier: we control the two middle points
+        [ t:0, p:0 ], (t:0.2, p:1.285), (t:0.32, p:1.075), [t:1, p:1]
+        t == time, p == animationProgress
+        e.g.:
+        - so at 20%, our animation will be 128.5% complete,
+        - then at 32% ouranimation will be 107.5% complete,
+        - then finally at 100% our animation will complete
+      * */
+      transition-property: all;
 /*         transition-timing-function: cubic-bezier(0.35, 1.2, 0.60, 1.045); */
-        transition-timing-function: cubic-bezier(0.20, 1.285, 0.32, 1.075);
-        transform-style: preserve-3d;
-        transition-duration: ${BOARD.CARD_FLIP_ANIMATION_DURATION}ms;
-      }
+      transition-timing-function: cubic-bezier(0.20, 1.285, 0.32, 1.075);
+      transform-style: preserve-3d;
+      transition-duration: ${BOARD.CARD_FLIP_ANIMATION_DURATION}ms;
+    }
 
-      .card-shuffle-transform {
-        transition-property: transform;
-        transition-timing-function: cubic-bezier(0.40, 1.3, 0.62, 1.045);
-        transition-duration: ${
-          BOARD.CARD_SHUFFLE_PAUSE_DURATION + BOARD.CARD_SHUFFLE_ACTIVE_DURATION
-        }ms;
-      }
+    .card-shuffle-transform {
+      transition-property: transform;
+      transition-timing-function: cubic-bezier(0.40, 1.3, 0.62, 1.045);
+      transition-duration: ${
+        BOARD.CARD_SHUFFLE_PAUSE_DURATION + BOARD.CARD_SHUFFLE_ACTIVE_DURATION
+      }ms;
+    }
 
-      .shake-card {
-        animation: shake-card ${BOARD.CARD_SHAKE_ANIMATION_DURATION}ms;
-      }
+    .shake-card {
+      animation: shake-card ${BOARD.CARD_SHAKE_ANIMATION_DURATION}ms;
+    }
 
-      @keyframes shake-card {
-        0% {
-          transform: translate(0%,0%);
-          opacity: 1;
-        }
-        10% {
-          transform: translate(-7%,1%);  
-          opacity: 0.95;
-          box-shadow: 5px 0px 5px 5px rgba(255, 63, 63, 0.5);
-        }
-        23% {
-          transform: translate(5%,1.8%);  
-          opacity: 0.91;
-          box-shadow: -4px 0px 4px 4px rgba(255, 63, 63, 0.4);
-        }
-        56% {
-          transform: translate(-3%,3.6%);  
-          opacity: 0.82;
-          box-shadow: 3px 0px 3px 3px rgba(255, 63, 63, 0.3);
-        }
-        84% {
-          transform: translate(1%,2.6%);  
-          opacity: 0.87;
-          box-shadow: -2px 0px 2px 2px rgba(255, 63, 63, 0.2);
-        }
-        100% {
-          transform: translate(0%,0%);  
-          opacity: 1;
-          box-shadow: 1px 0px 1px 1px rgba(255, 63, 63, 0.1);
-        }
+    @keyframes shake-card {
+      0% {
+        transform: translate(0%,0%);
+        opacity: 1;
       }
-    `);
+      10% {
+        transform: translate(-7%,1%);  
+        opacity: 0.95;
+        box-shadow: 5px 0px 5px 5px rgba(255, 63, 63, 0.5);
+      }
+      23% {
+        transform: translate(5%,1.8%);  
+        opacity: 0.91;
+        box-shadow: -4px 0px 4px 4px rgba(255, 63, 63, 0.4);
+      }
+      56% {
+        transform: translate(-3%,3.6%);  
+        opacity: 0.82;
+        box-shadow: 3px 0px 3px 3px rgba(255, 63, 63, 0.3);
+      }
+      84% {
+        transform: translate(1%,2.6%);  
+        opacity: 0.87;
+        box-shadow: -2px 0px 2px 2px rgba(255, 63, 63, 0.2);
+      }
+      100% {
+        transform: translate(0%,0%);  
+        opacity: 1;
+        box-shadow: 1px 0px 1px 1px rgba(255, 63, 63, 0.1);
+      }
+    }
+  `);
 
   return (
     <div
@@ -389,8 +383,8 @@ export default component$<BoardProps>(({ containerRef }) => {
       onClick$={handleClickBoard$}
       data-label="board"
     >
-      {ctx.state.gameData.cards.map((card) => (
-        <Card card={card} key={card.id} />
+      {ctx.state.gameData.cards.map((card, i) => (
+        <Card card={card} key={card.id} index={i} />
       ))}
     </div>
   );

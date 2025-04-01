@@ -5,8 +5,8 @@ import fourCard from "./generators/numbers/four-card";
 import fiveCard from "./generators/numbers/five-card";
 import sixCard from "./generators/numbers/six-card";
 import sevenCard from "./generators/numbers/seven-card";
-import eightCard from "./generators/numbers/nine-card";
-import nineCard from "./generators/numbers/eight-card";
+import eightCard from "./generators/numbers/eight-card";
+import nineCard from "./generators/numbers/nine-card";
 import tenCard from "./generators/numbers/ten-card";
 import jackClubsCard from "./generators/faces/jack-clubs-card";
 import jackSpadesCard from "./generators/faces/jack-spades-card";
@@ -22,54 +22,66 @@ import kingDiamondsCard from "./generators/faces/king-diamonds-card";
 import kingHeartsCard from "./generators/faces/king-hearts-card";
 
 const cards: { [key: string]: any } = {
-  AC: aceCard({ color: "black", symbol: "clubs" }),
-  AS: aceCard({ color: "black", symbol: "spades" }),
-  AD: aceCard({ color: "red", symbol: "diamonds" }),
-  AH: aceCard({ color: "red", symbol: "hearts" }),
-  "2C": twoCard({ color: "black", symbol: "clubs" }),
-  "2S": twoCard({ color: "black", symbol: "spades" }),
-  "2D": twoCard({ color: "red", symbol: "diamonds" }),
-  "2H": twoCard({ color: "red", symbol: "hearts" }),
-  "3C": threeCard({ color: "black", symbol: "clubs" }),
-  "3S": threeCard({ color: "black", symbol: "spades" }),
-  "3D": threeCard({ color: "red", symbol: "diamonds" }),
-  "3H": threeCard({ color: "red", symbol: "hearts" }),
-  "4C": fourCard({ color: "black", symbol: "clubs" }),
-  "4S": fourCard({ color: "black", symbol: "spades" }),
-  "4D": fourCard({ color: "red", symbol: "diamonds" }),
-  "4H": fourCard({ color: "red", symbol: "hearts" }),
-  "5C": fiveCard({ color: "black", symbol: "clubs" }),
-  "5S": fiveCard({ color: "black", symbol: "spades" }),
-  "5D": fiveCard({ color: "red", symbol: "diamonds" }),
-  "5H": fiveCard({ color: "red", symbol: "hearts" }),
-  "6C": sixCard({ color: "black", symbol: "clubs" }),
-  "6S": sixCard({ color: "black", symbol: "spades" }),
-  "6D": sixCard({ color: "red", symbol: "diamonds" }),
-  "6H": sixCard({ color: "red", symbol: "hearts" }),
-  "7C": sevenCard({ color: "black", symbol: "clubs" }),
-  "7S": sevenCard({ color: "black", symbol: "spades" }),
-  "7D": sevenCard({ color: "red", symbol: "diamonds" }),
-  "7H": sevenCard({ color: "red", symbol: "hearts" }),
-  "8C": eightCard({ color: "black", symbol: "clubs" }),
-  "8S": eightCard({ color: "black", symbol: "spades" }),
-  "8D": eightCard({ color: "red", symbol: "diamonds" }),
-  "8H": eightCard({ color: "red", symbol: "hearts" }),
-  "9C": nineCard({ color: "black", symbol: "clubs" }),
-  "9S": nineCard({ color: "black", symbol: "spades" }),
-  "9D": nineCard({ color: "red", symbol: "diamonds" }),
-  "9H": nineCard({ color: "red", symbol: "hearts" }),
-  "0C": tenCard({ color: "black", symbol: "clubs" }),
-  "0S": tenCard({ color: "black", symbol: "spades" }),
-  "0D": tenCard({ color: "red", symbol: "diamonds" }),
-  "0H": tenCard({ color: "red", symbol: "hearts" }),
+  AC: aceCard({ symbol: "clubs" }),
+  AS: aceCard({ symbol: "spades" }),
+  AD: aceCard({ symbol: "diamonds" }),
+  AH: aceCard({ symbol: "hearts" }),
+
+  "2C": twoCard({ symbol: "clubs" }),
+  "2S": twoCard({ symbol: "spades" }),
+  "2D": twoCard({ symbol: "diamonds" }),
+  "2H": twoCard({ symbol: "hearts" }),
+
+  "3C": threeCard({ symbol: "clubs" }),
+  "3S": threeCard({ symbol: "spades" }),
+  "3D": threeCard({ symbol: "diamonds" }),
+  "3H": threeCard({ symbol: "hearts" }),
+
+  "4C": fourCard({ symbol: "clubs" }),
+  "4S": fourCard({ symbol: "spades" }),
+  "4D": fourCard({ symbol: "diamonds" }),
+  "4H": fourCard({ symbol: "hearts" }),
+
+  "5C": fiveCard({ symbol: "clubs" }),
+  "5S": fiveCard({ symbol: "spades" }),
+  "5D": fiveCard({ symbol: "diamonds" }),
+  "5H": fiveCard({ symbol: "hearts" }),
+
+  "6C": sixCard({ symbol: "clubs" }),
+  "6S": sixCard({ symbol: "spades" }),
+  "6D": sixCard({ symbol: "diamonds" }),
+  "6H": sixCard({ symbol: "hearts" }),
+
+  "7C": sevenCard({ symbol: "clubs" }),
+  "7S": sevenCard({ symbol: "spades" }),
+  "7D": sevenCard({ symbol: "diamonds" }),
+  "7H": sevenCard({ symbol: "hearts" }),
+
+  "8C": eightCard({ symbol: "clubs" }),
+  "8S": eightCard({ symbol: "spades" }),
+  "8D": eightCard({ symbol: "diamonds" }),
+  "8H": eightCard({ symbol: "hearts" }),
+
+  "9C": nineCard({ symbol: "clubs" }),
+  "9S": nineCard({ symbol: "spades" }),
+  "9D": nineCard({ symbol: "diamonds" }),
+  "9H": nineCard({ symbol: "hearts" }),
+
+  "0C": tenCard({ symbol: "clubs" }),
+  "0S": tenCard({ symbol: "spades" }),
+  "0D": tenCard({ symbol: "diamonds" }),
+  "0H": tenCard({ symbol: "hearts" }),
+
   JC: jackClubsCard(),
   JS: jackSpadesCard(),
   JD: jackDiamondsCard(),
   JH: jackHeartsCard(),
+
   QC: queenClubsCard(),
   QS: queenSpadesCard(),
   QD: queenDiamondsCard(),
   QH: queenHeartsCard(),
+
   KC: kingClubsCard(),
   KS: kingSpadesCard(),
   KD: kingDiamondsCard(),

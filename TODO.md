@@ -6,6 +6,10 @@
 - break up single hook into multiple
 > - only need one onLoad and one onShow per route
 
+## TODO: invert dark mode: more customization
+- make it affect the svg symbols rather than the entire card
+> - then can customise how each card or symbol or color looks instead of a blanket filter
+
 ## TODO: challenge modes
 - implement the challenge modes in the game context!
 

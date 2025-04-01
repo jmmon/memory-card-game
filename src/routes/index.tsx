@@ -76,45 +76,39 @@ const SoonTmPopover = component$(() => {
 const Instructions: FunctionComponent = () => {
   const actionString = "Tap/Click";
   return (
-    <>
-      <h3 class="text-center text-2xl text-slate-300">Goal:</h3>
-      <p class="text-center text-3xl mt-[-2rem]">Clear the board to win!</p>
-
-      <ul class="mx-auto border-box text-md grid w-full max-w-[60ch] list-disc gap-4 px-6 marker:text-slate-400 md:text-lg">
-        <li class={LI_CLASSES}>
-          <strong>{actionString}</strong> a card to view it.
-          <br />
-          <strong>{actionString} again</strong> to return the card to the board.
-        </li>
-        <li class={LI_CLASSES}>
-          After <strong>two</strong> cards have been flipped, if the{" "}
-          <strong>numbers</strong> and <strong>colors</strong> match...
-          <br />
-          <code>
-            (e.g. <strong>Queen</strong> of <strong>Spades</strong> with{" "}
-            <strong>Queen</strong> of <strong>Clubs</strong>; or{" "}
-            <strong>2</strong> of <strong>Hearts</strong> with{" "}
-            <strong>2</strong> of <strong>Diamonds</strong>,)
-          </code>{" "}
-          <br />
-          ...you found a <strong>pair</strong> and they're removed from the
-          board!
-        </li>
-        <li class={LI_CLASSES}>
-          <strong>Clear</strong> the <strong>board</strong> to{" "}
-          <strong>win!</strong>
-        </li>
-        <li class={LI_CLASSES}>
-          At the end, view your <strong>game time</strong>,{" "}
-          <strong>pairs found</strong>, and <strong>mismatches found</strong>.
-        </li>
-        <li class={`text-slate-500 ${LI_CLASSES}`}>
-          COMING SOON
-          <SoonTmPopover />: Save your score, and see how you compare to other
-          players!
-        </li>
-      </ul>
-    </>
+    <ul class="my-4 mx-auto border-box text-md grid w-full max-w-[60ch] list-disc gap-4 px-6 marker:text-slate-400 md:text-lg">
+      <li class={LI_CLASSES}>
+        <strong>{actionString}</strong> a card to view it.
+        <br />
+        <strong>{actionString} again</strong> to return the card to the board.
+      </li>
+      <li class={LI_CLASSES}>
+        After <strong>two</strong> cards have been flipped, if the{" "}
+        <strong>numbers</strong> and <strong>colors</strong> match...
+        <br />
+        <code>
+          (e.g. <strong>Queen</strong> of <strong>Spades</strong> with{" "}
+          <strong>Queen</strong> of <strong>Clubs</strong>; or{" "}
+          <strong>2</strong> of <strong>Hearts</strong> with <strong>2</strong>{" "}
+          of <strong>Diamonds</strong>,)
+        </code>{" "}
+        <br />
+        ...you found a <strong>pair</strong> and they're removed from the board!
+      </li>
+      <li class={LI_CLASSES}>
+        <strong>Clear</strong> the <strong>board</strong> to{" "}
+        <strong>win!</strong>
+      </li>
+      <li class={LI_CLASSES}>
+        At the end, view your <strong>game time</strong>,{" "}
+        <strong>pairs found</strong>, and <strong>mismatches found</strong>.
+      </li>
+      <li class={`text-slate-500 ${LI_CLASSES}`}>
+        COMING SOON
+        <SoonTmPopover />: Save your score, and see how you compare to other
+        players!
+      </li>
+    </ul>
   );
 };
 
@@ -122,7 +116,12 @@ export const GameStarter = component$(() => {
   const unsavedUserSettings = useSignal<iUserSettings>(
     INITIAL_STATE.userSettings,
   );
-  useGetSavedTheme({ unsavedUserSettings });
+  useGetSavedTheme(
+    { unsavedUserSettings },
+    {
+      onVisible: false,
+    },
+  );
 
   const playHref = useComputed$(() => {
     const params = pruneDefaultsFromSettings(unsavedUserSettings.value);
@@ -133,15 +132,11 @@ export const GameStarter = component$(() => {
     <>
       <Link
         href={playHref.value}
-        class="mx-auto rounded-lg border border-slate-600 bg-slate-800 px-8 py-4 text-4xl text-slate-200 focus:bg-slate-700 focus:text-white hover:bg-slate-700 hover:text-white"
+        class="mb-2 mx-auto rounded-lg border border-slate-600 bg-slate-800 px-8 py-4 text-4xl text-slate-200 focus:bg-slate-700 focus:text-white hover:bg-slate-700 hover:text-white"
       >
         Play
       </Link>
 
-      <div class="w-full flex items-ceter justify-center">
-        <span class="home-theme-dark text-2xl">Theme: Dark</span>
-        <span class="home-theme-light text-2xl">Theme: Light</span>
-      </div>
       <Dropdown buttonText="Change Settings">
         <GameSettings unsavedUserSettings={unsavedUserSettings}>
           <div
@@ -170,11 +165,18 @@ export const GameStarter = component$(() => {
 });
 
 const HomeComponent: FunctionComponent = () => {
-  // get invert-card-colors from local storage
   return (
     <div class="flex h-screen flex-col items-center justify-between ">
       <div class="grid w-full max-w-[600px] items-center justify-center gap-8 text-slate-200">
-        <h1 class="text-center text-4xl text-slate-500">Memory Card Game</h1>
+        <h1 class="text-center text-4xl text-slate-500 mt-4">
+          Memory Card Game
+        </h1>
+
+        <div>
+          <h3 class="text-center text-2xl text-slate-300">Goal:</h3>
+          <p class="text-center text-3xl ">Clear the board to win!</p>
+        </div>
+
         <Instructions />
 
         <GameStarter />

@@ -10,6 +10,7 @@ import type { iUserSettings } from "~/v3/types/types";
 import type { ClassList, PropFunction, Signal } from "@builder.io/qwik";
 import InfoTooltip from "../info-tooltip/info-tooltip";
 import DeckSizeChanger from "../../molecules/deck-size-changer/deck-size-changer";
+import InputToggle from "../../atoms/input-toggle/input-toggle";
 
 type GameSettingsProps = {
   unsavedUserSettings: Signal<iUserSettings>;
@@ -165,18 +166,18 @@ export default component$<GameSettingsProps>(
         >
           <div class="grid gap-1 p-[min(12px,2.5vw)]">
             <ModalRow>
-              <InputLock
-                text="Invert"
-                name="interface.invertCardColors"
+              <InputToggle
+                text="Dark Mode (Inverted Cards)"
                 onChange$={handleChange$}
                 settings={unsavedUserSettings.value}
+                propertyPath="interface.invertCardColors"
               >
                 <InfoTooltip>
-                  Invert cards for dark mode.
+                  Inverts the cards for dark mode.
                   <br />
                   Takes effect immediately.
                 </InfoTooltip>
-              </InputLock>
+              </InputToggle>
             </ModalRow>
           </div>
         </Dropdown>
@@ -191,9 +192,9 @@ export default component$<GameSettingsProps>(
             <ModalRow>
               <InputLock
                 text="Lock Board:"
-                name="board.isLocked"
-                settings={unsavedUserSettings.value}
                 onChange$={handleChange$}
+                settings={unsavedUserSettings.value}
+                propertyPath="board.isLocked"
               >
                 <InfoTooltip>Prevent board layout from changing.</InfoTooltip>
               </InputLock>
@@ -201,9 +202,9 @@ export default component$<GameSettingsProps>(
             <ModalRow>
               <InputLock
                 text="Lock Deck:"
-                name="deck.isLocked"
-                settings={unsavedUserSettings.value}
                 onChange$={handleChange$}
+                settings={unsavedUserSettings.value}
+                propertyPath="deck.isLocked"
               >
                 <InfoTooltip>Prevent deck size from changing.</InfoTooltip>
               </InputLock>
@@ -212,9 +213,9 @@ export default component$<GameSettingsProps>(
             <ModalRow>
               <InputLock
                 text="Show Selected Card Ids"
-                name="interface.showSelectedIds"
-                settings={unsavedUserSettings.value}
                 onChange$={handleChange$}
+                settings={unsavedUserSettings.value}
+                propertyPath="interface.showSelectedIds"
               >
                 <InfoTooltip>
                   Show unique card IDs for{" "}
@@ -225,9 +226,9 @@ export default component$<GameSettingsProps>(
             <ModalRow>
               <InputLock
                 text="Show Dimensions"
-                name="interface.showDimensions"
-                settings={unsavedUserSettings.value}
                 onChange$={handleChange$}
+                settings={unsavedUserSettings.value}
+                propertyPath="interface.showDimensions"
               >
                 <InfoTooltip>
                   Show board layout and{" "}
