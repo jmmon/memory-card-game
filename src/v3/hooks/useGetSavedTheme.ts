@@ -18,6 +18,18 @@ type States = {
   ctx?: ReturnType<typeof useGameContextService>;
   unsavedUserSettings?: Signal<iUserSettings>;
 };
+type Opts = {
+  onLoad?: boolean;
+  onShown?: boolean;
+  onVisible?: boolean;
+  onTrack?: boolean;
+};
+const DEFAULT_OPTS = {
+  onLoad: true,
+  onShown: true,
+  onVisible: true,
+  onTrack: true,
+};
 /**
  * gets theme on window load
  * gets theme on returning from another tab
@@ -28,7 +40,11 @@ type States = {
  * and two for the two modals
  * > or hide modal from render
  * */
-const useGetSavedTheme = (states?: States) => {
+const useGetSavedTheme = (states: States, opts: Opts) => {
+  opts = {
+    ...DEFAULT_OPTS,
+    ...opts,
+  };
   // only used for startup visibleTask$
   const _savedTheme = useSignal<iTheme | null>(null);
 
@@ -83,32 +99,42 @@ const useGetSavedTheme = (states?: States) => {
    * */
   const handleGetAndSetTheme$ = $((logString?: string) => {
     const currentTheme = themeService.get();
+
     logger(DebugTypeEnum.HOOK, LogLevel.ONE, logString, { currentTheme });
+
     const newTheme = currentTheme ?? DEFAULT_THEME;
     themeService.set(newTheme);
-
     setSavedTheme$(newTheme);
   });
 
   // resync theme from localstorage to states when page is loaded
   useOnWindow(
     "load",
-    $(() => {
-      handleGetAndSetTheme$("useGetSavedTheme: running onload:");
-    }),
+    opts.onLoad
+      ? $(() => {
+          handleGetAndSetTheme$("useGetSavedTheme: running onload:");
+        })
+      : undefined,
   );
 
   // resync theme from localstorage to states when coming back from other tab
   useVisibilityChange({
-    onShown$: $(() => {
-      handleGetAndSetTheme$("useGetSavedTheme onShown:");
-    }),
+    onShown$: opts.onShown
+      ? $(() => {
+          handleGetAndSetTheme$("useGetSavedTheme onShown:");
+        })
+      : undefined,
   });
 
-  // on load of component e.g. settings modal, update theme in state
+  // on visible of component e.g. settings modal, update theme in state
   // only runs on startup since modals are rendered but hidden
   // syncs ctx and unsavedUserSettings
   useVisibleTask$(() => {
+    if (!opts.onVisible) {
+      logger(DebugTypeEnum.HOOK, LogLevel.ONE, "SKIPPING onVisible");
+      return;
+    }
+
     const currentTheme = themeService.get();
     logger(
       DebugTypeEnum.HOOK,
@@ -129,23 +155,28 @@ const useGetSavedTheme = (states?: States) => {
   // only for end-game, settings-modal, and initial settings
   // but other syncing has to sync with settings as well
   useVisibleTask$(({ track }) => {
-    const invertCardColors = track(
+    if (!opts.onTrack) {
+      logger(DebugTypeEnum.HOOK, LogLevel.ONE, "SKIPPING onTrack");
+      return;
+    }
+
+    const invertFromTracked = track(
       () => states?.unsavedUserSettings?.value.interface.invertCardColors,
     );
     const currentTheme = themeService.get();
-    const newTheme = invertCardColors ? "dark" : "light";
+    const trackedTheme = invertFromTracked ? "dark" : "light";
     logger(
       DebugTypeEnum.HOOK,
       LogLevel.ONE,
       "useGetSavedTheme: visibleTask$ to update theme from unsavedUserSettings",
-      { newTheme },
+      { newTheme: trackedTheme },
     );
 
-    if (currentTheme !== newTheme) {
+    if (currentTheme !== trackedTheme) {
       logger(DebugTypeEnum.HOOK, LogLevel.TWO, "~~ updating theme to:", {
-        newTheme,
+        newTheme: trackedTheme,
       });
-      setSavedTheme$(newTheme);
+      setSavedTheme$(trackedTheme);
     }
   });
 };

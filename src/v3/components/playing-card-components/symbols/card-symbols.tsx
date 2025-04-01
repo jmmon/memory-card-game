@@ -6,8 +6,8 @@ export default () => (
   <svg data-usage="card-symbols" style="display: none;">
     <defs>
       {/*
-            border 
-          */}
+        outer border 
+      */}
       <rect
         id="card-border"
         width="239"
@@ -21,13 +21,13 @@ export default () => (
       />
 
       {/*
-            <!-- inner square -->
-          */}
-      <path id="card-square" d="M-82.4-130.4H82.4v260.8H-82.4z" />
+        <!-- inner square -->
+      */}
+      <path stroke="#44F" id="card-square" d="M-82.4-130.4H82.4v260.8H-82.4z" />
 
       {/*
-            <!-- Symbols S H C D -->
-          */}
+        <!-- Symbols S H C D -->
+      */}
 
       <symbol
         id="symbol-spades"

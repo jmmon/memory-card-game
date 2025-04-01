@@ -13,7 +13,13 @@ export default component$(() => {
   // for adjusting deck size before restarting
   const unsavedUserSettings = useSignal<iUserSettings>(ctx.state.userSettings);
 
-  useGetSavedTheme({ ctx, unsavedUserSettings });
+  useGetSavedTheme(
+    { ctx, unsavedUserSettings },
+    {
+      onLoad: false,
+      onShown: false,
+    },
+  );
 
   const hideModal$ = $(() => {
     ctx.state.interfaceSettings.endOfGameModal.isShowing = false;

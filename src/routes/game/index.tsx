@@ -73,10 +73,16 @@ export default component$(() => {
   const params = useParams();
   const { isParamsConsumed, consumedSettings } = useConsumeParams(params);
 
-  // syncs settings with savedTheme
-  useGetSavedTheme({
-    unsavedUserSettings: consumedSettings,
-  });
+  // syncs unsavedSettings with savedTheme
+  useGetSavedTheme(
+    {
+      unsavedUserSettings: consumedSettings,
+    },
+    {
+      onTrack: false,
+      onVisible: false,
+    },
+  );
 
   logger(DebugTypeEnum.RENDER, LogLevel.ONE, "RENDER /game route");
 

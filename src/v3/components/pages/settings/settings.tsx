@@ -16,7 +16,13 @@ export default component$(() => {
     ...ctx.state.userSettings,
   });
 
-  useGetSavedTheme({ ctx, unsavedUserSettings });
+  useGetSavedTheme(
+    { ctx, unsavedUserSettings },
+    {
+      onLoad: false,
+      onShown: false,
+    },
+  );
 
   const saveOrResetSettings = $(async (newSettings?: Signal<iUserSettings>) => {
     ctx.handle

@@ -76,9 +76,9 @@ html[data-theme="dark"] .card-face[data-label="card-back"]>* {
 
 html[data-theme="dark"] .card-face[data-label="card-front"]>* {
   /* filter: brightness(0.25); */
-  --card-background-color: #111;
-  --card-border-color: #eee;
-  /*filter: invert(100%) hue-rotate(180deg); */
+  /* --card-background-color: #111; */
+  /* --card-border-color: #eee; */
+  filter: invert(100%) hue-rotate(180deg);
 }
 
 /* HEADINGS ------------------------------------- */

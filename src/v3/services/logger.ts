@@ -7,12 +7,12 @@ import GAME from "../constants/game";
 const logger = (
   type: keyof typeof DebugTypeEnum,
   logLevel: LogLevelValue,
-  ...args: any[]
+  ...logArgs: any[]
 ) => {
   if (GAME.DEBUG[type] >= logLevel) {
     const now = performance.now();
     const time = `${now.toFixed(1)}`;
-    console.log(time, ...args);
+    console.log(time, ...logArgs);
   }
 };
 export default logger;
