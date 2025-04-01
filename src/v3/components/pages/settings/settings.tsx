@@ -20,7 +20,6 @@ export default component$(() => {
     { ctx, unsavedUserSettings },
     {
       onLoad: false,
-      onShown: false,
     },
   );
 
