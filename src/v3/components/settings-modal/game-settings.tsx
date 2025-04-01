@@ -24,7 +24,7 @@ export default component$(
     const gameContext = useContext(GameContext);
 
     return (
-      <div class="flex w-[25rem] max-w-[100%] gap-0.5 md:gap-1 flex-col py-[2%] px-[4%]">
+      <div class="mx-auto flex w-[25rem] max-w-[100%] gap-0.5 md:gap-1 flex-col py-[2%] px-[4%]">
         <div class="flex-grow flex justify-evenly items-center">
           <div class="justify-center flex gap-[2%] items-center tooltip">
             <Button onClick$={() => gameContext.startShuffling(5)}>
@@ -98,10 +98,7 @@ export default component$(
             <SettingsRow>
               <div class="w-full flex justify-between tooltip">
                 <label class="text-slate-100">Played Time:</label>
-                <FormattedTime
-                  timeMs={gameContext.timer.state.timeDs}
-                  limit={1}
-                />
+                <FormattedTime timeDs={gameContext.timer.state.timeDs} />
                 <span class="tooltiptext">
                   Total un-paused play time for this round.
                 </span>
@@ -249,5 +246,5 @@ export default component$(
         </details>
       </div>
     );
-  }
+  },
 );

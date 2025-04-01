@@ -88,7 +88,7 @@ export const useTimer = ({
       state.time += now - last;
       state.last = now;
 
-      state.timeDs = Math.round(state.time / 100) * 100;
+      state.timeDs = Math.round(state.time / 100);
     };
 
     if (status === "RUNNING") {

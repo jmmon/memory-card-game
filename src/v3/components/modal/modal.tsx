@@ -1,5 +1,6 @@
 import type { QwikMouseEvent, PropFunction } from "@builder.io/qwik";
 import { component$, $, Slot } from "@builder.io/qwik";
+import { lowercaseHyphenate } from "~/v3/utils/utils";
 
 const DURATION = "duration-[300ms]";
 // const IS_SHOWING_DELAY = 50;
@@ -8,9 +9,6 @@ const DEFAULT_CONTAINER_BG = "bg-slate-600";
 type ModalOptions = { detectClickOutside: boolean };
 
 const DEFAULT_OPTIONS = { detectClickOutside: true };
-
-const lowercaseHyphenate = (str: string) =>
-  str.toLowerCase().replace(/ /g, "-");
 
 export default component$(
   ({

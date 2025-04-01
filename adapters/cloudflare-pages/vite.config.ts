@@ -4,6 +4,9 @@ import baseConfig from "../../vite.config";
 
 export default extendConfig(baseConfig, () => {
   return {
+    // ssr: {
+    //   external: ['node:crypto']
+    // },
     build: {
       ssr: true,
       rollupOptions: {

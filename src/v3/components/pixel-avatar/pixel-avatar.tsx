@@ -1,9 +1,6 @@
 import type { PropFunction, Signal } from "@builder.io/qwik";
-import { component$, useSignal, useTask$ } from "@builder.io/qwik";
-import { getRandomBytes } from "~/v3/services/seed";
-// import { isServer } from "@builder.io/qwik/build";
-// import { getRandomBytes } from "~/v3/services/seed";
-// import crypto from "crypto";
+import { component$, isServer, useSignal, useTask$ } from "@builder.io/qwik";
+import { sha256 } from "crypto-js";
 import { stringToColor } from "~/v3/utils/avatarUtils";
 
 const DEFAULT_COLOR_OPTIONS = {
@@ -24,22 +21,23 @@ export function bufferToHexString(buffer: ArrayBuffer) {
   return hexCodes.join("");
 }
 
-// export function getHash(message: string) {
-//   // if (isServer) {
-//   //   return getRandomBytes();
-//   //   // return crypto.createHash("sha256").update(message).digest();
-//   // }
-//   return window.crypto.subtle.digest(
-//     "SHA-256",
-//     new TextEncoder().encode(message),
-//   );
-// }
+export function getHash(message: string) {
+  if (isServer) {
+    // return getRandomBytes();
+    return sha256(message);
+    // return createHash("sha256").update(message).digest();
+  }
+  return window.crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(message),
+  );
+}
 
 export async function getHexHashString(userInput: string) {
-  userInput;
-  return getRandomBytes();
-  // const hash = bufferToHexString(await getHash(userInput));
-  // return hash;
+  // userInput;
+  // return getRandomBytes();
+  const hash = bufferToHexString(await getHash(userInput));
+  return hash;
 }
 
 export function hexCharToBase(hex: string, base: number) {
@@ -255,7 +253,7 @@ export default component$(
     colorOptions = DEFAULT_COLOR_OPTIONS,
     colorFrom,
     color,
-    halfPixels: halfPixels,
+    halfPixels,
     outputTo$,
   }: PixelAvatarProps) => {
     const data = useSignal({

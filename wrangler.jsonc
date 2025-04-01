@@ -7,7 +7,7 @@
 	"name": "recover-scores",
 	"compatibility_date": "2025-03-27",
 	"compatibility_flags": [
-		"nodejs_als"
+		"nodejs_compat",
 	],
 	"pages_build_output_dir": "./dist",
 	"observability": {
@@ -27,16 +27,14 @@
 	 */
 
 
-	"d1_databases": [
-
-        {
-            "binding": "DB",
-            "database_name": "recover-scores-test-2",
-            "database_id": "798f1015-3470-48cc-ac81-9a6f6fbadfff",
-            "migrations_dir": "./src/v3/db/migrations"
-        }
-		
-	]
+	  "d1_databases": [
+	      {
+	          "binding": "DB",
+	          "database_name": "recover-scores-test-3",
+	          "database_id": "741a444d-3ee4-43d5-90b2-31d68e9f7a76",
+	          "migrations_dir": "./src/v3/db/migrations"
+	      }
+	  ]
 
 
 	/**

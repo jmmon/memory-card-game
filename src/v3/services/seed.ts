@@ -2,6 +2,7 @@
 import dbService from "./db.service";
 import { server$ } from "@builder.io/qwik-city";
 import type { NewScore } from "../db/types";
+import CryptoJS from "crypto-js";
 
 let timeout: ReturnType<typeof setTimeout> | null = null;
 // const delay = (ms: number) =>
@@ -63,7 +64,10 @@ const stringToColor = (
 };
 
 export const getRandomBytes = (bytes = DEFAULT_HASH_LENGTH_BYTES) => {
-  return (Math.random() * 10 ** bytes).toString(16);
+  return CryptoJS.lib.WordArray.random(bytes).toString(
+    CryptoJS.enc.Hex,
+  ) as string;
+  // return (Math.random() * 10 ** bytes).toString(16);
   // return crypto.randomBytes(bytes).toString("hex");
 };
 
@@ -199,9 +203,6 @@ const runSeed = async function ({
   scoresPerDeckSize,
 }: RunSeedData) {
   try {
-    await dbService.clearData();
-    console.log("db cleared... seeding now!");
-
     const minDeckSize = 6;
     const maxDeckSize = 52;
     const maxDecksAvailable = (maxDeckSize - minDeckSize) / 2 + 1; // e.g. 24

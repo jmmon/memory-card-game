@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1743347836298,
-      "tag": "0000_purple_tiger_shark",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1743375742705,
-      "tag": "0001_massive_toro",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1743375965449,
-      "tag": "0002_loose_meteorite",
+      "when": 1743426827459,
+      "tag": "0000_busy_major_mapleleaf",
       "breakpoints": true
     }
   ]

@@ -123,7 +123,7 @@ const calculatePercentilesForScores = (
   );
 };
 
-const clientSortFunctions: {
+const serverSortFunctions: {
   [key: string]: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => number;
 } = {
   initials: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
@@ -146,7 +146,7 @@ const clientSortFunctions: {
   //   const value = (b.mismatchPercentile ?? 0) - (a.mismatchPercentile ?? 0);
   //   return value;
   // },
-  game_time: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
+  game_time_ds: (a: ScoreWithPercentiles, b: ScoreWithPercentiles) => {
     const value = b.gameTimeDs - a.gameTimeDs;
     return value;
   },
@@ -167,19 +167,22 @@ const sortScores = (
   const result = [...scores];
 
   try {
-    console.log("sorting fetched scores");
+    console.log("sorting fetched scores:", {
+      sortByColumnHistory,
+      sortFnKeys: Object.keys(serverSortFunctions),
+    });
     result.sort((a, b) => {
       let value = 0;
       let nextKeyIndex = 0;
       let { column } = sortByColumnHistory[0];
       const { direction } = sortByColumnHistory[0];
 
-      // go through each sortBy in the array
+      // hits each sort function until it finds a non-zero value
       while (value === 0 && nextKeyIndex < sortByColumnHistory.length) {
         const sortingInstructions = sortByColumnHistory[nextKeyIndex];
         column = sortingInstructions.column;
 
-        const sortFunction = clientSortFunctions[column];
+        const sortFunction = serverSortFunctions[column];
         value = sortFunction(a, b);
         nextKeyIndex++;
       }
@@ -189,8 +192,13 @@ const sortScores = (
     console.log("sorting fetched scores error:", { err });
   }
 
+  console.log("sorted scores:", {
+    first: scores[0],
+    last: scores[scores.length - 1],
+  });
   return result;
 };
+sortScores;
 
 const queryScoresAndCalculatePercentiles = async (
   db: DrizzleDb,
@@ -222,17 +230,22 @@ const queryScoresAndCalculatePercentiles = async (
   }
 
   const allScores = resScores.value as Score[];
-  const counts = resCounts.value as ScoreCounts[];
-  console.log("fresh from query:", { length: allScores.length });
+  const scoreCounts = resCounts.value as ScoreCounts[];
+  console.log("fresh from query:", {
+    first: allScores[0],
+    last: allScores[allScores.length - 1],
+  });
 
   let allScoresWithPercentiles: ScoreWithPercentiles[] = [];
   const totals: { [key: number]: number } = {};
 
   // run the calculations for each deck size
-  for (let i = 0; i < counts.length; i++) {
-    const thisCounts = counts[i];
+  for (let i = 0; i < scoreCounts.length; i++) {
+    const thisCounts = scoreCounts[i];
+    totals[thisCounts.deckSize] = thisCounts.totalScores;
+
     const scores = allScores.filter(
-      (score) => score.deckSize === thisCounts.deckSize,
+      ({ deckSize }) => deckSize === thisCounts.deckSize,
     );
     const scoresWithPercentiles = calculatePercentilesForScores(
       scores,
@@ -242,12 +255,11 @@ const queryScoresAndCalculatePercentiles = async (
     allScoresWithPercentiles = allScoresWithPercentiles.concat(
       scoresWithPercentiles,
     );
-
-    totals[thisCounts.deckSize] = thisCounts.totalScores;
   }
 
   return {
-    scores: sortScores(allScoresWithPercentiles, sortByColumnHistory),
+    scores: allScoresWithPercentiles,
+    // scores: sortScores(allScoresWithPercentiles, sortByColumnHistory),
     totals,
   };
 };

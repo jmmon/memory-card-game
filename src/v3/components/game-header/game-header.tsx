@@ -22,7 +22,6 @@ const DECIMALS = 1;
 export const roundToDecimals = (number: number, decimals: number = DECIMALS) =>
   Math.round(number * 10 ** decimals) / 10 ** decimals;
 
-
 const SCORE_ANIMATION_CLASSES = "animate text-slate-100";
 
 export default component$(
@@ -34,7 +33,7 @@ export default component$(
         gameContext.interface.successAnimation = false;
       }),
       useComputed$(() => gameContext.interface.successAnimation),
-      CONSTANTS.GAME.SUCCESS_COUNTER_ANIMATE_DURATION
+      CONSTANTS.GAME.SUCCESS_COUNTER_ANIMATE_DURATION,
     );
 
     useTimeout(
@@ -42,7 +41,7 @@ export default component$(
         gameContext.interface.mismatchAnimation = false;
       }),
       useComputed$(() => gameContext.interface.mismatchAnimation),
-      CONSTANTS.GAME.MISMATCH_COUNTER_ANIMATE_DURATION
+      CONSTANTS.GAME.MISMATCH_COUNTER_ANIMATE_DURATION,
     );
 
     useStylesScoped$(`
@@ -143,7 +142,7 @@ export default component$(
         </HeaderSection>
       </header>
     );
-  }
+  },
 );
 
 const SelectionHeaderComponent = component$(() => {
@@ -170,7 +169,7 @@ const HeaderSection = component$(
         <Slot />
       </div>
     );
-  }
+  },
 );
 
 // const LockedIndicator = ({
@@ -214,7 +213,7 @@ const DimensionsHeaderComponent = component$(() => {
         <div class={` text-left flex flex-col `}>
           <span>
             {roundToDecimals(
-              window.innerHeight - gameContext.boardLayout.height
+              window.innerHeight - gameContext.boardLayout.height,
             )}
           </span>
           <span>{roundToDecimals(gameContext.boardLayout.height)}</span>
@@ -239,7 +238,7 @@ export const TimerHeaderComponent = component$(() => {
             : ""
         }
       >
-        <FormattedTime timeMs={gameContext.timer.state.timeDs} limit={1} />
+        <FormattedTime timeDs={gameContext.timer.state.timeDs} />
       </span>
     </code>
   );

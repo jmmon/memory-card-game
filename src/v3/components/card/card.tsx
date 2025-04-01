@@ -25,20 +25,20 @@ export default component$(({ card }: { card: Card }) => {
   const gameContext = useContext(GameContext);
 
   const isThisRemoved = useComputed$(() =>
-    v3CardUtils.isCardInPairs(gameContext.game.successfulPairs, card.id)
+    v3CardUtils.isCardInPairs(gameContext.game.successfulPairs, card.id),
   );
 
   const isThisMismatched = useComputed$(() =>
-    gameContext.game.mismatchPair.includes(String(card.id))
+    gameContext.game.mismatchPair.includes(String(card.id)),
   );
 
   // is our card the flipped card?
   const isThisCardFlipped = useComputed$(
-    () => gameContext.game.flippedCardId === card.id
+    () => gameContext.game.flippedCardId === card.id,
   );
 
   const isThisCardSelected = useComputed$(() =>
-    gameContext.game.selectedCardIds.includes(card.id)
+    gameContext.game.selectedCardIds.includes(card.id),
   );
 
   /* SHUFFLE CARDS TRANSFORM
@@ -70,23 +70,22 @@ export default component$(({ card }: { card: Card }) => {
 
     const newCoords = v3CardUtils.getXYFromPosition(
       card.position,
-      gameContext.boardLayout.columns
+      gameContext.boardLayout.columns,
     );
 
     shuffleTransform.value =
       v3CardUtils.generateShuffleTranslateTransformPercent(
         gameContext.cardLayout,
-        newCoords
+        newCoords,
       );
 
     flipTransform.value = v3CardUtils.generateFlipTranslateTransform(
       gameContext.boardLayout,
       gameContext.cardLayout,
-      newCoords
+      newCoords,
     );
     coords.value = newCoords;
   });
-
 
   // if flipTrasnform.value.translateX > 0, we're moving to the right. We should be higher z-index since we are on the left. And vice versa.
   // if tarnslateY > 0, we're moving down. We should be higher z-index since we are on the top. And vice versa.
@@ -104,22 +103,22 @@ export default component$(({ card }: { card: Card }) => {
             (Math.abs(
               (flipTransform.value.translateX === 0
                 ? 0
-                : flipTransform.value.translateX) / 50
+                : flipTransform.value.translateX) / 50,
             ) +
               Math.abs(
                 flipTransform.value.translateY === 0
                   ? 0
-                  : flipTransform.value.translateY / 50
+                  : flipTransform.value.translateY / 50,
               )) /
-              2
+              2,
           ) +
           // extra z-index for cards being flipped
           (isThisCardFlipped.value
             ? 120 // applies while card is first clicked
             : // : isFaceShowing.value || isFaceShowing_delayedOff.value || !isReturned.value
-            isThisCardFlipped.value && gameContext.game.isFaceShowing
-            ? 60 // applies when flipping down
-            : 0), // applies otherwise (when face down);
+              isThisCardFlipped.value && gameContext.game.isFaceShowing
+              ? 60 // applies when flipping down
+              : 0), // applies otherwise (when face down);
         transform: shuffleTransform.value,
       }}
       data-label="card-slot-container"
@@ -227,7 +226,7 @@ export const CardFlippingWrapper = component$(
         />
       </div>
     );
-  }
+  },
 );
 
 // holds the front and back of card
@@ -271,7 +270,7 @@ const CardView = component$(
         </CardFace>
       </>
     );
-  }
+  },
 );
 
 const CardFace = component$(
@@ -298,5 +297,5 @@ const CardFace = component$(
         <Slot />
       </div>
     );
-  }
+  },
 );

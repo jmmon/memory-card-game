@@ -20,12 +20,6 @@ import serverDbService from "~/v3/services/db.service";
 import CONSTANTS from "~/v3/utils/constants";
 import { getRandomBytes } from "~/v3/services/seed";
 
-// const getRandomBytes = server$(
-//   (bytes: number = CONSTANTS.GAME.HASH_LENGTH_BYTES) => {
-//     return crypto.randomBytes(bytes).toString("hex");
-//   },
-// );
-
 export function bufferToHexString(byteArray: Uint8Array) {
   const hexCodes = [...byteArray].map((value) => {
     return value.toString(16).padStart(2, "0");
@@ -34,18 +28,7 @@ export function bufferToHexString(byteArray: Uint8Array) {
   return hexCodes.join("");
 }
 
-// export const serverGetHash = server$(function (
-//   message: string,
-//   bytes: number = CONSTANTS.GAME.HASH_LENGTH_BYTES,
-// ) {
-//   return crypto
-//     .createHash("sha256")
-//     .update(message)
-//     .digest("hex")
-//     .substring(0, bytes);
-// });
-
-const computeAvatarSize = (val: number, min: number = 60, max: number = 100) =>
+const limitSizeMinMax = (val: number, min: number = 60, max: number = 100) =>
   Math.max(min, Math.min(max, val));
 
 export default component$(() => {
@@ -64,7 +47,7 @@ export default component$(() => {
   const identifier = useSignal(defaultHash.value);
 
   const getNewHash$ = $(async () => {
-    identifier.value = await getRandomBytes();
+    identifier.value = getRandomBytes();
   });
 
   const selectFieldOnFocus$ = $(
@@ -81,8 +64,9 @@ export default component$(() => {
     const [halfPixels, color] = pixelData.split(".");
 
     const newScore: NewScore = {
+      createdAt: Date.now(),
       deckSize: gameContext.settings.deck.size,
-      gameTime: gameContext.timer.state.timeDs,
+      gameTimeDs: gameContext.timer.state.timeDs,
       mismatches: gameContext.game.mismatchPairs.length,
       pairs: gameContext.game.successfulPairs.length,
       userId: identifier.value,
@@ -108,7 +92,7 @@ export default component$(() => {
   });
 
   const computedAvatarSize = useSignal(
-    computeAvatarSize(
+    limitSizeMinMax(
       (typeof window !== "undefined" ? window.innerHeight : 300) * 0.14,
     ),
   );
@@ -116,7 +100,7 @@ export default component$(() => {
   useOnWindow(
     "resize",
     $(() => {
-      computedAvatarSize.value = computeAvatarSize(
+      computedAvatarSize.value = limitSizeMinMax(
         (typeof window !== "undefined" ? window.innerWidth : 300) * 0.14,
       );
       console.log("new avater size:", computedAvatarSize.value);
@@ -124,7 +108,7 @@ export default component$(() => {
   );
 
   useVisibleTask$(() => {
-    computedAvatarSize.value = computeAvatarSize(
+    computedAvatarSize.value = limitSizeMinMax(
       (typeof window !== "undefined" ? window.innerWidth : 300) * 0.14,
     );
   });
@@ -147,10 +131,7 @@ export default component$(() => {
             <div class="flex flex-grow justify-between">
               <span>Time:</span>
               <span>
-                <FormattedTime
-                  timeMs={gameContext.timer.state.timeDs}
-                  limit={1}
-                />
+                <FormattedTime timeDs={gameContext.timer.state.timeDs} />
               </span>
             </div>
           </SettingsRow>
@@ -176,11 +157,9 @@ export default component$(() => {
           </SettingsRow>
         </div>
 
-        <hr class={gameContext.game.isSaved ? "hidden" : ""} />
+        <hr />
 
-        <div
-          class={`w-full h-full ${gameContext.game.isSaved ? "hidden" : ""}`}
-        >
+        <div class={`w-full h-full`}>
           <div class="w-full flex flex-col gap-2 items-center justify-center py-[2%] px-[4%]">
             <h3 class="text-sm md:text-lg ">Avatar:</h3>
             <PixelAvatar
@@ -230,6 +209,7 @@ export default component$(() => {
                     class="text-xs px-0 py-0 ml-2 "
                     style="color: var(--qwik-light-blue);"
                     type="button"
+                    disabled={gameContext.game.isSaved}
                   >
                     (Or generate a random identifier)
                   </button>
