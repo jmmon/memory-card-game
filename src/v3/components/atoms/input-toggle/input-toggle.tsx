@@ -1,4 +1,4 @@
-import { Slot, component$ } from "@builder.io/qwik";
+import { Slot, component$, useStyles$ } from "@builder.io/qwik";
 import type { ClassList, PropFunction } from "@builder.io/qwik";
 import type { iUserSettings } from "~/v3/types/types";
 
@@ -10,10 +10,26 @@ type InputToggleProps = {
   disabled?: boolean;
   settings: iUserSettings;
 };
-const BG_DARK: ClassList = "bg-slate-600";
 export default component$<InputToggleProps>(
   ({ text, name, onChange$, classes, disabled = false, settings }) => {
     const properties = name.split(".");
+    // css to display the toggle view depending on checkbox state
+    useStyles$(`
+      [data-label="toggle-switch"] {
+        background-color: #94a3b8; /* bg-slate-400 */
+      }
+      [data-label="toggle-handle"] {
+        background-color: #475569; /* bg-slate-600 */
+        left: 1px;
+      }
+      input:checked ~ [data-label="toggle-switch"] {
+        background-color: #475569; /* bg-slate-600 */
+      }
+      input:checked ~ [data-label="toggle-switch"] > [data-label="toggle-handle"] {
+        background-color: #f8fafc; /* bg-slate-50 */
+        left: 25px;
+      }
+    `);
     return (
       <div
         class={`${classes ?? ""} flex gap-[min(.75rem,1.75vw)] items-center justify-between w-full`}
@@ -35,11 +51,12 @@ export default component$<InputToggleProps>(
 
           <div
             data-label="toggle-switch"
-            class={`relative w-14 h-8 transition-all duration-200 ease-in-out border border-slate-500 rounded-full ${settings[properties[0]][properties[1]] ? BG_DARK : "bg-slate-400"}`}
+            class={`relative w-14 h-8 transition-all duration-200 ease-in-out border border-slate-500 rounded-full`}
           >
             <div
-              class={`absolute w-[28px] h-[28px] transition-all duration-200 ease-in-out border border-slate-500 rounded-full top-[1px] ${settings[properties[0]][properties[1]] ? `left-[25px] bg-slate-50` : `left-[1px] ${BG_DARK}`}`}
-            ></div>
+              data-label="toggle-handle"
+              class={`absolute w-[28px] h-[28px] transition-all duration-200 ease-in-out border border-slate-500 rounded-full top-[1px]`}
+            />
           </div>
         </label>
 
