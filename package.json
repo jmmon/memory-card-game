@@ -3,7 +3,7 @@
   "name": "memory-card-game",
   "description": "Match all pairs to clear the board!",
   "engines": {
-    "node": ">=15.0.0"
+    "node": "^18.17.0 || ^20.3.0 || >=21.0.0"
   },
   "private": true,
   "scripts": {
