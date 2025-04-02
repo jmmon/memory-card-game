@@ -59,3 +59,4 @@ upload.zip
 functions/**/*.js
 .wrangler/state/v3/d1/miniflare-D1DatabaseObject
 src/v3/db/migrations
+.wrangler/tmp
