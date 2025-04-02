@@ -11,8 +11,6 @@
     "build.client": "vite build",
     "build.preview": "vite build --ssr src/entry.preview.tsx",
     "build.server": "vite build -c adapters/cloudflare-pages/vite.config.ts",
-    "build.server.express": "vite build -c adapters/express/vite.config.ts",
-    "build.server.node": "vite build -c adapters/node-server/vite.config.ts",
     "build.types": "tsc --incremental --noEmit",
     "db.seed": "node src/v3/db/seed.mjs",
     "deploy:stage": "wrangler pages deploy ./dist --branch=cloudflare-stage",
@@ -23,27 +21,23 @@
     "lint": "eslint \"src/**/*.ts*\"",
     "lint:fix": "eslint \"src/**/*.ts*\" --fix",
     "preview": "qwik build preview && pnpm vite preview --open",
-    "serve": "wrangler pages dev ./dist --compatibility-flags=nodejs_als",
-    "serve.express": "node server/entry.express",
-    "serve.node": "node server.node/entry.node-server",
+    "serve": "git branch --show-current && wrangler pages dev ./dist --compatibility-flags=nodejs_als",
     "start": "vite --open --mode ssr",
     "qwik": "qwik"
   },
   "devDependencies": {
     "@builder.io/qwik": "^1.12.1",
     "@builder.io/qwik-city": "^1.12.1",
+    "@cloudflare/workers-types": "^4.20250327.0",
     "@qwik-ui/headless": "^0.6.5",
     "@types/compression": "^1.7.2",
     "@types/eslint": "8.56.10",
-    "@types/express": "^4.17.19",
     "@types/node": "^20.12.7",
-    "@types/pg": "^8.10.9",
     "@typescript-eslint/eslint-plugin": "^7.7.1",
     "@typescript-eslint/parser": "^7.7.1",
     "autoprefixer": "^10.4.14",
     "compression": "^1.7.4",
     "dotenv": "^16.3.2",
-    "drizzle-kit": "^0.19.13",
     "eslint": "^8.57.0",
     "eslint-plugin-qwik": "^1.12.0",
     "node-env-run": "^4.0.2",
@@ -55,15 +49,11 @@
     "undici": "*",
     "vite": "^5.2.10",
     "vite-tsconfig-paths": "^4.2.1",
-    "wrangler": "^4.5.0"
+    "wrangler": "^4.6.0"
   },
   "dependencies": {
     "dotenv": "^16.3.1",
-    "drizzle-orm": "^0.28.6",
-    "express": "4.20.0",
     "jabber": "^1.5.3",
-    "pm2": "^5.3.0",
-    "postgres": "^3.4.3",
     "zod": "^3.22.4"
   }
 }

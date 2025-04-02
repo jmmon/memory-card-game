@@ -57,3 +57,4 @@ upload.zip
 
 # Cloudflare
 functions/**/*.js
+.wrangler/tmp
