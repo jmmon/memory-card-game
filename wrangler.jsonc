@@ -31,8 +31,14 @@
 			"vars": {
 				"TEST_ENV": "testing preview deploy from config"
 			}
+		},
+
+		"production": {
+			"vars": {
+				"TEST_ENV": "testing production deploy from config"
+			}
 		}
-    }
+	}
 
 
 	/**
