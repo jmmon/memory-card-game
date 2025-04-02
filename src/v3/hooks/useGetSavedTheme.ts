@@ -40,7 +40,7 @@ const DEFAULT_OPTS = {
  * and two for the two modals
  * > or hide modal from render
  * */
-const useGetSavedTheme = (states: States, opts: Opts) => {
+const useGetSavedTheme = (states?: States, opts?: Opts) => {
   opts = {
     ...DEFAULT_OPTS,
     ...opts,

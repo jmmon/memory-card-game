@@ -5,6 +5,7 @@
 ## TODO: less extra work for dark mode.
 - break up single hook into multiple
 > - only need one onLoad and one onShow per route
+- seems like onShow is needed for the settings modal for switching tabs back and forth
 
 ## TODO: invert dark mode: more customization
 - make it affect the svg symbols rather than the entire card
