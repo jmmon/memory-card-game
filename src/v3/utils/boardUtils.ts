@@ -1,5 +1,5 @@
-import { BOARD } from "~/v3/constants/board";
-import { GAME } from "~/v3/constants/game";
+import BOARD from "~/v3/constants/board";
+import GAME from "~/v3/constants/game";
 
 export const calculateBoardDimensions = (
   container: HTMLElement,

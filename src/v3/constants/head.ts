@@ -1,5 +1,5 @@
-const SITE_HOST = "nomadcoder.dev";
-const SITE_NAME = "Memory Card Game";
+const SITE_HOST = "nomadcoder.dev" as const;
+const SITE_NAME = "Memory Card Game" as const;
 
 const HEAD_CONSTANTS = {
   SITE_HOST,

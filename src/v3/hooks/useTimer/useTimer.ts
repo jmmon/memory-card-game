@@ -1,6 +1,9 @@
 import { $, useStore, useTask$ } from "@builder.io/qwik";
 import type { UseTimerOpts, iTimerState } from "./types";
 
+/**
+ * Not currently using these handler props, but may come in handy
+ * */
 export const useTimer = ({
   onPause$,
   onStart$,
@@ -115,12 +118,13 @@ export const useTimer = ({
     // resume and pause have no effect if not started (first run)
     if (!state.isStarted) return;
 
-    let intervalId: ReturnType<typeof setInterval> | null = null;
-    let blinkId: ReturnType<typeof setInterval> | null = null;
+    let intervalId: ReturnType<typeof setInterval> | undefined = undefined;
+    let blinkId: ReturnType<typeof setInterval> | undefined = undefined;
 
     // Our update function
     const updateRunningTime = () => {
       const now = Date.now();
+
       const isLongPause = now - state.last > 500;
       const isInitialization = state.last === 0;
 
@@ -129,13 +133,13 @@ export const useTimer = ({
         last = now;
       }
 
-      state.time += now - last;
-      state.last = now;
+      state.time += now - last; // 0 for first run (now - now)
+      state.last = now; // sets to Date.now() on first run
     };
 
     if (status === "RUNNING") {
       // wrap in fn because typescript
-      intervalId = setInterval(updateRunningTime, 95);
+      intervalId = setInterval(updateRunningTime, 98);
 
       updateRunningTime(); // run immediately also
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -149,10 +153,10 @@ export const useTimer = ({
     // clean up the intervals
     cleanup(() => {
       if (intervalId) clearInterval(intervalId);
-      intervalId = null;
+      intervalId = undefined;
 
       if (blinkId) clearInterval(blinkId);
-      blinkId = null;
+      blinkId = undefined;
     });
   });
 

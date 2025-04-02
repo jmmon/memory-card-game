@@ -1,61 +1,56 @@
-import { component$, useSignal, useStyles$, useTask$ } from "@builder.io/qwik";
+import type { Signal } from "@builder.io/qwik";
+import { component$, useSignal, useTask$ } from "@builder.io/qwik";
 import { Link, routeLoader$, useNavigate } from "@builder.io/qwik-city";
-import styles from "./styles.css?inline";
 import Game from "~/v3/components/pages/game/game";
 import { typeEntryValues, unflattenObject } from "~/v3/utils/utils";
 import { validate } from "~/v3/validation/validate";
-import { USER_SETTINGS } from "~/v3/services/gameContext.service/initialState";
+import INITIAL_STATE from "~/v3/services/gameContext.service/initialState";
 
 import schemas from "~/v3/validation/schemas";
 import type { iUserSettings } from "~/v3/types/types";
 
 import { toString } from "~/v3/utils/utils";
+import useGetSavedTheme from "~/v3/hooks/useGetSavedTheme";
+import logger from "~/v3/services/logger";
+import { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
 export { toString };
 
 // params are settings which were changed from initial values
 export const useParams = routeLoader$(async (requestEvent) => {
-  // console.log("useParams loader...", {
-  //   urlSearchParams: requestEvent.url.searchParams,
-  // });
-
   const unflattenedParams = unflattenObject(
     typeEntryValues(Array.from(requestEvent.url.searchParams.entries())),
   ) as Partial<iUserSettings>;
 
   const completedUserParams: iUserSettings = {
-    ...USER_SETTINGS,
+    ...INITIAL_STATE.userSettings,
     ...unflattenedParams,
     deck: {
-      ...USER_SETTINGS.deck,
+      ...INITIAL_STATE.userSettings.deck,
       ...unflattenedParams.deck,
     },
     board: {
-      ...USER_SETTINGS.board,
+      ...INITIAL_STATE.userSettings.board,
       ...unflattenedParams.board,
     },
     interface: {
-      ...USER_SETTINGS.interface,
+      ...INITIAL_STATE.userSettings.interface,
       ...unflattenedParams.interface,
     },
   };
-  console.log("routeloader...");
+  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useParams...");
 
   if (validate(completedUserParams, schemas.userSettings).isValid) {
-    console.log("using params");
+    logger(DebugTypeEnum.HOOK, LogLevel.ONE, "...valid > using params");
     return completedUserParams;
   }
-  console.log("using DEFAULTS");
-  return USER_SETTINGS;
+  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "...invalid > using DEFAULTS");
+  return INITIAL_STATE.userSettings;
 });
 
-export default component$(() => {
-  const paramsSettings = useParams();
-
+export const useConsumeParams = (paramsSettings: Signal<iUserSettings>) => {
   const nav = useNavigate();
   const isParamsConsumed = useSignal(false);
-  const consumedSettings = useSignal<iUserSettings>(USER_SETTINGS);
-
-  console.log({ paramsSettings: paramsSettings.value });
+  const consumedSettings = useSignal<iUserSettings>(INITIAL_STATE.userSettings);
 
   useTask$(({ track }) => {
     track(() => paramsSettings.value);
@@ -68,7 +63,28 @@ export default component$(() => {
     });
   });
 
-  useStyles$(styles);
+  return {
+    isParamsConsumed,
+    consumedSettings,
+  };
+};
+
+export default component$(() => {
+  const params = useParams();
+  const { isParamsConsumed, consumedSettings } = useConsumeParams(params);
+
+  // syncs unsavedSettings with savedTheme
+  useGetSavedTheme(
+    {
+      unsavedUserSettings: consumedSettings,
+    },
+    {
+      onTrack: false,
+      onVisible: false,
+    },
+  );
+
+  logger(DebugTypeEnum.RENDER, LogLevel.ONE, "RENDER /game route");
 
   return (
     <div class="flex h-full w-full flex-col items-center overflow-hidden">

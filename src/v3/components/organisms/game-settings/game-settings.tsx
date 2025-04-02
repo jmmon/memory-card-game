@@ -10,20 +10,16 @@ import type { iUserSettings } from "~/v3/types/types";
 import type { ClassList, PropFunction, Signal } from "@builder.io/qwik";
 import InfoTooltip from "../info-tooltip/info-tooltip";
 import DeckSizeChanger from "../../molecules/deck-size-changer/deck-size-changer";
+import InputToggle from "../../atoms/input-toggle/input-toggle";
 
 type GameSettingsProps = {
   unsavedUserSettings: Signal<iUserSettings>;
   startShuffling$?: PropFunction<() => void>;
   classes?: ClassList;
 };
-
-export default component$(
-  ({
-    unsavedUserSettings,
-    startShuffling$,
-    classes = "",
-  }: GameSettingsProps) => {
-    const handleToggle$ = $((e: Event) => {
+export default component$<GameSettingsProps>(
+  ({ unsavedUserSettings, startShuffling$, classes = "" }) => {
+    const handleChange$ = $((e: Event) => {
       const properties = (e.target as HTMLInputElement).name.split(".");
       unsavedUserSettings.value = {
         ...unsavedUserSettings.value,
@@ -63,7 +59,6 @@ export default component$(
               />
             </ModalRow>
           </div>
-
 
           {/* right column */}
           {/* <div class={`flex-grow flex flex-col ${COLUMN_GAP} items-center`}> */}
@@ -165,6 +160,31 @@ export default component$(
         <Dropdown
           buttonClasses="underline text-slate-400 hover:text-slate-50 focus:text-slate-50 bg-transparent hover:bg-transparent focus:bg-transparent"
           buttonClassesWhileOpen="text-slate-50"
+          buttonText="Interface Settings"
+          clearFocusOnClose={true}
+          /* startAsOpen={true} */
+        >
+          <div class="grid gap-1 p-[min(12px,2.5vw)]">
+            <ModalRow>
+              <InputToggle
+                text="Dark Mode (Inverted Cards)"
+                onChange$={handleChange$}
+                settings={unsavedUserSettings.value}
+                propertyPath="interface.invertCardColors"
+              >
+                <InfoTooltip>
+                  Inverts the cards for dark mode.
+                  <br />
+                  Takes effect immediately.
+                </InfoTooltip>
+              </InputToggle>
+            </ModalRow>
+          </div>
+        </Dropdown>
+
+        <Dropdown
+          buttonClasses="underline text-slate-400 hover:text-slate-50 focus:text-slate-50 bg-transparent hover:bg-transparent focus:bg-transparent"
+          buttonClassesWhileOpen="text-slate-50"
           buttonText="Show Developer Settings"
           clearFocusOnClose={true}
         >
@@ -172,9 +192,9 @@ export default component$(
             <ModalRow>
               <InputLock
                 text="Lock Board:"
-                name="board.isLocked"
+                onChange$={handleChange$}
                 settings={unsavedUserSettings.value}
-                onChange$={handleToggle$}
+                propertyPath="board.isLocked"
               >
                 <InfoTooltip>Prevent board layout from changing.</InfoTooltip>
               </InputLock>
@@ -182,9 +202,9 @@ export default component$(
             <ModalRow>
               <InputLock
                 text="Lock Deck:"
-                name="deck.isLocked"
+                onChange$={handleChange$}
                 settings={unsavedUserSettings.value}
-                onChange$={handleToggle$}
+                propertyPath="deck.isLocked"
               >
                 <InfoTooltip>Prevent deck size from changing.</InfoTooltip>
               </InputLock>
@@ -193,9 +213,9 @@ export default component$(
             <ModalRow>
               <InputLock
                 text="Show Selected Card Ids"
-                name="interface.showSelectedIds"
+                onChange$={handleChange$}
                 settings={unsavedUserSettings.value}
-                onChange$={handleToggle$}
+                propertyPath="interface.showSelectedIds"
               >
                 <InfoTooltip>
                   Show unique card IDs for{" "}
@@ -206,9 +226,9 @@ export default component$(
             <ModalRow>
               <InputLock
                 text="Show Dimensions"
-                name="interface.showDimensions"
+                onChange$={handleChange$}
                 settings={unsavedUserSettings.value}
-                onChange$={handleToggle$}
+                propertyPath="interface.showDimensions"
               >
                 <InfoTooltip>
                   Show board layout and{" "}

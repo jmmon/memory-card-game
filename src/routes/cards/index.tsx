@@ -6,25 +6,14 @@ import HEAD_CONSTANTS from "~/v3/constants/head";
 
 export default component$(() => {
   return (
-    <div
-      class="mx-auto flex h-screen flex-wrap justify-center"
-      style={{ overflowY: "scroll" }}
-    >
+    <div class="mx-auto grid grid-cols-2 sm:grid-cols-4 sm:max-w-[1000px] h-screen flex-wrap justify-center">
       {Object.values(PlayingCardComponents)
         .reverse()
         .map((card, i) => (
-          <div
-            key={i}
-            style={{ width: "14%", minWidth: "250px" }}
-            dangerouslySetInnerHTML={card}
-          ></div>
+          <div class="w-full" key={i} dangerouslySetInnerHTML={card}></div>
         ))}
 
-      <ImageBackFace
-        class="w-[14%] min-w-[250px]"
-        loading="eager"
-        decoding="sync"
-      />
+      <ImageBackFace class="w-full" loading="eager" decoding="sync" />
     </div>
   );
 });

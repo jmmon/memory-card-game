@@ -1,4 +1,4 @@
-import { GAME } from "~/v3/constants/game";
+import GAME from "~/v3/constants/game";
 import { z } from "zod";
 import { iSelectCardEnum } from "~/v3/types/types";
 

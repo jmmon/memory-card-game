@@ -1,14 +1,15 @@
-import { component$, useSignal, useTask$ } from "@builder.io/qwik";
+import { component$, useComputed$, useSignal } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
 import Dropdown from "~/v3/components/molecules/dropdown/dropdown";
 import GameSettings from "~/v3/components/organisms/game-settings/game-settings";
 import { pruneDefaultsFromSettings } from "~/v3/utils/utils";
 
-import type { ClassList } from "@builder.io/qwik";
+import type { ClassList, FunctionComponent } from "@builder.io/qwik";
 import type { iUserSettings } from "~/v3/types/types";
 import Button from "~/v3/components/atoms/button/button";
 import Popover from "~/v3/components/molecules/popover/popover";
-import { USER_SETTINGS } from "~/v3/services/gameContext.service/initialState";
+import INITIAL_STATE from "~/v3/services/gameContext.service/initialState";
+import useGetSavedTheme from "~/v3/hooks/useGetSavedTheme";
 
 const LI_CLASSES = "pl-2 md:pl-4";
 
@@ -33,7 +34,8 @@ const LI_CLASSES = "pl-2 md:pl-4";
 //   return actionString;
 // }
 
-const SoonTm = ({ classes }: { classes?: ClassList }) => (
+type SoonTmProps = { classes?: ClassList };
+const SoonTm: FunctionComponent<SoonTmProps> = ({ classes }) => (
   <span class={`mx-[1px] ${classes}`}>
     Soon<sup class="align-[0.4em] text-[0.5em]">TM</sup>
   </span>
@@ -71,68 +73,66 @@ const SoonTmPopover = component$(() => {
   );
 });
 
-const Instructions = () => {
+const Instructions: FunctionComponent = () => {
   const actionString = "Tap/Click";
   return (
-    <>
-      <h3 class="text-center text-2xl text-slate-300">Goal:</h3>
-      <p class="text-center text-3xl mt-[-2rem]">Clear the board to win!</p>
-
-      <ul class="mx-auto border-box text-md grid w-full max-w-[60ch] list-disc gap-4 px-6 marker:text-slate-400 md:text-lg">
-        <li class={LI_CLASSES}>
-          <strong>{actionString}</strong> a card to view it.
-          <br />
-          <strong>{actionString} again</strong> to return the card to the board.
-        </li>
-        <li class={LI_CLASSES}>
-          After <strong>two</strong> cards have been flipped, if the{" "}
-          <strong>numbers</strong> and <strong>colors</strong> match...
-          <br />
-          <code>
-            (e.g. <strong>Queen</strong> of <strong>Spades</strong> with{" "}
-            <strong>Queen</strong> of <strong>Clubs</strong>; or{" "}
-            <strong>2</strong> of <strong>Hearts</strong> with{" "}
-            <strong>2</strong> of <strong>Diamonds</strong>,)
-          </code>{" "}
-          <br />
-          ...you found a <strong>pair</strong> and they're removed from the
-          board!
-        </li>
-        <li class={LI_CLASSES}>
-          <strong>Clear</strong> the <strong>board</strong> to{" "}
-          <strong>win!</strong>
-        </li>
-        <li class={LI_CLASSES}>
-          At the end, view your <strong>game time</strong>,{" "}
-          <strong>pairs found</strong>, and <strong>mismatches found</strong>.
-        </li>
-        <li class={`text-slate-500 ${LI_CLASSES}`}>
-          COMING SOON
-          <SoonTmPopover />: Save your score, and see how you compare to other
-          players!
-        </li>
-      </ul>
-    </>
+    <ul class="my-4 mx-auto border-box text-md grid w-full max-w-[60ch] list-disc gap-4 px-6 marker:text-slate-400 md:text-lg">
+      <li class={LI_CLASSES}>
+        <strong>{actionString}</strong> a card to view it.
+        <br />
+        <strong>{actionString} again</strong> to return the card to the board.
+      </li>
+      <li class={LI_CLASSES}>
+        After <strong>two</strong> cards have been flipped, if the{" "}
+        <strong>numbers</strong> and <strong>colors</strong> match...
+        <br />
+        <code>
+          (e.g. <strong>Queen</strong> of <strong>Spades</strong> with{" "}
+          <strong>Queen</strong> of <strong>Clubs</strong>; or{" "}
+          <strong>2</strong> of <strong>Hearts</strong> with <strong>2</strong>{" "}
+          of <strong>Diamonds</strong>,)
+        </code>{" "}
+        <br />
+        ...you found a <strong>pair</strong> and they're removed from the board!
+      </li>
+      <li class={LI_CLASSES}>
+        <strong>Clear</strong> the <strong>board</strong> to{" "}
+        <strong>win!</strong>
+      </li>
+      <li class={LI_CLASSES}>
+        At the end, view your <strong>game time</strong>,{" "}
+        <strong>pairs found</strong>, and <strong>mismatches found</strong>.
+      </li>
+      <li class={`text-slate-500 ${LI_CLASSES}`}>
+        COMING SOON
+        <SoonTmPopover />: Save your score, and see how you compare to other
+        players!
+      </li>
+    </ul>
   );
 };
 
 export const GameStarter = component$(() => {
-  const unsavedUserSettings = useSignal<iUserSettings>(USER_SETTINGS);
-  const playHref = useSignal<string>("");
+  const unsavedUserSettings = useSignal<iUserSettings>(
+    INITIAL_STATE.userSettings,
+  );
+  useGetSavedTheme(
+    { unsavedUserSettings },
+    {
+      onVisible: false,
+    },
+  );
 
-  useTask$(({ track }) => {
-    track(() => unsavedUserSettings.value);
-    // all settings which were changed from initial values
+  const playHref = useComputed$(() => {
     const params = pruneDefaultsFromSettings(unsavedUserSettings.value);
-    playHref.value = `/game/${params}`;
-    console.log({ unsavedUserSettings: unsavedUserSettings.value, params });
+    return `/game/${params}`;
   });
 
   return (
     <>
       <Link
         href={playHref.value}
-        class="mx-auto rounded-lg border border-slate-600 bg-slate-800 px-8 py-4 text-4xl text-slate-200 focus:bg-slate-700 focus:text-white hover:bg-slate-700 hover:text-white"
+        class="mb-2 mx-auto rounded-lg border border-slate-600 bg-slate-800 px-8 py-4 text-4xl text-slate-200 focus:bg-slate-700 focus:text-white hover:bg-slate-700 hover:text-white"
       >
         Play
       </Link>
@@ -144,7 +144,9 @@ export const GameStarter = component$(() => {
             class="mt-5 flex flex-grow items-center justify-around"
           >
             <Button
-              onClick$={() => (unsavedUserSettings.value = USER_SETTINGS)}
+              onClick$={() =>
+                (unsavedUserSettings.value = INITIAL_STATE.userSettings)
+              }
               classes="min-w-[5em]"
             >
               <span class="text-slate-100">Reset</span>
@@ -162,12 +164,19 @@ export const GameStarter = component$(() => {
   );
 });
 
-export default component$(() => {
-  // get invert-card-colors from local storage
+const HomeComponent: FunctionComponent = () => {
   return (
     <div class="flex h-screen flex-col items-center justify-between ">
       <div class="grid w-full max-w-[600px] items-center justify-center gap-8 text-slate-200">
-        <h1 class="text-center text-4xl text-slate-500">Memory Card Game</h1>
+        <h1 class="text-center text-4xl text-slate-500 mt-4">
+          Memory Card Game
+        </h1>
+
+        <div>
+          <h3 class="text-center text-2xl text-slate-300">Goal:</h3>
+          <p class="text-center text-3xl ">Clear the board to win!</p>
+        </div>
+
         <Instructions />
 
         <GameStarter />
@@ -186,4 +195,5 @@ export default component$(() => {
       </div>
     </div>
   );
-});
+};
+export default HomeComponent;
