@@ -12,7 +12,7 @@ import { text, integer, sqliteTable, index } from "drizzle-orm/sqlite-core";
 //    - this will be stored and also will be used to generate the color of the identicon
 //
 //
-export const scores = sqliteTable(
+export const scoresSchema = sqliteTable(
   "scores",
   {
     id: integer("id")

@@ -1,6 +1,7 @@
 import type { QRL } from "@builder.io/qwik";
 import type { useTimer } from "~/v3/hooks/useTimer";
 import type { iSchemas } from "../validation/schemas";
+import { Score } from "../db/schemas/types";
 
 export enum ThemeEnum {
   light = "light",
@@ -17,6 +18,7 @@ export type iCoords = { x: number; y: number };
 
 export type iPair = `${number}:${number}`;
 
+// colors are inferred from the symbol
 export type iPlayingCardSvgProps = {
   symbol: "diamonds" | "hearts" | "clubs" | "spades";
 };
@@ -30,6 +32,40 @@ export type iCard = {
   image?: string;
   localSVG?: string;
 };
+
+/* =====================================================
+ * Scoreboard: scores and sorting
+ * ===================================================== */
+export type ScoreWithPercentiles = Score & {
+  [key: string]: number | string | undefined;
+  timePercentile?: number;
+  mismatchPercentile?: number;
+};
+
+export enum ScoreTableColumnEnum {
+  initials = "initials",
+  deck_size = "deck_size",
+  pairs = "pairs",
+  game_time_ds = "game_time_ds",
+  mismatches = "mismatches",
+  created_at = "created_at",
+}
+export type ScoreTableColumn = keyof typeof ScoreTableColumnEnum;
+
+export enum SortDirectionEnum {
+  asc = "asc",
+  desc = "desc",
+}
+export type SortDirection = keyof typeof SortDirectionEnum;
+
+export type SortColumnWithDirection = {
+  column: ScoreTableColumn;
+  direction: SortDirection;
+};
+
+/* =====================================================
+ *
+ * ===================================================== */
 
 export enum iSelectCardEnum {
   OFF,

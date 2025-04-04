@@ -1,1 +1,1 @@
-export { scores } from "./scores.schema";
+export { scoresSchema } from "./scores.schema";
