@@ -3,6 +3,12 @@ import type { useTimer } from "~/v3/hooks/useTimer";
 import type { iSchemas } from "../validation/schemas";
 import { Score } from "../db/schemas/types";
 
+import type { D1Database } from "@cloudflare/workers-types";
+
+export type Env = {
+  DB: D1Database;
+};
+
 export enum ThemeEnum {
   light = "light",
   dark = "dark",
