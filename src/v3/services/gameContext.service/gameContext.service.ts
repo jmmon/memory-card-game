@@ -91,6 +91,7 @@ export const useGameContextProvider = ({
 
   const fanOutCard = $(function () {
     state.gameData.currentFanOutCardIndex--;
+    // for skipping, gives a break before shuffle
     if (
       state.gameData.currentFanOutCardIndex < 1 &&
       state.gameData.currentFanOutCardIndex >
@@ -101,6 +102,7 @@ export const useGameContextProvider = ({
       });
       return;
     }
+    // end the fan-out and start shuffling
     if (
       state.gameData.currentFanOutCardIndex ===
       -state.gameData.fanOutCardDelayRounds
@@ -129,7 +131,7 @@ export const useGameContextProvider = ({
   const initializeDeck = $(async function () {
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "initializeDeck");
     await sliceDeck(); // set to deckSize
-    state.gameData.currentFanOutCardIndex = state.userSettings.deck.size;
+    state.gameData.currentFanOutCardIndex = state.userSettings.deck.size + 1;
   });
 
   const calculateAndResizeBoard = $(function (

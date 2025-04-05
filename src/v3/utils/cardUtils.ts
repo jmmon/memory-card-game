@@ -6,6 +6,7 @@ import type {
   iPair,
   iCard,
 } from "~/v3/types/types";
+import GAME from "../constants/game";
 
 /*
  * compared to board, how big will the enlarged card (flipped card) be?
@@ -34,7 +35,7 @@ function handleAddCardToSelected(selected: number[], id: number) {
   return [...selected, id];
 }
 
-function checkMatch(cardA: iCard | undefined, cardB: iCard | undefined) {
+function checkMatch(cardA?: iCard, cardB?: iCard) {
   if (cardA === undefined || cardB === undefined) {
     return false;
   }
@@ -45,19 +46,59 @@ const findCardById = (cards: iCard[], id: number) =>
   cards.find((card) => card.id === id);
 
 /*
+ *
+ * for special case of -1 (center):
+ *    for columnCount === 4 we have 0, 1, [1.5 center] 2, 3 for x => 1.5 is the center
+ *    for columnCount === 5 we have 0, 1, [2 center], 3, 4 for x => 2 is the center
+ *    for columnCount === 6 we have 0, 1, 2, [2.5 center] 3, 4, 5 for x => 2.5
+ *    so simply divide (colCount - 1) by 2
+ * need row count or max positions to determine height center
+ *    for rowCount === 4 we have 0, 1, 2, 3 for y => 1.5 is the center
+ *    ...same math!
+ *    divide (rowCount - 1) by 2
+ *
+ * works, except I am currently skipping index 0 when fanning out,
+ * so need to hit all cards instead of skipping fijrst
+ * */
+const generateCenterCoords = (cols: number, rows: number) => {
+  const { percentX, percentY } =
+    GAME.DECK_INITIALIZATION_START_POSITION_BOARD_PERCENTS;
+  // card.position === -1 ? rows : undefined, // start in center of board
+  // card.position === -1 ? 0 : undefined, // start at top-center, on top of Settings button
+  // card.position === -1 ? rows * 2 - 0.4 : undefined, // start at bottom center
+
+  // need to translate percents into the x-y coords
+  const coords = {
+    x: (cols - 1) * percentX,
+    y: (rows - 1) * percentY,
+  };
+
+  return coords;
+};
+
+/**
  * getXYFromPosition
  * takes position (card slot index) and calculates board coordinates x and y coords
- * // e.g. 23 % 6 = 5; 16 % 6 = 4;
- * // e.g. 23 / 6 = 3.; 16 / 6 = 2.;
+ *    e.g. 23 % 6 = 5; 16 % 6 = 4;
+ *    e.g. 23 / 6 = 3.; 16 / 6 = 2.;
+ *
+ * if position === -1 then rowCount should be defined
+ * this is for initialization when dealing out cards
  * */
-const getXYFromPosition = (position: number, columnCount: number) => ({
-  x: position % columnCount,
-  y: Math.floor(position / columnCount),
-});
-
+const getXYFromPosition = (
+  position: number,
+  columnCount: number,
+  rowCount?: number,
+) =>
+  position === -1 && rowCount !== undefined
+    ? generateCenterCoords(columnCount, rowCount)
+    : {
+        x: position % columnCount,
+        y: Math.floor(position / columnCount),
+      };
 /*
  * generates percentage shift for moving the cards during shuffling
- * from origin:[0,0] to destination:newCoords
+ * from origin:[0,0] (top left) to destination:newCoords
  * */
 const generateShuffleTranslateTransformPercent = (
   cardLayout: iCardLayout,
@@ -85,7 +126,6 @@ const generateScaleTransformPercentToCenter = (
   const boardRatio = boardLayout.width / boardLayout.height;
 
   const isWidthTheLimitingDimension = boardRatio < BOARD.CARD_RATIO;
-  // console.log({ boardRatio, isWidthTheLimitingDimension, CARD_RATIO });
 
   if (isWidthTheLimitingDimension) {
     return getScaleFromDimensions(boardLayout.width, cardLayout.width);
@@ -130,7 +170,7 @@ const generateFlipTranslateTransform = (
   return {
     translateX,
     translateY,
-    rotateY: isOnLeftSide ? "180deg" : "-180deg",
+    rotateY: isOnLeftSide ? "180deg" : "-180deg", // which way to flip towards the screen
     scale,
   };
 };
