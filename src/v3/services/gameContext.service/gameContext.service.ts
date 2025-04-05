@@ -4,6 +4,7 @@ import {
   createContextId,
   useContext,
   useContextProvider,
+  useSignal,
   useStore,
 } from "@builder.io/qwik";
 import { useTimer } from "~/v3/hooks/useTimer";
@@ -12,16 +13,16 @@ import boardUtils from "~/v3/utils/boardUtils";
 import INITIAL_STATE from "./initialState";
 import GAME, { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
 import type {
-  iTimer,
   iGameHandlers,
   iGameState,
   iUserSettings,
 } from "~/v3/types/types";
 import logger from "../logger";
+import cardUtils from "~/v3/utils/cardUtils";
+import { iTimer } from "~/v3/hooks/useTimer/types";
 
 export type GameService = ReturnType<typeof useGameContextProvider>;
 const GameContext = createContextId<GameService>("gameContext2");
-export type iGameStateWithTimer = iGameState & { timer: iTimer };
 
 export const useGameContextProvider = ({
   userSettings,
@@ -29,13 +30,12 @@ export const useGameContextProvider = ({
   userSettings: iUserSettings;
 }) => {
   // state
-  const timer = useTimer();
-  const state = useStore<iGameStateWithTimer>({
+  const timer: iTimer = useTimer();
+  const state = useStore<iGameState>({
     ...INITIAL_STATE,
     userSettings: {
       ...userSettings,
     },
-    timer,
   });
 
   const shuffleCardPositions = $(function () {
@@ -89,13 +89,15 @@ export const useGameContextProvider = ({
     });
   });
 
+  const lastFanOut = useSignal(Date.now());
+
   const fanOutCard = $(function () {
     state.gameData.currentFanOutCardIndex--;
     // for skipping, gives a break before shuffle
     if (
       state.gameData.currentFanOutCardIndex < 1 &&
       state.gameData.currentFanOutCardIndex >
-        -state.gameData.fanOutCardDelayRounds
+        -(state.gameData.fanOutCardDelayRounds - 1)
     ) {
       logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "~~ fanOutCard: paused", {
         currentFanOutCardIndex: state.gameData.currentFanOutCardIndex,
@@ -105,14 +107,16 @@ export const useGameContextProvider = ({
     // end the fan-out and start shuffling
     if (
       state.gameData.currentFanOutCardIndex ===
-      -state.gameData.fanOutCardDelayRounds
+      -(state.gameData.fanOutCardDelayRounds - 1)
     ) {
+      const pausedDuration = Date.now() - lastFanOut.value;
       logger(
         DebugTypeEnum.HANDLER,
         LogLevel.ONE,
         "~~ fanOutCard: startShuffling",
         {
           currentFanOutCardIndex: state.gameData.currentFanOutCardIndex,
+          pausedDuration,
         },
       );
       startShuffling();
@@ -126,11 +130,17 @@ export const useGameContextProvider = ({
       currentFanOutCardIndex: state.gameData.currentFanOutCardIndex,
       currentCard: state.gameData.cards[currentIndex],
     });
+    lastFanOut.value = Date.now();
   });
 
   const initializeDeck = $(async function () {
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "initializeDeck");
     await sliceDeck(); // set to deckSize
+    state.gameData.startingPosition = cardUtils.generateCenterCoords(
+      state.boardLayout.columns,
+      state.boardLayout.rows,
+    );
+    // start fan-out animation (dealing the deck)
     state.gameData.currentFanOutCardIndex = state.userSettings.deck.size + 1;
   });
 

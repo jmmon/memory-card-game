@@ -61,7 +61,7 @@ export default component$<GameProps>(
       triggerCondition: useComputed$(
         () =>
           ctx.state.gameData.currentFanOutCardIndex >
-          -ctx.state.gameData.fanOutCardDelayRounds,
+          -(ctx.state.gameData.fanOutCardDelayRounds - 1),
       ),
       delay: 75, // ms in between cards being fanned out
       action: ctx.handle.fanOutCard,
@@ -85,8 +85,9 @@ export default component$<GameProps>(
     useIntervalObj({
       triggerCondition: useComputed$(
         () =>
+          // delay until after fan-out phase
           ctx.state.gameData.currentFanOutCardIndex ===
-            -ctx.state.gameData.fanOutCardDelayRounds &&
+            -(ctx.state.gameData.fanOutCardDelayRounds - 1) &&
           !ctx.timer.state.isStarted &&
           !ctx.timer.state.isEnded,
       ),
