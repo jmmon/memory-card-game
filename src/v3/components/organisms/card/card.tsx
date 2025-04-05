@@ -112,9 +112,13 @@ export default component$<CardProps>(({ card, index }) => {
       ctx.state.boardLayout.columns,
     ]);
 
+    // for -1 case, can tweak the row/col counts passed in to change starting position
     const newCoords = cardUtils.getXYFromPosition(
       card.position,
       ctx.state.boardLayout.columns,
+      // card.position === -1 ? ctx.state.boardLayout.rows : undefined, // start in center of board
+      // card.position === -1 ? 0 : undefined, // start at top-center, on top of Settings button
+      card.position === -1 ? ctx.state.boardLayout.rows : undefined, // start at bottom center
     );
 
     shuffleTransform.value = cardUtils.generateShuffleTranslateTransformPercent(
@@ -154,8 +158,8 @@ export default component$<CardProps>(({ card, index }) => {
       ? ctx.state.userSettings.deck.size -
           ctx.state.gameData.currentFanOutCardIndex ===
         index
-        ? 1
-        : -1
+        ? 10
+        : 0
       : Math.floor(
           // use coords to create gradient of z-index, lowest in center and highest on edges/corners
           (Math.abs(

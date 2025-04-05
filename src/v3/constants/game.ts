@@ -47,7 +47,7 @@ type Debug = {
 
 const isProd = import.meta.env.PROD;
 const DEBUG: Debug = {
-  HANDLER: isProd ? 0 : 0, //LogLevel.ONE,
+  HANDLER: isProd ? 0 : LogLevel.ONE,
   HOOK: isProd ? 0 : 0, //LogLevel.TWO,
   TASK: isProd ? 0 : 0, //LogLevel.ONE,
   SERVICE: isProd ? 0 : 0,
@@ -73,6 +73,18 @@ const CONTAINER_PADDING_PERCENT = 1.5 as const;
 const MIN_CARD_COUNT = 6 as const;
 const MAX_CARD_COUNT = 52 as const;
 
+/**
+ * dictate starting position of deck when dealing out cards on initialization
+ *    e.g. x:0.5, y:0.5 for center
+ *    e.g. x:0, y:0.5 for left-center
+ *    e.g. perhaps x: -.01, y: 0.5 to start slightly further off the left side
+ * percents of board dimensions, so does not take into account the header (padding)
+ * */
+const DECK_INITIALIZATION_START_POSITION_BOARD_PERCENTS = {
+  percentX: 1.05,
+  percentY: 1.1,
+} as const;
+
 const DATA_THEME = "data-theme" as const;
 const STORAGE_KEY_THEME = "theme" as const;
 
@@ -87,6 +99,7 @@ const GAME = {
   CONTAINER_PADDING_PERCENT,
   MIN_CARD_COUNT,
   MAX_CARD_COUNT,
+  DECK_INITIALIZATION_START_POSITION_BOARD_PERCENTS,
   DATA_THEME,
   STORAGE_KEY_THEME,
   ThemeEnum,
