@@ -23,8 +23,8 @@ export default component$<DeckSizeSliderProps>((props) => {
         id={name}
         class="w-8/12 flex-grow"
         type="range"
-        min={GAME.MIN_CARD_COUNT}
-        max={GAME.MAX_CARD_COUNT}
+        min={GAME.DECK_SIZE_MIN}
+        max={GAME.DECK_SIZE_MAX}
         step="2"
         value={props.userSettings.value.deck.size}
         onInput$={(e: Event) => {

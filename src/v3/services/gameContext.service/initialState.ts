@@ -1,10 +1,10 @@
 import GAME from "~/v3/constants/game";
-import { ThemeEnum, iSelectCardEnum } from "~/v3/types/types";
+import { ThemeEnum, iSelectCardEnum, GameStateEnum } from "~/v3/types/types";
 import type {
   iUserSettings,
   iGameData,
   iGameSettings,
-  iGameState,
+  iState,
   iCardLayout,
   iBoardLayout,
   iInterfaceSettings,
@@ -13,6 +13,7 @@ import type {
 import { formattedDeck } from "~/v3/utils/cards";
 
 const GAME_DATA: iGameData = {
+  gameState: GameStateEnum.IDLE,
   cards: [],
   mismatchPair: "",
   isShaking: false,
@@ -86,7 +87,7 @@ const USER_SETTINGS: iUserSettings = {
    * ====================================== */
 
   deck: {
-    size: GAME.DEFAULT_CARD_COUNT,
+    size: GAME.DECK_SIZE_DEFAULT,
     isLocked: false,
   },
 
@@ -151,7 +152,7 @@ const CARD_LAYOUT: iCardLayout = {
   rowGapPercent: 0,
 };
 
-const INITIAL_STATE: iGameState = {
+const INITIAL_STATE: iState = {
   boardLayout: BOARD_LAYOUT,
   cardLayout: CARD_LAYOUT,
   gameData: GAME_DATA,

@@ -19,7 +19,7 @@ export default component$<DeckSizeChangerProps>((props) => {
   const handleChangeSize$ = $((_: Event, t: HTMLButtonElement) => {
     const oldValue = props.userSettings.value.deck.size;
     let newValue = oldValue + (t.name === `${name}-increment` ? 2 : -2);
-    if (newValue > GAME.MAX_CARD_COUNT || newValue < GAME.MIN_CARD_COUNT) {
+    if (newValue > GAME.DECK_SIZE_MAX || newValue < GAME.DECK_SIZE_MIN) {
       newValue = oldValue;
     }
     props.userSettings.value = {
@@ -43,7 +43,7 @@ export default component$<DeckSizeChangerProps>((props) => {
           onClick$={handleChangeSize$}
           disabled={
             props.isLocked ||
-            props.userSettings.value.deck.size <= GAME.MIN_CARD_COUNT
+            props.userSettings.value.deck.size <= GAME.DECK_SIZE_MIN
           }
         >
           -
@@ -56,7 +56,7 @@ export default component$<DeckSizeChangerProps>((props) => {
           onClick$={handleChangeSize$}
           disabled={
             props.isLocked ||
-            props.userSettings.value.deck.size >= GAME.MAX_CARD_COUNT
+            props.userSettings.value.deck.size >= GAME.DECK_SIZE_MAX
           }
         >
           +
@@ -66,8 +66,8 @@ export default component$<DeckSizeChangerProps>((props) => {
         Number of cards in the deck.
         <br />
         <div class="mt-1 text-slate-300">
-          (Range: <strong>{GAME.MIN_CARD_COUNT}</strong> to{" "}
-          <strong>{GAME.MAX_CARD_COUNT}</strong>)
+          (Range: <strong>{GAME.DECK_SIZE_MIN}</strong> to{" "}
+          <strong>{GAME.DECK_SIZE_MAX}</strong>)
         </div>
       </InfoTooltip>
     </div>
