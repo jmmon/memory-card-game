@@ -60,17 +60,10 @@ export type iGameData = {
 };
 
 // settings user will be able to change
-export type iUserSettings = iSchemas["userSettings"];
+export type iUserSettings = iSchemas["userSettings"] & { [key: string]: any };
 
 // settings the user will not change
-export type iGameSettings = {
-  [key: string]: any;
-  cardFlipAnimationDuration: number;
-
-  deck: {
-    fullDeck: iCard[];
-  };
-};
+export type iGameSettings = {};
 
 export type iInterfaceSettings = {
   isScrollable: boolean;

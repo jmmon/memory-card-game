@@ -20,7 +20,8 @@ import {
 } from "~/v3/types/types";
 import logger from "../logger";
 import cardUtils from "~/v3/utils/cardUtils";
-import { iTimer } from "~/v3/hooks/useTimer/types";
+import type { iTimer } from "~/v3/hooks/useTimer/types";
+import { FULL_DECK } from "~/v3/utils/cards";
 
 export type GameService = ReturnType<typeof useGameContextProvider>;
 const GameContext = createContextId<GameService>("gameContext2");
@@ -80,9 +81,7 @@ export const useGameContextProvider = ({
    * slices the deck to appropriate size
    * */
   const sliceDeck = $(function () {
-    const deckShuffledByPairs = deckUtils.shuffleDeckAndRefreshIds(
-      INITIAL_STATE.gameSettings.deck.fullDeck,
-    );
+    const deckShuffledByPairs = deckUtils.shuffleDeckAndRefreshIds(FULL_DECK);
     const cards = deckShuffledByPairs.slice(0, state.userSettings.deck.size);
     state.gameData.cards = cards;
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "sliceDeck", {

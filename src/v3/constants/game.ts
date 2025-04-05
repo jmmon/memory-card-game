@@ -1,24 +1,6 @@
 import { ThemeEnum } from "../types/types";
 import BOARD from "./board";
 
-// enum LoggingEnum {
-//   log = "log",
-//   debug = "debug",
-//   info = "info",
-//   warn = "warn",
-//   error = "error",
-//   assert = "assert",
-// }
-// const DEBUG: {
-//   HANDLERS: keyof typeof LoggingEnum | false;
-//   HOOKS: keyof typeof LoggingEnum | false;
-//   TASKS: keyof typeof LoggingEnum | false;
-// } = {
-//   HANDLERS: false,
-//   HOOKS: LoggingEnum.warn,
-//   TASKS: false,
-// } as const;
-
 export type ValueOf<T> = T[keyof T];
 
 export const LogLevel = {
@@ -47,9 +29,9 @@ type Debug = {
 
 const isProd = import.meta.env.PROD;
 const DEBUG: Debug = {
-  HANDLER: isProd ? 0 : LogLevel.ONE,
+  HANDLER: isProd ? 0 : 0, //LogLevel.ONE,
   HOOK: isProd ? 0 : 0, //LogLevel.TWO,
-  TASK: isProd ? 0 : 0, //LogLevel.ONE,
+  TASK: isProd ? 0 : LogLevel.ONE,
   SERVICE: isProd ? 0 : 0,
   RENDER: isProd ? 0 : 0,
 } as const;
@@ -65,7 +47,7 @@ const START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE = 0.75 as const;
 const SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD =
   BOARD.CARD_FLIP_ANIMATION_DURATION *
     START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE -
-  START_SHAKE_ANIMATION_EAGER_MS;
+  START_SHAKE_ANIMATION_EAGER_MS; // e.g. 700 * .75 - 250 = 275
 
 const CONTAINER_PADDING_PERCENT = 1.5 as const;
 
@@ -96,9 +78,9 @@ const GAME = {
   START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE,
   SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD,
   CONTAINER_PADDING_PERCENT,
-  DECK_SIZE_DEFAULT: DECK_SIZE_DEFAULT,
-  DECK_SIZE_MIN: DECK_SIZE_MIN,
-  DECK_SIZE_MAX: DECK_SIZE_MAX,
+  DECK_SIZE_DEFAULT,
+  DECK_SIZE_MIN,
+  DECK_SIZE_MAX,
   DECK_INITIALIZATION_START_POSITION_BOARD_PERCENTS,
   DATA_THEME,
   STORAGE_KEY_THEME,

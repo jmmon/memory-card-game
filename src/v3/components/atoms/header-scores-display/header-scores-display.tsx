@@ -45,7 +45,6 @@ export default component$(() => {
     >
       <Score
         animate={ctx.state.interfaceSettings.successAnimation}
-        // score={ctx.state.gameData.successfulPairs}
         score={ctx.state.gameData.successfulPairs.length}
         showMax={true}
         max={ctx.state.userSettings.deck.size / 2}
@@ -55,8 +54,6 @@ export default component$(() => {
 
       <Score
         animate={ctx.state.interfaceSettings.mismatchAnimation}
-        // animate={mismatchAnimation.value}
-        // score={ctx.state.gameData.mismatchPairs}
         score={ctx.state.gameData.mismatchPairs.length}
         showMax={ctx.state.userSettings.maxAllowableMismatches !== -1}
         max={ctx.state.userSettings.maxAllowableMismatches}
