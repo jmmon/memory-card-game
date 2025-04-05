@@ -50,11 +50,13 @@ export const useGameContextProvider = ({
   const startShuffling = $(async function (
     count: number = GAME.CARD_SHUFFLE_ROUNDS,
   ) {
-    if (GAME.DEBUG.HANDLER) console.log("startShuffling");
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "startShuffling");
+
     await shuffleCardPositions();
     state.gameData.shufflingState = count - 1;
     state.gameData.isLoading = true;
     state.interfaceSettings.settingsModal.isShowing = false;
+
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "~~startShuffling:", {
       gameDataShufflingState: state.gameData.shufflingState,
       gameDataIsLoading: state.gameData.isLoading,
@@ -72,6 +74,10 @@ export const useGameContextProvider = ({
     });
   });
 
+  /**
+   * gets fresh pairs with fresh ids,
+   * slices the deck to appropriate size
+   * */
   const sliceDeck = $(function () {
     const deckShuffledByPairs = deckUtils.shuffleDeckAndRefreshIds(
       INITIAL_STATE.gameSettings.deck.fullDeck,
@@ -83,12 +89,47 @@ export const useGameContextProvider = ({
     });
   });
 
-  const initializeDeck = $(async function (isStartup: boolean = false) {
-    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "initializeDeck:", {
-      isStartup,
+  const fanOutCard = $(function () {
+    state.gameData.currentFanOutCardIndex--;
+    if (
+      state.gameData.currentFanOutCardIndex < 1 &&
+      state.gameData.currentFanOutCardIndex >
+        -state.gameData.fanOutCardDelayRounds
+    ) {
+      logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "~~ fanOutCard: paused", {
+        currentFanOutCardIndex: state.gameData.currentFanOutCardIndex,
+      });
+      return;
+    }
+    if (
+      state.gameData.currentFanOutCardIndex ===
+      -state.gameData.fanOutCardDelayRounds
+    ) {
+      logger(
+        DebugTypeEnum.HANDLER,
+        LogLevel.ONE,
+        "~~ fanOutCard: startShuffling",
+        {
+          currentFanOutCardIndex: state.gameData.currentFanOutCardIndex,
+        },
+      );
+      startShuffling();
+      return;
+    }
+    // set new position
+    const currentIndex =
+      state.userSettings.deck.size - state.gameData.currentFanOutCardIndex;
+    state.gameData.cards[currentIndex].position = currentIndex;
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "fanOutCard:", {
+      currentFanOutCardIndex: state.gameData.currentFanOutCardIndex,
+      currentCard: state.gameData.cards[currentIndex],
     });
-    await sliceDeck();
-    await startShuffling(isStartup ? 6 : GAME.CARD_SHUFFLE_ROUNDS);
+  });
+
+  const initializeDeck = $(async function () {
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "initializeDeck");
+    await sliceDeck(); // set to deckSize
+    state.gameData.currentFanOutCardIndex = state.userSettings.deck.size;
   });
 
   const calculateAndResizeBoard = $(function (
@@ -219,23 +260,26 @@ export const useGameContextProvider = ({
     // console.log("game reset");
   });
 
+  const handlers: iGameHandlers = {
+    fanOutCard,
+    shuffleCardPositions,
+    startShuffling,
+    stopShuffling,
+    sliceDeck,
+    initializeDeck,
+    calculateAndResizeBoard,
+    showSettings,
+    hideSettings,
+    isGameEnded,
+    startGame,
+    endGame,
+    resetGame,
+  };
+
   // hold the state, and the functions
   const service = {
     state,
-    handle: {
-      shuffleCardPositions,
-      startShuffling,
-      stopShuffling,
-      sliceDeck,
-      initializeDeck,
-      calculateAndResizeBoard,
-      showSettings,
-      hideSettings,
-      isGameEnded,
-      startGame,
-      endGame,
-      resetGame,
-    } as iGameHandlers,
+    handle: handlers,
     timer,
   };
   // e.g. ctx.state.gameData, ctx.state.boardLayout,

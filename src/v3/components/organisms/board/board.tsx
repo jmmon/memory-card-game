@@ -83,8 +83,8 @@ export default component$<BoardProps>(({ containerRef }) => {
   });
 
   const unflipDebounce = useDebounceSignal<number>({
-    _action$: unflipCard,
     _delay: BOARD.MINIMUM_TIME_BETWEEN_CLICKS,
+    _action$: unflipCard,
   });
 
   // runs when the clicked item is a card
@@ -169,18 +169,18 @@ export default component$<BoardProps>(({ containerRef }) => {
 
   // auto pause after some inactivity
   useTimeoutObj({
-    action: $(() => {
-      ctx.timer.pause();
-      ctx.state.interfaceSettings.settingsModal.isShowing = true;
-      lastClick.value === -1;
-    }),
     triggerCondition: useComputed$(
       () =>
         ctx.timer.state.isStarted &&
         !ctx.timer.state.isEnded &&
         lastClick.value !== -1,
     ),
-    initialDelay: BOARD.AUTO_PAUSE_DELAY_MS,
+    delay: BOARD.AUTO_PAUSE_DELAY_MS,
+    action: $(() => {
+      ctx.timer.pause();
+      ctx.state.interfaceSettings.settingsModal.isShowing = true;
+      lastClick.value === -1;
+    }),
     checkConditionOnTimeout: true,
   });
 
@@ -196,9 +196,6 @@ export default component$<BoardProps>(({ containerRef }) => {
           delay:
             BOARD.MINIMUM_TIME_BETWEEN_CLICKS - (Date.now() - lastClick.value),
         });
-        // runUnflipDebounce(
-        //   BOARD.MINIMUM_TIME_BETWEEN_CLICKS - (Date.now() - lastClick.value)
-        // );
       }
     }),
   );

@@ -24,6 +24,7 @@ import { useVisibilityChange } from "~/v3/hooks/useVisibilityChange/useVisibilit
 import { useGameContextProvider } from "~/v3/services/gameContext.service/gameContext.service";
 import INITIAL_STATE from "~/v3/services/gameContext.service/initialState";
 import type { iUserSettings } from "~/v3/types/types";
+import { header } from "~/v3/constants/header-constants";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
 // export const getKeysIfObject = (obj: object, prefix?: string) => {
@@ -56,6 +57,16 @@ export default component$<GameProps>(
       userSettings: settings,
     });
 
+    useTimeoutObj({
+      triggerCondition: useComputed$(
+        () =>
+          ctx.state.gameData.currentFanOutCardIndex >
+          -ctx.state.gameData.fanOutCardDelayRounds,
+      ),
+      delay: 500, // ms in between cards being fanned out
+      action: ctx.handle.fanOutCard,
+    });
+
     // /* ================================
     //  * Set up scroll detection
     //  *
@@ -73,13 +84,15 @@ export default component$<GameProps>(
      * ================================ */
     useIntervalObj({
       triggerCondition: useComputed$(
-        () => !ctx.timer.state.isStarted && !ctx.timer.state.isEnded,
+        () =>
+          ctx.state.gameData.currentFanOutCardIndex ===
+            -ctx.state.gameData.fanOutCardDelayRounds &&
+          !ctx.timer.state.isStarted &&
+          !ctx.timer.state.isEnded,
       ),
-      action: $(() => {
-        ctx.handle.shuffleCardPositions();
-      }),
-      regularInterval: GAME.AUTO_SHUFFLE_INTERVAL,
       initialDelay: GAME.AUTO_SHUFFLE_DELAY,
+      interval: GAME.AUTO_SHUFFLE_INTERVAL,
+      action: ctx.handle.shuffleCardPositions,
     });
 
     /* ================================
@@ -87,17 +100,17 @@ export default component$<GameProps>(
      * - when shuffling state > 0, we shuffle a round and then decrement
      * ================================ */
     useTimeoutObj({
-      action: $(() => {
-        ctx.handle.shuffleCardPositions();
-        ctx.state.gameData.shufflingState -= 1;
-
-        if (ctx.state.gameData.shufflingState <= 0) ctx.handle.stopShuffling();
-      }),
       triggerCondition: useComputed$(
         () => ctx.state.gameData.shufflingState > 0,
       ),
-      initialDelay:
+      delay:
         BOARD.CARD_SHUFFLE_PAUSE_DURATION + BOARD.CARD_SHUFFLE_ACTIVE_DURATION,
+      action: $(() => {
+        ctx.handle.shuffleCardPositions();
+        ctx.state.gameData.shufflingState--;
+
+        if (ctx.state.gameData.shufflingState <= 0) ctx.handle.stopShuffling();
+      }),
     });
 
     /* ================================
@@ -109,6 +122,11 @@ export default component$<GameProps>(
       triggerCondition: useComputed$(
         () => ctx.state.gameData.mismatchPair !== "",
       ),
+      initialDelay:
+        GAME.SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD,
+      interval:
+        GAME.SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD +
+        BOARD.CARD_SHAKE_ANIMATION_DURATION,
       actionOnStart: $(() => {
         ctx.state.gameData.isShaking = true;
       }),
@@ -116,18 +134,25 @@ export default component$<GameProps>(
         ctx.state.gameData.isShaking = false;
         ctx.state.gameData.mismatchPair = "";
       }),
-      initialDelay:
-        GAME.SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD,
-      interval:
-        GAME.SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD +
-        BOARD.CARD_SHAKE_ANIMATION_DURATION,
+    });
+
+    // reset animations, can do both at same time since only one will trigger per pair selection
+    useTimeoutObj({
+      action: $(() => {
+        ctx.state.interfaceSettings.mismatchAnimation = false;
+        ctx.state.interfaceSettings.successAnimation = false;
+      }),
+      triggerCondition: useComputed$(
+        () =>
+          ctx.state.interfaceSettings.successAnimation ||
+          ctx.state.interfaceSettings.mismatchAnimation,
+      ),
+      delay: header.COUNTER_ANIMATE_DURATION,
     });
 
     // when switching tabs, show settings to pause the game
     useVisibilityChange({
-      onHidden$: $(() => {
-        ctx.handle.showSettings();
-      }),
+      onHidden$: ctx.handle.showSettings,
     });
 
     useOnDocument(

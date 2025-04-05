@@ -12,4 +12,4 @@ export const header = {
   CODE_TEXT_DARK,
   COUNTER_ANIMATE_DURATION,
   SCORE_ANIMATION_CLASSES,
-};
+} as const;
