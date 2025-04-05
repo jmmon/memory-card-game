@@ -1,6 +1,7 @@
 import type { iCard } from "~/v3/types/types";
+import { FULL_DECK } from "./cards";
 
-const FULL_DECK_COUNT = 52;
+const FULL_DECK_COUNT = FULL_DECK.length;
 
 // generates 5 random numbers and concats them as a string
 const genId = (length = 5) =>

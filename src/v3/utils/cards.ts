@@ -1,6 +1,8 @@
 // https://www.me.uk/cards/makeadeck.cgi
 
-export const formattedDeck = [
+import type { iCard } from "../types/types";
+
+export const FULL_DECK: iCard[] = [
   {
     id: 940760,
     text: "AD",
@@ -469,4 +471,4 @@ export const formattedDeck = [
 
     localSVG: "/cards/KS.svg",
   },
-];
+] as const;

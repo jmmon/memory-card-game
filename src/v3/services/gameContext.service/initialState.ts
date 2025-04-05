@@ -10,21 +10,24 @@ import type {
   iInterfaceSettings,
   iTheme,
 } from "~/v3/types/types";
-import { formattedDeck } from "~/v3/utils/cards";
 
 const GAME_DATA: iGameData = {
   gameState: GameStateEnum.IDLE,
   cards: [],
   mismatchPair: "",
-  isShaking: false,
+  isShaking: false, // to show shaking? for mismatch pair. Wonder if can be combined with header mismatchAnimation?
   flippedCardId: -1,
   selectedCardIds: [],
   successfulPairs: [],
   mismatchPairs: [],
   isLoading: true,
+  /** counts down from e.g. 5 to do 5 rounds of card swaps */
   shufflingState: 0,
+  /** which card we are currently dealing from deck, counts down from deckSize */
   currentFanOutCardIndex: 0,
+  /** counter counts past 0 into negative for this many occurrances */
   fanOutCardDelayRounds: 3, // e.g. if 100ms between rounds, 3 => 300ms delay before shuffling, to give time to finish the fan-out animation
+  /** for determining where deck is dealt from */
   startingPosition: { x: 0, y: 0 },
 };
 
@@ -97,30 +100,29 @@ const USER_SETTINGS: iUserSettings = {
   },
 
   interface: {
+    /** developer setting - for testing - also shows card:(index and z-index) */
     showSelectedIds: false,
+    /** developer setting - for testing - in header */
     showDimensions: false,
     // TODO: dark mode features
     // slider to dim the cards, e.g. 100%-10% as alternate to invert
     brightness: 100,
-    // TODO: dark mode features
-    // invert the card colors and hue rotate 180 to fix red
+    /** inverts cards for a dark mode; gets stored in localstorage */
     invertCardColors: false,
   },
 };
 
-// unadjustable settings
-const GAME_SETTINGS: iGameSettings = {
-  cardFlipAnimationDuration: 800,
-
-  deck: {
-    fullDeck: formattedDeck,
-  },
-};
+// unadjustable settings: needed?
+const GAME_SETTINGS: iGameSettings = {};
 
 const INTERFACE_SETTINGS: iInterfaceSettings = {
-  isScrollable: false,
+  isScrollable: false, // not using currently?
+  /** controls score header animations */
   successAnimation: false,
+  /** controls score header animations */
   mismatchAnimation: false,
+
+  /** not used currently */
   inverseSettingsModal: {
     isShowing: false,
   },

@@ -32,12 +32,22 @@ type CardProps = {
 export default component$<CardProps>(({ card, index }) => {
   const ctx = useGameContextService();
 
+  // const isThisRemoved = useComputed$(() =>
+  //   cardUtils.isCardInPairs(ctx.state.gameData.successfulPairs, card.id),
+  // );
+  // remove helper functions that were unnecessary
   const isThisRemoved = useComputed$(() =>
-    cardUtils.isCardInPairs(ctx.state.gameData.successfulPairs, card.id),
+    ctx.state.gameData.successfulPairs.join(",").includes(String(card.id)),
   );
 
+  // const isThisMismatched = useComputed$(() =>
+  //   ctx.state.gameData.mismatchPair.includes(String(card.id)),
+  // );
+  // pull from last pair in array instead:
   const isThisMismatched = useComputed$(() =>
-    ctx.state.gameData.mismatchPair.includes(String(card.id)),
+    ctx.state.gameData.mismatchPairs[
+      ctx.state.gameData.mismatchPairs.length - 1
+    ]?.includes(String(card.id)),
   );
 
   // is our card the flipped card?
@@ -183,9 +193,6 @@ export default component$<CardProps>(({ card, index }) => {
             : 0),
   );
 
-  const opacityEmpty =
-    "calc(var(--card-bg-opacity-empty)*var(--card-bg-opacity-filled))";
-  const opacityFilled = "var(--card-bg-opacity-filled)";
   return (
     <div
       class={`card-shuffle-transform absolute top-0 left-0 flex flex-col justify-center`}

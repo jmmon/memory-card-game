@@ -1,5 +1,5 @@
 import type { QRL } from "@builder.io/qwik";
-import { useTimer } from "./useTimer";
+import type { useTimer } from "./useTimer";
 
 export enum StatusEnum {
   RUNNING = "RUNNING",

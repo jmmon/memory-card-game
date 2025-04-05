@@ -57,6 +57,14 @@ export default component$<GameProps>(
       userSettings: settings,
     });
 
+    /**
+     * runs the fan out card animation, timeout per each round
+     * TODO:
+     * create another helper which runs an interval for x rounds?
+     *  - perhaps also with an additional wait time at the end
+     *    - instead of having it go negative
+     *  - can then run a handler at the end of the whole process
+     * */
     useTimeoutObj({
       triggerCondition: useComputed$(
         () =>
@@ -124,10 +132,10 @@ export default component$<GameProps>(
         () => ctx.state.gameData.mismatchPair !== "",
       ),
       initialDelay:
-        GAME.SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD,
+        GAME.SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD, // e.g. 275ms
       interval:
         GAME.SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD +
-        BOARD.CARD_SHAKE_ANIMATION_DURATION,
+        BOARD.CARD_SHAKE_ANIMATION_DURATION, // e.g. 275 + 600 = 875ms
       actionOnStart: $(() => {
         ctx.state.gameData.isShaking = true;
       }),
@@ -137,18 +145,25 @@ export default component$<GameProps>(
       }),
     });
 
-    // reset animations, can do both at same time since only one will trigger per pair selection
+    /* ================================
+     * Handle Header Score counter animations reset
+     * - when mismatching a pair, pop out the score pairs or mismatches
+     *
+     * probably don't need both of these timeouts?
+     * reset animations, turn them off
+     *    - can do both animations at same time since only one will trigger per pair selection
+     * ================================ */
     useTimeoutObj({
+      triggerCondition: useComputed$(
+        () =>
+          ctx.state.interfaceSettings.successAnimation === true ||
+          ctx.state.interfaceSettings.mismatchAnimation === true,
+      ),
+      delay: header.COUNTER_ANIMATE_DURATION,
       action: $(() => {
         ctx.state.interfaceSettings.mismatchAnimation = false;
         ctx.state.interfaceSettings.successAnimation = false;
       }),
-      triggerCondition: useComputed$(
-        () =>
-          ctx.state.interfaceSettings.successAnimation ||
-          ctx.state.interfaceSettings.mismatchAnimation,
-      ),
-      delay: header.COUNTER_ANIMATE_DURATION,
     });
 
     // when switching tabs, show settings to pause the game

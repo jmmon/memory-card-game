@@ -3,7 +3,7 @@ import type {
   iBoardLayout,
   iCardLayout,
   iCoords,
-  iPair,
+  // iPair,
   iCard,
 } from "~/v3/types/types";
 import GAME from "../constants/game";
@@ -16,18 +16,18 @@ export const ENLARGED_CARD__SCALE_RATIO_VS_LIMITING_DIMENSION = 0.8;
 export const DEFAULT_SHUFFLE_TRANSFORM: iCoords = { x: 0, y: 0 };
 
 // find cardId inside pairs
-const isCardInPairs = (pairs: iPair[], cardId: number) =>
-  pairs.join(",").includes(String(cardId));
+// const isCardInPairs = (pairs: iPair[], cardId: number) =>
+//   pairs.join(",").includes(String(cardId));
 
-function getIdIfNotRemoved(
-  pairs: iPair[],
-  clickedId: number,
-): number | undefined {
-  // check if target is an empty slot
-  const isRemoved = isCardInPairs(pairs, clickedId);
-  if (isRemoved) return undefined;
-  return clickedId;
-}
+// function getIdIfNotRemoved(
+//   pairs: iPair[],
+//   clickedId: number,
+// ): number | undefined {
+//   // check if target is an empty slot
+//   const isRemoved = isCardInPairs(pairs, clickedId);
+//   if (isRemoved) return undefined;
+//   return clickedId;
+// }
 
 function handleAddCardToSelected(selected: number[], id: number) {
   const isSameCardClicked = selected.length === 1 && id === selected[0];
@@ -160,8 +160,8 @@ const generateFlipTranslateTransform = (
 };
 
 const cardUtils = {
-  isCardInPairs,
-  getIdIfNotRemoved,
+  // isCardInPairs,
+  // getIdIfNotRemoved,
   handleAddCardToSelected,
   checkMatch,
   findCardById,

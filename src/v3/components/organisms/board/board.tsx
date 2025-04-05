@@ -29,7 +29,7 @@ export default component$<BoardProps>(({ containerRef }) => {
 
   const lastClick = useSignal(-1);
 
-  const isCardFlipped = useComputed$(
+  const isAnyCardFlipped = useComputed$(
     () => ctx.state.gameData.flippedCardId !== -1,
   );
 
@@ -57,9 +57,6 @@ export default component$<BoardProps>(({ containerRef }) => {
         pair,
       ];
 
-      // TODO:
-      // some success animation to indicate a pair,
-      // like a sparkle or a background blur around the pairs count
       ctx.state.interfaceSettings.successAnimation = true;
     }
 
@@ -108,7 +105,6 @@ export default component$<BoardProps>(({ containerRef }) => {
       if (isFinalPair) {
         ctx.state.gameData.flippedCardId = cardId;
         ctx.timer.pause();
-        // runUnflipDebounce(BOARD.MINIMUM_TIME_BETWEEN_CLICKS);
         unflipDebounce.callDebounce();
         return;
       }
@@ -121,7 +117,7 @@ export default component$<BoardProps>(({ containerRef }) => {
 
   const handleClickCard = $((isClickedOnCard: boolean, clickedId: number) => {
     // unflip card if flipped
-    if (isCardFlipped.value) {
+    if (isAnyCardFlipped.value) {
       unflipCard();
       return;
     }
@@ -156,7 +152,7 @@ export default component$<BoardProps>(({ containerRef }) => {
 
     const isClickedOnCard = !!clickedId;
 
-    if (!isCardFlipped.value && !isClickedOnCard) return;
+    if (!isAnyCardFlipped.value && !isClickedOnCard) return;
 
     clickCardDebounce.callDebounce({
       newValue: {
@@ -167,7 +163,7 @@ export default component$<BoardProps>(({ containerRef }) => {
     });
   });
 
-  // auto pause game after some inactivity
+  // auto pause game after some inactivity (in case you go away)
   useTimeoutObj({
     triggerCondition: useComputed$(
       () =>
@@ -183,22 +179,6 @@ export default component$<BoardProps>(({ containerRef }) => {
     }),
     checkConditionOnTimeout: true,
   });
-
-  /*
-   * niceity: esc will unflip a flipped card
-   * TODO: this plays weird with settings esc key
-   * */
-  // useOnWindow(
-  //   "keydown",
-  //   $((e) => {
-  //     if (e.key === "Escape") {
-  //       unflipDebounce.callDebounce({
-  //         delay:
-  //           BOARD.MINIMUM_TIME_BETWEEN_CLICKS - (Date.now() - lastClick.value),
-  //       });
-  //     }
-  //   }),
-  // );
 
   /*
    * track window resizes to recalculate board
@@ -376,7 +356,7 @@ export default component$<BoardProps>(({ containerRef }) => {
 
   return (
     <div
-      class={`relative h-full max-h-full w-full max-w-full items-center ${isCardFlipped.value ? "cursor-pointer" : ""}`}
+      class={`relative h-full max-h-full w-full max-w-full items-center ${isAnyCardFlipped.value ? "cursor-pointer" : ""}`}
       ref={boardRef}
       onClick$={handleClickBoard$}
       data-label="board"
