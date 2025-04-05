@@ -13,7 +13,6 @@ import type {
 import { formattedDeck } from "~/v3/utils/cards";
 
 const GAME_DATA: iGameData = {
-  isStarted: false,
   cards: [],
   mismatchPair: "",
   isShaking: false,

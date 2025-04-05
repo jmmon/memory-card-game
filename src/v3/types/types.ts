@@ -37,7 +37,6 @@ export enum iSelectCardEnum {
 }
 
 export type iGameData = {
-  isStarted: boolean;
   flippedCardId: number;
   selectedCardIds: number[];
   successfulPairs: iPair[];

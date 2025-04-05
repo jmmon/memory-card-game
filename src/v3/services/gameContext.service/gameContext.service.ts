@@ -242,7 +242,6 @@ export const useGameContextProvider = ({
 
     // state.gameData = { ...INITIAL_STATE.gameData };
 
-    state.gameData.isStarted = INITIAL_STATE.gameData.isStarted;
     state.gameData.isLoading = INITIAL_STATE.gameData.isLoading;
     state.gameData.isShaking = INITIAL_STATE.gameData.isShaking;
     state.gameData.shufflingState = INITIAL_STATE.gameData.shufflingState;
