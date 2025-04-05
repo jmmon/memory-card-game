@@ -57,9 +57,6 @@ function v3Shuffle_FY_algo<T>(_array: T[]): T[] {
     const temp = array[i];
     array[i] = array[j];
     array[j] = temp;
-
-    // swap the two using destructuring
-    // [array[i], array[j]] = [array[j], array[i]];
   }
   return array;
 }
@@ -87,20 +84,21 @@ function buildArrOfPairs(fullDeck: iCard[]) {
 }
 
 function unbuildArrOfPairs(arrOfPairs: Array<[iCard, iCard]>) {
-  const deck = [];
-  for (let i = 0; i < arrOfPairs.length; i++) {
-    const thisPair = arrOfPairs[i];
-    deck.push(thisPair[0], thisPair[1]);
-  }
-  return deck;
+  // const deck = [];
+  // for (let i = 0; i < arrOfPairs.length; i++) {
+  //   deck.push(...arrOfPairs[i]);
+  // }
+  // return deck;
+
+  return arrOfPairs.flat();
 }
 
 function shuffleDeckAndRefreshIds(fullDeck: iCard[]) {
   const pairs = buildArrOfPairs(fullDeck);
 
-  // refresh card ids between games, hopefully fixes the render issue
-  // of cards missing after game reset
-  const withRefreshedIds = pairs.map((pair) => refreshPairsId(pair));
+  // refresh card ids between games,
+  // hopefully fixes the render issue of cards missing after game reset
+  const withRefreshedIds = pairs.map(refreshPairsId);
 
   // console.log("fn shuffleByPairs:", { deck, pairs });
 

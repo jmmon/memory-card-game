@@ -23,6 +23,8 @@ const GAME_DATA: iGameData = {
   mismatchPairs: [],
   isLoading: true,
   shufflingState: 0,
+  currentFanOutCardIndex: 0,
+  fanOutCardDelayRounds: 3,
 };
 
 // user controlled settings

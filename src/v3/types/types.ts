@@ -81,6 +81,8 @@ export type iGameData = {
   isShaking: boolean;
   isLoading: boolean;
   shufflingState: number;
+  currentFanOutCardIndex: number;
+  fanOutCardDelayRounds: number;
 };
 
 export type iInterfaceSettings = {
@@ -112,6 +114,7 @@ export type iGameState = {
 };
 
 export type iGameHandlers = {
+  fanOutCard: QRL<() => void>;
   shuffleCardPositions: QRL<() => void>;
   sliceDeck: QRL<() => void>;
   resetGame: QRL<(settings?: Partial<iUserSettings>) => void>;

@@ -1,35 +1,9 @@
-import {
-  $,
-  component$,
-  useComputed$,
-  useStylesScoped$,
-} from "@builder.io/qwik";
+import { component$, useStylesScoped$ } from "@builder.io/qwik";
 import { header } from "~/v3/constants/header-constants";
-import { useTimeoutObj } from "~/v3/hooks/useTimeout";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 
 export default component$(() => {
   const ctx = useGameContextService();
-
-  useTimeoutObj({
-    action: $(() => {
-      ctx.state.interfaceSettings.successAnimation = false;
-    }),
-    triggerCondition: useComputed$(
-      () => ctx.state.interfaceSettings.successAnimation,
-    ),
-    initialDelay: header.COUNTER_ANIMATE_DURATION,
-  });
-
-  useTimeoutObj({
-    action: $(() => {
-      ctx.state.interfaceSettings.mismatchAnimation = false;
-    }),
-    triggerCondition: useComputed$(
-      () => ctx.state.interfaceSettings.mismatchAnimation,
-    ),
-    initialDelay: header.COUNTER_ANIMATE_DURATION,
-  });
 
   // const mismatchAnimation = useComputed$(() => {
   //   if (!ctx.state.interfaceSettings.mismatchAnimation) return false;

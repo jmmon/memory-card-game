@@ -11,7 +11,7 @@ const logger = (
 ) => {
   if (GAME.DEBUG[type] >= logLevel) {
     const now = performance.now();
-    const time = `${now.toFixed(1)}`;
+    const time = `${(now / 1000).toFixed(4)}`;
     console.log(time, ...logArgs);
   }
 };

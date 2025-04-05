@@ -47,9 +47,9 @@ type Debug = {
 
 const isProd = import.meta.env.PROD;
 const DEBUG: Debug = {
-  HANDLER: isProd ? 0 : 0,
-  HOOK: isProd ? 0 : 0, //LogLevel.TWO,
-  TASK: isProd ? 0 : 0,
+  HANDLER: isProd ? 0 : LogLevel.ONE,
+  HOOK: isProd ? 0 : LogLevel.TWO,
+  TASK: isProd ? 0 : LogLevel.ONE,
   SERVICE: isProd ? 0 : 0,
   RENDER: isProd ? 0 : 0,
 } as const;
@@ -75,7 +75,6 @@ const MAX_CARD_COUNT = 52 as const;
 
 const DATA_THEME = "data-theme" as const;
 const STORAGE_KEY_THEME = "theme" as const;
-// separate export since it's circular
 
 const GAME = {
   AUTO_SHUFFLE_INTERVAL,
