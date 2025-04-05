@@ -182,6 +182,10 @@ export default component$<CardProps>(({ card, index }) => {
             ? 180 // applies when flipping down
             : 0),
   );
+
+  const opacityEmpty =
+    "calc(var(--card-bg-opacity-empty)*var(--card-bg-opacity-filled))";
+  const opacityFilled = "var(--card-bg-opacity-filled)";
   return (
     <div
       class={`card-shuffle-transform absolute top-0 left-0 flex flex-col justify-center`}
@@ -199,7 +203,11 @@ export default component$<CardProps>(({ card, index }) => {
       data-position={card.position}
     >
       <div
-        class={`box-content border border-slate-600 mx-auto bg-[var(--card-bg)]`}
+        class={`box-content border border-slate-400 mx-auto bg-slate-700 transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
+          isThisRemoved.value
+            ? `bg-opacity-[calc(var(--card-bg-opacity-empty)*var(--card-bg-opacity-filled))] border-opacity-[calc(var(--card-bg-opacity-empty)*var(--card-bg-opacity-filled))]`
+            : `bg-opacity-[var(--card-bg-opacity-filled)] border-opacity-[var(--card-bg-opacity-filled)]`
+        }`}
         style={{
           // slightly smaller to give some gap between the rows
           borderRadius: ctx.state.cardLayout.roundedCornersPx + "px",
@@ -213,9 +221,9 @@ export default component$<CardProps>(({ card, index }) => {
           data-id={card.id}
           data-label="card-slot-shaking"
           class={
-            `box-content w-full border border-slate-400 bg-[var(--card-bg)] transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ` +
+            `box-content w-full transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ` +
             (isCardFlipped.value
-              ? ""
+              ? "cursor-pointer"
               : (isThisRemoved.value &&
                 ctx.state.gameData.flippedCardId !== card.pairId
                   ? " pointer-events-none scale-[110%] opacity-0 "
