@@ -1,4 +1,5 @@
 import type { QRL } from "@builder.io/qwik";
+import { useTimer } from "./useTimer";
 
 export type Status = "RUNNING" | "STOPPED";
 
@@ -22,3 +23,5 @@ export type UseTimerOpts = {
   onResume$: QRL<() => void>;
   isPaused: boolean;
 };
+
+export type iTimer = ReturnType<typeof useTimer>;

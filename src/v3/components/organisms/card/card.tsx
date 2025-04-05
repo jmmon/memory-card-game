@@ -112,14 +112,15 @@ export default component$<CardProps>(({ card, index }) => {
       ctx.state.boardLayout.columns,
     ]);
 
-    // for -1 case, can tweak the row/col counts passed in to change starting position
-    const newCoords = cardUtils.getXYFromPosition(
-      card.position,
-      ctx.state.boardLayout.columns,
-      // card.position === -1 ? ctx.state.boardLayout.rows : undefined, // start in center of board
-      // card.position === -1 ? 0 : undefined, // start at top-center, on top of Settings button
-      card.position === -1 ? ctx.state.boardLayout.rows : undefined, // start at bottom center
-    );
+    // for -1 case, can tweak constants to change percent positions for deck initialization
+    //    startingPosition is calculated inside handle.initializeDeck
+    const newCoords =
+      card.position === -1
+        ? ctx.state.gameData.startingPosition
+        : cardUtils.getXYFromPosition(
+            card.position,
+            ctx.state.boardLayout.columns,
+          );
 
     shuffleTransform.value = cardUtils.generateShuffleTranslateTransformPercent(
       ctx.state.cardLayout,

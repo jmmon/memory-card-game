@@ -56,24 +56,15 @@ const findCardById = (cards: iCard[], id: number) =>
  *    for rowCount === 4 we have 0, 1, 2, 3 for y => 1.5 is the center
  *    ...same math!
  *    divide (rowCount - 1) by 2
- *
- * works, except I am currently skipping index 0 when fanning out,
- * so need to hit all cards instead of skipping fijrst
  * */
 const generateCenterCoords = (cols: number, rows: number) => {
   const { percentX, percentY } =
     GAME.DECK_INITIALIZATION_START_POSITION_BOARD_PERCENTS;
-  // card.position === -1 ? rows : undefined, // start in center of board
-  // card.position === -1 ? 0 : undefined, // start at top-center, on top of Settings button
-  // card.position === -1 ? rows * 2 - 0.4 : undefined, // start at bottom center
 
-  // need to translate percents into the x-y coords
-  const coords = {
+  return {
     x: (cols - 1) * percentX,
     y: (rows - 1) * percentY,
   };
-
-  return coords;
 };
 
 /**
@@ -85,17 +76,10 @@ const generateCenterCoords = (cols: number, rows: number) => {
  * if position === -1 then rowCount should be defined
  * this is for initialization when dealing out cards
  * */
-const getXYFromPosition = (
-  position: number,
-  columnCount: number,
-  rowCount?: number,
-) =>
-  position === -1 && rowCount !== undefined
-    ? generateCenterCoords(columnCount, rowCount)
-    : {
-        x: position % columnCount,
-        y: Math.floor(position / columnCount),
-      };
+const getXYFromPosition = (position: number, columnCount: number) => ({
+  x: position % columnCount,
+  y: Math.floor(position / columnCount),
+});
 /*
  * generates percentage shift for moving the cards during shuffling
  * from origin:[0,0] (top left) to destination:newCoords
@@ -184,6 +168,7 @@ const cardUtils = {
   getXYFromPosition,
   generateShuffleTranslateTransformPercent,
   generateFlipTranslateTransform,
+  generateCenterCoords,
 };
 
 export default cardUtils;
