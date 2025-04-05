@@ -67,7 +67,7 @@ export default component$<BoardProps>(({ containerRef }) => {
     ctx.state.gameData.selectedCardIds = [];
 
     // finally finally, check for end conditions
-    ctx.handle.isGameEnded().then((res) => {
+    ctx.handle.isEndGameConditionsMet().then((res) => {
       if (res.isEnded) {
         ctx.handle.endGame(res.isWin);
       }
@@ -143,20 +143,20 @@ export default component$<BoardProps>(({ containerRef }) => {
   }>({
     _action$: $((newValue: { isClickedOnCard: boolean; clickedId: number }) => {
       const { isClickedOnCard, clickedId } = newValue;
-      handleClickCard(isClickedOnCard, clickedId as number);
+      handleClickCard(isClickedOnCard, clickedId);
     }),
     _delay: BOARD.MINIMUM_TIME_BETWEEN_CLICKS,
   });
 
   const handleClickBoard$ = $((e: MouseEvent) => {
-    const isCardFlipped = ctx.state.gameData.flippedCardId !== -1;
     // attempt to get the card id if click is on a card
     // removed cards don't intercept click events, so they're filtered out automatically
+    // checks the data-id attribute, so whatever part of the card has that MUST take pointer events
     const clickedId = Number((e.target as HTMLElement).dataset.id) || false;
 
     const isClickedOnCard = !!clickedId;
 
-    if (!isClickedOnCard && !isCardFlipped) return;
+    if (!isCardFlipped.value && !isClickedOnCard) return;
 
     clickCardDebounce.callDebounce({
       newValue: {
@@ -167,7 +167,7 @@ export default component$<BoardProps>(({ containerRef }) => {
     });
   });
 
-  // auto pause after some inactivity
+  // auto pause game after some inactivity
   useTimeoutObj({
     triggerCondition: useComputed$(
       () =>
@@ -188,17 +188,17 @@ export default component$<BoardProps>(({ containerRef }) => {
    * niceity: esc will unflip a flipped card
    * TODO: this plays weird with settings esc key
    * */
-  useOnWindow(
-    "keydown",
-    $((e) => {
-      if ((e as KeyboardEvent).key === "Escape") {
-        unflipDebounce.callDebounce({
-          delay:
-            BOARD.MINIMUM_TIME_BETWEEN_CLICKS - (Date.now() - lastClick.value),
-        });
-      }
-    }),
-  );
+  // useOnWindow(
+  //   "keydown",
+  //   $((e) => {
+  //     if (e.key === "Escape") {
+  //       unflipDebounce.callDebounce({
+  //         delay:
+  //           BOARD.MINIMUM_TIME_BETWEEN_CLICKS - (Date.now() - lastClick.value),
+  //       });
+  //     }
+  //   }),
+  // );
 
   /*
    * track window resizes to recalculate board
@@ -235,7 +235,7 @@ export default component$<BoardProps>(({ containerRef }) => {
     }),
   );
 
-  const adjustDeckSize = $((newDeckSize: number) => {
+  const handleUpdateDeckSize = $((newDeckSize: number) => {
     lastDeckSize.value = newDeckSize;
 
     if (ctx.state.userSettings.deck.isLocked) return;
@@ -274,7 +274,7 @@ export default component$<BoardProps>(({ containerRef }) => {
       //   last: lastDeckSize.value,
       //   new: newDeckSize,
       // });
-      adjustDeckSize(newDeckSize);
+      handleUpdateDeckSize(newDeckSize);
       return;
     }
 
@@ -299,6 +299,7 @@ export default component$<BoardProps>(({ containerRef }) => {
   });
 
   useStyles$(`
+/* move to global? unless it uses variables */
     .card-face img {
       width: 100%;
       height: auto;
@@ -375,7 +376,7 @@ export default component$<BoardProps>(({ containerRef }) => {
 
   return (
     <div
-      class="relative h-full max-h-full w-full max-w-full items-center "
+      class={`relative h-full max-h-full w-full max-w-full items-center ${isCardFlipped.value ? "cursor-pointer" : ""}`}
       ref={boardRef}
       onClick$={handleClickBoard$}
       data-label="board"

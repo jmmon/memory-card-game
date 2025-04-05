@@ -12,10 +12,11 @@ import deckUtils from "~/v3/utils/deckUtils";
 import boardUtils from "~/v3/utils/boardUtils";
 import INITIAL_STATE from "./initialState";
 import GAME, { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
-import type {
-  iGameHandlers,
-  iGameState,
-  iUserSettings,
+import {
+  GameStateEnum,
+  type iGameHandlers,
+  type iState,
+  type iUserSettings,
 } from "~/v3/types/types";
 import logger from "../logger";
 import cardUtils from "~/v3/utils/cardUtils";
@@ -31,7 +32,7 @@ export const useGameContextProvider = ({
 }) => {
   // state
   const timer: iTimer = useTimer();
-  const state = useStore<iGameState>({
+  const state = useStore<iState>({
     ...INITIAL_STATE,
     userSettings: {
       ...userSettings,
@@ -188,7 +189,23 @@ export const useGameContextProvider = ({
     });
   });
 
-  const isGameEnded = $(function () {
+  const showEndGameModal = $(function () {
+    state.interfaceSettings.endOfGameModal.isShowing = true;
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "showEndGameModal:", {
+      interfaceSettingsEndOfGameModalIsShowing:
+        state.interfaceSettings.endOfGameModal.isShowing,
+    });
+  });
+
+  const hideEndGameModal = $(function () {
+    state.interfaceSettings.endOfGameModal.isShowing = false;
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "hideEndGameModal:", {
+      interfaceSettingsEndOfGameModalIsShowing:
+        state.interfaceSettings.endOfGameModal.isShowing,
+    });
+  });
+
+  const isEndGameConditionsMet = $(function () {
     // TODO:
     // implement other modes, like max mismatches
     const isEnded =
@@ -199,7 +216,7 @@ export const useGameContextProvider = ({
       state.gameData.successfulPairs.length ===
       state.userSettings.deck.size / 2;
 
-    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "isGameEnded:", {
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "isEndGameConditionsMet:", {
       isEnded,
       isWin,
     });
@@ -209,19 +226,23 @@ export const useGameContextProvider = ({
   });
 
   const startGame = $(function () {
-    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "startGame:", {
-      isResetting: timer.state.isStarted,
-    });
+    state.gameData.gameState = GameStateEnum.STARTED;
     if (timer.state.isStarted) {
       timer.reset();
     }
     timer.start();
+
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "startGame:", {
+      isResetting: timer.state.isStarted,
+    });
   });
 
   const endGame = $(function (isWin: boolean) {
+    state.gameData.gameState = GameStateEnum.ENDED;
     timer.stop();
     state.interfaceSettings.endOfGameModal.isWin = isWin;
     state.interfaceSettings.endOfGameModal.isShowing = true;
+
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "endGame:", {
       isResetting: timer.state.isStarted,
       isWin: state.interfaceSettings.endOfGameModal.isWin,
@@ -240,25 +261,17 @@ export const useGameContextProvider = ({
       };
     }
 
-    // state.gameData = { ...INITIAL_STATE.gameData };
-
+    state.gameData.gameState = INITIAL_STATE.gameData.gameState;
     state.gameData.isLoading = INITIAL_STATE.gameData.isLoading;
     state.gameData.isShaking = INITIAL_STATE.gameData.isShaking;
     state.gameData.shufflingState = INITIAL_STATE.gameData.shufflingState;
     state.gameData.flippedCardId = INITIAL_STATE.gameData.flippedCardId;
     state.gameData.mismatchPair = INITIAL_STATE.gameData.mismatchPair;
 
-    state.gameData.selectedCardIds = [
-      ...INITIAL_STATE.gameData.selectedCardIds,
-    ];
     state.gameData.cards = [...INITIAL_STATE.gameData.cards];
-    // state.gameData.mismatchPairs = [...INITIAL_STATE.gameData.mismatchPairs];
-    // state.gameData.successfulPairs = [
-    //   ...INITIAL_STATE.gameData.successfulPairs,
-    // ];
-    // state.gameData.mismatchPairs = INITIAL_STATE.gameData.mismatchPairs;
-    // state.gameData.successfulPairs = INITIAL_STATE.gameData.successfulPairs;
 
+    // hack to ensure the lengths change to update state (particularly for mismatch and success pairs)
+    state.gameData.selectedCardIds.length = 0;
     state.gameData.mismatchPairs.length = 0;
     state.gameData.successfulPairs.length = 0;
 
@@ -281,7 +294,9 @@ export const useGameContextProvider = ({
     calculateAndResizeBoard,
     showSettings,
     hideSettings,
-    isGameEnded,
+    showEndGameModal,
+    hideEndGameModal,
+    isEndGameConditionsMet,
     startGame,
     endGame,
     resetGame,

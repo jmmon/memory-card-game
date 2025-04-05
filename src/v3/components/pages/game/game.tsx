@@ -23,7 +23,7 @@ import BOARD from "~/v3/constants/board";
 import { useVisibilityChange } from "~/v3/hooks/useVisibilityChange/useVisibilityChange";
 import { useGameContextProvider } from "~/v3/services/gameContext.service/gameContext.service";
 import INITIAL_STATE from "~/v3/services/gameContext.service/initialState";
-import type { iUserSettings } from "~/v3/types/types";
+import { GameStateEnum, type iUserSettings } from "~/v3/types/types";
 import { header } from "~/v3/constants/header-constants";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
@@ -160,13 +160,24 @@ export default component$<GameProps>(
       "keydown",
       $((event: KeyboardEvent) => {
         if (event.key !== "Escape") return;
-        if (
-          ctx.state.gameData.flippedCardId !==
-          INITIAL_STATE.gameData.flippedCardId
-        )
-          return;
+        // if (
+        //   ctx.state.gameData.flippedCardId !==
+        //   INITIAL_STATE.gameData.flippedCardId
+        // )
+        //   return;
         // if (ctx.state.gameData.isLoading) return;
-        if (ctx.state.interfaceSettings.endOfGameModal.isShowing) return;
+        // if is game ended then toggle the end game modal?
+        if (
+          ctx.state.gameData.gameState === GameStateEnum.ENDED &&
+          !ctx.state.interfaceSettings.settingsModal.isShowing
+        ) {
+          if (ctx.state.interfaceSettings.endOfGameModal.isShowing) {
+            ctx.handle.hideEndGameModal();
+          } else {
+            ctx.handle.showEndGameModal();
+          }
+          return;
+        }
 
         if (ctx.state.interfaceSettings.settingsModal.isShowing) {
           ctx.handle.hideSettings();
