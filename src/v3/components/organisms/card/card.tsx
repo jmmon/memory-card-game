@@ -147,6 +147,36 @@ export default component$<CardProps>(({ card, index }) => {
   // if flipTrasnform.value.translateX > 0, we're moving to the right. We should be higher z-index since we are on the left. And vice versa.
   // if tarnslateY > 0, we're moving down. We should be higher z-index since we are on the top. And vice versa.
   // (middle should have the lowest z-index)
+
+  // for current fan-out card, make it higher z-index
+  const zIndex = useComputed$(() =>
+    ctx.state.gameData.isLoading
+      ? ctx.state.userSettings.deck.size -
+          ctx.state.gameData.currentFanOutCardIndex ===
+        index
+        ? 1
+        : -1
+      : Math.floor(
+          // use coords to create gradient of z-index, lowest in center and highest on edges/corners
+          (Math.abs(
+            (flipTransform.value.translateX === 0
+              ? 0
+              : flipTransform.value.translateX) / 50,
+          ) +
+            Math.abs(
+              flipTransform.value.translateY === 0
+                ? 0
+                : flipTransform.value.translateY / 50,
+            )) /
+            2,
+        ) +
+        // extra z-index for cards being flipped
+        (isCardFlipped.value
+          ? 240 // applies while card is first clicked
+          : isFaceShowing.value || matchHideDelay.value
+            ? 180 // applies when flipping down
+            : 0),
+  );
   return (
     <div
       class={`card-shuffle-transform absolute top-0 left-0 flex flex-col justify-center`}
@@ -156,29 +186,8 @@ export default component$<CardProps>(({ card, index }) => {
         height: ctx.state.cardLayout.height + "px",
         borderRadius: ctx.state.cardLayout.roundedCornersPx + "px",
         aspectRatio: BOARD.CARD_RATIO,
-        zIndex:
-          index +
-          // use coords to create gradient of z-index, lowest in center and highest on edges/corners
-          Math.floor(
-            (Math.abs(
-              (flipTransform.value.translateX === 0
-                ? 0
-                : flipTransform.value.translateX) / 50,
-            ) +
-              Math.abs(
-                flipTransform.value.translateY === 0
-                  ? 0
-                  : flipTransform.value.translateY / 50,
-              )) /
-              2,
-          ) +
-          // extra z-index for cards being flipped
-          (isCardFlipped.value
-            ? 240 // applies while card is first clicked
-            : isFaceShowing.value || matchHideDelay.value
-              ? 180 // applies when flipping down
-              : 0), // applies otherwise (when face down);
-
+        // applies otherwise (when face down);
+        zIndex: zIndex.value,
         transform: shuffleTransform.value,
       }}
       data-label="card-slot-container"
@@ -217,6 +226,14 @@ export default component$<CardProps>(({ card, index }) => {
             aspectRatio: BOARD.CARD_RATIO,
           }}
         >
+          {ctx.state.userSettings.interface.showSelectedIds && (
+            <div class="bg-emerald-700 flex pointer-events-none w-[4em] h-[2em] justify-center items-center shadow absolute text-sm sm:text-lg lg:text-3xl z-50">
+              <span class="text-slate-400">i:</span>
+              {index}
+              <span class="text-slate-400">, z:</span>
+              {zIndex.value}
+            </div>
+          )}
           <CardFlippingWrapper
             card={card}
             isSelected={isSelected}

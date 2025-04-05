@@ -63,7 +63,7 @@ export default component$<GameProps>(
           ctx.state.gameData.currentFanOutCardIndex >
           -ctx.state.gameData.fanOutCardDelayRounds,
       ),
-      delay: 500, // ms in between cards being fanned out
+      delay: 75, // ms in between cards being fanned out
       action: ctx.handle.fanOutCard,
     });
 
