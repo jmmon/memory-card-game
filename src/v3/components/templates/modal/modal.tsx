@@ -41,14 +41,15 @@ export default component$<ModalProps>(
       }
     });
 
+    // bg z-index needs to be more than card flip z-index (30) but less than header z-index (50)
     return (
       <div
+        data-name="background"
         class={`top-0 left-0 absolute w-full h-full bg-black flex justify-center items-center transition-all ${DURATION} ${
           isShowing
-            ? `pointer-events-auto ${bgClasses} z-[1000] bg-opacity-30 `
+            ? `pointer-events-auto ${bgClasses} z-[49] bg-opacity-20 `
             : "pointer-events-none z-[-1] bg-opacity-0"
         }`}
-        data-name="background"
         onClick$={closeModal$}
         style={bgStyles}
       >

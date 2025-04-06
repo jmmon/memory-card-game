@@ -16,6 +16,7 @@ export enum DebugTypeEnum {
   TASK = "TASK",
   SERVICE = "SERVICE",
   RENDER = "RENDER",
+  UTIL = "UTIL",
 }
 export type DebugType = keyof typeof DebugTypeEnum;
 
@@ -25,15 +26,17 @@ type Debug = {
   TASK: 0 | LogLevelValue;
   SERVICE: 0 | LogLevelValue;
   RENDER: 0 | LogLevelValue;
+  UTIL: 0 | LogLevelValue;
 };
 
 const isProd = import.meta.env.PROD;
 const DEBUG: Debug = {
-  HANDLER: isProd ? 0 : LogLevel.ONE,
+  HANDLER: isProd ? 0 : 0, //LogLevel.ONE,
   HOOK: isProd ? 0 : 0, //LogLevel.TWO,
-  TASK: isProd ? 0 : LogLevel.ONE,
+  TASK: isProd ? 0 : 0, //LogLevel.ONE,
   SERVICE: isProd ? 0 : 0,
   RENDER: isProd ? 0 : 0,
+  UTIL: isProd ? 0 : LogLevel.ONE,
 } as const;
 
 const AUTO_SHUFFLE_INTERVAL = 10000 as const;
@@ -51,9 +54,12 @@ const SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD =
 
 const CONTAINER_PADDING_PERCENT = 1.5 as const;
 
-const DECK_SIZE_DEFAULT = isProd ? 18 : (52 as const);
+const DECK_SIZE_DEFAULT = isProd ? 18 : (18 as const);
 const DECK_SIZE_MIN = 6 as const;
 const DECK_SIZE_MAX = 52 as const;
+
+const FAN_OUT_DURATION_BASE_MS = 1500 as const;
+const FAN_OUT_DURATION_ADDITIONAL_PER_CARD_MS = 35 as const;
 
 /**
  * dictate starting position of deck when dealing out cards on initialization
@@ -62,33 +68,16 @@ const DECK_SIZE_MAX = 52 as const;
  *    e.g. perhaps x: -.01, y: 0.5 to start slightly further off the left side
  * percents of board dimensions, so does not take into account the header (padding)
  *
- * TODO: error:
- * this is proportionate to the row/col height/widths  so doesn't scale as rows/cols counts increase/decrease
- *    - so on small deck sizes, since rows are large, we need a large number
- *    - but on large deck sizes, a large number will add a ton of distance
- *    - e.g. for going > 1 for the percents
- *    - e.g. 1.1 x => for 52 cards, deck is approximately half off the right side of screen
- *        but for 6 cards, the entire card is on the screen, only slightly offset from right col
- * should be instead a percent of e.g. board width rather than column count
- * because 3col * 1.1 => 3.3 which is about 15% past the column
- * while 8col * 1.1 = 8.8 which is 40% past the column
- *
- * TODO: also, large deck sizes take a long time to deal...
- *
- * NOTE: so these are board slots, e.g. 1,1 is the last slot and the last row,
- *  while 0,0 is the first slot and the first row
- *  - that's why it doesn't scale well, because at 3 cols 2 rows then the step between cols is 0, 0.5, 1 === 0.5 per step, so it takes 0.5 to move an entire slot over
- *  but at 8 cols * 6 rows is ~0.14 per step, so it only takes 0.14 to move an entire slot over
- *    - perhaps take the card-scale into account? cardLayout
- *    or have a secondary number to account for extra padding, along with the regular x and y
- *
- *  - or have the deck be a standard size no matter the board layout? e.g. 150 * 250 or whatever (or a percent of width/height so it's responsive)
- *    - like the scale up transform, how it is limited by either height or width, but with a lot more padding so it only takes up 1/3 of the board
- *    - or 1/4 or less, not sure
+ * Percents are now adjusted if above 1 or below 0 so they are not real percents.
+ *  - They are accurate to the x-y col/row coords if within 0 to 1
+ *    e.g. 1 === last column/row, 0 === first column/row
+ *  - If > 1 or < 0, it will adjust the extra to be proportional to the rows/cols
+ *  - this way the position is consistent across deck sizes when placed
+ *    above 1 or below 0, but it might not work as initially expected
  * */
 const DECK_INITIALIZATION_START_POSITION_BOARD_PERCENTS = {
-  percentX: 0.5,
-  percentY: 0.5,
+  percentX: 1,
+  percentY: 1.6,
 } as const;
 
 const DATA_THEME = "data-theme" as const;
@@ -106,6 +95,8 @@ const GAME = {
   DECK_SIZE_MIN,
   DECK_SIZE_MAX,
   DECK_INITIALIZATION_START_POSITION_BOARD_PERCENTS,
+  FAN_OUT_DURATION_BASE_MS,
+  FAN_OUT_DURATION_ADDITIONAL_PER_CARD_MS,
   DATA_THEME,
   STORAGE_KEY_THEME,
   ThemeEnum,

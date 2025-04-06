@@ -24,13 +24,8 @@ export default component$(() => {
   );
 
   const saveOrResetSettings = $(async (newSettings?: Signal<iUserSettings>) => {
-    ctx.handle
-      .resetGame(newSettings ? newSettings.value : undefined)
-      .then(() => {
-        // resync and hide modal after new settings are saved
-        // console.log("game reset", ctx);
-        ctx.handle.hideSettings();
-      });
+    ctx.handle.resetGame(newSettings ? newSettings.value : undefined);
+    ctx.handle.hideSettings();
   });
 
   // resync when showing or hiding modal e.g. if home changed settings but didn't save

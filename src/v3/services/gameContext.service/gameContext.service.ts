@@ -61,7 +61,7 @@ export const useGameContextProvider = ({
     state.gameData.isLoading = true;
     state.interfaceSettings.settingsModal.isShowing = false;
 
-    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "~~startShuffling:", {
+    logger(DebugTypeEnum.HANDLER, LogLevel.TWO, "~~startShuffling:", {
       gameDataShufflingState: state.gameData.shufflingState,
       gameDataIsLoading: state.gameData.isLoading,
       interfaceSettingsSettingsModalIsShowing:
@@ -95,13 +95,16 @@ export const useGameContextProvider = ({
 
   const fanOutCard = $(function () {
     state.gameData.currentFanOutCardIndex--;
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "fanOutCard:", {
+      currentFanOutCardIndex: state.gameData.currentFanOutCardIndex,
+    });
     // for skipping, gives a break before shuffle
     if (
       state.gameData.currentFanOutCardIndex < 1 &&
       state.gameData.currentFanOutCardIndex >
         -(state.gameData.fanOutCardDelayRounds - 1)
     ) {
-      logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "~~ fanOutCard: paused", {
+      logger(DebugTypeEnum.HANDLER, LogLevel.TWO, "~~ fanOutCard: paused", {
         currentFanOutCardIndex: state.gameData.currentFanOutCardIndex,
       });
       return;
@@ -114,7 +117,7 @@ export const useGameContextProvider = ({
       const pausedDuration = Date.now() - lastFanOut.value;
       logger(
         DebugTypeEnum.HANDLER,
-        LogLevel.ONE,
+        LogLevel.TWO,
         "~~ fanOutCard: startShuffling",
         {
           currentFanOutCardIndex: state.gameData.currentFanOutCardIndex,
@@ -128,7 +131,7 @@ export const useGameContextProvider = ({
     const currentIndex =
       state.userSettings.deck.size - state.gameData.currentFanOutCardIndex;
     state.gameData.cards[currentIndex].position = currentIndex;
-    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "fanOutCard:", {
+    logger(DebugTypeEnum.HANDLER, LogLevel.TWO, "fanOutCard:", {
       currentFanOutCardIndex: state.gameData.currentFanOutCardIndex,
       currentCard: state.gameData.cards[currentIndex],
     });
@@ -284,6 +287,7 @@ export const useGameContextProvider = ({
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "resetGame:", {
       newSettings: newSettings,
     });
+    state.gameData.isLoading = true;
     if (newSettings !== undefined) {
       state.userSettings = {
         ...state.userSettings,
@@ -304,7 +308,6 @@ export const useGameContextProvider = ({
     }
 
     state.gameData.gameState = INITIAL_STATE.gameData.gameState;
-    state.gameData.isLoading = INITIAL_STATE.gameData.isLoading;
     state.gameData.isShaking = INITIAL_STATE.gameData.isShaking;
     state.gameData.shufflingState = INITIAL_STATE.gameData.shufflingState;
     state.gameData.flippedCardId = INITIAL_STATE.gameData.flippedCardId;

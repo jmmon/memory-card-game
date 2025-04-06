@@ -139,17 +139,6 @@ export default component$(() => {
     isClickedOnCard: boolean;
     clickedId: number;
   }>({
-    // _action$: $(
-    //   ({
-    //     isClickedOnCard,
-    //     clickedId,
-    //   }: {
-    //     isClickedOnCard: boolean;
-    //     clickedId: number;
-    //   }) => {
-    //     handleClickCard({ isClickedOnCard, clickedId });
-    //   },
-    // ),
     _action$: handleClickCard,
     _delay: BOARD.MINIMUM_TIME_BETWEEN_CLICKS,
   });
@@ -162,7 +151,12 @@ export default component$(() => {
 
     const isClickedOnCard = !!clickedId;
 
-    if (isAnyCardFlipped.value || isClickedOnCard) return;
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "handleClickBoard", {
+      isAnyCardFlipped: isAnyCardFlipped.value,
+      clickedId,
+    });
+
+    if (!isAnyCardFlipped.value && !isClickedOnCard) return;
 
     clickCardDebounce.callDebounce({
       newValue: {
@@ -211,7 +205,7 @@ export default component$(() => {
       logger(
         DebugTypeEnum.TASK,
         LogLevel.ONE,
-        "UVT: handleUpdateDeckSize on decksize change",
+        "UVT: decksize change => calculateAndResizeBoard",
         {
           boardIsLocked: ctx.state.userSettings.board.isLocked,
           deckIsLocked: ctx.state.userSettings.deck.isLocked,
@@ -238,7 +232,7 @@ export default component$(() => {
     logger(
       DebugTypeEnum.TASK,
       LogLevel.ONE,
-      "UVT: calculateAndResize on mount before init",
+      "UVT: mount => calculateAndResize",
     );
     await ctx.handle.calculateAndResizeBoard();
 
