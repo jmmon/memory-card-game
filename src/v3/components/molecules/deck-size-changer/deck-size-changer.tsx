@@ -6,7 +6,7 @@ import type { iUserSettings } from "~/v3/types/types";
 import InfoTooltip from "../../organisms/info-tooltip/info-tooltip";
 
 const BUTTON_STYLES: ClassList =
-  "p-0 w-6 h-6 bg-slate-700 border-slate-500 text-2xl rounded border flex justify-center items-center disabled:bg-slate-800 disabled:border-slate-500 disabled:text-slate-300";
+  "p-0 w-6 h-6 bg-slate-700 border-slate-500 text-2xl rounded border flex justify-center items-center disabled:opacity-30 disabled:scale-[0.85]";
 
 type DeckSizeChangerProps = {
   userSettings: Signal<iUserSettings>;
@@ -19,7 +19,7 @@ export default component$<DeckSizeChangerProps>((props) => {
   const handleChangeSize$ = $((_: Event, t: HTMLButtonElement) => {
     const oldValue = props.userSettings.value.deck.size;
     let newValue = oldValue + (t.name === `${name}-increment` ? 2 : -2);
-    if (newValue > GAME.MAX_CARD_COUNT || newValue < GAME.MIN_CARD_COUNT) {
+    if (newValue > GAME.DECK_SIZE_MAX || newValue < GAME.DECK_SIZE_MIN) {
       newValue = oldValue;
     }
     props.userSettings.value = {
@@ -30,6 +30,7 @@ export default component$<DeckSizeChangerProps>((props) => {
       },
     };
   });
+
   return (
     <div class="flex w-full flex-grow items-center justify-center gap-[2%] py-1.5">
       <label class="w-6/12 text-left text-slate-100" for={name}>
@@ -43,7 +44,7 @@ export default component$<DeckSizeChangerProps>((props) => {
           onClick$={handleChangeSize$}
           disabled={
             props.isLocked ||
-            props.userSettings.value.deck.size <= GAME.MIN_CARD_COUNT
+            props.userSettings.value.deck.size <= GAME.DECK_SIZE_MIN
           }
         >
           -
@@ -56,7 +57,7 @@ export default component$<DeckSizeChangerProps>((props) => {
           onClick$={handleChangeSize$}
           disabled={
             props.isLocked ||
-            props.userSettings.value.deck.size >= GAME.MAX_CARD_COUNT
+            props.userSettings.value.deck.size >= GAME.DECK_SIZE_MAX
           }
         >
           +
@@ -66,8 +67,8 @@ export default component$<DeckSizeChangerProps>((props) => {
         Number of cards in the deck.
         <br />
         <div class="mt-1 text-slate-300">
-          (Range: <strong>{GAME.MIN_CARD_COUNT}</strong> to{" "}
-          <strong>{GAME.MAX_CARD_COUNT}</strong>)
+          (Range: <strong>{GAME.DECK_SIZE_MIN}</strong> to{" "}
+          <strong>{GAME.DECK_SIZE_MAX}</strong>)
         </div>
       </InfoTooltip>
     </div>

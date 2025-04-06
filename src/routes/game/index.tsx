@@ -1,6 +1,10 @@
 import type { Signal } from "@builder.io/qwik";
 import { component$, useSignal, useTask$ } from "@builder.io/qwik";
-import { Link, routeLoader$, useNavigate } from "@builder.io/qwik-city";
+import {
+  // Link,
+  routeLoader$,
+  useNavigate,
+} from "@builder.io/qwik-city";
 import Game from "~/v3/components/pages/game/game";
 import { typeEntryValues, unflattenObject } from "~/v3/utils/utils";
 import { validate } from "~/v3/validation/validate";
@@ -88,10 +92,8 @@ export default component$(() => {
 
   return (
     <div class="flex h-full w-full flex-col items-center overflow-hidden">
-      <h1 class="absolute left-0 top-0 z-[1] text-sm text-slate-600/80 md:text-lg lg:text-2xl">
-        <Link href="/" class="text-slate-600/80 hover:text-slate-500/80">
-          Memory Card Game
-        </Link>
+      <h1 class="absolute left-0 top-0 pl-[min(1.5vw,1rem)] z-[1] text-sm text-slate-600/80 md:text-lg lg:text-2xl">
+        Memory Card Game
       </h1>
       {isParamsConsumed.value && <Game settings={consumedSettings.value} />}
     </div>

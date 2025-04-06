@@ -8,5 +8,5 @@ const schemas = {
 export default schemas;
 
 export interface iSchemas {
-  userSettings: iSchema_userSettings & { [key: string]: any };
+  userSettings: iSchema_userSettings;
 }

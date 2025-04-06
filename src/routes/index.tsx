@@ -1,4 +1,9 @@
-import { component$, useComputed$, useSignal } from "@builder.io/qwik";
+import {
+  component$,
+  useComputed$,
+  useSignal,
+  useStyles$,
+} from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
 import Dropdown from "~/v3/components/molecules/dropdown/dropdown";
 import GameSettings from "~/v3/components/organisms/game-settings/game-settings";
@@ -13,27 +18,6 @@ import useGetSavedTheme from "~/v3/hooks/useGetSavedTheme";
 
 const LI_CLASSES = "pl-2 md:pl-4";
 
-// function is_touch_enabled() {
-//   return isBrowser && (
-//     "ontouchstart" in window ||
-//     navigator.maxTouchPoints > 0 ||
-//       //ts-ignore-next-line
-//     navigator?.msMaxTouchPoints > 0
-//   );
-// }
-//
-// const useActionString = () => {
-//   const actionString = useSignal<"Tap/Click" | "Tap" | "Click">("Tap/Click");
-//   useVisibleTask$(() => {
-//     if (is_touch_enabled()) {
-//       actionString.value = "Tap";
-//     } else {
-//       actionString.value = "Click";
-//     }
-//   });
-//   return actionString;
-// }
-
 type SoonTmProps = { classes?: ClassList };
 const SoonTm: FunctionComponent<SoonTmProps> = ({ classes }) => (
   <span class={`mx-[1px] ${classes}`}>
@@ -41,13 +25,26 @@ const SoonTm: FunctionComponent<SoonTmProps> = ({ classes }) => (
   </span>
 );
 const SoonTmPopover = component$(() => {
+  useStyles$(`
+    .tm-trigger:hover sup,
+    .tm-trigger:focus sup {
+      --slate-400: #94a3b8;
+      border-color: var(--slate-400);
+      color: var(--slate-400);
+
+    }
+`);
   return (
     <Popover
       panelClasses="max-w-[80vw]"
-      rootClasses="inline mx-[-.3em]"
+      rootClasses="inline mx-[-.2em] "
+      triggerClasses="tm-trigger"
       size="1.5em"
     >
-      <sup class="text-[.5em] align-super text-slate-500" q:slot="trigger">
+      <sup
+        class="text-[.5em] align-super text-slate-500 border rounded-full border-slate-500 pt-[2px] pb-[1px] px-[1.5px]"
+        q:slot="trigger"
+      >
         TM
       </sup>
       <>
@@ -161,32 +158,37 @@ export const GameStarter = component$(() => {
 
 const HomeComponent: FunctionComponent = () => {
   return (
-    <div class="flex h-screen flex-col items-center justify-between ">
-      <div class="grid w-full max-w-[600px] items-center justify-center gap-8 text-slate-200">
-        <h1 class="text-center text-4xl text-slate-500 mt-4">
-          Memory Card Game
-        </h1>
+    <div class="full w-full">
+      <div class="mx-auto w-max grid items-center justify-between">
+        <div class="grid w-full max-w-[600px] items-center justify-center gap-8 text-slate-200">
+          <h1 class="text-center text-4xl text-slate-500 mt-4">
+            Memory Card Game
+          </h1>
 
-        <div>
-          <h3 class="text-center text-2xl text-slate-300">Goal:</h3>
-          <p class="text-center text-3xl ">Clear the board to win!</p>
+          <div>
+            <h3 class="text-center text-2xl text-slate-300">Goal:</h3>
+            <p class="text-center text-3xl ">Clear the board to win!</p>
+          </div>
+
+          <Instructions />
+
+          <GameStarter />
         </div>
 
-        <Instructions />
-
-        <GameStarter />
-      </div>
-
-      <div class="mt-6 flex flex-col items-center">
-        <a
-          href="/older-versions"
-          class="p-2 text-center text-slate-500 underline hover:text-slate-300"
-        >
-          Prototype versions...
-        </a>
-        <a href="/cards" class="p-2 text-center text-slate-500 underline">
-          Cards...
-        </a>
+        <div class="mt-6 flex flex-col items-center">
+          <a
+            href="/older-versions"
+            class="p-2 text-center text-slate-500 underline hover:text-slate-300"
+          >
+            Prototype versions...
+          </a>
+          <a
+            href="/cards"
+            class="p-2 text-center text-slate-500 underline hover:text-slate-300"
+          >
+            Cards...
+          </a>
+        </div>
       </div>
     </div>
   );

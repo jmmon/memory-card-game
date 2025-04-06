@@ -1,36 +1,12 @@
-import {
-  $,
-  component$,
-  useComputed$,
-  useStylesScoped$,
-} from "@builder.io/qwik";
+import { component$, useStylesScoped$ } from "@builder.io/qwik";
 import { header } from "~/v3/constants/header-constants";
-import { useTimeoutObj } from "~/v3/hooks/useTimeout";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 
 export default component$(() => {
   const ctx = useGameContextService();
 
-  useTimeoutObj({
-    action: $(() => {
-      ctx.state.interfaceSettings.successAnimation = false;
-    }),
-    triggerCondition: useComputed$(
-      () => ctx.state.interfaceSettings.successAnimation,
-    ),
-    initialDelay: header.COUNTER_ANIMATE_DURATION,
-  });
-
-  useTimeoutObj({
-    action: $(() => {
-      ctx.state.interfaceSettings.mismatchAnimation = false;
-    }),
-    triggerCondition: useComputed$(
-      () => ctx.state.interfaceSettings.mismatchAnimation,
-    ),
-    initialDelay: header.COUNTER_ANIMATE_DURATION,
-  });
-
+  // TODO: implement the challenge modes; only some may apply for animations
+  //
   // const mismatchAnimation = useComputed$(() => {
   //   if (!ctx.state.interfaceSettings.mismatchAnimation) return false;
   //
@@ -67,27 +43,26 @@ export default component$(() => {
 
   return (
     <code
-      class={`bg-slate-800 ${header.CODE_TEXT_LIGHT} grid w-[12em] gap-1 ${header.CODE_PADDING}`}
+      class={`bg-slate-800 ${header.CODE_TEXT_LIGHT} grid w-min gap-1 ${header.CODE_PADDING}`}
     >
       <Score
         animate={ctx.state.interfaceSettings.successAnimation}
-        // score={ctx.state.gameData.successfulPairs}
         score={ctx.state.gameData.successfulPairs.length}
         showMax={true}
         max={ctx.state.userSettings.deck.size / 2}
         label="pairs"
         type="success"
+        isDoubleDigit={ctx.state.userSettings.deck.size / 2 >= 10}
       />
 
       <Score
         animate={ctx.state.interfaceSettings.mismatchAnimation}
-        // animate={mismatchAnimation.value}
-        // score={ctx.state.gameData.mismatchPairs}
         score={ctx.state.gameData.mismatchPairs.length}
         showMax={ctx.state.userSettings.maxAllowableMismatches !== -1}
         max={ctx.state.userSettings.maxAllowableMismatches}
         label="mismatches"
         type="mismatch"
+        isDoubleDigit={ctx.state.userSettings.deck.size / 2 >= 10}
       />
     </code>
   );
@@ -100,6 +75,7 @@ const Score = ({
   max = -1,
   label,
   type,
+  isDoubleDigit = true,
 }: {
   animate: boolean;
   // score: iPair[];
@@ -108,18 +84,19 @@ const Score = ({
   max: number;
   label: string;
   type: "success" | "mismatch";
+  isDoubleDigit?: boolean;
 }) => {
   return (
     <div
       class={`${type} rounded ${
         animate ? header.SCORE_ANIMATION_CLASSES : ""
-      } grid gap-1.5 grid-cols-[2fr_1fr] ${header.CODE_TEXT_DARK}`}
+      } grid gap-1.5 grid-cols-[7em_1fr] items-center ${header.CODE_TEXT_DARK} px-2`}
+      style={{
+        gridTemplateColumns: isDoubleDigit ? "11ch 5ch" : "11ch 3ch",
+      }}
     >
       <span class="text-right">{label}:</span>
       <span class="text-left text-slate-100">
-        {/*
-          {score.length}
-*/}
         {score}
         {showMax && <span class="text-slate-400">/{max}</span>}
       </span>
