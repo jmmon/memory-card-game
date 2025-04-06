@@ -6,7 +6,7 @@ import type { iUserSettings } from "~/v3/types/types";
 import InfoTooltip from "../../organisms/info-tooltip/info-tooltip";
 
 const BUTTON_STYLES: ClassList =
-  "p-0 w-6 h-6 bg-slate-700 border-slate-500 text-2xl rounded border flex justify-center items-center disabled:bg-slate-800 disabled:border-slate-500 disabled:text-slate-300";
+  "p-0 w-6 h-6 bg-slate-700 border-slate-500 text-2xl rounded border flex justify-center items-center disabled:opacity-30 disabled:scale-[0.85]";
 
 type DeckSizeChangerProps = {
   userSettings: Signal<iUserSettings>;
@@ -30,6 +30,7 @@ export default component$<DeckSizeChangerProps>((props) => {
       },
     };
   });
+
   return (
     <div class="flex w-full flex-grow items-center justify-center gap-[2%] py-1.5">
       <label class="w-6/12 text-left text-slate-100" for={name}>

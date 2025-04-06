@@ -30,7 +30,7 @@ export default component$(() => {
   useStyles$(styles);
 
   return (
-    <main class="full">
+    <main class="w-full h-screen">
       <Slot />
       {/* SVG card symbols pre-rendered but hidden; so cards can build from these */}
       <CardSymbols />
