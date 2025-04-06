@@ -1,4 +1,4 @@
-import { $, useSignal, useVisibleTask$ } from "@builder.io/qwik";
+import { useSignal, useVisibleTask$ } from "@builder.io/qwik";
 import type { QRL, Signal } from "@builder.io/qwik";
 import { DebugTypeEnum, LogLevel } from "../constants/game";
 import logger from "../services/logger";
@@ -8,7 +8,7 @@ import logger from "../services/logger";
  * @property triggerCondition - condition to start the delay timeout
  * @property delay - delay in ms
  * @property checkConditionOnTimeout - check condition on timeout before taking action
- * @returns setters to set initialDelay and interval
+ * @returns signals to set delay
  * */
 export const useTimeoutObj = ({
   action,
@@ -18,10 +18,10 @@ export const useTimeoutObj = ({
 }: {
   action: QRL<() => void | any>;
   triggerCondition: Signal<boolean>;
-  delay: number;
+  delay: number | Signal<number>;
   checkConditionOnTimeout?: boolean;
 }) => {
-  const delaySignal = useSignal(delay);
+  // const delaySignal = useSignal(delay);
   logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useTimeoutObj setup", {
     triggerCondition: triggerCondition.value,
     initialDelay: delay,
@@ -34,25 +34,26 @@ export const useTimeoutObj = ({
     if (!triggerCondition.value) return;
 
     logger(DebugTypeEnum.TASK, LogLevel.ONE, "~~ useTimeoutObj condition met");
-    const timer = setTimeout(() => {
-      logger(DebugTypeEnum.TASK, LogLevel.ONE, "~~ useTimeoutObj timeout", {
-        checkConditionOnTimeout,
-        triggerCondition: triggerCondition.value,
-      });
-      if (checkConditionOnTimeout && !triggerCondition.value) return;
-      action();
-    }, delaySignal.value);
+    const timer = setTimeout(
+      () => {
+        logger(DebugTypeEnum.TASK, LogLevel.ONE, "~~ useTimeoutObj timeout", {
+          checkConditionOnTimeout,
+          triggerCondition: triggerCondition.value,
+        });
+        if (checkConditionOnTimeout && !triggerCondition.value) return;
+        action();
+      },
+      typeof delay === "number" ? delay : delay.value,
+    );
 
     cleanup(() => {
       clearTimeout(timer);
     });
   });
 
-  return {
-    setDelay: $((time: number) => {
-      delaySignal.value = time;
-    }),
-  };
+  // return {
+  //   delaySignal,
+  // };
 };
 
 /**
@@ -63,7 +64,7 @@ export const useTimeoutObj = ({
  * @property initialDelay - delay before first run
  * @property checkConditionOnStartTimeout=false - check condition on start timeout before taking action
  * @property checkConditionOnEndTimeout=false - check condition on end timeout before taking action
- * @returns setters to set initialDelay and interval
+ * @returns signals to set delay and interval
  * */
 export const useDelayedTimeoutObj = ({
   actionOnStart,
@@ -128,15 +129,8 @@ export const useDelayedTimeoutObj = ({
   });
 
   return {
-    setDelay: $(
-      ({
-        initialDelay,
-        interval,
-      }: Partial<{ initialDelay: number; interval: number }>) => {
-        if (initialDelay !== undefined) delaySignal.value = initialDelay;
-        if (interval !== undefined) intervalSignal.value = interval;
-      },
-    ),
+    delaySignal,
+    intervalSignal,
   };
 };
 
@@ -146,7 +140,7 @@ export const useDelayedTimeoutObj = ({
  * @property interval - interval in ms
  * @property initialDelay=undefined - delay before first run
  * @property runImmediatelyOnCondition=true - run the action immediately when the triggerCondition is met
- * @returns setters to set initialDelay and interval
+ * @returns signals to set delay and interval
  * */
 export const useIntervalObj = ({
   action,
@@ -235,15 +229,7 @@ export const useIntervalObj = ({
   });
 
   return {
-    setDelay: $(
-      ({
-        initialDelay,
-        interval,
-      }: Partial<{ initialDelay: number; interval: number }>) => {
-        if (initialDelay !== undefined)
-          initialDelayDuration.value = initialDelay;
-        if (interval !== undefined) intervalDuration.value = interval;
-      },
-    ),
+    initialDelayDuration,
+    intervalDuration,
   };
 };

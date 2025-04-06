@@ -10,23 +10,17 @@ import {
 import cardUtils from "~/v3/utils/cardUtils";
 import useDebounceSignal from "~/v3/hooks/useDebounce";
 import { useTimeoutObj } from "~/v3/hooks/useTimeout";
-import { calculateLayouts } from "~/v3/utils/boardUtils";
 import Card from "~/v3/components/organisms/card/card";
 import BOARD from "~/v3/constants/board";
-import GAME from "~/v3/constants/game";
+import { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
 
 import type { iPair } from "~/v3/types/types";
-import type { Signal } from "@builder.io/qwik";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
+import logger from "~/v3/services/logger";
 
-type BoardProps = { containerRef: Signal<HTMLElement | undefined> };
-export default component$<BoardProps>(({ containerRef }) => {
+export default component$(() => {
   const ctx = useGameContextService();
-  const boardRef = useSignal<HTMLDivElement>();
-
   const lastDeckSize = useSignal(ctx.state.userSettings.deck.size);
-  const lastRefresh = useSignal(ctx.state.userSettings.board.resize);
-
   const lastClick = useSignal(-1);
 
   const isAnyCardFlipped = useComputed$(
@@ -49,6 +43,7 @@ export default component$<BoardProps>(({ containerRef }) => {
         pair,
       ];
       ctx.state.gameData.mismatchPair = pair;
+      // or instead of separate animation state, could watch the successfulPairs.length??
       ctx.state.interfaceSettings.mismatchAnimation = true;
     } else {
       // add to our pairs
@@ -56,7 +51,7 @@ export default component$<BoardProps>(({ containerRef }) => {
         ...ctx.state.gameData.successfulPairs,
         pair,
       ];
-
+      // or instead of separate animation state, could watch the successfulPairs.length??
       ctx.state.interfaceSettings.successAnimation = true;
     }
 
@@ -64,9 +59,9 @@ export default component$<BoardProps>(({ containerRef }) => {
     ctx.state.gameData.selectedCardIds = [];
 
     // finally finally, check for end conditions
-    ctx.handle.isEndGameConditionsMet().then((res) => {
-      if (res.isEnded) {
-        ctx.handle.endGame(res.isWin);
+    ctx.handle.isEndGameConditionsMet().then((result) => {
+      if (result.isEnded) {
+        ctx.handle.endGame(result.isWin);
       }
     });
   });
@@ -115,32 +110,47 @@ export default component$<BoardProps>(({ containerRef }) => {
     lastClick.value = Date.now();
   });
 
-  const handleClickCard = $((isClickedOnCard: boolean, clickedId: number) => {
-    // unflip card if flipped
-    if (isAnyCardFlipped.value) {
-      unflipCard();
-      return;
-    }
-    // card is not flipped
-    if (isClickedOnCard) {
-      // initialize game timer on first click
-      if (!ctx.timer.state.isStarted) {
-        ctx.handle.startGame();
+  const handleClickCard = $(
+    ({
+      isClickedOnCard,
+      clickedId,
+    }: {
+      isClickedOnCard: boolean;
+      clickedId: number;
+    }) => {
+      // unflip card if flipped
+      if (isAnyCardFlipped.value) {
+        unflipCard();
+        return;
       }
+      // card is not flipped
+      if (isClickedOnCard) {
+        // initialize game timer on first click
+        if (!ctx.timer.state.isStarted) {
+          ctx.handle.startGame();
+        }
 
-      // runClickUnflippedCardDebounce(clickedId);
-      handleClickUnflippedCard(clickedId);
-    }
-  });
+        handleClickUnflippedCard(clickedId);
+      }
+    },
+  );
 
   const clickCardDebounce = useDebounceSignal<{
     isClickedOnCard: boolean;
     clickedId: number;
   }>({
-    _action$: $((newValue: { isClickedOnCard: boolean; clickedId: number }) => {
-      const { isClickedOnCard, clickedId } = newValue;
-      handleClickCard(isClickedOnCard, clickedId);
-    }),
+    // _action$: $(
+    //   ({
+    //     isClickedOnCard,
+    //     clickedId,
+    //   }: {
+    //     isClickedOnCard: boolean;
+    //     clickedId: number;
+    //   }) => {
+    //     handleClickCard({ isClickedOnCard, clickedId });
+    //   },
+    // ),
+    _action$: handleClickCard,
     _delay: BOARD.MINIMUM_TIME_BETWEEN_CLICKS,
   });
 
@@ -152,7 +162,7 @@ export default component$<BoardProps>(({ containerRef }) => {
 
     const isClickedOnCard = !!clickedId;
 
-    if (!isAnyCardFlipped.value && !isClickedOnCard) return;
+    if (isAnyCardFlipped.value || isClickedOnCard) return;
 
     clickCardDebounce.callDebounce({
       newValue: {
@@ -167,6 +177,8 @@ export default component$<BoardProps>(({ containerRef }) => {
   useTimeoutObj({
     triggerCondition: useComputed$(
       () =>
+        !ctx.state.interfaceSettings.settingsModal.isShowing &&
+        !ctx.state.interfaceSettings.endOfGameModal.isShowing &&
         ctx.timer.state.isStarted &&
         !ctx.timer.state.isEnded &&
         lastClick.value !== -1,
@@ -183,58 +195,7 @@ export default component$<BoardProps>(({ containerRef }) => {
   /*
    * track window resizes to recalculate board
    * */
-  useOnWindow(
-    "resize",
-    $(() => {
-      if (ctx.state.userSettings.board.isLocked) return;
-
-      const container = containerRef.value as HTMLElement; // or use window instead of container/game?
-      const board = boardRef.value as HTMLElement;
-
-      const boardRect = board.getBoundingClientRect();
-      const boardTop = boardRect.top;
-      const boardBottomLimit =
-        (container.offsetHeight * (100 - GAME.CONTAINER_PADDING_PERCENT)) / 100; // account for padding on bottom
-      const boardHeight = boardBottomLimit - boardTop;
-
-      const boardWidth =
-        (container.offsetWidth * (100 - GAME.CONTAINER_PADDING_PERCENT * 2)) /
-        100; // account for padding on sides
-
-      const { cardLayout, boardLayout } = calculateLayouts(
-        boardWidth,
-        boardHeight,
-        ctx.state.userSettings.deck.size,
-      );
-
-      ctx.state.cardLayout = cardLayout;
-      ctx.state.boardLayout = {
-        ...ctx.state.boardLayout,
-        ...boardLayout,
-      };
-    }),
-  );
-
-  const handleUpdateDeckSize = $((newDeckSize: number) => {
-    lastDeckSize.value = newDeckSize;
-
-    if (ctx.state.userSettings.deck.isLocked) return;
-
-    ctx.handle.resetGame({
-      ...ctx.state.userSettings,
-      deck: {
-        ...ctx.state.userSettings.deck,
-        size: ctx.state.userSettings.deck.size,
-      },
-    });
-
-    if (ctx.state.userSettings.board.isLocked) return;
-
-    ctx.handle.calculateAndResizeBoard(
-      boardRef.value as HTMLDivElement,
-      containerRef.value as HTMLDivElement,
-    );
-  });
+  useOnWindow("resize", ctx.handle.calculateAndResizeBoard);
 
   /* ================================
    * Handle Adjusting Board
@@ -244,37 +205,43 @@ export default component$<BoardProps>(({ containerRef }) => {
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(async ({ track }) => {
     const newDeckSize = track(() => ctx.state.userSettings.deck.size);
-    const newRefresh = track(() => ctx.state.userSettings.board.resize);
     const isDeckChanged = lastDeckSize.value !== newDeckSize;
-    const isBoardRefreshed = lastRefresh.value !== newRefresh;
 
-    // detect if resize caused the task to run
     if (isDeckChanged) {
-      // console.log("~~ uvt$ deckSize changed:", {
-      //   last: lastDeckSize.value,
-      //   new: newDeckSize,
-      // });
-      handleUpdateDeckSize(newDeckSize);
-      return;
-    }
-
-    if (isBoardRefreshed) {
-      // console.log("~~ uvt$ refreshBoard");
-      lastRefresh.value = newRefresh;
-      ctx.handle.calculateAndResizeBoard(
-        boardRef.value as HTMLDivElement,
-        containerRef.value as HTMLDivElement,
+      logger(
+        DebugTypeEnum.TASK,
+        LogLevel.ONE,
+        "UVT: handleUpdateDeckSize on decksize change",
+        {
+          boardIsLocked: ctx.state.userSettings.board.isLocked,
+          deckIsLocked: ctx.state.userSettings.deck.isLocked,
+        },
       );
+
+      lastDeckSize.value = newDeckSize;
+
+      if (ctx.state.userSettings.deck.isLocked) return;
+      ctx.handle.resetGame({
+        ...ctx.state.userSettings,
+        deck: {
+          ...ctx.state.userSettings.deck,
+          size: ctx.state.userSettings.deck.size,
+        },
+      });
+
+      ctx.handle.calculateAndResizeBoard();
       return;
     }
 
     // runs on mount only
-    // console.log("~~ uvt$ should be only on mount!");
 
-    await ctx.handle.calculateAndResizeBoard(
-      boardRef.value as HTMLDivElement,
-      containerRef.value as HTMLDivElement,
+    logger(
+      DebugTypeEnum.TASK,
+      LogLevel.ONE,
+      "UVT: calculateAndResize on mount before init",
     );
+    await ctx.handle.calculateAndResizeBoard();
+
     ctx.handle.initializeDeck(true);
   });
 
@@ -357,7 +324,7 @@ export default component$<BoardProps>(({ containerRef }) => {
   return (
     <div
       class={`relative h-full max-h-full w-full max-w-full items-center ${isAnyCardFlipped.value ? "cursor-pointer" : ""}`}
-      ref={boardRef}
+      ref={ctx.boardRef}
       onClick$={handleClickBoard$}
       data-label="board"
     >

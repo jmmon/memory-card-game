@@ -5,9 +5,6 @@ export const calculateBoardDimensions = (
   container: HTMLElement,
   board: HTMLElement,
 ) => {
-  // const container = containerRef.value as HTMLElement; // or use window instead of container/game?
-  // const board = boardRef.value as HTMLElement;
-
   const boardRect = board.getBoundingClientRect();
   const boardTop = boardRect.top;
 

@@ -60,7 +60,9 @@ export type iGameData = {
 };
 
 // settings user will be able to change
-export type iUserSettings = iSchemas["userSettings"] & { [key: string]: any };
+export type iUserSettings = iSchemas["userSettings"] & {
+  [key: string]: any;
+};
 
 // settings the user will not change
 export type iGameSettings = {};
@@ -128,14 +130,13 @@ export type iGameHandlers = {
   startShuffling: QRL<(count?: number) => void>;
   stopShuffling: QRL<() => void>;
   initializeDeck: QRL<(isStartup?: boolean) => void>;
-  calculateAndResizeBoard: QRL<
-    (boardRef: HTMLDivElement, containerRef: HTMLDivElement) => void
-  >;
+  calculateAndResizeBoard: QRL<() => void>;
   startGame: QRL<() => void>;
   showSettings: QRL<() => void>;
   hideSettings: QRL<() => void>;
   showEndGameModal: QRL<() => void>;
   hideEndGameModal: QRL<() => void>;
+  toggleModalOnEscape: QRL<() => void>;
   endGame: QRL<(isWin: boolean) => void>;
 };
 
