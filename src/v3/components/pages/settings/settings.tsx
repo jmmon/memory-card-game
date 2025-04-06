@@ -4,7 +4,7 @@ import Modal from "~/v3/components/templates/modal/modal";
 import GameSettings from "~/v3/components/organisms/game-settings/game-settings";
 
 import type { Signal } from "@builder.io/qwik";
-import type { iUserSettings } from "~/v3/types/types";
+import { GameStateEnum, type iUserSettings } from "~/v3/types/types";
 import Button from "../../atoms/button/button";
 import GameStats from "../../molecules/game-stats/game-stats";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
@@ -47,6 +47,9 @@ export default component$(() => {
       <GameSettings
         startShuffling$={ctx.handle.startShuffling}
         unsavedUserSettings={unsavedUserSettings}
+        isShufflingDisabled={
+          ctx.state.gameData.gameState !== GameStateEnum.IDLE
+        }
       >
         {ctx.timer.state.time > 0 && <GameStats q:slot="game-stats" />}
 

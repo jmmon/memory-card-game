@@ -8,11 +8,13 @@ export default component$(() => {
 
   return (
     <code
-      class={` bg-slate-800 flex gap-1.5 text-center items-center ${header.CODE_TEXT_LIGHT} ${header.CODE_PADDING}`}
+      class={`bg-slate-800 flex items-center ${header.CODE_TEXT_LIGHT} ${header.CODE_PADDING}`}
     >
-      <span class={ctx.timer.shouldBlink.value ? "opacity-0" : ""}>
-        <FormattedTime timeMs={ctx.timer.state.time} limit={1} />
-      </span>
+      <FormattedTime
+        classes={`w-[6.25em] min-w-min ${ctx.timer.shouldBlink.value ? "opacity-0" : ""}`}
+        timeMs={ctx.timer.state.time}
+        limit={1}
+      />
     </code>
   );
 });
