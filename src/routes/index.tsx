@@ -1,4 +1,9 @@
-import { component$, useComputed$, useSignal } from "@builder.io/qwik";
+import {
+  component$,
+  useComputed$,
+  useSignal,
+  useStyles$,
+} from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
 import Dropdown from "~/v3/components/molecules/dropdown/dropdown";
 import GameSettings from "~/v3/components/organisms/game-settings/game-settings";
@@ -41,13 +46,26 @@ const SoonTm: FunctionComponent<SoonTmProps> = ({ classes }) => (
   </span>
 );
 const SoonTmPopover = component$(() => {
+  useStyles$(`
+.tm-trigger:hover sup,
+.tm-trigger:focus sup {
+  --slate-400: #94a3b8;
+  border-color: var(--slate-400);
+  color: var(--slate-400);
+
+}
+`);
   return (
     <Popover
       panelClasses="max-w-[80vw]"
-      rootClasses="inline mx-[-.3em]"
+      rootClasses="inline mx-[-.2em] "
+      triggerClasses="tm-trigger"
       size="1.5em"
     >
-      <sup class="text-[.5em] align-super text-slate-500" q:slot="trigger">
+      <sup
+        class="text-[.5em] align-super text-slate-500 border rounded-full border-slate-500 pt-[2px] pb-[1px] px-[1.5px]"
+        q:slot="trigger"
+      >
         TM
       </sup>
       <>
@@ -184,7 +202,10 @@ const HomeComponent: FunctionComponent = () => {
         >
           Prototype versions...
         </a>
-        <a href="/cards" class="p-2 text-center text-slate-500 underline">
+        <a
+          href="/cards"
+          class="p-2 text-center text-slate-500 underline hover:text-slate-300"
+        >
           Cards...
         </a>
       </div>
