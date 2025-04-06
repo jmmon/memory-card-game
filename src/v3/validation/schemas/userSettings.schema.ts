@@ -35,7 +35,6 @@ export const schema_userSettings = z
 
     board: z.object({
       isLocked: z.boolean().default(false), // prevent recalculation of board layout
-      resize: z.boolean().default(false),
     }),
 
     interface: z.object({

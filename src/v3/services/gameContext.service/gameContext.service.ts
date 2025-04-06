@@ -39,6 +39,8 @@ export const useGameContextProvider = ({
       ...userSettings,
     },
   });
+  const boardRef = useSignal<HTMLDivElement>();
+  const containerRef = useSignal<HTMLDivElement>();
 
   const shuffleCardPositions = $(function () {
     // shuffle and set new positions, save old positions
@@ -136,25 +138,27 @@ export const useGameContextProvider = ({
   const initializeDeck = $(async function () {
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "initializeDeck");
     await sliceDeck(); // set to deckSize
-    state.gameData.startingPosition = cardUtils.generateCenterCoords(
-      state.boardLayout.columns,
-      state.boardLayout.rows,
-    );
     // start fan-out animation (dealing the deck)
     state.gameData.currentFanOutCardIndex = state.userSettings.deck.size + 1;
   });
 
-  const calculateAndResizeBoard = $(function (
-    boardRef: HTMLDivElement,
-    containerRef: HTMLDivElement,
-  ) {
-    const newBoard = boardUtils.calculateBoardDimensions(
-      containerRef,
-      boardRef,
+  const calculateAndResizeBoard = $(function () {
+    if (state.userSettings.board.isLocked) {
+      logger(
+        DebugTypeEnum.HANDLER,
+        LogLevel.ONE,
+        "calculateAndResizeBoard: BOARD LOCKED",
+      );
+      return;
+    }
+
+    const { width, height } = boardUtils.calculateBoardDimensions(
+      containerRef.value as HTMLDivElement,
+      boardRef.value as HTMLDivElement,
     );
     const { cardLayout, boardLayout } = boardUtils.calculateLayouts(
-      newBoard.width,
-      newBoard.height,
+      width,
+      height,
       state.userSettings.deck.size,
     );
     state.cardLayout = cardLayout;
@@ -162,6 +166,13 @@ export const useGameContextProvider = ({
       ...state.boardLayout,
       ...boardLayout,
     };
+
+    // update deck-dealing position when resized
+    state.gameData.startingPosition = cardUtils.generateCenterCoords(
+      boardLayout.columns,
+      boardLayout.rows,
+    );
+
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "calculateAndResizeBoard:", {
       boardLayout: state.boardLayout,
       cardLayout: state.cardLayout,
@@ -202,6 +213,26 @@ export const useGameContextProvider = ({
       interfaceSettingsEndOfGameModalIsShowing:
         state.interfaceSettings.endOfGameModal.isShowing,
     });
+  });
+
+  const toggleModalOnEscape = $(function () {
+    if (
+      state.gameData.gameState === GameStateEnum.ENDED &&
+      !state.interfaceSettings.settingsModal.isShowing
+    ) {
+      if (state.interfaceSettings.endOfGameModal.isShowing) {
+        hideEndGameModal();
+      } else {
+        showEndGameModal();
+      }
+      return;
+    }
+
+    if (state.interfaceSettings.settingsModal.isShowing) {
+      hideSettings();
+    } else {
+      showSettings();
+    }
   });
 
   const isEndGameConditionsMet = $(function () {
@@ -249,14 +280,26 @@ export const useGameContextProvider = ({
     });
   });
 
-  const resetGame = $(async function (settings?: Partial<iUserSettings>) {
+  const resetGame = $(async function (newSettings?: Partial<iUserSettings>) {
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "resetGame:", {
-      newSettings: settings,
+      newSettings: newSettings,
     });
-    if (settings !== undefined) {
+    if (newSettings !== undefined) {
       state.userSettings = {
         ...state.userSettings,
-        ...settings,
+        ...newSettings,
+        deck: {
+          ...state.userSettings.deck,
+          ...newSettings.deck,
+        },
+        board: {
+          ...state.userSettings.board,
+          ...newSettings.board,
+        },
+        interface: {
+          ...state.userSettings.interface,
+          ...newSettings.interface,
+        },
       };
     }
 
@@ -279,6 +322,7 @@ export const useGameContextProvider = ({
     });
 
     await timer.reset();
+    await calculateAndResizeBoard();
     await initializeDeck();
     // console.log("game reset");
   });
@@ -299,6 +343,7 @@ export const useGameContextProvider = ({
     startGame,
     endGame,
     resetGame,
+    toggleModalOnEscape,
   };
 
   // hold the state, and the functions
@@ -306,6 +351,8 @@ export const useGameContextProvider = ({
     state,
     handle: handlers,
     timer,
+    boardRef,
+    containerRef,
   };
   // e.g. ctx.state.gameData, ctx.state.boardLayout,
   // e.g. ctx.timer.state

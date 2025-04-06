@@ -96,7 +96,6 @@ const USER_SETTINGS: iUserSettings = {
 
   board: {
     isLocked: false, // prevent recalculation of board layout
-    resize: false,
   },
 
   interface: {

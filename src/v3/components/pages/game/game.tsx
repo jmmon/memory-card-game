@@ -1,10 +1,4 @@
-import {
-  $,
-  component$,
-  useComputed$,
-  useOnDocument,
-  useSignal,
-} from "@builder.io/qwik";
+import { $, component$, useComputed$, useOnDocument } from "@builder.io/qwik";
 
 import {
   useDelayedTimeoutObj,
@@ -23,7 +17,7 @@ import BOARD from "~/v3/constants/board";
 import { useVisibilityChange } from "~/v3/hooks/useVisibilityChange/useVisibilityChange";
 import { useGameContextProvider } from "~/v3/services/gameContext.service/gameContext.service";
 import INITIAL_STATE from "~/v3/services/gameContext.service/initialState";
-import { GameStateEnum, type iUserSettings } from "~/v3/types/types";
+import type { iUserSettings } from "~/v3/types/types";
 import { header } from "~/v3/constants/header-constants";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
@@ -51,8 +45,6 @@ type GameProps = { settings: iUserSettings };
 export default component$<GameProps>(
   ({ settings = INITIAL_STATE.userSettings }) => {
     // console.log("game component settings:", { settings });
-    const containerRef = useSignal<HTMLDivElement>();
-
     const ctx = useGameContextProvider({
       userSettings: settings,
     });
@@ -64,16 +56,50 @@ export default component$<GameProps>(
      *  - perhaps also with an additional wait time at the end
      *    - instead of having it go negative
      *  - can then run a handler at the end of the whole process
+     * TODO: fix a bug:
+     *  - change the deck size to say 52 from 6
+     *  - the cards start fanning before the game board recalculates!!!
+     *  - so it deals out one card or two and then resets and deals out
+     *    the 52 actual cards that it should be dealing
+     *    - need a way to track if it's ready to deal,
+     *      e.g. set a new loading state if deck size is changed,
+     *        and then reset after board has recalculated?
+     *    - or ensure the order is correct
+     *
+     *  - e.g. this track below will track the deckSize, and then I see a log of
+     *  the center coords as still the old coords,
+     *  and then the board updates and I see a log of the new coords,
+     *    but it must've started dealing inbetween and then reset
+     *  - will test with center/center coords as well, I think the bug is still there
+     *  but I never checked when I first made this feature
+     *
+     *  So:
+     *  when initializing deck aka resetting aka when game first loads,
+     *  should recalculate board layout (because deckSize mightve changed)
+     *
      * */
+    // const { delaySignal } =
     useTimeoutObj({
       triggerCondition: useComputed$(
         () =>
           ctx.state.gameData.currentFanOutCardIndex >
           -(ctx.state.gameData.fanOutCardDelayRounds - 1),
       ),
-      delay: 75, // ms in between cards being fanned out
+      // ms in between cards being fanned out
+      // slightly faster for larger decks
+      // delay: 250 - ctx.state.userSettings.deck.size * 4,
+      delay: useComputed$(
+        () => (1 + GAME.DECK_SIZE_MAX - ctx.state.userSettings.deck.size) * 6,
+      ),
       action: ctx.handle.fanOutCard,
     });
+
+    // updates the fan-out delay based on deck size
+    // useTask$(({ track }) => {
+    //   const deckSize = track(() => ctx.state.userSettings.deck.size);
+    //   console.log("tracked deckSize:", deckSize);
+    //   delaySignal.value = (1 + GAME.DECK_SIZE_MAX - deckSize) * 6;
+    // });
 
     // /* ================================
     //  * Set up scroll detection
@@ -181,24 +207,8 @@ export default component$<GameProps>(
         // )
         //   return;
         // if (ctx.state.gameData.isLoading) return;
-        // if is game ended then toggle the end game modal?
-        if (
-          ctx.state.gameData.gameState === GameStateEnum.ENDED &&
-          !ctx.state.interfaceSettings.settingsModal.isShowing
-        ) {
-          if (ctx.state.interfaceSettings.endOfGameModal.isShowing) {
-            ctx.handle.hideEndGameModal();
-          } else {
-            ctx.handle.showEndGameModal();
-          }
-          return;
-        }
 
-        if (ctx.state.interfaceSettings.settingsModal.isShowing) {
-          ctx.handle.hideSettings();
-        } else {
-          ctx.handle.showSettings();
-        }
+        ctx.handle.toggleModalOnEscape();
       }),
     );
 
@@ -236,10 +246,10 @@ export default component$<GameProps>(
           }%] gap-1 ${
             ctx.state.userSettings.board.isLocked ? "overflow-x-auto" : ""
           }`}
-          ref={containerRef}
+          ref={ctx.containerRef}
         >
           <GameHeader showSettings$={ctx.handle.showSettings} />
-          <Board containerRef={containerRef} />
+          <Board />
         </div>
 
         <Loading isShowing={ctx.state.gameData.isLoading} />
