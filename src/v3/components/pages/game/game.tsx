@@ -51,55 +51,37 @@ export default component$<GameProps>(
 
     /**
      * runs the fan out card animation, timeout per each round
+     *
      * TODO:
-     * create another helper which runs an interval for x rounds?
+     * create another helper which runs an interval for n occurrences?
+     * instead of a bunch of timeouts created and destroyed over and over
      *  - perhaps also with an additional wait time at the end
      *    - instead of having it go negative
      *  - can then run a handler at the end of the whole process
-     * TODO: fix a bug:
-     *  - change the deck size to say 52 from 6
-     *  - the cards start fanning before the game board recalculates!!!
-     *  - so it deals out one card or two and then resets and deals out
-     *    the 52 actual cards that it should be dealing
-     *    - need a way to track if it's ready to deal,
-     *      e.g. set a new loading state if deck size is changed,
-     *        and then reset after board has recalculated?
-     *    - or ensure the order is correct
-     *
-     *  - e.g. this track below will track the deckSize, and then I see a log of
-     *  the center coords as still the old coords,
-     *  and then the board updates and I see a log of the new coords,
-     *    but it must've started dealing inbetween and then reset
-     *  - will test with center/center coords as well, I think the bug is still there
-     *  but I never checked when I first made this feature
-     *
-     *  So:
-     *  when initializing deck aka resetting aka when game first loads,
-     *  should recalculate board layout (because deckSize mightve changed)
      *
      * */
-    // const { delaySignal } =
     useTimeoutObj({
       triggerCondition: useComputed$(
         () =>
           ctx.state.gameData.currentFanOutCardIndex >
           -(ctx.state.gameData.fanOutCardDelayRounds - 1),
       ),
-      // ms in between cards being fanned out
-      // slightly faster for larger decks
-      // delay: 250 - ctx.state.userSettings.deck.size * 4,
+      // want to keep it reasonable across all deck sizes
+      // so now it takes a base of ~1.5s divided by the cards,
+      // and adds a small additional flat value
+      // so 52 cards will take longer, but it still starts at the same base value
+      // e.g. 1500 base across the cards, + 35ms per card
+      //  - e.g. 6 cards == 1500 + 210 => 1710ms / 6 = 285ms per card
+      //  - e.g. 18 cards == 1500 + 35*18 = 1500 + 1330 => 1830ms / 18 = ~102ms per card
+      //  - e.g. 32 cards == 1500 + 35*32 = 1500 + 70 + 1050 => 2620ms / 32 = ~82ms per card
+      //  - e.g. 52 cards == 1500 + 35*52 = 1500 + 1400 + 420 => 3320ms == ~64ms per card
       delay: useComputed$(
-        () => (1 + GAME.DECK_SIZE_MAX - ctx.state.userSettings.deck.size) * 6,
+        () =>
+          GAME.FAN_OUT_DURATION_BASE_MS / ctx.state.userSettings.deck.size +
+          GAME.FAN_OUT_DURATION_ADDITIONAL_PER_CARD_MS,
       ),
       action: ctx.handle.fanOutCard,
     });
-
-    // updates the fan-out delay based on deck size
-    // useTask$(({ track }) => {
-    //   const deckSize = track(() => ctx.state.userSettings.deck.size);
-    //   console.log("tracked deckSize:", deckSize);
-    //   delaySignal.value = (1 + GAME.DECK_SIZE_MAX - deckSize) * 6;
-    // });
 
     // /* ================================
     //  * Set up scroll detection
@@ -201,12 +183,6 @@ export default component$<GameProps>(
       "keydown",
       $((event: KeyboardEvent) => {
         if (event.key !== "Escape") return;
-        // if (
-        //   ctx.state.gameData.flippedCardId !==
-        //   INITIAL_STATE.gameData.flippedCardId
-        // )
-        //   return;
-        // if (ctx.state.gameData.isLoading) return;
 
         ctx.handle.toggleModalOnEscape();
       }),
@@ -241,11 +217,9 @@ export default component$<GameProps>(
         {/* </InverseModal> */}
 
         <div
-          class={`flex flex-col flex-grow justify-between w-full h-full p-[${
+          class={`flex flex-col flex-grow gap-1 justify-between w-full h-full p-[${
             GAME.CONTAINER_PADDING_PERCENT
-          }%] gap-1 ${
-            ctx.state.userSettings.board.isLocked ? "overflow-x-auto" : ""
-          }`}
+          }%] ${ctx.state.userSettings.board.isLocked ? "overflow-auto" : ""}`}
           ref={ctx.containerRef}
         >
           <GameHeader showSettings$={ctx.handle.showSettings} />

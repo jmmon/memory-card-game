@@ -136,6 +136,8 @@ export default component$<CardProps>(({ card, index }) => {
       ctx.state.cardLayout,
       newCoords,
     );
+    if (card.position === -1)
+      shuffleTransform.value += ` scale(${cardUtils.generateDeckDealScale(ctx.state.boardLayout, ctx.state.cardLayout)});`;
 
     flipTransform.value = cardUtils.generateFlipTranslateTransform(
       ctx.state.boardLayout,
@@ -186,15 +188,19 @@ export default component$<CardProps>(({ card, index }) => {
             2,
         ) +
         // extra z-index for cards being flipped
+        // first number applies while card is first clicked (max necessary is > 52/2)
+        // second number applies when flipping down (slightly less and still above 52/2)
         (isCardFlipped.value
-          ? 240 // applies while card is first clicked
+          ? 30
           : isFaceShowing.value || matchHideDelay.value
-            ? 180 // applies when flipping down
+            ? 28
             : 0),
   );
 
   return (
     <div
+      data-label="card-slot-container"
+      data-position={card.position}
       class={`card-shuffle-transform absolute top-0 left-0 flex flex-col justify-center`}
       style={{
         // has the correct ratios
@@ -206,10 +212,9 @@ export default component$<CardProps>(({ card, index }) => {
         zIndex: zIndex.value,
         transform: shuffleTransform.value,
       }}
-      data-label="card-slot-container"
-      data-position={card.position}
     >
       <div
+        data-label="card-slot"
         class={`box-content border border-slate-400 mx-auto bg-slate-700 transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ${
           isThisRemoved.value
             ? `bg-opacity-[calc(var(--card-bg-opacity-empty)*var(--card-bg-opacity-filled))] border-opacity-[calc(var(--card-bg-opacity-empty)*var(--card-bg-opacity-filled))]`
@@ -222,11 +227,10 @@ export default component$<CardProps>(({ card, index }) => {
           height: "auto",
           aspectRatio: BOARD.CARD_RATIO,
         }}
-        data-label="card-slot-removed"
       >
         <div
-          data-id={card.id}
           data-label="card-slot-shaking"
+          data-id={card.id}
           class={
             `box-content w-full transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ` +
             (isCardFlipped.value

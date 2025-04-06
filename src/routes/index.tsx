@@ -18,27 +18,6 @@ import useGetSavedTheme from "~/v3/hooks/useGetSavedTheme";
 
 const LI_CLASSES = "pl-2 md:pl-4";
 
-// function is_touch_enabled() {
-//   return isBrowser && (
-//     "ontouchstart" in window ||
-//     navigator.maxTouchPoints > 0 ||
-//       //ts-ignore-next-line
-//     navigator?.msMaxTouchPoints > 0
-//   );
-// }
-//
-// const useActionString = () => {
-//   const actionString = useSignal<"Tap/Click" | "Tap" | "Click">("Tap/Click");
-//   useVisibleTask$(() => {
-//     if (is_touch_enabled()) {
-//       actionString.value = "Tap";
-//     } else {
-//       actionString.value = "Click";
-//     }
-//   });
-//   return actionString;
-// }
-
 type SoonTmProps = { classes?: ClassList };
 const SoonTm: FunctionComponent<SoonTmProps> = ({ classes }) => (
   <span class={`mx-[1px] ${classes}`}>
@@ -47,13 +26,13 @@ const SoonTm: FunctionComponent<SoonTmProps> = ({ classes }) => (
 );
 const SoonTmPopover = component$(() => {
   useStyles$(`
-.tm-trigger:hover sup,
-.tm-trigger:focus sup {
-  --slate-400: #94a3b8;
-  border-color: var(--slate-400);
-  color: var(--slate-400);
+    .tm-trigger:hover sup,
+    .tm-trigger:focus sup {
+      --slate-400: #94a3b8;
+      border-color: var(--slate-400);
+      color: var(--slate-400);
 
-}
+    }
 `);
   return (
     <Popover

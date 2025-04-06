@@ -35,7 +35,6 @@ body {
 }
 
 .full {
-  height: 100vh;
   height: 100svh;
   overflow-y: auto;
   scrollbar-gutter: stable both-edges;
