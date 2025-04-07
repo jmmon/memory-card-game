@@ -307,7 +307,7 @@ export const useGameContextProvider = ({
       };
     }
 
-    state.gameData.gameState = INITIAL_STATE.gameData.gameState;
+    state.gameData.gameState = GameStateEnum.IDLE;
     state.gameData.isShaking = INITIAL_STATE.gameData.isShaking;
     state.gameData.shufflingState = INITIAL_STATE.gameData.shufflingState;
     state.gameData.flippedCardId = INITIAL_STATE.gameData.flippedCardId;
