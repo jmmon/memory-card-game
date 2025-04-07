@@ -1,9 +1,14 @@
 import type { QRL } from "@builder.io/qwik";
+import type { useTimer } from "./useTimer";
 
-export type Status = "RUNNING" | "STOPPED";
+export enum StatusEnum {
+  RUNNING = "RUNNING",
+  STOPPED = "STOPPED",
+}
+export type Status = keyof typeof StatusEnum;
 
 export type iTimerState = {
-  status: Status;
+  status: StatusEnum;
 
   time: number;
   last: number;
@@ -22,3 +27,5 @@ export type UseTimerOpts = {
   onResume$: QRL<() => void>;
   isPaused: boolean;
 };
+
+export type iTimer = ReturnType<typeof useTimer>;

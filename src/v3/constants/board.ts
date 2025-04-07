@@ -7,7 +7,7 @@ const CARD_FLIP_ANIMATION_DURATION = 700 as const;
 const CARD_SHAKE_ANIMATION_DURATION = 600 as const;
 
 // after initial instant transform, wait this long before starting animation
-const CARD_SHUFFLE_PAUSE_DURATION = 50 as const;
+const CARD_SHUFFLE_PAUSE_DURATION = 100 as const;
 // animation duration
 const CARD_SHUFFLE_ACTIVE_DURATION = 350 as const;
 

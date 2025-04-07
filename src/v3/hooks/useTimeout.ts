@@ -1,134 +1,235 @@
-import { $, useSignal, useTask$, useVisibleTask$ } from "@builder.io/qwik";
+import { useSignal, useVisibleTask$ } from "@builder.io/qwik";
 import type { QRL, Signal } from "@builder.io/qwik";
+import { DebugTypeEnum, LogLevel } from "../constants/game";
+import logger from "../services/logger";
 
+/**
+ * @property action - action after delay
+ * @property triggerCondition - condition to start the delay timeout
+ * @property delay - delay in ms
+ * @property checkConditionOnTimeout - check condition on timeout before taking action
+ * @returns signals to set delay
+ * */
 export const useTimeoutObj = ({
   action,
   triggerCondition,
-  initialDelay,
+  delay,
   checkConditionOnTimeout = false,
 }: {
   action: QRL<() => void | any>;
   triggerCondition: Signal<boolean>;
-  initialDelay: number;
+  delay: number | Signal<number>;
   checkConditionOnTimeout?: boolean;
 }) => {
-  const delay = useSignal(initialDelay);
+  // const delaySignal = useSignal(delay);
+  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useTimeoutObj setup", {
+    triggerCondition: triggerCondition.value,
+    initialDelay: delay,
+    checkConditionOnTimeout,
+  });
 
-  useTask$((taskCtx) => {
-    taskCtx.track(() => triggerCondition.value);
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(({ track, cleanup }) => {
+    track(() => triggerCondition.value);
     if (!triggerCondition.value) return;
 
-    const timer = setTimeout(() => {
-      if (!checkConditionOnTimeout) return action();
-      if (triggerCondition.value) return action();
-    }, delay.value);
+    logger(DebugTypeEnum.TASK, LogLevel.ONE, "~~ useTimeoutObj condition met");
+    const timer = setTimeout(
+      () => {
+        logger(DebugTypeEnum.TASK, LogLevel.ONE, "~~ useTimeoutObj timeout", {
+          checkConditionOnTimeout,
+          triggerCondition: triggerCondition.value,
+        });
+        if (checkConditionOnTimeout && !triggerCondition.value) return;
+        action();
+      },
+      typeof delay === "number" ? delay : delay.value,
+    );
 
-    taskCtx.cleanup(() => {
+    cleanup(() => {
       clearTimeout(timer);
     });
   });
 
-  return {
-    setDelay: $((time: number) => {
-      delay.value = time;
-    }),
-  };
+  // return {
+  //   delaySignal,
+  // };
 };
 
+/**
+ * @property actionOnStart - action after initialDelay
+ * @property actionOnEnd - action after initialDelay + interval
+ * @property triggerCondition - condition to start the initial delay timeout
+ * @property interval - interval in ms
+ * @property initialDelay - delay before first run
+ * @property checkConditionOnStartTimeout=false - check condition on start timeout before taking action
+ * @property checkConditionOnEndTimeout=false - check condition on end timeout before taking action
+ * @returns signals to set delay and interval
+ * */
 export const useDelayedTimeoutObj = ({
   actionOnStart,
   actionOnEnd,
   triggerCondition,
   initialDelay,
   interval,
+  checkConditionOnStartTimeout = false,
+  checkConditionOnEndTimeout = false,
 }: {
   actionOnStart: QRL<() => void | any>;
   actionOnEnd: QRL<() => void | any>;
   triggerCondition: Signal<boolean>;
   initialDelay: number;
   interval: number;
+  checkConditionOnStartTimeout?: boolean;
+  checkConditionOnEndTimeout?: boolean;
 }) => {
-  const startDelay = useSignal(initialDelay);
+  const delaySignal = useSignal(initialDelay);
   const intervalSignal = useSignal(interval);
+  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useDelayedTimeoutObj setup", {
+    triggerCondition: triggerCondition.value,
+    initialDelay,
+    interval,
+  });
 
-  useTask$((taskCtx) => {
-    taskCtx.track(() => triggerCondition.value);
-
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(({ track, cleanup }) => {
+    track(() => triggerCondition.value);
     if (!triggerCondition.value) return;
 
-    const startTimer = setTimeout(actionOnStart, startDelay.value);
-
-    const endTimer = setTimeout(
-      actionOnEnd,
-      startDelay.value + intervalSignal.value,
+    logger(
+      DebugTypeEnum.TASK,
+      LogLevel.ONE,
+      "~~ useDelayedTimeoutObj condition met",
     );
 
-    taskCtx.cleanup(() => {
+    const startTimer = setTimeout(() => {
+      if (checkConditionOnStartTimeout && !triggerCondition.value) return;
+      logger(
+        DebugTypeEnum.TASK,
+        LogLevel.ONE,
+        "~~ useDelayedTimeoutObj startTimeout",
+      );
+      actionOnStart();
+    }, delaySignal.value);
+
+    const endTimer = setTimeout(() => {
+      if (checkConditionOnEndTimeout && !triggerCondition.value) return;
+      logger(
+        DebugTypeEnum.TASK,
+        LogLevel.ONE,
+        "~~ useDelayedTimeoutObj endTimeout",
+      );
+      actionOnEnd();
+    }, delaySignal.value + intervalSignal.value);
+
+    cleanup(() => {
       clearTimeout(startTimer);
       clearTimeout(endTimer);
     });
   });
 
   return {
-    setDelay: $(
-      ({ start, interval }: Partial<{ start: number; interval: number }>) => {
-        if (start !== undefined) startDelay.value = start;
-        if (interval !== undefined) intervalSignal.value = interval;
-      },
-    ),
+    delaySignal,
+    intervalSignal,
   };
 };
 
+/**
+ * @property action - action to perform every regularInterval
+ * @property triggerCondition - condition to start the initial delay timeout
+ * @property interval - interval in ms
+ * @property initialDelay=undefined - delay before first run
+ * @property runImmediatelyOnCondition=true - run the action immediately when the triggerCondition is met
+ * @returns signals to set delay and interval
+ * */
 export const useIntervalObj = ({
   action,
   triggerCondition,
-  regularInterval,
+  interval,
   initialDelay,
+  runImmediatelyOnCondition = true,
 }: {
   action: QRL<() => void>;
   triggerCondition: Signal<boolean>;
-  regularInterval: number;
+  interval: number;
   initialDelay?: number;
+  runImmediatelyOnCondition?: boolean;
 }) => {
-  const startDelay = useSignal(initialDelay);
-  const intervalSignal = useSignal(regularInterval);
-  const runInterval = useSignal(false);
+  const initialDelayDuration = useSignal(initialDelay);
+  const intervalDuration = useSignal(interval);
+  const isIntervalRunning = useSignal(false);
+  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useIntervalObj setup", {
+    triggerCondition: triggerCondition.value,
+    initialDelay,
+    interval,
+    runImmediatelyOnCondition,
+  });
 
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ track, cleanup }) => {
     track(() => triggerCondition.value);
-
-    runInterval.value = false;
+    isIntervalRunning.value = false; // turn off interval
     if (!triggerCondition.value) return;
 
+    logger(
+      DebugTypeEnum.TASK,
+      LogLevel.ONE,
+      "~~ useIntervalObj condition met",
+      {
+        hasInitialDelay: !!initialDelayDuration.value,
+      },
+    );
+
+    // start interval immediately upon condition, if no initial delay
+    if (!initialDelayDuration.value) {
+      isIntervalRunning.value = true;
+      return;
+    }
+
     const startTimer = setTimeout(() => {
-      runInterval.value = true;
-    }, startDelay.value);
+      logger(
+        DebugTypeEnum.TASK,
+        LogLevel.ONE,
+        "~~ useIntervalObj initialDelay timeout complete",
+      );
+      isIntervalRunning.value = true;
+    }, initialDelayDuration.value);
 
     cleanup(() => {
       clearTimeout(startTimer);
     });
   });
 
-  useTask$((taskCtx) => {
-    taskCtx.track(() => runInterval.value);
-    if (runInterval.value === false) return;
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(({ track, cleanup }) => {
+    track(() => isIntervalRunning.value);
+    if (isIntervalRunning.value === false) return;
 
-    const intervalTimer = setInterval(action, intervalSignal.value);
+    const intervalTimer = setInterval(() => {
+      logger(
+        DebugTypeEnum.TASK,
+        LogLevel.ONE,
+        "~~ useIntervalObj interval running",
+      );
+      action();
+    }, intervalDuration.value);
 
-    action();
+    if (runImmediatelyOnCondition) {
+      logger(
+        DebugTypeEnum.TASK,
+        LogLevel.ONE,
+        "~~ useIntervalObj runImmediatelyOnCondition",
+      );
+      action();
+    }
 
-    taskCtx.cleanup(() => {
+    cleanup(() => {
       clearInterval(intervalTimer);
     });
   });
 
   return {
-    setDelay: $(
-      ({ start, interval }: Partial<{ start: number; interval: number }>) => {
-        if (start !== undefined) startDelay.value = start;
-        if (interval !== undefined) intervalSignal.value = interval;
-      },
-    ),
+    initialDelayDuration,
+    intervalDuration,
   };
 };

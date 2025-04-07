@@ -1,10 +1,4 @@
-import {
-  $,
-  component$,
-  useComputed$,
-  useOnDocument,
-  useSignal,
-} from "@builder.io/qwik";
+import { $, component$, useComputed$, useOnDocument } from "@builder.io/qwik";
 
 import {
   useDelayedTimeoutObj,
@@ -24,6 +18,7 @@ import { useVisibilityChange } from "~/v3/hooks/useVisibilityChange/useVisibilit
 import { useGameContextProvider } from "~/v3/services/gameContext.service/gameContext.service";
 import INITIAL_STATE from "~/v3/services/gameContext.service/initialState";
 import type { iUserSettings } from "~/v3/types/types";
+import { header } from "~/v3/constants/header-constants";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
 // export const getKeysIfObject = (obj: object, prefix?: string) => {
@@ -50,10 +45,42 @@ type GameProps = { settings: iUserSettings };
 export default component$<GameProps>(
   ({ settings = INITIAL_STATE.userSettings }) => {
     // console.log("game component settings:", { settings });
-    const containerRef = useSignal<HTMLDivElement>();
-
     const ctx = useGameContextProvider({
       userSettings: settings,
+    });
+
+    /**
+     * runs the fan out card animation, timeout per each round
+     *
+     * TODO:
+     * create another helper which runs an interval for n occurrences?
+     * instead of a bunch of timeouts created and destroyed over and over
+     *  - perhaps also with an additional wait time at the end
+     *    - instead of having it go negative
+     *  - can then run a handler at the end of the whole process
+     *
+     * */
+    useTimeoutObj({
+      triggerCondition: useComputed$(
+        () =>
+          ctx.state.gameData.currentFanOutCardIndex >
+          -(ctx.state.gameData.fanOutCardDelayRounds - 1),
+      ),
+      // want to keep it reasonable across all deck sizes
+      // so now it takes a base of ~1.5s divided by the cards,
+      // and adds a small additional flat value
+      // so 52 cards will take longer, but it still starts at the same base value
+      // e.g. 1500 base across the cards, + 35ms per card
+      //  - e.g. 6 cards == 1500 + 210 => 1710ms / 6 = 285ms per card
+      //  - e.g. 18 cards == 1500 + 35*18 = 1500 + 1330 => 1830ms / 18 = ~102ms per card
+      //  - e.g. 32 cards == 1500 + 35*32 = 1500 + 70 + 1050 => 2620ms / 32 = ~82ms per card
+      //  - e.g. 52 cards == 1500 + 35*52 = 1500 + 1400 + 420 => 3320ms == ~64ms per card
+      delay: useComputed$(
+        () =>
+          GAME.FAN_OUT_DURATION_BASE_MS / ctx.state.userSettings.deck.size +
+          GAME.FAN_OUT_DURATION_ADDITIONAL_PER_CARD_MS,
+      ),
+      action: ctx.handle.fanOutCard,
     });
 
     // /* ================================
@@ -73,13 +100,16 @@ export default component$<GameProps>(
      * ================================ */
     useIntervalObj({
       triggerCondition: useComputed$(
-        () => !ctx.timer.state.isStarted && !ctx.timer.state.isEnded,
+        () =>
+          // delay until after fan-out phase
+          ctx.state.gameData.currentFanOutCardIndex ===
+            -(ctx.state.gameData.fanOutCardDelayRounds - 1) &&
+          !ctx.timer.state.isStarted &&
+          !ctx.timer.state.isEnded,
       ),
-      action: $(() => {
-        ctx.handle.shuffleCardPositions();
-      }),
-      regularInterval: GAME.AUTO_SHUFFLE_INTERVAL,
       initialDelay: GAME.AUTO_SHUFFLE_DELAY,
+      interval: GAME.AUTO_SHUFFLE_INTERVAL,
+      action: ctx.handle.shuffleCardPositions,
     });
 
     /* ================================
@@ -87,17 +117,17 @@ export default component$<GameProps>(
      * - when shuffling state > 0, we shuffle a round and then decrement
      * ================================ */
     useTimeoutObj({
-      action: $(() => {
-        ctx.handle.shuffleCardPositions();
-        ctx.state.gameData.shufflingState -= 1;
-
-        if (ctx.state.gameData.shufflingState <= 0) ctx.handle.stopShuffling();
-      }),
       triggerCondition: useComputed$(
         () => ctx.state.gameData.shufflingState > 0,
       ),
-      initialDelay:
+      delay:
         BOARD.CARD_SHUFFLE_PAUSE_DURATION + BOARD.CARD_SHUFFLE_ACTIVE_DURATION,
+      action: $(() => {
+        ctx.handle.shuffleCardPositions();
+        ctx.state.gameData.shufflingState--;
+
+        if (ctx.state.gameData.shufflingState <= 0) ctx.handle.stopShuffling();
+      }),
     });
 
     /* ================================
@@ -109,6 +139,11 @@ export default component$<GameProps>(
       triggerCondition: useComputed$(
         () => ctx.state.gameData.mismatchPair !== "",
       ),
+      initialDelay:
+        GAME.SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD, // e.g. 275ms
+      interval:
+        GAME.SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD +
+        BOARD.CARD_SHAKE_ANIMATION_DURATION, // e.g. 275 + 600 = 875ms
       actionOnStart: $(() => {
         ctx.state.gameData.isShaking = true;
       }),
@@ -116,37 +151,40 @@ export default component$<GameProps>(
         ctx.state.gameData.isShaking = false;
         ctx.state.gameData.mismatchPair = "";
       }),
-      initialDelay:
-        GAME.SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD,
-      interval:
-        GAME.SHAKE_ANIMATION_DELAY_AFTER_STARTING_TO_RETURN_TO_BOARD +
-        BOARD.CARD_SHAKE_ANIMATION_DURATION,
+    });
+
+    /* ================================
+     * Handle Header Score counter animations reset
+     * - when mismatching a pair, pop out the score pairs or mismatches
+     *
+     * probably don't need both of these timeouts?
+     * reset animations, turn them off
+     *    - can do both animations at same time since only one will trigger per pair selection
+     * ================================ */
+    useTimeoutObj({
+      triggerCondition: useComputed$(
+        () =>
+          ctx.state.interfaceSettings.successAnimation === true ||
+          ctx.state.interfaceSettings.mismatchAnimation === true,
+      ),
+      delay: header.COUNTER_ANIMATE_DURATION,
+      action: $(() => {
+        ctx.state.interfaceSettings.mismatchAnimation = false;
+        ctx.state.interfaceSettings.successAnimation = false;
+      }),
     });
 
     // when switching tabs, show settings to pause the game
     useVisibilityChange({
-      onHidden$: $(() => {
-        ctx.handle.showSettings();
-      }),
+      onHidden$: ctx.handle.showSettings,
     });
 
     useOnDocument(
       "keydown",
       $((event: KeyboardEvent) => {
         if (event.key !== "Escape") return;
-        if (
-          ctx.state.gameData.flippedCardId !==
-          INITIAL_STATE.gameData.flippedCardId
-        )
-          return;
-        // if (ctx.state.gameData.isLoading) return;
-        if (ctx.state.interfaceSettings.endOfGameModal.isShowing) return;
 
-        if (ctx.state.interfaceSettings.settingsModal.isShowing) {
-          ctx.handle.hideSettings();
-        } else {
-          ctx.handle.showSettings();
-        }
+        ctx.handle.toggleModalOnEscape();
       }),
     );
 
@@ -179,15 +217,13 @@ export default component$<GameProps>(
         {/* </InverseModal> */}
 
         <div
-          class={`flex flex-col flex-grow justify-between w-full h-full p-[${
+          class={`flex flex-col flex-grow gap-1 justify-between w-full h-full p-[${
             GAME.CONTAINER_PADDING_PERCENT
-          }%] gap-1 ${
-            ctx.state.userSettings.board.isLocked ? "overflow-x-auto" : ""
-          }`}
-          ref={containerRef}
+          }%] ${ctx.state.userSettings.board.isLocked ? "overflow-auto" : ""}`}
+          ref={ctx.containerRef}
         >
           <GameHeader showSettings$={ctx.handle.showSettings} />
-          <Board containerRef={containerRef} />
+          <Board />
         </div>
 
         <Loading isShowing={ctx.state.gameData.isLoading} />

@@ -16,9 +16,15 @@ type GameSettingsProps = {
   unsavedUserSettings: Signal<iUserSettings>;
   startShuffling$?: PropFunction<() => void>;
   classes?: ClassList;
+  isShufflingDisabled?: boolean;
 };
 export default component$<GameSettingsProps>(
-  ({ unsavedUserSettings, startShuffling$, classes = "" }) => {
+  ({
+    unsavedUserSettings,
+    startShuffling$,
+    classes = "",
+    isShufflingDisabled,
+  }) => {
     const handleChange$ = $((e: Event) => {
       const properties = (e.target as HTMLInputElement).name.split(".");
       unsavedUserSettings.value = {
@@ -35,10 +41,17 @@ export default component$<GameSettingsProps>(
           <div class="mb-4 flex flex-grow items-center justify-evenly">
             <div class="w-full grid grid-cols-[1fr_8em_1fr] items-center justify-center gap-[2%]">
               <span></span>
-              <Button onClick$={() => startShuffling$()}>
+              <Button
+                onClick$={() => startShuffling$()}
+                disabled={isShufflingDisabled}
+              >
                 <span class="text-slate-100">Shuffle Deck</span>
               </Button>
-              <InfoTooltip>Shuffle the card positions.</InfoTooltip>
+              <InfoTooltip>
+                Shuffle the card positions. Can only
+                <br />
+                shuffle before starting the game!
+              </InfoTooltip>
             </div>
           </div>
         )}

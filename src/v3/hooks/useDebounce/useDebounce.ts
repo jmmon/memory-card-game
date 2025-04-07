@@ -51,7 +51,7 @@ export function useDebounceSignal<T>({
 
       // trigger our task
       flip.value = flip.value >= 2 ? 1 : ((flip.value + 1) as 1 | 2);
-    }
+    },
   );
 
   /**
@@ -66,9 +66,12 @@ export function useDebounceSignal<T>({
     if (flip.value === 0) return;
 
     // set up the timer to run the action, passing in the value and using the delay
-    const timer = setTimeout(() => {
-      _action$(argsSignal.value as T);
-    }, Math.max(0, delaySignal.value));
+    const timer = setTimeout(
+      () => {
+        _action$(argsSignal.value as T);
+      },
+      Math.max(0, delaySignal.value),
+    );
 
     taskCtx.cleanup(() => clearTimeout(timer));
   });

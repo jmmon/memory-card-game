@@ -1,4 +1,4 @@
-const CODE_PADDING = "px-1 md:px-1.5 lg:px-2" as const;
+const CODE_PADDING = "px-0 md:px-1 lg:px-2" as const;
 const CODE_TEXT_LIGHT = "text-slate-200" as const;
 const CODE_TEXT_DARK = "text-slate-400" as const;
 
@@ -12,4 +12,4 @@ export const header = {
   CODE_TEXT_DARK,
   COUNTER_ANIMATE_DURATION,
   SCORE_ANIMATION_CLASSES,
-};
+} as const;
