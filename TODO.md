@@ -19,6 +19,19 @@
 
 ## perf: change all cards into hidden SVG defs? then can load entire cards upfront like the symbol defs
 
+## perf: some sort of master timer? game clock? could hopefully handle multiple tasks
+- deck dealing timer,
+- shuffle timer,
+- flip timer,
+- shake timer,
+- header scores animation timer?
+
+- could do a signal and track when it changes, to adjust the interval?
+- have to turn the timer on, and off when it's not needed (if no action)
+- probably would need some small clock rate and then extrapolate ticks from that
+
+> e.g. playing, flip, unflip, then it counts the downtime and after 10 seconds 
+>   shows the settings modal pause feature
 
 
 
