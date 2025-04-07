@@ -18,9 +18,7 @@ const CardView: FunctionComponent<CardViewProps> = ({
     <CardFace label="card-front" classes="[transform:rotateY(180deg)]">
       {isFaceShowing.value && (
         <div
-          style={{
-            width: "100%",
-          }}
+          class="w-full"
           dangerouslySetInnerHTML={PlayingCardComponents[card.text]}
         />
       )}

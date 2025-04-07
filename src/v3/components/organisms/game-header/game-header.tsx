@@ -1,5 +1,4 @@
 import { component$ } from "@builder.io/qwik";
-import Button from "../../atoms/button/button";
 import HeaderSection from "~/v3/components/atoms/header-section/header-section";
 import HeaderSelectedIds from "~/v3/components/atoms/header-selected-ids/header-selected-ids";
 import HeaderGameDimensions from "~/v3/components/atoms/header-game-dimensions/header-game-dimensions";
@@ -8,16 +7,17 @@ import HeaderScoresDisplay from "~/v3/components/atoms/header-scores-display/hea
 
 import type { QRL } from "@builder.io/qwik";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
+import HeaderSettingsButton from "../../atoms/header-settings-button/header-settings-button";
 
 type GameHeaderProps = { showSettings$: QRL<() => void> };
-export default component$<GameHeaderProps>(({ showSettings$ }) => {
+export default component$<GameHeaderProps>(() => {
   const ctx = useGameContextService();
 
   return (
     <header
-      class={`mx-auto text-center text-xs md:text-sm flex justify-around w-full h-min`}
+      class={`z-50 mx-auto text-center text-xs md:text-sm flex gap-3 items-stretch justify-around w-full h-min`}
     >
-      <HeaderSection classes="justify-around">
+      <HeaderSection classes="justify-around pointer-events-none">
         {ctx.state.userSettings.interface.showSelectedIds && (
           <HeaderSelectedIds />
         )}
@@ -27,9 +27,7 @@ export default component$<GameHeaderProps>(({ showSettings$ }) => {
         <HeaderTimerDisplay />
       </HeaderSection>
 
-      <Button onClick$={showSettings$}>
-        <span class="text-slate-100">Settings</span>
-      </Button>
+      <HeaderSettingsButton />
 
       <HeaderSection>
         <HeaderScoresDisplay />

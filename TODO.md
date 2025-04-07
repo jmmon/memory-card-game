@@ -1,5 +1,47 @@
+## [Soon(TM)] TODO: finish scores!!!
+- cloudflare D1 sql server with drizzle to save scores
+
+
+## TODO: deck size changer with slide as well?
+- maybe hidden under dropdown so it can use the whole width, easier on mobile
+  - also keep the buttons
+  - or try a press and hold for the buttons, debounced timer to make it easier
+
+## bug:
+- seems like settings modal is closed after dealing deck, when starting shuffling?
+
+## bug:
+- dark mode theme loading happens late, look into examples from qwik website
+  - insert script into head to load on startup immediately;
+  - could also check computer preferences...
+
+## perf: deck dealing/fan-out interval instead of timeouts
+
+## perf: change all cards into hidden SVG defs? then can load entire cards upfront like the symbol defs
+
+
+
+
+
+## excited for qwik 1.14!
+
+
+
+
+
+
+
+
+## TODO: make an about page
+
+
+
+
+
+
+
 ## TODO: darkmode brightness adjust: dim the brightness of cards via another filter?
-- brightness (number) slider e.g. 100%-10%
+ brightness (number) slider e.g. 100%-10%
 > - also save in localstorage
 
 ## TODO: less extra work for dark mode.
@@ -21,8 +63,6 @@
 > this could be used to pre-render the game, reducing loading times for game?
 > - e.g. game is loaded on homepage, while user is reading content or clicking Play
 
-## [Soon(TM)] TODO: finish scores!!!
-- cloudflare D1 sql server with drizzle to save scores
 
 
 ## hotfixes css:
@@ -54,8 +94,15 @@
 
 ## TODO: investigate perf improvements [low priority]
 - see if I can change around loading of functions
-> - e.g. maybe load dummy cards first while shuffling then load in actual cards later
-> - e.g. preload game during homepage? in background
-> > - like render the game on home as well, and home will simply be an overlay
-> > > - this would let game load on startup, would need to delay shuffling though
+> e.g. maybe load dummy cards first while shuffling then load in actual cards later
+> e.g. preload game during homepage? in background, see through transparent layer?
+> - like render the game on home as well, and home will simply be an overlay
+> > - this would let game load on startup, would need to delay shuffling though
+> - single source of truth for gamestate, to initialize deck etc after switching states?
 
+### make the main page transparent and the app loads behind the main page
+- so the homescreen is an overlay which moves out of the way to start the game
+> - can see the deck dealt in the backround on app load and the cards shuffling
+- homescreen swings up out of the way when starting,
+> - and game re-deals if settings change
+> > - (for visual effect)

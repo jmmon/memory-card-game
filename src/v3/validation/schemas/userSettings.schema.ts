@@ -27,15 +27,14 @@ export const schema_userSettings = z
     deck: z.object({
       size: z
         .number()
-        .min(GAME.MIN_CARD_COUNT)
-        .max(GAME.MAX_CARD_COUNT)
-        .default(GAME.DEFAULT_CARD_COUNT),
+        .min(GAME.DECK_SIZE_MIN)
+        .max(GAME.DECK_SIZE_MAX)
+        .default(GAME.DECK_SIZE_DEFAULT),
       isLocked: z.boolean().default(false),
     }),
 
     board: z.object({
       isLocked: z.boolean().default(false), // prevent recalculation of board layout
-      resize: z.boolean().default(false),
     }),
 
     interface: z.object({

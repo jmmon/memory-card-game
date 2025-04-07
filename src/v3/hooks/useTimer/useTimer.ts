@@ -1,5 +1,5 @@
-import { $, useStore, useTask$ } from "@builder.io/qwik";
-import type { UseTimerOpts, iTimerState } from "./types";
+import { $, useComputed$, useStore, useTask$ } from "@builder.io/qwik";
+import { StatusEnum, type UseTimerOpts, type iTimerState } from "./types";
 
 /**
  * Not currently using these handler props, but may come in handy
@@ -15,7 +15,7 @@ export const useTimer = ({
     /**
      * @param status - actually controls the timer
      * */
-    status: "STOPPED",
+    status: StatusEnum.STOPPED,
     /**
      * @param time - currently accumulated time in ms
      * */
@@ -53,7 +53,7 @@ export const useTimer = ({
   const start = $(() => {
     state.isPaused = false;
     state.isStarted = true;
-    state.status = "RUNNING"; // tracked by task
+    state.status = StatusEnum.RUNNING; // tracked by task
 
     if (typeof onStart$ !== "undefined") onStart$();
   });
@@ -63,7 +63,7 @@ export const useTimer = ({
    * */
   const stop = $(() => {
     state.isEnded = true;
-    state.status = "STOPPED";
+    state.status = StatusEnum.STOPPED;
 
     if (typeof onStop$ !== "undefined") onStop$();
   });
@@ -74,11 +74,10 @@ export const useTimer = ({
    * */
   const resume = $(() => {
     state.isPaused = false;
-
-    if (state.isStarted === false || state.isEnded) return;
+    if (!state.isStarted || state.isEnded) return;
 
     state.isStarted = true;
-    state.status = "RUNNING"; // tracked by task
+    state.status = StatusEnum.RUNNING; // tracked by task
 
     if (typeof onResume$ !== "undefined") onResume$();
   });
@@ -91,7 +90,7 @@ export const useTimer = ({
     state.isPaused = true;
     if (!state.isStarted || state.isEnded) return;
 
-    state.status = "STOPPED";
+    state.status = StatusEnum.STOPPED;
     if (typeof onPause$ !== "undefined") onPause$();
   });
 
@@ -104,7 +103,7 @@ export const useTimer = ({
     state.isStarted = false;
     state.isEnded = false;
     state.isPaused = false;
-    state.status = "STOPPED";
+    state.status = StatusEnum.STOPPED;
 
     if (typeof onReset$ !== "undefined") onReset$();
   });
@@ -143,11 +142,11 @@ export const useTimer = ({
 
       updateRunningTime(); // run immediately also
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-    } else if (status === "STOPPED" && state.isPaused) {
+    } else if (status === "STOPPED" && (state.isPaused || state.isEnded)) {
       blinkId = setInterval(() => {
         state.blink = !state.blink;
       }, 800);
-      state.blink = false;
+      state.blink = true; // start immediately
     }
 
     // clean up the intervals
@@ -160,7 +159,12 @@ export const useTimer = ({
     });
   });
 
+  const shouldBlink = useComputed$(
+    () => (state.isPaused || state.isEnded) && state.blink,
+  );
+
   const timer = {
+    shouldBlink,
     state,
     start,
     stop,

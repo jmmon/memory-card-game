@@ -1,5 +1,4 @@
 import type { QRL } from "@builder.io/qwik";
-import type { useTimer } from "~/v3/hooks/useTimer";
 import type { iSchemas } from "../validation/schemas";
 import { Score } from "../db/schemas/types";
 
@@ -17,8 +16,6 @@ export type iTheme = keyof typeof ThemeEnum;
 export type iObj = Record<string, any>;
 export type iNestedObj = Record<string, string | iObj>;
 export type iEntriesStrings = [string, string][];
-
-export type iTimer = ReturnType<typeof useTimer>;
 
 export type iCoords = { x: number; y: number };
 
@@ -80,16 +77,50 @@ export enum iSelectCardEnum {
   BOTH,
 }
 
+export enum GameStateEnum {
+  IDLE = "IDLE",
+  STARTED = "STARTED",
+  ENDED = "ENDED",
+}
+export type iGameState = keyof typeof GameStateEnum;
+
+export type iGameData = {
+  gameState: GameStateEnum;
+  flippedCardId: number;
+  selectedCardIds: number[];
+  successfulPairs: iPair[];
+  cards: iCard[];
+  mismatchPairs: iPair[];
+  mismatchPair: iPair | "";
+  isShaking: boolean;
+  isLoading: boolean;
+  shufflingState: number;
+  currentFanOutCardIndex: number;
+  fanOutCardDelayRounds: number;
+  startingPosition: iCoords;
+};
+
 // settings user will be able to change
-export type iUserSettings = iSchemas["userSettings"];
+export type iUserSettings = iSchemas["userSettings"] & {
+  [key: string]: any;
+};
 
 // settings the user will not change
-export type iGameSettings = {
-  [key: string]: any;
-  cardFlipAnimationDuration: number;
+export type iGameSettings = {};
 
-  deck: {
-    fullDeck: iCard[];
+export type iInterfaceSettings = {
+  isScrollable: boolean;
+  successAnimation: boolean;
+  mismatchAnimation: boolean;
+  inverseSettingsModal: {
+    isShowing: boolean;
+  };
+  settingsModal: {
+    isShowing: boolean;
+  };
+  endOfGameModal: {
+    isShowing: boolean;
+    isWin: boolean;
   };
 };
 
@@ -112,36 +143,7 @@ export type iCardLayout = {
   rowGapPercent: number;
 };
 
-export type iGameData = {
-  isStarted: boolean;
-  flippedCardId: number;
-  selectedCardIds: number[];
-  successfulPairs: iPair[];
-  cards: iCard[];
-  mismatchPairs: iPair[];
-  mismatchPair: iPair | "";
-  isShaking: boolean;
-  isLoading: boolean;
-  shufflingState: number;
-};
-
-export type iInterfaceSettings = {
-  isScrollable: boolean;
-  successAnimation: boolean;
-  mismatchAnimation: boolean;
-  inverseSettingsModal: {
-    isShowing: boolean;
-  };
-  settingsModal: {
-    isShowing: boolean;
-  };
-  endOfGameModal: {
-    isShowing: boolean;
-    isWin: boolean;
-  };
-};
-
-export type iGameState = {
+export type iState = {
   boardLayout: iBoardLayout;
   cardLayout: iCardLayout;
 
@@ -154,10 +156,11 @@ export type iGameState = {
 };
 
 export type iGameHandlers = {
+  fanOutCard: QRL<() => void>;
   shuffleCardPositions: QRL<() => void>;
   sliceDeck: QRL<() => void>;
   resetGame: QRL<(settings?: Partial<iUserSettings>) => void>;
-  isGameEnded: QRL<
+  isEndGameConditionsMet: QRL<
     () =>
       | { isEnded: false }
       | {
@@ -168,16 +171,12 @@ export type iGameHandlers = {
   startShuffling: QRL<(count?: number) => void>;
   stopShuffling: QRL<() => void>;
   initializeDeck: QRL<(isStartup?: boolean) => void>;
-  calculateAndResizeBoard: QRL<
-    (boardRef: HTMLDivElement, containerRef: HTMLDivElement) => void
-  >;
+  calculateAndResizeBoard: QRL<() => void>;
   startGame: QRL<() => void>;
   showSettings: QRL<() => void>;
   hideSettings: QRL<() => void>;
+  showEndGameModal: QRL<() => void>;
+  hideEndGameModal: QRL<() => void>;
+  toggleModalOnEscape: QRL<() => void>;
   endGame: QRL<(isWin: boolean) => void>;
 };
-
-export type iGameContext = {
-  timer: iTimer;
-} & iGameState &
-  iGameHandlers;
