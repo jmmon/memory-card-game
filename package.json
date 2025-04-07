@@ -17,6 +17,7 @@
     "db.seed": "node src/v3/db/seed.mjs",
     "dev": "vite --mode ssr",
     "dev.debug": "node --inspect-brk ./node_modules/vite/bin/vite.js --mode ssr --force",
+    "drizzle:update": "drizzle-kit generate",
     "fmt": "prettier --write .",
     "fmt.check": "prettier --check .",
     "lint": "eslint \"src/**/*.ts*\"",
@@ -30,13 +31,13 @@
   "devDependencies": {
     "@builder.io/qwik": "^1.13.0",
     "@builder.io/qwik-city": "^1.13.0",
-    "@cloudflare/workers-types": "^4.20250327.0",
+    "@cloudflare/workers-types": "^4.20250407.0",
+    "@qwik-ui/headless": "^0.6.6",
     "@types/compression": "^1.7.2",
     "@types/eslint": "8.56.10",
     "@types/node": "20.14.11",
     "@typescript-eslint/eslint-plugin": "7.16.1",
     "@typescript-eslint/parser": "7.16.1",
-    "@qwik-ui/headless": "^0.6.6",
     "autoprefixer": "^10.4.14",
     "compression": "^1.7.4",
     "dotenv": "^16.3.2",
@@ -53,7 +54,7 @@
     "undici": "*",
     "vite": "5.3.5",
     "vite-tsconfig-paths": "^4.2.1",
-    "wrangler": "^4.6.0"
+    "wrangler": "^4.8.0"
   },
   "dependencies": {
     "crypto-js": "^4.2.0",

@@ -29,15 +29,9 @@ export const serverRunSeed = server$(async (obj: Parameters) => {
 
   const totalDeckSizes = Math.max(
     1,
-    Math.min(
-      Number(obj.totalDeckSizes ?? DEFAULT_TOTAL_DECK_SIZES),
-      DEFAULT_TOTAL_DECK_SIZES,
-    ),
+    Math.min(Number(obj.totalDeckSizes), DEFAULT_TOTAL_DECK_SIZES),
   );
-  const scoresPerDeckSize = Math.max(
-    1,
-    Number(obj.scoresPerDeckSize ?? DEFAULT_SCORES_PER_DECK_SIZE),
-  );
+  const scoresPerDeckSize = Math.max(1, Number(obj.scoresPerDeckSize));
 
   const opts = {
     totalDeckSizes,
@@ -85,7 +79,7 @@ export const serverRunSeed = server$(async (obj: Parameters) => {
   }
 });
 
-const useParams = routeLoader$((requestEvent) => {
+export const useParams = routeLoader$((requestEvent) => {
   if (process.env.FEATURE_FLAG_SCORES_DISABLED === "true") {
     return { message: "Scores disabled" };
   }
@@ -151,78 +145,108 @@ export default component$(() => {
   });
 
   return (
-    <div class="mt-4 mx-auto w-1/2 min-w-[20rem] grid justify-center gap-4">
-      {params.value.message ? (
-        <p>{params.value.message}</p>
-      ) : (
-        <>
-          <div class="flex items-center justify-around">
-            <button class="w-3/4 mx-auto p-2" onClick$={runSeed$}>
-              Run Seed
-            </button>
+    <div
+      class="w-full h-auto max-h-[100vh] flex flex-col justify-start items-center gap-10"
+      style={{
+        scrollbarGutter: "stable",
+        overflowY: "auto",
+      }}
+    >
+      <div class="mt-4 mx-auto w-1/2 min-w-[20rem] grid justify-center gap-4">
+        {params.value.message ? (
+          <p>{params.value.message}</p>
+        ) : (
+          <>
+            <div class="flex items-center justify-around">
+              <button
+                class="w-3/4 mx-auto p-2 rounded border border-slate-400 bg-slate-800"
+                onClick$={runSeed$}
+              >
+                Run Seed
+              </button>
 
-            <button class="w-3/4 mx-auto p-2" onClick$={() => clearDb$()}>
-              Clear DB
-            </button>
-          </div>
-          {status.value === "running" ? (
-            <p>Running...</p>
-          ) : (
-            status.value !== "waiting" && (
-              <>
-                <p>
-                  {status.value === "finished"
-                    ? "Completed!"
-                    : status.value === "failed" && "Failed!"}
-                </p>
-                <pre>{JSON.stringify(responseSig.value, null, 2)}</pre>
-              </>
-            )
-          )}
+              <button
+                class="w-3/4 mx-auto p-2 rounded border border-slate-400 bg-slate-800"
+                onClick$={() => clearDb$()}
+              >
+                Clear DB
+              </button>
+            </div>
+            {status.value === "running" ? (
+              <p>Running...</p>
+            ) : (
+              status.value !== "waiting" && (
+                <>
+                  <p>
+                    {status.value === "finished"
+                      ? "Completed!"
+                      : status.value === "failed" && "Failed!"}
+                  </p>
+                  <pre>{JSON.stringify(responseSig.value, null, 2)}</pre>
+                </>
+              )
+            )}
 
-          {clearSig.value === "running" ? (
-            <p>Clearing...</p>
-          ) : (
-            clearSig.value !== "waiting" && <p>Completed!</p>
-          )}
+            {clearSig.value === "running" ? (
+              <p>Clearing...</p>
+            ) : (
+              clearSig.value !== "waiting" && <p>Completed!</p>
+            )}
 
-          <label class="p-4 w-full rounded-lg border border-slate-400 ">
-            Total deck sizes:
-            <input
-              class="block bg-slate-400"
-              name="totalDeckSizes"
-              bind:value={totalDeckSizes}
-              min={1}
-              max={24}
-              step={1}
-            />
-          </label>
+            <label class="p-4 w-full rounded-lg border border-slate-400 ">
+              Total deck sizes:
+              <input
+                class="block bg-slate-400"
+                name="totalDeckSizes"
+                bind:value={totalDeckSizes}
+                min={1}
+                max={24}
+                step={1}
+              />
+            </label>
 
-          <label class="p-4 w-full rounded-lg border border-slate-400 ">
-            Scores per deck size:
-            <input
-              class="block bg-slate-400"
-              name="scoresPerDeckSize"
-              bind:value={scoresPerDeckSize}
-              min={1}
-              max={5000}
-              step={10}
-            />
-          </label>
-        </>
-      )}
+            <label class="p-4 w-full rounded-lg border border-slate-400 ">
+              Scores per deck size:
+              <input
+                class="block bg-slate-400"
+                name="scoresPerDeckSize"
+                bind:value={scoresPerDeckSize}
+                min={1}
+                max={5000}
+                step={10}
+              />
+            </label>
+          </>
+        )}
+      </div>
 
-      <div class="grid gap-4">
-        <button class="" onClick$={fetchAllScores}>
+      <div class="grid gap-4 justify-center mx-auto mb-10 ">
+        <button
+          class="w-[320px] mx-auto p-2 rounded border border-slate-400 bg-slate-800"
+          onClick$={fetchAllScores}
+        >
           Fetch all scores
         </button>
-        {queryResults.value !== undefined && (
-          <ul>
-            {queryResults.value.map((score) => (
-              <li>{JSON.stringify(score)}</li>
+        <ul class="mx-auto p-0 text-xs leading-5">
+          {queryResults.value?.map((score) => (
+            <li key={score.id}>
+              {JSON.stringify(score)
+                .replaceAll(",", ", ")
+                .replaceAll(":", ": ")
+                .replace("{", "{ ")
+                .replace("}", " }")}
+            </li>
+          ))}
+          {/*
+          {new Array(24 * 50)
+            .fill(
+              "{somelongkeysomelongkeysomelongkeysomelongkeysomelongkey: somelongvaluesomelongvaluesomelongvaluesomelongvaluesomelongvalue}",
+            )
+            .map((score) => (
+              <li key={score.id}>{JSON.stringify(score)}</li>
             ))}
-          </ul>
-        )}
+*/}
+        </ul>
       </div>
     </div>
   );

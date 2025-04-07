@@ -32,7 +32,16 @@
 				"TEST_ENV": "testing preview deploy from config"
 			}
 		}
-    }
+	},
+
+	"d1_databases": [
+		{
+		        "binding": "DB",
+		        "database_name": "scores-test",
+		        "database_id": "fdd087db-df60-46df-87a4-16b870568d9f",
+			"migrations_dir": "./src/v3/db/migrations"
+	        }
+	]
 
 
 	/**
