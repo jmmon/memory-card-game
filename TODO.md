@@ -1,3 +1,43 @@
+## TODO: deck size changer with slide as well?
+- maybe hidden under dropdown so it can use the whole width, easier on mobile
+  - also keep the buttons
+  - or try a press and hold for the buttons, debounced timer to make it easier
+
+## bug:
+- seems like settings modal is closed after dealing deck, when starting shuffling?
+
+## bug:
+- dark mode theme loading happens late, look into examples from qwik website
+  - insert script into head to load on startup immediately;
+  - could also check computer preferences...
+
+## perf: deck dealing/fan-out interval instead of timeouts
+
+## perf: change all cards into hidden SVG defs? then can load entire cards upfront like the symbol defs
+
+
+
+
+
+## excited for qwik 1.14!
+
+
+
+
+
+
+
+
+## TODO: make an about page
+
+
+
+
+
+
+
+
+
 ## TODO: darkmode brightness adjust: dim the brightness of cards via another filter?
 - brightness (number) slider e.g. 100%-10%
 > - also save in localstorage
