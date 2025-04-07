@@ -3,7 +3,7 @@ import type { SortColumnWithDirection } from "../../types/types";
 import { DEFAULT_QUERY_PROPS } from "./constants";
 import type { DrizzleDb, ScoreQueryProps } from "./types";
 import { scoresSchema } from "~/v3/db/schemas";
-import { Score } from "~/v3/db/schemas/types";
+import type { Score } from "~/v3/db/schemas/types";
 
 // getCategory(deckSize): returns list of scores matching deck size
 const getAllScores = (db: DrizzleDb) => db.select().from(scoresSchema);

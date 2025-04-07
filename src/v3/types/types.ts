@@ -1,6 +1,6 @@
 import type { QRL } from "@builder.io/qwik";
 import type { iSchemas } from "../validation/schemas";
-import { Score } from "../db/schemas/types";
+import type { Score } from "../db/schemas/types";
 
 import type { D1Database } from "@cloudflare/workers-types";
 

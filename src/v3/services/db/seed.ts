@@ -1,6 +1,6 @@
 import { server$ } from "@builder.io/qwik-city";
 import CryptoJS from "crypto-js";
-import { Score } from "~/v3/db/schemas/types";
+import type { Score } from "~/v3/db/schemas/types";
 import serverDbService from ".";
 
 const DEFAULT_HASH_LENGTH_BYTES = 32;

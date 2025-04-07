@@ -9,7 +9,7 @@ export const DEFAULT_QUERY_PROPS = {
   pageNumber: 1,
   resultsPerPage: 10,
   maxDeckSizes: 24,
-  deckSizesFilter: [GAME.DEFAULT_CARD_COUNT],
+  deckSizesFilter: [GAME.DECK_SIZE_DEFAULT],
   sortByColumnHistory: [
     {
       column: ScoreTableColumnEnum.deck_size,
