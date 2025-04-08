@@ -1,7 +1,8 @@
-import {
+import type {
   ScoreTableColumn,
+  SortColumnWithDirection} from "~/v3/types/types";
+import {
   ScoreTableColumnEnum,
-  SortColumnWithDirection,
   SortDirectionEnum,
 } from "~/v3/types/types";
 

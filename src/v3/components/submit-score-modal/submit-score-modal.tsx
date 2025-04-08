@@ -3,13 +3,13 @@ import { component$, useSignal, useStyles$ } from "@builder.io/qwik";
 export default component$(() => {
   const dialogRef = useSignal<HTMLDialogElement>();
   useStyles$(`
-#modal::backdrop {
-  background: rgba(255,0,0,0.2);
-}
-#modal {
-max-width: 50ch;
-box-shadow: 0 0 4px 4px rgba(0,0,0,0.2);
-}
+    #modal::backdrop {
+      background: rgba(255,0,0,0.2);
+    }
+    #modal {
+      max-width: 50ch;
+      box-shadow: 0 0 4px 4px rgba(0,0,0,0.2);
+    }
 `);
   return (
     <div>
@@ -19,7 +19,7 @@ box-shadow: 0 0 4px 4px rgba(0,0,0,0.2);
         }}
         id="modal"
         ref={dialogRef}
-        onClick$={(e, t: HTMLDialogElement) => {
+        onClick$={(_, t: HTMLDialogElement) => {
           if (t.nodeName === "DIALOG") t.close();
         }}
         onClose$={(e) => {
@@ -28,7 +28,7 @@ box-shadow: 0 0 4px 4px rgba(0,0,0,0.2);
         onShow$={(e) => {
           console.log("show:", e);
         }}
-class="block opacity-0 [&:not([open])]:pointer-events-none translate-y-20 transition-[opacity,transform] duration-300 [&[open]]:opacity-100 [&[open]]:translate-y-0 inset-0"
+        class="block opacity-0 [&:not([open])]:pointer-events-none translate-y-20 transition-[opacity,transform] duration-300 [&[open]]:opacity-100 [&[open]]:translate-y-0 inset-0"
       >
         <p>testing 123</p>
         <p>testing 456</p>

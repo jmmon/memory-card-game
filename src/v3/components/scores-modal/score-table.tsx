@@ -30,7 +30,7 @@ export default component$<ScoreTableProps>(
               const hyphenated = lowercaseHyphenate(header);
               const key = MAP_COL_TITLE_TO_OBJ_KEY[hyphenated];
               const findFn = (sortColumn: SortColumnWithDirection) =>
-                sortColumn?.column === key;
+                sortColumn.column === key;
               // console.log({key});
               const classes =
                 queryStore.sortByColumnHistory.find(findFn)?.direction ??
@@ -91,19 +91,19 @@ const TIME_LABEL_COLOR: ClassList = "text-slate-300/100";
 
 type GameTimeProps = { gameTimeDs: number };
 const GameTime = component$<GameTimeProps>(({ gameTimeDs }) => {
-  const { minutes, seconds, tenths } = formatTime(gameTimeDs);
+  const { minutes, seconds, ms } = formatTime(gameTimeDs);
   return (
     <>
       <span class={minutes > 0 ? "" : `text-xs ${TIME_LABEL_COLOR}`}>
         {String(minutes).padStart(2, "0")}
       </span>
       <span
-        class={`${seconds > 0 ? "" : "text-xs"} mx-[1px] ${TIME_LABEL_COLOR}`}
+        class={`${Number(seconds) > 0 ? "" : "text-xs"} mx-[1px] ${TIME_LABEL_COLOR}`}
       >
         m
       </span>
-      <span>{String(seconds).padStart(2, "0")}</span>
-      <span class={`text-xs ${TIME_LABEL_COLOR}`}>.{tenths}s</span>
+      <span>{seconds}</span>
+      <span class={`text-xs ${TIME_LABEL_COLOR}`}>.{ms}s</span>
     </>
   );
 });

@@ -2,16 +2,12 @@ import type { ClassList, QRL, Signal } from "@builder.io/qwik";
 import {
   $,
   component$,
-  useContext,
   useOnWindow,
   useSignal,
   useStore,
   useStyles$,
   useTask$,
 } from "@builder.io/qwik";
-import Modal from "../modal/modal";
-import { GameContext } from "~/v3/context/gameContext";
-import serverDbService from "~/v3/services/db.service";
 import {
   SortDirectionEnum,
   type ScoreWithPercentiles,
@@ -27,6 +23,9 @@ import {
   MAX_SORT_COLUMN_HISTORY,
   PIXEL_AVATAR_SIZE,
 } from "./constants";
+import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
+import Modal from "../templates/modal/modal";
+import serverDbService from "~/v3/services/db";
 
 export type QueryStore = {
   sortByColumnHistory: SortColumnWithDirection[];
@@ -38,7 +37,7 @@ export type QueryStore = {
 };
 
 export default component$(() => {
-  const gameContext = useContext(GameContext);
+  const ctx = useGameContextService();
   const isLoading = useSignal(true);
   const selectValue = useSignal("default");
 
@@ -48,7 +47,7 @@ export default component$(() => {
         0,
         MAX_SORT_COLUMN_HISTORY,
       ),
-      deckSizesFilter: [gameContext.settings.deck.size], // default to our deck.size
+      deckSizesFilter: [ctx.state.userSettings.deck.size], // default to our deck.size
       pageNumber: 1,
       resultsPerPage: 100,
       totalResults: 1,
@@ -58,18 +57,19 @@ export default component$(() => {
   );
 
   useTask$(({ track }) => {
-    track(() => gameContext.settings.deck.size);
-    queryStore.deckSizesFilter = [gameContext.settings.deck.size];
+    track(() => ctx.state.userSettings.deck.size);
+    queryStore.deckSizesFilter = [ctx.state.userSettings.deck.size];
   });
 
   const deckSizeList = useSignal<number[]>([]);
   const sortedScores = useSignal<ScoreWithPercentiles[]>([]);
-  const scoreTotals = useSignal<{
-    [key: number]: number;
-    all: number;
-  }>({
-    all: 0,
-  });
+  // holds map of deckSize: number; and also all count
+  // const scoreTotals = useSignal<{
+  //   [key: number]: number;
+  //   all: number;
+  // }>({
+  //   all: 0,
+  // });
 
   const queryAndSaveScores = $(async () => {
     const isScoresDisabled = await server$(() => {
@@ -82,55 +82,59 @@ export default component$(() => {
     isLoading.value = true;
 
     console.log({ queryStore });
-    const scoresPromise = serverDbService.scores.queryWithPercentiles({
+    const scoresPromise = serverDbService.scores.query({
       pageNumber: queryStore.pageNumber,
       resultsPerPage: queryStore.resultsPerPage,
       deckSizesFilter:
         queryStore.deckSizesFilter.length === 0
-          ? [gameContext.settings.deck.size]
+          ? [ctx.state.userSettings.deck.size]
           : queryStore.deckSizesFilter,
       sortByColumnHistory: queryStore.sortByColumnHistory,
     });
 
-    // fetch all deck sizes for our dropdown
-    const scoreCountsPromise = serverDbService.scoreCounts.getDeckSizes();
+    // // fetch all deck sizes for our dropdown
+    const deckSizesPromise = serverDbService.scores.getDeckSizes();
+    // const deckSizeCounts = serverDbService.scores.getCountByDeckSize(
+    //   queryStore.deckSizesFilter[0],
+    // );
 
-    const [scoresRes, scoreCounts] = await Promise.all([
+    const [scoresRes, deckSizes] = await Promise.all([
       scoresPromise,
-      scoreCountsPromise,
+      deckSizesPromise,
     ]);
 
-    const { scores, totals } = scoresRes;
+    // const { scores, totals } = scoresRes;
+    const scores = scoresRes;
 
-    deckSizeList.value = scoreCounts;
+    deckSizeList.value = deckSizes;
 
-    const totalCount = Object.values(totals).reduce(
-      (accum, cur) => (accum += cur),
-      0,
-    );
+    // const totalCount = Object.values(totals).reduce(
+    //   (accum, cur) => (accum += cur),
+    //   0,
+    // );
 
-    console.log({ totalCount, scores, deckSizeList: deckSizeList.value });
+    // console.log({ totalCount, scores, deckSizeList: deckSizeList.value });
 
-    scoreTotals.value = {
-      ...totals,
-      all: totalCount,
-    };
+    // scoreTotals.value = {
+    //   ...totals,
+    //   all: totalCount,
+    // };
 
     // calculate new page number we should place them on, eg match the centers
-    const newTotalPages = Math.ceil(totalCount / queryStore.resultsPerPage);
-    console.log({ newTotalPages });
-    const prevPagePercent =
-      queryStore.pageNumber / queryStore.totalPages > 1
-        ? 1
-        : queryStore.pageNumber / queryStore.totalPages;
-    console.log({ prevPagePercent });
-    const newPage =
-      queryStore.pageNumber === 1
-        ? 1
-        : Math.ceil(prevPagePercent * newTotalPages);
-    console.log({ newPage });
-    queryStore.totalPages = newTotalPages;
-    queryStore.pageNumber = newPage;
+    // const newTotalPages = Math.ceil(totalCount / queryStore.resultsPerPage);
+    // console.log({ newTotalPages });
+    // const prevPagePercent =
+    //   queryStore.pageNumber / queryStore.totalPages > 1
+    //     ? 1
+    //     : queryStore.pageNumber / queryStore.totalPages;
+    // console.log({ prevPagePercent });
+    // const newPage =
+    //   queryStore.pageNumber === 1
+    //     ? 1
+    //     : Math.ceil(prevPagePercent * newTotalPages);
+    // console.log({ newPage });
+    // queryStore.totalPages = newTotalPages;
+    // queryStore.pageNumber = newPage;
 
     sortedScores.value = [...scores];
 
@@ -210,7 +214,7 @@ export default component$(() => {
       if (queryStore.deckSizesFilter.length <= midway) {
         queryStore.deckSizesFilter = [...deckSizeList.value];
       } else {
-        queryStore.deckSizesFilter = [gameContext.settings.deck.size];
+        queryStore.deckSizesFilter = [ctx.state.userSettings.deck.size];
       }
     } else {
       const indexIfExists =
@@ -254,8 +258,8 @@ export default component$(() => {
    * onMount, onShow modal
    * */
   useTask$(async ({ track }) => {
-    track(() => gameContext.interface.scoresModal.isShowing);
-    if (!gameContext.interface.scoresModal.isShowing) return;
+    track(() => ctx.state.interfaceSettings.scoresModal.isShowing);
+    if (!ctx.state.interfaceSettings.scoresModal.isShowing) return;
 
     resizePixelAvatar();
 
@@ -384,9 +388,9 @@ export default component$(() => {
 
   return (
     <Modal
-      isShowing={gameContext.interface.scoresModal.isShowing}
+      isShowing={ctx.state.interfaceSettings.scoresModal.isShowing}
       hideModal$={() => {
-        gameContext.interface.scoresModal.isShowing = false;
+        ctx.state.interfaceSettings.scoresModal.isShowing = false;
       }}
       title="Scoreboard"
       containerClasses="flex w-[80vw] max-w-[100vw] min-w-[18rem]"
