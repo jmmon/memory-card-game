@@ -4,9 +4,16 @@ import type { Score } from "../db/schemas/types";
 
 import type { D1Database } from "@cloudflare/workers-types";
 
+
 export type Env = {
   DB: D1Database;
 };
+
+
+/* =====================================================
+ * Game Logic
+ * ===================================================== */
+
 
 export enum ThemeEnum {
   light = "light",
@@ -36,9 +43,18 @@ export type iCard = {
   localSVG?: string;
 };
 
+
 /* =====================================================
  * Scoreboard: scores and sorting
  * ===================================================== */
+
+// for mapping our current score to find how many other scores are less than it
+export type LessThanOurScoreObj = Record<number, number>;
+export type ScoreCountColumnOptions = "gameTime" | "mismatches";
+
+export type DeckSizesDictionary = { [key: string]: Score[] };
+
+
 export type ScoreWithPercentiles = Score & {
   [key: string]: number | string | undefined;
   timePercentile?: number;
