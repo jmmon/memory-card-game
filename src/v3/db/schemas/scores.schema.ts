@@ -15,10 +15,7 @@ import { text, integer, sqliteTable, index } from "drizzle-orm/sqlite-core";
 export const scoresSchema = sqliteTable(
   "scores",
   {
-    id: integer("id")
-      .$type<number>()
-      .notNull()
-      .primaryKey({ autoIncrement: true }),
+    id: integer("id").$type<number>().primaryKey({ autoIncrement: true }),
 
     // these all have indices
     createdAt: integer("created_at").$type<number>().notNull(),

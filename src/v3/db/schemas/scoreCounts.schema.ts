@@ -56,10 +56,7 @@ import { text, integer, sqliteTable, index } from "drizzle-orm/sqlite-core";
 export const scoreCountsSchema = sqliteTable(
   "score_counts",
   {
-    id: integer("id")
-      .$type<number>()
-      .notNull()
-      .primaryKey({ autoIncrement: true }),
+    id: integer("id").$type<number>().primaryKey({ autoIncrement: true }),
     deckSize: integer("deck_size").$type<number>().notNull(),
     worseThanOurMismatchesMap: text("worse_than_our_mismatches_map")
       .$type<string>()
