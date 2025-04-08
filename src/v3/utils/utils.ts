@@ -117,3 +117,6 @@ export const pruneDefaultsFromSettings = (newSettings: iUserSettings) => {
   if (result.length === 0) return "";
   return "?" + result.join("&");
 };
+
+export const lowercaseHyphenate = (str: string) =>
+  str.toLowerCase().replace(/ /g, "-");

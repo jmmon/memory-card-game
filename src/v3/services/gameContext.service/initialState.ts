@@ -128,6 +128,9 @@ const INTERFACE_SETTINGS: iInterfaceSettings = {
   settingsModal: {
     isShowing: false,
   },
+  scoresModal: {
+    isShowing: false,
+  },
   endOfGameModal: {
     isShowing: false,
     isWin: false,
