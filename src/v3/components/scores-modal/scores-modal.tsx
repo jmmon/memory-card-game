@@ -63,13 +63,12 @@ export default component$(() => {
 
   const deckSizeList = useSignal<number[]>([]);
   const sortedScores = useSignal<ScoreWithPercentiles[]>([]);
-  // holds map of deckSize: number; and also all count
-  // const scoreTotals = useSignal<{
-  //   [key: number]: number;
-  //   all: number;
-  // }>({
-  //   all: 0,
-  // });
+  const scoreTotals = useSignal<{
+    [key: number]: number;
+    all: number;
+  }>({
+    all: 0,
+  });
 
   const queryAndSaveScores = $(async () => {
     const isScoresDisabled = await server$(() => {
@@ -82,7 +81,7 @@ export default component$(() => {
     isLoading.value = true;
 
     console.log({ queryStore });
-    const scoresPromise = serverDbService.scores.query({
+    const scoresPromise = serverDbService.scores.queryWithPercentiles({
       pageNumber: queryStore.pageNumber,
       resultsPerPage: queryStore.resultsPerPage,
       deckSizesFilter:
@@ -92,49 +91,45 @@ export default component$(() => {
       sortByColumnHistory: queryStore.sortByColumnHistory,
     });
 
-    // // fetch all deck sizes for our dropdown
-    const deckSizesPromise = serverDbService.scores.getDeckSizes();
-    // const deckSizeCounts = serverDbService.scores.getCountByDeckSize(
-    //   queryStore.deckSizesFilter[0],
-    // );
+    // fetch all deck sizes for our dropdown
+    const scoreCountsPromise = serverDbService.scoreCounts.getDeckSizes();
 
-    const [scoresRes, deckSizes] = await Promise.all([
+    const [scoresRes, scoreCounts] = await Promise.all([
       scoresPromise,
-      deckSizesPromise,
+      scoreCountsPromise,
     ]);
 
-    // const { scores, totals } = scoresRes;
-    const scores = scoresRes;
+    const { scores, totals } = scoresRes;
 
-    deckSizeList.value = deckSizes;
+    deckSizeList.value = scoreCounts;
 
-    // const totalCount = Object.values(totals).reduce(
-    //   (accum, cur) => (accum += cur),
-    //   0,
-    // );
+    const totalCount = Object.values(totals).reduce(
+      (accum, cur) => (accum += cur),
+      0,
+    );
 
-    // console.log({ totalCount, scores, deckSizeList: deckSizeList.value });
+    console.log({ totalCount, scores, deckSizeList: deckSizeList.value });
 
-    // scoreTotals.value = {
-    //   ...totals,
-    //   all: totalCount,
-    // };
+    scoreTotals.value = {
+      ...totals,
+      all: totalCount,
+    };
 
     // calculate new page number we should place them on, eg match the centers
-    // const newTotalPages = Math.ceil(totalCount / queryStore.resultsPerPage);
-    // console.log({ newTotalPages });
-    // const prevPagePercent =
-    //   queryStore.pageNumber / queryStore.totalPages > 1
-    //     ? 1
-    //     : queryStore.pageNumber / queryStore.totalPages;
-    // console.log({ prevPagePercent });
-    // const newPage =
-    //   queryStore.pageNumber === 1
-    //     ? 1
-    //     : Math.ceil(prevPagePercent * newTotalPages);
-    // console.log({ newPage });
-    // queryStore.totalPages = newTotalPages;
-    // queryStore.pageNumber = newPage;
+    const newTotalPages = Math.ceil(totalCount / queryStore.resultsPerPage);
+    console.log({ newTotalPages });
+    const prevPagePercent =
+      queryStore.pageNumber / queryStore.totalPages > 1
+        ? 1
+        : queryStore.pageNumber / queryStore.totalPages;
+    console.log({ prevPagePercent });
+    const newPage =
+      queryStore.pageNumber === 1
+        ? 1
+        : Math.ceil(prevPagePercent * newTotalPages);
+    console.log({ newPage });
+    queryStore.totalPages = newTotalPages;
+    queryStore.pageNumber = newPage;
 
     sortedScores.value = [...scores];
 

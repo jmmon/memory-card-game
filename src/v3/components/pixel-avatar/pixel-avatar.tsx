@@ -4,6 +4,7 @@ import { sha256 } from "crypto-js";
 import { stringToColor } from "~/v3/utils/avatarUtils";
 
 const DEFAULT_COLOR_OPTIONS = {
+  backgroundColor: "#fff",
   saturation: {
     min: 20,
     max: 80,
@@ -21,9 +22,8 @@ export function bufferToHexString(buffer: ArrayBuffer) {
   return hexCodes.join("");
 }
 
-export function getHash(message: string) {
+export function getHash(message: string): Promise<ArrayBuffer> {
   if (isServer) {
-    // return getRandomBytes();
     return sha256(message);
     // return createHash("sha256").update(message).digest();
   }
@@ -73,18 +73,6 @@ function calculateBaseChange(hex: string, targetMinimumStringLength: number) {
 
   return newBase;
 }
-
-// function calcBaseChange(hex: string, targetMinimumStringLength: number) {
-//   const sqrtTarget = Math.sqrt(targetMinimumStringLength);
-//   const sqrtCurrent = Math.sqrt(hex.length);
-//
-//   console.log({
-//     targetMinimumStringLength,
-//     sqrtTarget,
-//     hexLength: hex.length,
-//     sqrtCurrent,
-//   });
-// }
 
 export function hexHash2BaseOfLength(hex: string, len: number) {
   const newBase = calculateBaseChange(hex, len);
@@ -165,8 +153,8 @@ export async function calculatePixelData(
   return data;
 }
 
-async function calculateOnlyPixels(text: string, cols: number, rows: number) {
-  const hash = await getHexHashString(text);
+async function calculateOnlyPixels(hash: string, cols: number, rows: number) {
+  // console.log("calculateOnlyPixels:", { hash });
   const requiredLength = rows * Math.ceil(cols / 2);
   const { rebasedHash, base } = hexHash2BaseOfLength(hash, requiredLength);
 
@@ -179,7 +167,7 @@ export async function calculateOnlyColor(
   lightness: { min: number; max: number } = DEFAULT_COLOR_OPTIONS.lightness,
 ) {
   const hash = await getHexHashString(text);
-  console.log("calculating color only for text:", text, hash);
+  // console.log("calculating color only for text:", text, hash);
   return stringToColor(hash, saturation, lightness);
 }
 
@@ -214,17 +202,20 @@ interface PixelAvatarProps {
   rows?: number;
   cols?: number;
   text?: Signal<string>;
+  hash?: Signal<string>;
   forceLighter?: boolean | "nochange";
   coloredSquaresStrokeWidth?: number;
   eachBlockSizePx?: number;
   classes?: string;
   colorOptions?: {
+    backgroundColor?: string;
     saturation: { min: number; max: number };
     lightness: { min: number; max: number };
   };
   colorFrom?: Signal<string>;
   color?: string;
   halfPixels?: string;
+  /** for saving the data */
   outputTo$?: PropFunction<
     ({
       cols,
@@ -246,14 +237,20 @@ export default component$(
     cols = 16,
     width = 100,
     height = 100,
-    text,
-    // forceLighter = "nochange",
-    eachBlockSizePx = 1,
     classes = "",
+    eachBlockSizePx = 1,
     colorOptions = DEFAULT_COLOR_OPTIONS,
+    // forceLighter = "nochange",
+    /** */
+    text,
+    hash,
     colorFrom,
+
+    /** */
     color,
     halfPixels,
+
+    /** */
     outputTo$,
   }: PixelAvatarProps) => {
     const data = useSignal({
@@ -267,19 +264,38 @@ export default component$(
       totalPixels: 0,
       avg: 0,
     });
+    colorOptions = {
+      backgroundColor:
+        colorOptions.backgroundColor ?? DEFAULT_COLOR_OPTIONS.backgroundColor,
+      saturation: {
+        ...DEFAULT_COLOR_OPTIONS.saturation,
+        ...colorOptions.saturation,
+      },
+      lightness: {
+        ...DEFAULT_COLOR_OPTIONS.lightness,
+        ...colorOptions.lightness,
+      },
+    };
 
     useTask$(async ({ track }) => {
-      track(() => [color, halfPixels, text?.value, colorFrom?.value]);
+      track(() => [
+        color,
+        halfPixels,
+        hash?.value,
+        text?.value,
+        colorFrom?.value,
+      ]);
 
       let generatedPixels, generatedColor;
       let textToUseForPixels = text?.value ?? "";
 
+      // generate or get color
       if (color) {
         generatedColor = color;
       } else {
         let colorSlice = "";
         if (colorFrom) {
-          // gen color from colorFrom
+          // gen color from colorFrom e.g. initials
           colorSlice = colorFrom.value;
         } else {
           // gen color from slice of text
@@ -293,15 +309,15 @@ export default component$(
         );
       }
 
-      if (halfPixels) {
+      if (hash?.value) {
+        generatedPixels = await calculateOnlyPixels(hash.value, cols, rows);
+      } else if (halfPixels) {
+        // generate or get pixels
         generatedPixels = mirrorPixels(cols, rows, halfPixels);
       } else {
         // hash the textToUseForPixels
-        generatedPixels = await calculateOnlyPixels(
-          textToUseForPixels,
-          cols,
-          rows,
-        );
+        const hashed = await getHexHashString(textToUseForPixels);
+        generatedPixels = await calculateOnlyPixels(hashed, cols, rows);
       }
 
       // console.log({ generatedPixels, generatedColor });
@@ -309,7 +325,7 @@ export default component$(
         .split("")
         .reduce((accum, cur) => (accum += Number(cur)), 0);
       const avg = totalColored / generatedPixels.length;
-      const isMoreColored = avg > 0.5;
+      const isMoreColored = avg >= 0.5;
 
       meta.value = {
         totalColored: totalColored,
@@ -348,7 +364,9 @@ export default component$(
             width={width}
             height={height}
             style={`stroke-width: 0px; background-color: ${
-              data.value.isMoreColored ? data.value.color : "#fff"
+              data.value.isMoreColored
+                ? data.value.color
+                : (colorOptions.backgroundColor as string)
             }; `}
             class={classes}
             data-colored={meta.value.totalColored}
@@ -364,7 +382,9 @@ export default component$(
                     key={`${index}:${pixel}`}
                     index={index}
                     pixelColor={
-                      data.value.isMoreColored ? "#fff" : data.value.color
+                      data.value.isMoreColored
+                        ? (colorOptions.backgroundColor as string)
+                        : data.value.color
                     }
                     eachBlockSizePx={eachBlockSizePx}
                     cols={cols}

@@ -11,19 +11,22 @@ const stringToHash = (string: string) => {
 
 const numberToString = (number: number) => {
   let numberAsStr = String(number);
-  let result = '';
+  let result = "";
   while (numberAsStr.length > 1) {
-    const thisChar = String.fromCharCode(Number(numberAsStr.slice(-2)))
+    const thisChar = String.fromCharCode(Number(numberAsStr.slice(-2)));
     numberAsStr = numberAsStr.slice(0, -2);
     result += thisChar;
   }
   return result;
-}
+};
 
+/**
+ * Generates the color from the initials
+ * */
 export const stringToColor = (
   string: string,
   saturation = { min: 20, max: 80 },
-  lightness = { min: 30, max: 80 }
+  lightness = { min: 30, max: 80 },
 ) => {
   // max unique colors: 360 * (saturation.max - saturation.min) * (lightness.max - lightness.min)
   // 360 * 80 * 60 = 1_728_000
@@ -38,11 +41,11 @@ export const stringToColor = (
   const hue = hash % 360;
   const sat = Math.round(
     saturation.min +
-    (Number(satPercent) * (saturation.max - saturation.min)) / 100
+      (Number(satPercent) * (saturation.max - saturation.min)) / 100,
   );
   const light = Math.round(
     lightness.min +
-    (Number(lightPercent) * (lightness.max - lightness.min)) / 100
+      (Number(lightPercent) * (lightness.max - lightness.min)) / 100,
   );
 
   // console.log({ satPercent, lightPercent, hue, sat, light });

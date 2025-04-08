@@ -1,6 +1,7 @@
 import { $, component$, useSignal, useTask$ } from "@builder.io/qwik";
 import { routeLoader$, server$ } from "@builder.io/qwik-city";
-import type { Score } from "~/v3/db/schemas/types";
+import PixelAvatar from "~/v3/components/pixel-avatar/pixel-avatar";
+import type { Score, ScoreCount } from "~/v3/db/schemas/types";
 import serverDbService from "~/v3/services/db";
 import runSeed from "~/v3/services/db/seed";
 
@@ -106,12 +107,18 @@ export default component$(() => {
   const status = useSignal<"waiting" | "running" | "finished" | "failed">(
     "waiting",
   );
-  const clearSig = useSignal<"waiting" | "running" | "finished">("waiting");
+  const clearSig = useSignal<"waiting" | "running" | "finished" | "failed">(
+    "waiting",
+  );
   const responseSig = useSignal<undefined | ResponseObj>(undefined);
 
-  const queryResults = useSignal<Score[]>();
+  const queryResults = useSignal<Score[] | ScoreCount[]>();
   const fetchAllScores = $(async () => {
     queryResults.value = await serverDbService.scores.getAll();
+  });
+
+  const fetchAllScoreCounts = $(async () => {
+    queryResults.value = await serverDbService.scoreCounts.getAll();
   });
 
   useTask$(({ track }) => {
@@ -136,13 +143,21 @@ export default component$(() => {
     return;
   });
 
-  const clearDb$ = server$(() => {
+  const clearDb$ = $(async () => {
     clearSig.value = "running";
     console.log("Clearing db...");
-    serverDbService.scores.clear();
-    clearSig.value = "finished";
-    console.log("db cleared!");
+    try {
+      await serverDbService.clearAllData();
+      clearSig.value = "finished";
+      console.log("db cleared!");
+    } catch (err) {
+      clearSig.value = "failed";
+      console.log("error clearing DB:", err);
+    }
   });
+
+  const factor = 3;
+  const size = 16 * factor;
 
   return (
     <div
@@ -167,7 +182,7 @@ export default component$(() => {
 
               <button
                 class="w-3/4 mx-auto p-2 rounded border border-slate-400 bg-slate-800"
-                onClick$={() => clearDb$()}
+                onClick$={clearDb$}
               >
                 Clear DB
               </button>
@@ -177,7 +192,10 @@ export default component$(() => {
             ) : (
               status.value !== "waiting" && (
                 <>
-                  <p>
+                  <p
+                    onClick$={() => (status.value = "waiting")}
+                    class="cursor-pointer"
+                  >
                     {status.value === "finished"
                       ? "Completed!"
                       : status.value === "failed" && "Failed!"}
@@ -189,6 +207,13 @@ export default component$(() => {
 
             {clearSig.value === "running" ? (
               <p>Clearing...</p>
+            ) : clearSig.value === "failed" ? (
+              <p
+                onClick$={() => (clearSig.value = "waiting")}
+                class="cursor-pointer"
+              >
+                Failed... check the console
+              </p>
             ) : (
               clearSig.value !== "waiting" && <p>Completed!</p>
             )}
@@ -221,31 +246,60 @@ export default component$(() => {
       </div>
 
       <div class="grid gap-4 justify-center mx-auto mb-10 ">
-        <button
-          class="w-[320px] mx-auto p-2 rounded border border-slate-400 bg-slate-800"
-          onClick$={fetchAllScores}
+        <div class="flex items-center gap-6">
+          <button
+            class="w-[320px] mx-auto p-2 rounded border border-slate-400 bg-slate-800"
+            onClick$={fetchAllScores}
+          >
+            Fetch all scores
+          </button>
+          <button
+            class="w-[320px] mx-auto p-2 rounded border border-slate-400 bg-slate-800"
+            onClick$={fetchAllScoreCounts}
+          >
+            Fetch all scoreCounts
+          </button>
+        </div>
+        <ul
+          class={`mx-auto p-0 text-xs leading-5 ${
+            queryResults.value &&
+            queryResults.value[0] &&
+            typeof (queryResults.value[0] as Score).initials !== "undefined"
+              ? " [&>li:nth-child(odd)]:ml-[68px] [&>li:nth-child(even)]:gap-[84px]"
+              : "max-w-[80%]"
+          }`}
         >
-          Fetch all scores
-        </button>
-        <ul class="mx-auto p-0 text-xs leading-5">
-          {queryResults.value?.map((score) => (
-            <li key={score.id}>
-              {JSON.stringify(score)
-                .replaceAll(",", ", ")
-                .replaceAll(":", ": ")
-                .replace("{", "{ ")
-                .replace("}", " }")}
-            </li>
-          ))}
-          {/*
-          {new Array(24 * 50)
-            .fill(
-              "{somelongkeysomelongkeysomelongkeysomelongkeysomelongkey: somelongvaluesomelongvaluesomelongvaluesomelongvaluesomelongvalue}",
-            )
-            .map((score) => (
-              <li key={score.id}>{JSON.stringify(score)}</li>
-            ))}
-*/}
+          {queryResults.value &&
+            queryResults.value[0] &&
+            (typeof (queryResults.value[0] as Score).initials !== "undefined"
+              ? (queryResults.value as Score[]).map((score) => (
+                  <li
+                    key={score.id}
+                    class=" flex gap-4 items-center my-[-16px]"
+                  >
+                    <PixelAvatar
+                      classes=""
+                      width={size}
+                      height={size}
+                      hash={{ value: score.userId }}
+                      colorFrom={{ value: score.initials }}
+                    />
+                    {JSON.stringify(score)
+                      .replaceAll(",", ", ")
+                      .replaceAll(":", ": ")
+                      .replace("{", "{ ")
+                      .replace("}", " }")}
+                  </li>
+                ))
+              : (queryResults.value as ScoreCount[]).map((scoreCounts) => (
+                  <li key={scoreCounts.id} class="my-4">
+                    {JSON.stringify(scoreCounts)
+                      .replaceAll(",", ", ")
+                      .replaceAll(":", ": ")
+                      .replace("{", "{ ")
+                      .replace("}", " }")}
+                  </li>
+                )))}
         </ul>
       </div>
     </div>

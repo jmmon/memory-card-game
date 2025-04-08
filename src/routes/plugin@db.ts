@@ -9,5 +9,5 @@ export const onRequest: RequestHandler = async ({ platform }) => {
 };
 
 function initD1(env: Env): () => Promise<DrizzleDb> {
-  return async () => drizzle(env.DB);
+  return async () => drizzle(env.DB, { logger: true });
 }

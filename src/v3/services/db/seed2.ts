@@ -1,4 +1,3 @@
-// import crypto from "node:crypto";
 import { server$ } from "@builder.io/qwik-city";
 import CryptoJS from "crypto-js";
 import type { InsertScore } from "~/v3/db/schemas/types";
@@ -6,22 +5,17 @@ import serverDbService from ".";
 
 const DEFAULT_HASH_LENGTH_BYTES = 32;
 
-export const getRandomBytes = (bytes = DEFAULT_HASH_LENGTH_BYTES) => {
-  return CryptoJS.lib.WordArray.random(bytes).toString(
-    CryptoJS.enc.Hex,
-  ) as string;
-  // return crypto.randomBytes(bytes).toString("hex");
-};
+export const getRandomBytes = (bytes = DEFAULT_HASH_LENGTH_BYTES) =>
+  CryptoJS.lib.WordArray.random(bytes).toString(CryptoJS.enc.Hex) as string;
 
 const ACode = 65;
 const ZCode = 90;
-const getRandomInitials = () => {
-  return String.fromCharCode(
+const getRandomInitials = () =>
+  String.fromCharCode(
     ...Array(3)
       .fill(null)
       .map(() => Math.floor(Math.random() * (ZCode - ACode + 1)) + ACode),
   );
-};
 
 const CREATED_AT_DATE_RANGE_MS = 60 * 60 * 24 * 365 * 1000; // one year
 const generateRandomMsWithinRange = (
@@ -76,7 +70,7 @@ const createManyScores = async ({
     for (let i = 0; i < scoresPerDeckSize; i++) {
       const newScoreData = generateScoreData(deckSize);
 
-      await serverDbService.saveNewScore(newScoreData);
+      await serverDbService.scores.create(newScoreData);
     }
     console.log(
       `...DONE with ${deckSize}! ~ ${(Date.now() - start) / 1000} seconds for ${scoresPerDeckSize} scores`,

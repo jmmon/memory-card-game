@@ -37,9 +37,9 @@
 	"d1_databases": [
 		{
 		        "binding": "DB",
-		        "database_name": "scores-test",
-		        "database_id": "fdd087db-df60-46df-87a4-16b870568d9f",
-			"migrations_dir": "./src/v3/db/migrations"
+		        "database_name": "scores-test-2",
+		        "database_id": "7bc193fe-2497-4025-b15e-56866a1abf58",
+				"migrations_dir": "./src/v3/db/migrations"
 	        }
 	]
 
