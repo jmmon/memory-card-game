@@ -1,12 +1,41 @@
+## end game:
+1. info tooltip is on new line, should be appended to same line
+2. initials should be wider, it feels squished (maybe 1.5-2x wider)
+3. [low priority] replace the text in the initials box, e.g. start typing and it fills in x dashes in front and adjusts as you type
+4. HR goes all the way to edge, give some padding/margin
+
+## scores modal:
+1. wide screens, it's unnecessarily wide
+> - removing the 80vw width makes it better, then it renders ~900x900
+> - renders at 60vw by default, still unnecessarily wide but looks much better
+> - need breakpoint though!
+2. fix paging! i broke it
+3. chevron icons should be darker when buttons are disabled, and light otherwise!
+4. save score button: loading indicator? it already turns green after but can go disabled while pending
+
 ## scores button padding
 ## modal control ?
 - when opening scores, do I want the settings to open? 
 > I guess only if game is not in progress, so it pauses the game
 > or have scores also pause the game just like settings does
 
-## figure out sorting for scores
+## bug:
+- seems like settings modal is closed after dealing deck, when starting shuffling?
+- should be closed at start of deck dealing, or not closed at all, rather than "halfway" through
 
 ## modal full width on smaller screens e.g. max-width:640px
+
+
+
+
+
+## figure out sorting for scores!
+## sticky table header? so you can always see the labels and sort?
+## definitely needs style improvements...
+1. chevron up/down for sorting
+
+
+## chore: params to start game doesn't need to send the invert_cards, can pull from localstorage
 
 
 
@@ -19,8 +48,6 @@
   - also keep the buttons
   - or try a press and hold for the buttons, debounced timer to make it easier
 
-## bug:
-- seems like settings modal is closed after dealing deck, when starting shuffling?
 
 ## bug:
 - dark mode theme loading happens late, look into examples from qwik website
