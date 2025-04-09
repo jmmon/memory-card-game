@@ -1,4 +1,10 @@
-import { component$, useSignal, Slot, useVisibleTask$, type ClassList } from "@builder.io/qwik";
+import {
+  component$,
+  useSignal,
+  Slot,
+  type ClassList,
+  $,
+} from "@builder.io/qwik";
 import Button from "~/v3/components/atoms/button/button";
 import ChevronSvg from "~/media/icons/icons8-chevron-96 convertio.svg?jsx";
 
@@ -10,7 +16,7 @@ type DropdownProps = {
   transitionTiming?: number;
   wrapperClasses?: ClassList;
   clearFocusOnClose?: boolean;
-}
+};
 
 export default component$<DropdownProps>(
   ({
@@ -26,14 +32,17 @@ export default component$<DropdownProps>(
     const contentContainerRef = useSignal<HTMLDivElement>();
     const buttonRef = useSignal<HTMLButtonElement>();
 
-    // eslint-disable-next-line qwik/no-use-visible-task
-    useVisibleTask$(({ track }) => {
-      track(() => isOpen.value);
-
+    const handleToggle = $(() => {
+      isOpen.value = !isOpen.value;
       // prevent tab focus when dropdown content is hidden
-      contentContainerRef.value?.querySelectorAll('input').forEach((input) => {
+      contentContainerRef.value?.querySelectorAll("input").forEach((input) => {
         input.tabIndex = isOpen.value ? 0 : -1;
       });
+      contentContainerRef.value
+        ?.querySelectorAll("button")
+        .forEach((button) => {
+          button.tabIndex = isOpen.value ? 0 : -1;
+        });
 
       if (!clearFocusOnClose) return;
       if (!isOpen.value) {
@@ -46,14 +55,13 @@ export default component$<DropdownProps>(
         <Button
           buttonRef={buttonRef}
           classes={`border-none ${buttonClasses} ${isOpen.value ? buttonClassesWhileOpen : ""}`}
-          onClick$={() => {
-            isOpen.value = !isOpen.value;
-          }}
+          onClick$={handleToggle}
         >
           {buttonText}
           <span
-            class={`transition-all inline-block ml-2 text-sky-300 ${isOpen.value ? `rotate-[0deg]` : `rotate-[180deg]`
-              }`}
+            class={`transition-all inline-block ml-2 text-sky-300 ${
+              isOpen.value ? `rotate-[0deg]` : `rotate-[180deg]`
+            }`}
             style={{ transitionDuration: transitionTiming + "ms" }}
           >
             <ChevronSvg
@@ -64,18 +72,21 @@ export default component$<DropdownProps>(
 
         <div
           aria-open={isOpen.value}
-          class={`grid grid-rows-[0fr] w-full transition-all ${isOpen.value ? "grid-rows-[1fr]" : ""
-            }`}
+          class={`grid grid-rows-[0fr] w-full transition-all ${
+            isOpen.value ? "grid-rows-[1fr]" : ""
+          }`}
           style={{
             transitionDuration: transitionTiming + "ms",
           }}
         >
           <div
+            data-label="dropdown-content"
             ref={contentContainerRef}
-            class={`overflow-hidden transition-all border-box rounded-lg border-l border-b border-transparent ${isOpen.value
-              ? "shadow-inner-2 border-l-slate-500 border-b-slate-500 opacity-100 scale-[1]"
-              : "opacity-20 scale-[0.95]"
-              }`}
+            class={`overflow-hidden transition-all border-box rounded-lg border-l border-b border-transparent ${
+              isOpen.value
+                ? "shadow-inner-2 border-l-slate-500 border-b-slate-500 opacity-100 scale-[1]"
+                : "opacity-20 scale-[0.95]"
+            }`}
             style={{
               transitionDuration: transitionTiming + "ms",
             }}
@@ -85,5 +96,5 @@ export default component$<DropdownProps>(
         </div>
       </div>
     );
-  }
+  },
 );
