@@ -2,7 +2,6 @@ import type { ClassList, QRL, Signal } from "@builder.io/qwik";
 import {
   $,
   component$,
-  useOnWindow,
   useSignal,
   useStore,
   useStyles$,
@@ -27,6 +26,7 @@ import { useGameContextService } from "~/v3/services/gameContext.service/gameCon
 import Modal from "../templates/modal/modal";
 import serverDbService from "~/v3/services/db";
 import ChevronSvg from "~/media/icons/icons8-chevron-96 convertio.svg?jsx";
+import useDebouncedOnWindow from "~/v3/hooks/useDebouncedOnWindow";
 
 // const ChevronStyled = ({ direction }: { direction: "left" | "right" }) => (
 //   <svg
@@ -57,6 +57,7 @@ import ChevronSvg from "~/media/icons/icons8-chevron-96 convertio.svg?jsx";
 const ChevronStyled = ({ direction }: { direction: "left" | "right" }) => (
   <ChevronSvg
     style={{
+      pointerEvents: "none",
       width: "1em",
       height: "1em",
       margin: "0 -0.3em",
@@ -322,7 +323,7 @@ export default component$(() => {
     };
   });
 
-  useOnWindow("resize", resizeHandler);
+  useDebouncedOnWindow("resize", resizeHandler, 100);
 
   useStyles$(`
     table {
@@ -332,7 +333,7 @@ export default component$(() => {
 
     table.scoreboard thead {
       overflow: hidden;
-      border: 1px solid #222;
+      border: 1px solid #444;
       z-index: -1;
     }
     table.scoreboard tbody {
@@ -401,7 +402,7 @@ export default component$(() => {
     }
 
     table.scoreboard td + td {
-      border-left: 1px solid #444;
+      border-left: 1px solid #44444480;
     }
 
     table.scoreboard tbody {
@@ -448,18 +449,17 @@ export default component$(() => {
         ctx.state.interfaceSettings.scoresModal.isShowing = false;
       }}
       title="Scoreboard"
-      containerClasses="bg-opacity-[98%] shadow-2xl"
+      containerClasses="bg-opacity-[98%] shadow-2xl w-full sm:min-w-[31rem] sm:w-[60vw]"
       wrapperSyles={{
         overflowY: "hidden",
       }}
       containerStyles={{
-        width: "80vw",
         maxWidth: "100vw",
         minWidth: "18rem",
         display: "flex",
       }}
     >
-      <div class="flex flex-col max-w-full h-[70vh]">
+      <div class="flex flex-col max-w-full h-[70vh] ">
         {/* TODO: instead of Select + Options, use a dropdown with checkboxes 
             (could be disabled for those deckSizes we haven't seen yet) */}
         <TableDecksizeFilterHeader
@@ -579,6 +579,9 @@ const TableDecksizeFilterHeader = component$<TableDeckSizesFilterHeaderProps>(
   },
 );
 
+const BASE_BUTTON_CLASSES: ClassList =
+  "disabled:opacity-40 text-slate-100 p-1 inline";
+
 type TablePagingFooterProps = {
   queryStore: QueryStore;
   queryScores$: QRL<() => any>;
@@ -632,7 +635,9 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
     const onClick$ = $((e: MouseEvent) => {
       const label = (e.target as HTMLButtonElement).dataset["label"]?.split(
         "-",
-      ) ?? [0, 0];
+      );
+      if (!label) return;
+
       let pageNumber = queryStore.pageNumber;
       switch (label[0]) {
         case "first":
@@ -679,29 +684,18 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
       queryScores$();
     });
 
-    const baseButtonClasses: ClassList =
-      "bg-slate-800 text-slate-100 p-1 inline";
-
     return (
       <div class="flex-grow-0 flex flex-col h-[3.2rem]">
         <div
           class={` grid  w-full p-1 flex-grow-0 `}
-          style={{
-            gridTemplateColumns: `${DECK_SIZES_WIDTH} 1fr ${DECK_SIZES_WIDTH}`,
-          }}
-          onClick$={onClick$}
+          // style={{
+          //   gridTemplateColumns: `${DECK_SIZES_WIDTH} 1fr ${DECK_SIZES_WIDTH}`,
+          // }}
         >
-          <SelectEl
-            classes={`text-xs md:text-sm lg:text-md z-10 justify-self-start`}
-            value={queryStore.resultsPerPage}
-            onChange$={onChangeResultsPerPage$}
-            listOfOptions={[5, 10, 25, 50, 100]}
-          />
-
-          <div class="justify-center flex gap-2 w-full">
+          <div class="justify-center flex gap-2 w-full" onClick$={onClick$}>
             <button
               disabled={!buttons.first}
-              class={`${baseButtonClasses} flex items-center justify-center`}
+              class={`${BASE_BUTTON_CLASSES} flex items-center justify-center`}
               data-label="first-page"
             >
               <ChevronStyled direction="left" />
@@ -709,7 +703,7 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
             </button>
             <button
               disabled={!buttons.prev}
-              class={baseButtonClasses}
+              class={BASE_BUTTON_CLASSES}
               data-label="previous-page"
             >
               <ChevronStyled direction="left" />
@@ -718,7 +712,7 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
             {remainingPageButtons.value.map((number) => (
               <button
                 key={number}
-                class={`${baseButtonClasses} ${
+                class={`${BASE_BUTTON_CLASSES} ${
                   number === queryStore.pageNumber
                     ? "bg-slate-500 text-slate-600"
                     : ""
@@ -732,26 +726,41 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
 
             <button
               disabled={!buttons.next}
-              class={baseButtonClasses}
+              class={BASE_BUTTON_CLASSES}
               data-label="next-page"
             >
               <ChevronStyled direction="right" />
             </button>
             <button
               disabled={!buttons.last}
-              class={`${baseButtonClasses} flex`}
+              class={`${BASE_BUTTON_CLASSES} flex`}
               data-label="last-page"
             >
               <ChevronStyled direction="right" />
               <ChevronStyled direction="right" />
             </button>
           </div>
-          <div
-            class={`w-[${DECK_SIZES_WIDTH}]`}
-            data-label="empty-spacer"
-          ></div>
         </div>
-        <div class="flex-grow">Total Pages: {queryStore.totalPages}</div>
+
+        <div
+          class={` grid  w-full flex-grow-0 `}
+          style={{
+            gridTemplateColumns: `${DECK_SIZES_WIDTH} 1fr ${DECK_SIZES_WIDTH}`,
+          }}
+        >
+          <SelectEl
+            classes={`text-xs md:text-sm lg:text-md z-10 justify-self-start`}
+            value={queryStore.resultsPerPage}
+            onChange$={onChangeResultsPerPage$}
+            listOfOptions={[5, 10, 25, 50, 100]}
+          />
+
+          <div class="flex-grow">Total Pages: {queryStore.totalPages}</div>
+          <div
+            class={`w-[${DECK_SIZES_WIDTH}] pointer-events-none`}
+            data-label="empty-spacer"
+          />
+        </div>
       </div>
     );
   },

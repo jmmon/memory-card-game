@@ -1,17 +1,9 @@
 ## end game:
-1. info tooltip is on new line, should be appended to same line
-2. initials should be wider, it feels squished (maybe 1.5-2x wider)
 3. [low priority] replace the text in the initials box, e.g. start typing and it fills in x dashes in front and adjusts as you type
-4. HR goes all the way to edge, give some padding/margin
 
 ## scores modal:
-1. wide screens, it's unnecessarily wide
-> - removing the 80vw width makes it better, then it renders ~900x900
-> - renders at 60vw by default, still unnecessarily wide but looks much better
-> - need breakpoint though!
-2. fix paging! i broke it
-3. chevron icons should be darker when buttons are disabled, and light otherwise!
-4. save score button: loading indicator? it already turns green after but can go disabled while pending
+4. save score button: loading indicator? 
+- it already turns green after but can go disabled while pending
 
 ## scores button padding
 ## modal control ?

@@ -2,7 +2,6 @@ import {
   $,
   component$,
   useComputed$,
-  useOnWindow,
   useSignal,
   useStyles$,
   useVisibleTask$,
@@ -17,6 +16,7 @@ import { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
 import type { iPair } from "~/v3/types/types";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 import logger from "~/v3/services/logger";
+import useDebouncedOnWindow from "~/v3/hooks/useDebouncedOnWindow";
 
 export default component$(() => {
   const ctx = useGameContextService();
@@ -189,7 +189,7 @@ export default component$(() => {
   /*
    * track window resizes to recalculate board
    * */
-  useOnWindow("resize", ctx.handle.calculateAndResizeBoard);
+  useDebouncedOnWindow("resize", ctx.handle.calculateAndResizeBoard, 100);
 
   /* ================================
    * Handle Adjusting Board

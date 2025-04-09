@@ -1,7 +1,7 @@
 import { component$, useSignal, useStyles$ } from "@builder.io/qwik";
 import Button from "../button/button";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
-import { useDebouncer$ } from "~/v3/hooks/useDebounce2";
+import { useDebouncer$ } from "~/v3/hooks/useDebouncer";
 
 type HeaderSettingsIconProps = {
   isOpen?: boolean;

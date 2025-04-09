@@ -3,7 +3,6 @@ import {
   component$,
   $,
   useSignal,
-  useOnWindow,
   useVisibleTask$,
   useTask$,
 } from "@builder.io/qwik";
@@ -23,6 +22,7 @@ import GAME from "~/v3/constants/game";
 import type { iUserSettings } from "~/v3/types/types";
 import { useDefaultHash } from "~/routes/game";
 import useGetSavedTheme from "~/v3/hooks/useGetSavedTheme";
+import useDebouncedOnWindow from "~/v3/hooks/useDebouncedOnWindow";
 
 const limitSizeMinMax = (val: number, min: number = 60, max: number = 100) =>
   Math.max(min, Math.min(max, val));
@@ -90,7 +90,8 @@ export default component$(() => {
 
   // TODO: debounce
   // maybe make a debounced resizer hook? since there's a few resize events in the code
-  useOnWindow(
+  //
+  useDebouncedOnWindow(
     "resize",
     $(() => {
       computedAvatarSize.value = limitSizeMinMax(
@@ -98,6 +99,7 @@ export default component$(() => {
       );
       console.log("new avater size:", computedAvatarSize.value);
     }),
+    100,
   );
 
   // resize the avatar
@@ -185,7 +187,7 @@ export default component$(() => {
 */}
         </div>
 
-        <hr />
+        <hr class="mx-2 border-slate-800" />
 
         <div class={`w-full h-full`}>
           <div class="w-full flex flex-col gap-2 items-center justify-center py-[2%] px-[4%]">
@@ -203,7 +205,7 @@ export default component$(() => {
           <div class="flex py-[2%] px-[4%]">
             <ModalRow>
               <div class="flex flex-col gap-1 items-center w-full">
-                <div class="w-full text-xs md:text-sm">
+                <div class="w-full text-xs md:text-sm flex flex-col">
                   <label
                     class="w-full flex justify-center gap-2"
                     for="game-end-modal-input-initials"
@@ -215,7 +217,7 @@ export default component$(() => {
                     type="text"
                     id="game-end-modal-input-initials"
                     class={`monospace text-center bg-slate-800 text-slate-100 `}
-                    style={`width: ${Math.round(GAME.INITIALS_MAX_LENGTH * 1.5)}ch;`}
+                    style={`width: ${Math.round(GAME.INITIALS_MAX_LENGTH * 2.5)}ch;`}
                     maxLength={GAME.INITIALS_MAX_LENGTH}
                     onInput$={(_, t: HTMLInputElement) => {
                       console.log("onInput fires: value:", t.value);
@@ -227,7 +229,7 @@ export default component$(() => {
                 </div>
 
                 <div class="w-full text-xs md:text-sm">
-                  <label for="game-end-modal-input-identifier inline-flex">
+                  <label for="game-end-modal-input-identifier flex gap-[0.2em] items-center mx-auto">
                     Identifier: <Asterisk />{" "}
                     <InfoTooltip>
                       <Asterisk /> Identifier is never saved or sent anywhere.
@@ -280,7 +282,7 @@ export default component$(() => {
           </div>
         </div>
 
-        <hr />
+        <hr class="mx-2 border-slate-800" />
 
         <GameSettings unsavedUserSettings={unsavedUserSettings}>
           <div
