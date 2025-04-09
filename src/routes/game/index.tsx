@@ -9,15 +9,17 @@ import Game from "~/v3/components/pages/game/game";
 import { typeEntryValues, unflattenObject } from "~/v3/utils/utils";
 import { validate } from "~/v3/validation/validate";
 import INITIAL_STATE from "~/v3/services/gameContext.service/initialState";
-
 import schemas from "~/v3/validation/schemas";
 import type { iUserSettings } from "~/v3/types/types";
-
 import { toString } from "~/v3/utils/utils";
 import useGetSavedTheme from "~/v3/hooks/useGetSavedTheme";
 import logger from "~/v3/services/logger";
 import { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
+import { getRandomBytes } from "~/v3/services/db/seed";
 export { toString };
+
+// for game end modal, provides default hash
+export const useDefaultHash = routeLoader$(() => getRandomBytes());
 
 // params are settings which were changed from initial values
 export const useParams = routeLoader$(async (requestEvent) => {

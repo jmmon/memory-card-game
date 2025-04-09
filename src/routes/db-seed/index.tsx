@@ -196,9 +196,7 @@ export default component$(() => {
                     onClick$={() => (status.value = "waiting")}
                     class="cursor-pointer"
                   >
-                    {status.value === "finished"
-                      ? "Completed!"
-                      : status.value === "failed" && "Failed!"}
+                    {status.value === "finished" ? "Completed!" : "Failed!"}
                   </p>
                   <pre>{JSON.stringify(responseSig.value, null, 2)}</pre>
                 </>

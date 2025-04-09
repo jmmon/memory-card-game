@@ -6,7 +6,7 @@ import {
   useTimeoutObj,
 } from "~/v3/hooks/useTimeout";
 
-import EndGame from "~/v3/components/pages/end-game/end-game";
+// import EndGame from "~/v3/components/pages/end-game/end-game";
 import GameHeader from "~/v3/components/organisms/game-header/game-header";
 import Settings from "~/v3/components/pages/settings/settings";
 import Loading from "~/v3/components/pages/loading/loading";
@@ -19,6 +19,8 @@ import { useGameContextProvider } from "~/v3/services/gameContext.service/gameCo
 import INITIAL_STATE from "~/v3/services/gameContext.service/initialState";
 import type { iUserSettings } from "~/v3/types/types";
 import { header } from "~/v3/constants/header-constants";
+import GameEndModal from "../../game-end-modal/game-end-modal";
+import ScoresModal from "../../scores-modal/scores-modal";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
 // export const getKeysIfObject = (obj: object, prefix?: string) => {
@@ -228,7 +230,11 @@ export default component$<GameProps>(
 
         <Loading isShowing={ctx.state.gameData.isLoading} />
         <Settings />
+        <GameEndModal />
+        <ScoresModal />
+        {/*
         <EndGame />
+*/}
       </>
     );
   },

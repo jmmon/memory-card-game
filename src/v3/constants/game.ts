@@ -83,7 +83,19 @@ const DECK_INITIALIZATION_START_POSITION_BOARD_PERCENTS = {
 const DATA_THEME = "data-theme" as const;
 const STORAGE_KEY_THEME = "theme" as const;
 
+const INITIALS_MAX_LENGTH = 3;
+
+const DEFAULT_COLOR_OPTIONS = {
+  backgroundColor: "#fff",
+  saturation: {
+    min: 20,
+    max: 80,
+  },
+  lightness: { min: 20, max: 80 },
+};
+
 const GAME = {
+  INITIALS_MAX_LENGTH,
   AUTO_SHUFFLE_INTERVAL,
   AUTO_SHUFFLE_DELAY,
   CARD_SHUFFLE_ROUNDS,
@@ -101,6 +113,7 @@ const GAME = {
   STORAGE_KEY_THEME,
   ThemeEnum,
   DEBUG,
+  DEFAULT_COLOR_OPTIONS,
 } as const;
 
 export default GAME;

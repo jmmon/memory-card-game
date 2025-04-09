@@ -52,8 +52,8 @@ const getDeckSizeList = () =>
       ]),
     ) // sort by deckSize
     .execute()
-    .then((set) => set.map(({ deckSize }) => deckSize)) // map to number[]
-    .then((deckSizes) => deckSizes.filter((each) => each !== null) as number[]); // filter null
+    .then((set) => set.map(({ deckSize }) => deckSize)); // map to number[]
+// .then((deckSizes) => deckSizes.filter((each) => each !== null) as number[]); // filter null
 
 const createScoreCount = async ({
   deckSize,

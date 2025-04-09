@@ -8,6 +8,7 @@ import HeaderScoresDisplay from "~/v3/components/atoms/header-scores-display/hea
 import type { QRL } from "@builder.io/qwik";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 import HeaderSettingsButton from "../../atoms/header-settings-button/header-settings-button";
+import Button from "../../atoms/button/button";
 
 type GameHeaderProps = { showSettings$: QRL<() => void> };
 export default component$<GameHeaderProps>(() => {
@@ -15,9 +16,9 @@ export default component$<GameHeaderProps>(() => {
 
   return (
     <header
-      class={`z-50 mx-auto text-center text-xs md:text-sm flex gap-3 items-stretch justify-around w-full h-min`}
+      class={`z-[40] mx-auto text-center text-xs md:text-sm flex gap-3 items-stretch justify-around w-full h-min`}
     >
-      <HeaderSection classes="justify-around pointer-events-none">
+      <HeaderSection classes="justify-around">
         {ctx.state.userSettings.interface.showSelectedIds && (
           <HeaderSelectedIds />
         )}
@@ -25,6 +26,15 @@ export default component$<GameHeaderProps>(() => {
           <HeaderGameDimensions />
         )}
         <HeaderTimerDisplay />
+        <Button
+          onClick$={() =>
+            ctx.state.interfaceSettings.scoresModal.isShowing === true
+              ? ctx.handle.hideScores()
+              : ctx.handle.showScores()
+          }
+        >
+          Scores
+        </Button>
       </HeaderSection>
 
       <HeaderSettingsButton />

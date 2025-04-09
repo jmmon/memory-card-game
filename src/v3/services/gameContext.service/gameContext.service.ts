@@ -197,8 +197,30 @@ export const useGameContextProvider = ({
     timer.resume();
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "hideSettings:", {
       timerIsPaused: timer.state.isPaused,
-      ingerfaceSettingsSettingsModalIsShowing:
+      interfaceSettingsSettingsModalIsShowing:
         state.interfaceSettings.settingsModal.isShowing,
+    });
+  });
+
+  const showScores = $(function () {
+    timer.pause();
+    state.interfaceSettings.scoresModal.isShowing = true;
+    state.interfaceSettings.settingsModal.isShowing = true;
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "showScores:", {
+      timerIsPaused: timer.state.isPaused,
+      interfaceSettingsScoresModalIsShowing:
+        state.interfaceSettings.scoresModal.isShowing,
+    });
+  });
+
+  const hideScores = $(function () {
+    state.interfaceSettings.scoresModal.isShowing = false;
+    state.interfaceSettings.settingsModal.isShowing = false;
+    timer.resume();
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "hideScores:", {
+      timerIsPaused: timer.state.isPaused,
+      ingerfaceSettingsScoresModalIsShowing:
+        state.interfaceSettings.scoresModal.isShowing,
     });
   });
 
@@ -340,6 +362,8 @@ export const useGameContextProvider = ({
     calculateAndResizeBoard,
     showSettings,
     hideSettings,
+    showScores,
+    hideScores,
     showEndGameModal,
     hideEndGameModal,
     isEndGameConditionsMet,

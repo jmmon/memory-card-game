@@ -26,6 +26,45 @@ import {
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 import Modal from "../templates/modal/modal";
 import serverDbService from "~/v3/services/db";
+import ChevronSvg from "~/media/icons/icons8-chevron-96 convertio.svg?jsx";
+
+// const ChevronStyled = ({ direction }: { direction: "left" | "right" }) => (
+//   <svg
+//     width="1em"
+//     height="1em"
+//     viewBox="0 0 96 96"
+//     preserveAspectRatio="xMidYMid meet"
+//     fill="white"
+//     style={{
+//       margin: "0 -0.3em",
+//       fill: "#c0c8ff",
+//     }}
+//     class={direction === "left" ? `rotate-[-90]` : "rotate-90"}
+//   >
+//     <use
+//       xlink:href="#chevron-up"
+//       width="1em"
+//       height="1em"
+//       fill="white"
+//       style={{
+//         margin: "0 -0.3em",
+//         fill: "#c0c8ff",
+//       }}
+//     />
+//   </svg>
+// );
+
+const ChevronStyled = ({ direction }: { direction: "left" | "right" }) => (
+  <ChevronSvg
+    style={{
+      width: "1em",
+      height: "1em",
+      margin: "0 -0.3em",
+      fill: "#c0c8ff",
+      transform: `rotate(${direction === "left" ? "-90" : "90"}deg)`,
+    }}
+  />
+);
 
 export type QueryStore = {
   sortByColumnHistory: SortColumnWithDirection[];
@@ -63,6 +102,7 @@ export default component$(() => {
 
   const deckSizeList = useSignal<number[]>([]);
   const sortedScores = useSignal<ScoreWithPercentiles[]>([]);
+  // stores each deck size totals, and all totals
   const scoreTotals = useSignal<{
     [key: number]: number;
     all: number;
@@ -98,42 +138,47 @@ export default component$(() => {
       scoresPromise,
       scoreCountsPromise,
     ]);
-
-    const { scores, totals } = scoresRes;
-
     deckSizeList.value = scoreCounts;
 
-    const totalCount = Object.values(totals).reduce(
+    const { scores, totals } = scoresRes;
+    const totalCountForQuery = Object.values(totals).reduce(
       (accum, cur) => (accum += cur),
       0,
     );
 
-    console.log({ totalCount, scores, deckSizeList: deckSizeList.value });
+    console.log({
+      totalCount: totalCountForQuery,
+      scores,
+      deckSizeList: deckSizeList.value,
+    });
 
     scoreTotals.value = {
       ...totals,
-      all: totalCount,
+      all: totalCountForQuery,
     };
 
     // calculate new page number we should place them on, eg match the centers
-    const newTotalPages = Math.ceil(totalCount / queryStore.resultsPerPage);
-    console.log({ newTotalPages });
-    const prevPagePercent =
-      queryStore.pageNumber / queryStore.totalPages > 1
-        ? 1
-        : queryStore.pageNumber / queryStore.totalPages;
-    console.log({ prevPagePercent });
+    const newTotalPages = Math.ceil(
+      totalCountForQuery / queryStore.resultsPerPage,
+    );
+    const prevPagePercent = Math.min(
+      1,
+      queryStore.pageNumber / queryStore.totalPages,
+    );
     const newPage =
       queryStore.pageNumber === 1
         ? 1
         : Math.ceil(prevPagePercent * newTotalPages);
-    console.log({ newPage });
+    console.log("Finished querying scores:", {
+      newTotalPages,
+      prevPagePercent,
+      newPage,
+    });
+
     queryStore.totalPages = newTotalPages;
     queryStore.pageNumber = newPage;
-
     sortedScores.value = [...scores];
 
-    console.log("finished querying scores");
     return { scores };
   });
 
@@ -168,10 +213,8 @@ export default component$(() => {
     queryAndSaveScores();
   });
 
-  const onChangeResultsPerPage$ = $(async (e: Event) => {
-    const selectedResultsPerPage = Number(
-      (e.target as HTMLSelectElement).value,
-    );
+  const onChangeResultsPerPage$ = $(async (_: Event, t: HTMLSelectElement) => {
+    const selectedResultsPerPage = Number(t.value);
 
     const now = Date.now();
 
@@ -182,7 +225,7 @@ export default component$(() => {
       queryStore.resultsPerPage = selectedResultsPerPage;
       // re-select the top because it shows everything
       selectValue.value = "default";
-      (e.target as HTMLSelectElement).value = "default";
+      t.value = "default";
 
       await queryAndSaveScores();
 
@@ -195,13 +238,11 @@ export default component$(() => {
     }
   });
 
-  const onChangeSelect$ = $((e: Event) => {
-    console.log("select changed");
+  const onChangeSelect$ = $((_: Event, t: HTMLSelectElement) => {
+    const selectedDeckSize = Number(t.value);
+    console.log("select changed:", { selectedDeckSize });
 
-    const selectedDeckSize = Number((e.target as HTMLSelectElement).value);
-    console.log({ selectedDeckSize });
-
-    // handle top option to toggle all
+    // handle top option to toggle all e.g. default
     if (selectedDeckSize === -1) {
       const midway = deckSizeList.value.length / 2;
 
@@ -219,19 +260,19 @@ export default component$(() => {
         queryStore.deckSizesFilter = queryStore.deckSizesFilter.filter(
           (size) => size !== selectedDeckSize,
         );
-        console.log("~~ existed");
+        console.log("~~ decksize existed");
       } else {
         queryStore.deckSizesFilter = [
           ...queryStore.deckSizesFilter,
           selectedDeckSize,
         ];
-        console.log("~~ NOT existed");
+        console.log("~~ decksize NOT existed");
       }
     }
 
     // re-select the top because it shows everything
     selectValue.value = "default";
-    (e.target as HTMLSelectElement).value = "default";
+    t.value = "default";
 
     queryAndSaveScores();
   });
@@ -239,28 +280,30 @@ export default component$(() => {
   const size = useSignal<number>(PIXEL_AVATAR_SIZE);
 
   const resizePixelAvatar = $(() => {
-    if (!isServer) {
-      size.value =
-        window.innerWidth > 639
-          ? PIXEL_AVATAR_SIZE
-          : Math.round(PIXEL_AVATAR_SIZE * 0.8);
+    if (isServer) {
       return;
     }
-    size.value = PIXEL_AVATAR_SIZE;
+    size.value =
+      window.innerWidth <= 639
+        ? Math.round(PIXEL_AVATAR_SIZE * 0.8)
+        : PIXEL_AVATAR_SIZE;
   });
 
   /*
    * onMount, onShow modal
    * */
   useTask$(async ({ track }) => {
-    track(() => ctx.state.interfaceSettings.scoresModal.isShowing);
-    if (!ctx.state.interfaceSettings.scoresModal.isShowing) return;
+    const isShowing = track(
+      () => ctx.state.interfaceSettings.scoresModal.isShowing,
+    );
+    if (!isShowing) return;
 
     resizePixelAvatar();
 
     isLoading.value = true;
+    await queryAndSaveScores();
+    isLoading.value = false;
 
-    await queryAndSaveScores(), (isLoading.value = false);
     console.log("done loading");
   });
 
@@ -361,10 +404,26 @@ export default component$(() => {
       border-left: 1px solid #444;
     }
 
+    table.scoreboard tbody {
+      background-color: #fff;
+    }
+
     table.scoreboard tbody tr > :not(:first-child) {
       padding: 0 0.5em;
       font-weight: 600;
       text-shadow: 1px 1px 3px #000;
+    }
+    @media screen and max-width(640px) {
+        table.scoreboard tbody tr > :nth-child(2) {
+          padding: 0 0.25em;
+        }
+    }
+
+    table.scoreboard thead tr > :first-child {
+      width: 36px; /* size of avatar on small screens, it auto adjusts larger if needed on large screens */
+    }
+    table.scoreboard thead tr > :nth-child(2) {
+      width: 3ch;
     }
 
     table.scoreboard {
@@ -383,14 +442,24 @@ export default component$(() => {
 
   return (
     <Modal
+      // isShowing={true}
       isShowing={ctx.state.interfaceSettings.scoresModal.isShowing}
       hideModal$={() => {
         ctx.state.interfaceSettings.scoresModal.isShowing = false;
       }}
       title="Scoreboard"
-      containerClasses="flex w-[80vw] max-w-[100vw] min-w-[18rem]"
+      containerClasses="bg-opacity-[98%] shadow-2xl"
+      wrapperSyles={{
+        overflowY: "hidden",
+      }}
+      containerStyles={{
+        width: "80vw",
+        maxWidth: "100vw",
+        minWidth: "18rem",
+        display: "flex",
+      }}
     >
-      <div class="flex flex-col max-w-full">
+      <div class="flex flex-col max-w-full h-[70vh]">
         {/* TODO: instead of Select + Options, use a dropdown with checkboxes 
             (could be disabled for those deckSizes we haven't seen yet) */}
         <TableDecksizeFilterHeader
@@ -400,10 +469,7 @@ export default component$(() => {
           deckSizeList={deckSizeList}
         />
 
-        <div
-          class="w-full h-full overflow-y-auto"
-          style={{ maxHeight: `calc(70vh - 5rem)` }}
-        >
+        <div class="w-full max-h-[calc(70vh-5.2rem)] overflow-y-auto">
           <ScoreTable
             handleClickColumnHeader$={handleClickColumnHeader}
             sortedScores={sortedScores}
@@ -424,7 +490,7 @@ export default component$(() => {
 
 type SelectElProps = {
   value: number;
-  onChange$: QRL<(e: Event) => void>;
+  onChange$: QRL<(e: Event, t: HTMLSelectElement) => void>;
   listOfOptions: Array<number>;
   classes?: string;
 };
@@ -448,15 +514,12 @@ const SelectEl = component$<SelectElProps>(
 const DECK_SIZES_WIDTH = "3em";
 type TableDeckSizesFilterHeaderProps = {
   selectValue: Signal<string>;
-  onChangeSelect$: QRL<(e: Event) => void>;
+  onChangeSelect$: QRL<(e: Event, t: HTMLSelectElement) => any>;
   queryStore: QueryStore;
   deckSizeList: Signal<number[]>;
 };
 const TableDecksizeFilterHeader = component$<TableDeckSizesFilterHeaderProps>(
   ({ selectValue, onChangeSelect$, queryStore, deckSizeList }) => {
-    // const deckSizesFilterString = useComputed$(() => {
-    //   return queryStore.deckSizesFilter.join(",");
-    // });
     const deckSizesFilterString = useSignal("");
     const deckSizesSelected = useSignal<number[]>([]);
     const deckSizesUnselected = useSignal<number[]>([]);
@@ -464,26 +527,22 @@ const TableDecksizeFilterHeader = component$<TableDeckSizesFilterHeaderProps>(
       track(() => deckSizeList.value);
       track(() => queryStore.deckSizesFilter);
       deckSizesFilterString.value = queryStore.deckSizesFilter.join(",");
-      deckSizesSelected.value = deckSizeList.value.filter((each) =>
-        queryStore.deckSizesFilter.includes(each),
-      );
-      deckSizesUnselected.value = deckSizeList.value.filter(
-        (each) => !queryStore.deckSizesFilter.includes(each),
-      );
+
+      deckSizeList.value.forEach((each) => {
+        queryStore.deckSizesFilter.includes(each)
+          ? deckSizesSelected.value.push(each)
+          : deckSizesUnselected.value.push(each);
+      });
+      // deckSizesSelected.value = deckSizeList.value.filter((each) =>
+      //   queryStore.deckSizesFilter.includes(each),
+      // );
+      // deckSizesUnselected.value = deckSizeList.value.filter(
+      //   (each) => !queryStore.deckSizesFilter.includes(each),
+      // );
     });
-    // const deckSizesSelected = useComputed$(() =>
-    //   deckSizeList.value.filter((each) =>
-    //     queryStore.deckSizesFilter.includes(each),
-    //   ),
-    // );
-    // const deckSizesUnselected = useComputed$(() =>
-    //   deckSizeList.value.filter(
-    //     (each) => !queryStore.deckSizesFilter.includes(each),
-    //   ),
-    // );
     const widthCutoffLength = 100;
     return (
-      <div class="flex max-w-full overflow-hidden justify-between bg-slate-700 items-center gap-1 h-[2rem] p-1">
+      <div class="flex-grow-0 flex max-w-full overflow-hidden justify-between bg-slate-700 items-center gap-1 h-[2rem] p-1">
         <select
           class={` bg-slate-800 w-full text-xs md:text-sm lg:text-md justify-self-start `}
           value={selectValue.value}
@@ -523,7 +582,7 @@ const TableDecksizeFilterHeader = component$<TableDeckSizesFilterHeaderProps>(
 type TablePagingFooterProps = {
   queryStore: QueryStore;
   queryScores$: QRL<() => any>;
-  onChangeResultsPerPage$: QRL<(e: Event) => any>;
+  onChangeResultsPerPage$: QRL<(e: Event, t: HTMLSelectElement) => any>;
 };
 const TablePagingFooter = component$<TablePagingFooterProps>(
   ({ queryStore, queryScores$, onChangeResultsPerPage$ }) => {
@@ -620,13 +679,13 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
       queryScores$();
     });
 
-    const baseButtonStyles: ClassList =
+    const baseButtonClasses: ClassList =
       "bg-slate-800 text-slate-100 p-1 inline";
 
     return (
-      <div class="flex flex-col h-[3rem]">
+      <div class="flex-grow-0 flex flex-col h-[3.2rem]">
         <div
-          class={` grid  w-full h-full p-1 flex-grow-0 `}
+          class={` grid  w-full p-1 flex-grow-0 `}
           style={{
             gridTemplateColumns: `${DECK_SIZES_WIDTH} 1fr ${DECK_SIZES_WIDTH}`,
           }}
@@ -642,23 +701,24 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
           <div class="justify-center flex gap-2 w-full">
             <button
               disabled={!buttons.first}
-              class={baseButtonStyles}
+              class={`${baseButtonClasses} flex items-center justify-center`}
               data-label="first-page"
             >
-              {"<<"}
+              <ChevronStyled direction="left" />
+              <ChevronStyled direction="left" />
             </button>
             <button
               disabled={!buttons.prev}
-              class={baseButtonStyles}
+              class={baseButtonClasses}
               data-label="previous-page"
             >
-              {"<"}
+              <ChevronStyled direction="left" />
             </button>
 
             {remainingPageButtons.value.map((number) => (
               <button
                 key={number}
-                class={`${baseButtonStyles} ${
+                class={`${baseButtonClasses} ${
                   number === queryStore.pageNumber
                     ? "bg-slate-500 text-slate-600"
                     : ""
@@ -672,17 +732,18 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
 
             <button
               disabled={!buttons.next}
-              class={baseButtonStyles}
+              class={baseButtonClasses}
               data-label="next-page"
             >
-              {">"}
+              <ChevronStyled direction="right" />
             </button>
             <button
               disabled={!buttons.last}
-              class={baseButtonStyles}
+              class={`${baseButtonClasses} flex`}
               data-label="last-page"
             >
-              {">>"}
+              <ChevronStyled direction="right" />
+              <ChevronStyled direction="right" />
             </button>
           </div>
           <div

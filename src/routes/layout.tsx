@@ -1,11 +1,11 @@
 import { component$, Slot, useStyles$ } from "@builder.io/qwik";
-import { routeLoader$ } from "@builder.io/qwik-city";
 import type { DocumentHead, RequestHandler } from "@builder.io/qwik-city";
 
 import styles from "./styles.css?inline";
 import HEAD_CONSTANTS from "~/v3/constants/head";
 import CardSymbols from "~/v3/components/playing-card-components/symbols/card-symbols";
 import FaceCardSymbols from "~/v3/components/playing-card-components/symbols/face-card-symbols";
+// import IconDefs from "~/v3/components/svg-icons/icon-defs";
 
 export const onGet: RequestHandler = async (requestEvent) => {
   // Control caching for this request for best performance and to reduce hosting costs:
@@ -20,12 +20,6 @@ export const onGet: RequestHandler = async (requestEvent) => {
   });
 };
 
-export const useServerTimeLoader = routeLoader$(() => {
-  return {
-    date: new Date().toISOString(),
-  };
-});
-
 export default component$(() => {
   useStyles$(styles);
 
@@ -35,6 +29,9 @@ export default component$(() => {
       {/* SVG card symbols pre-rendered but hidden; so cards can build from these */}
       <CardSymbols />
       <FaceCardSymbols />
+      {/*
+      <IconDefs />
+*/}
     </main>
   );
 });

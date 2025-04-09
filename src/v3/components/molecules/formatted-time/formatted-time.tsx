@@ -1,4 +1,4 @@
-import { formatTime, truncateMs } from "~/v3/utils/formatTime";
+import { formatTimeFromMs, truncateMs } from "~/v3/utils/formatTime";
 import HeaderSpanGreyedAtZero from "~/v3/components/atoms/header-span-greyed-at-zero/header-span-greyed-at-zero";
 import type { FunctionComponent } from "@builder.io/qwik/jsx-runtime";
 import type { ClassList } from "@builder.io/qwik";
@@ -13,7 +13,7 @@ const FormattedTime: FunctionComponent<FormattedTimeProps> = ({
   limit = 2,
   classes = "",
 }) => {
-  const { minutes, seconds, ms } = formatTime(timeMs);
+  const { minutes, seconds, ms } = formatTimeFromMs(timeMs);
   const limitedMs = truncateMs(Number(ms), limit);
 
   return (

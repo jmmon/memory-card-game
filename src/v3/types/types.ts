@@ -51,7 +51,7 @@ export type ScoreCountColumnOptions = "gameTime" | "mismatches";
 export type DeckSizesDictionary = { [key: string]: Score[] };
 
 export type ScoreWithPercentiles = Score & {
-  [key: string]: number | string | undefined;
+  // [key: string]: number | string | undefined;
   timePercentile?: number;
   mismatchPercentile?: number;
 };
@@ -97,6 +97,7 @@ export type iGameState = keyof typeof GameStateEnum;
 
 export type iGameData = {
   gameState: GameStateEnum;
+  isSaved: boolean;
   flippedCardId: number;
   selectedCardIds: number[];
   successfulPairs: iPair[];
@@ -115,9 +116,6 @@ export type iGameData = {
 export type iUserSettings = iSchemas["userSettings"] & {
   [key: string]: any;
 };
-
-// settings the user will not change
-export type iGameSettings = {};
 
 export type iInterfaceSettings = {
   isScrollable: boolean;
@@ -164,7 +162,6 @@ export type iState = {
   gameData: iGameData;
 
   userSettings: iUserSettings;
-  gameSettings: iGameSettings;
 
   interfaceSettings: iInterfaceSettings;
 };
@@ -189,6 +186,8 @@ export type iGameHandlers = {
   startGame: QRL<() => void>;
   showSettings: QRL<() => void>;
   hideSettings: QRL<() => void>;
+  showScores: QRL<() => void>;
+  hideScores: QRL<() => void>;
   showEndGameModal: QRL<() => void>;
   hideEndGameModal: QRL<() => void>;
   toggleModalOnEscape: QRL<() => void>;

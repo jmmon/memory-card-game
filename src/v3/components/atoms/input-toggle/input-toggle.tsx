@@ -61,7 +61,7 @@ export default component$<InputToggleProps>(
 
           <div
             data-label="toggle-slot"
-            class={`relative w-14 h-8 transition-all duration-200 ease-in-out border border-slate-500 rounded-full`}
+            class={`relative w-14 h-8 flex-shrink-0 transition-all duration-200 ease-in-out border border-slate-500 rounded-full`}
           >
             <div
               data-label="toggle-switch"

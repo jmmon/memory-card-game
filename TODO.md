@@ -1,3 +1,15 @@
+## scores button padding
+## modal control ?
+- when opening scores, do I want the settings to open? 
+> I guess only if game is not in progress, so it pauses the game
+> or have scores also pause the game just like settings does
+
+## figure out sorting for scores
+
+## modal full width on smaller screens e.g. max-width:640px
+
+
+
 ## [Soon(TM)] TODO: finish scores!!!
 - cloudflare D1 sql server with drizzle to save scores
 

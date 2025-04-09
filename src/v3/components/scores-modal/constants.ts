@@ -1,10 +1,8 @@
 import type {
   ScoreTableColumn,
-  SortColumnWithDirection} from "~/v3/types/types";
-import {
-  ScoreTableColumnEnum,
-  SortDirectionEnum,
+  SortColumnWithDirection,
 } from "~/v3/types/types";
+import { ScoreTableColumnEnum, SortDirectionEnum } from "~/v3/types/types";
 
 export const JAN_1_1970_STRING = "1970-01-01T00:00:00.000Z" as const;
 
@@ -29,6 +27,8 @@ export const HEADER_LIST = [
   "Mismatches",
   "Date",
 ] as const;
+
+export const HEADER_UNSORTABLE = ["Avatar"];
 
 export const MAP_COL_TITLE_TO_OBJ_KEY: { [key: string]: ScoreTableColumn } = {
   initials: "initials",

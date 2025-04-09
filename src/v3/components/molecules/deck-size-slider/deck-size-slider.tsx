@@ -2,14 +2,13 @@ import { component$ } from "@builder.io/qwik";
 import GAME from "~/v3/constants/game";
 
 import type { Signal } from "@builder.io/qwik";
-import type { iGameSettings, iUserSettings } from "~/v3/types/types";
+import type { iUserSettings } from "~/v3/types/types";
 import InfoTooltip from "../../organisms/info-tooltip/info-tooltip";
 
 type DeckSizeSliderProps = {
   userSettings: Signal<iUserSettings>;
   isLocked?: boolean;
   for?: string;
-  gameSettings: iGameSettings;
 };
 export default component$<DeckSizeSliderProps>((props) => {
   const name = `deck-size-slider${props.for ? `-${props.for}` : ""}`;

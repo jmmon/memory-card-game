@@ -1,5 +1,5 @@
 import type { ClassList, FunctionComponent, Signal } from "@builder.io/qwik";
-import { type QRL, component$ } from "@builder.io/qwik";
+import { type QRL, component$, useTask$, useSignal } from "@builder.io/qwik";
 import type {
   ScoreWithPercentiles,
   SortColumnWithDirection,
@@ -10,9 +10,11 @@ import {
   DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY,
   HEADER_LIST,
   MAP_COL_TITLE_TO_OBJ_KEY,
+  HEADER_UNSORTABLE,
 } from "./constants";
-import { formatTime } from "~/v3/utils/formatTime";
+import { formatTimeFromMs } from "~/v3/utils/formatTime";
 import { lowercaseHyphenate } from "~/v3/utils/utils";
+import { calculateOnlyColor } from "~/v3/utils/avatarUtils";
 
 type ScoreTableProps = {
   queryStore: QueryStore;
@@ -44,7 +46,9 @@ export default component$<ScoreTableProps>(
                   hyphenated={hyphenated}
                   classes={classes}
                   onClick$={
-                    header === "Avatar" ? undefined : handleClickColumnHeader$
+                    HEADER_UNSORTABLE.includes(header)
+                      ? undefined
+                      : handleClickColumnHeader$
                   }
                 />
               );
@@ -87,11 +91,71 @@ const ScoreTableHeader = component$<ScoreTableHeaderProps>(
   },
 );
 
+const ROW_BG_COLOR_ALPHA = 0.8;
+
+const generateBgAlpha = (color: string) =>
+  color.slice(0, -2) + `${ROW_BG_COLOR_ALPHA})`;
+
+type ScoreRowProps = { score: ScoreWithPercentiles; size: Signal<number> };
+const ScoreRow = component$<ScoreRowProps>(({ score, size }) => {
+  // TODO: find another way?
+  const backgroundColor = useSignal("");
+  useTask$(async ({ track }) => {
+    track(() => score.initials);
+    backgroundColor.value = generateBgAlpha(
+      await calculateOnlyColor(score.initials),
+    );
+    console.log({ backgroundColor: backgroundColor.value });
+  });
+
+  return (
+    <>
+      {backgroundColor.value === "" ? (
+        <>...</>
+      ) : (
+        <tr
+          class="w-full h-full border border-slate-900 rounded-lg text-xs sm:text-sm md:text-md text-white"
+          style={{
+            backgroundColor: backgroundColor.value,
+          }}
+        >
+          <td class="flex justify-center" style={{ width: `${size.value}px` }}>
+            <PixelAvatar
+              colorFrom={{ value: score.initials }}
+              // halfPixels={halfPixels}
+              hash={{ value: score.userId }}
+              width={size.value}
+              height={size.value}
+              classes="pixel-avatar"
+            />
+          </td>
+          <td>{score.initials}</td>
+          <td>{score.deckSize}</td>
+          <td>{score.pairs}</td>
+          <td>
+            <span class="block">
+              <GameTime gameTimeDs={score.gameTimeDs} />
+            </span>
+            <span class="block">{score.timePercentile}%</span>
+          </td>
+          <td>
+            <span class="block">{score.mismatches}</span>
+            <span class="block">{score.mismatchPercentile}%</span>
+          </td>
+          <td>
+            <CreatedAt createdAtMs={score.createdAt} />
+          </td>
+        </tr>
+      )}
+    </>
+  );
+});
+
 const TIME_LABEL_COLOR: ClassList = "text-slate-300/100";
 
 type GameTimeProps = { gameTimeDs: number };
 const GameTime = component$<GameTimeProps>(({ gameTimeDs }) => {
-  const { minutes, seconds, ms } = formatTime(gameTimeDs);
+  const { minutes, seconds, ms } = formatTimeFromMs(gameTimeDs * 100);
   return (
     <>
       <span class={minutes > 0 ? "" : `text-xs ${TIME_LABEL_COLOR}`}>
@@ -103,55 +167,8 @@ const GameTime = component$<GameTimeProps>(({ gameTimeDs }) => {
         m
       </span>
       <span>{seconds}</span>
-      <span class={`text-xs ${TIME_LABEL_COLOR}`}>.{ms}s</span>
+      <span class={`text-xs ${TIME_LABEL_COLOR}`}>.{ms[0]}s</span>
     </>
-  );
-});
-
-const ROW_BG_COLOR_ALPHA = 0.8;
-
-const generateBgAlpha = (color: string) =>
-  color.slice(0, -2) + `${ROW_BG_COLOR_ALPHA})`;
-
-type ScoreRowProps = { score: ScoreWithPercentiles; size: Signal<number> };
-const ScoreRow = component$<ScoreRowProps>(({ score, size }) => {
-  const [dimensions, halfPixels] = (score.pixelData as string).split(":");
-  const [cols, rows] = dimensions.split("x");
-  return (
-    <tr
-      class="w-full h-full border border-slate-900 rounded-lg text-xs sm:text-sm md:text-md text-white"
-      style={{
-        backgroundColor: generateBgAlpha(score.color as string),
-      }}
-    >
-      <td class="flex justify-center" style={{ width: `${size.value + 2}px` }}>
-        <PixelAvatar
-          color={score.color as string}
-          halfPixels={halfPixels}
-          rows={Number(rows)}
-          cols={Number(cols)}
-          width={size.value}
-          height={size.value}
-          classes="pixel-avatar"
-        />
-      </td>
-      <td>{score.initials}</td>
-      <td>{score.deckSize}</td>
-      <td>{score.pairs}</td>
-      <td>
-        <span class="block">
-          <GameTime gameTimeDs={score.gameTimeDs} />
-        </span>
-        <span class="block">{score.timePercentile}%</span>
-      </td>
-      <td>
-        <span class="block">{score.mismatches}</span>
-        <span class="block">{score.mismatchPercentile}%</span>
-      </td>
-      <td>
-        <CreatedAt createdAtMs={score.createdAt} />
-      </td>
-    </tr>
   );
 });
 

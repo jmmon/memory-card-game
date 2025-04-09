@@ -200,12 +200,20 @@ const sortScores = (
 };
 sortScores;
 
+/**
+ * query scores according to the params
+ * query counts according to the decksizes listed
+ * calculate percentile scores
+ *
+ * return scores and totals of each deck size
+ * */
 const queryScoresAndCalculatePercentiles = async ({
   pageNumber = DEFAULT_QUERY_PROPS.pageNumber,
   resultsPerPage = DEFAULT_QUERY_PROPS.resultsPerPage,
   deckSizesFilter = DEFAULT_QUERY_PROPS.deckSizesFilter,
   sortByColumnHistory = DEFAULT_QUERY_PROPS.sortByColumnHistory,
 }: Partial<ScoreQueryProps>) => {
+  // need the scores and the counts to calculate
   const [resScores, resCounts] = await Promise.allSettled([
     scoreService.query({
       pageNumber,
@@ -216,6 +224,7 @@ const queryScoresAndCalculatePercentiles = async ({
     scoreCountService.getByDeckSize(deckSizesFilter),
   ]);
 
+  // early return if error
   if (resScores.status !== "fulfilled" || resCounts.status !== "fulfilled") {
     console.log({ resScores, resCounts });
     const rejectedRes = [resScores, resCounts]
@@ -226,14 +235,14 @@ const queryScoresAndCalculatePercentiles = async ({
     return { scores: [], totals: {} };
   }
 
-  const allScores = resScores.value as Score[];
-  const scoreCounts = resCounts.value as ScoreCount[];
+  const allScores = resScores.value;
+  const scoreCounts = resCounts.value;
   console.log("fresh from query:", {
     first: allScores[0],
     last: allScores[allScores.length - 1],
   });
 
-  let allScoresWithPercentiles: ScoreWithPercentiles[] = [];
+  const allScoresWithPercentiles: ScoreWithPercentiles[] = [];
   const totals: { [key: number]: number } = {};
 
   // run the calculations for each deck size
@@ -249,9 +258,10 @@ const queryScoresAndCalculatePercentiles = async ({
       thisCounts,
     );
 
-    allScoresWithPercentiles = allScoresWithPercentiles.concat(
-      scoresWithPercentiles,
-    );
+    // allScoresWithPercentiles = allScoresWithPercentiles.concat(
+    //   scoresWithPercentiles,
+    // );
+    allScoresWithPercentiles.push(...scoresWithPercentiles);
   }
 
   return {

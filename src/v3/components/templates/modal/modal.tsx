@@ -18,6 +18,8 @@ type ModalProps = {
   containerClasses?: ClassList;
   bgClasses?: ClassList;
   bgStyles?: any;
+  containerStyles?: any;
+  wrapperSyles?: any;
   title: string;
   options?: Partial<ModalOptions>;
 };
@@ -30,6 +32,8 @@ export default component$<ModalProps>(
     bgClasses = "backdrop-blur-sm",
     title,
     bgStyles,
+    containerStyles,
+    wrapperSyles,
     options = DEFAULT_OPTIONS,
   }) => {
     containerClasses = DEFAULT_CONTAINER_BG + " " + containerClasses;
@@ -47,22 +51,23 @@ export default component$<ModalProps>(
         data-name="background"
         class={`top-0 left-0 absolute w-full h-full bg-black flex justify-center items-center transition-all ${DURATION} ${
           isShowing
-            ? `pointer-events-auto ${bgClasses} z-[49] bg-opacity-20 `
+            ? `pointer-events-auto ${bgClasses} z-[35] bg-opacity-20 `
             : "pointer-events-none z-[-1] bg-opacity-0"
         }`}
         onClick$={closeModal$}
         style={bgStyles}
       >
         <div
-          class={`min-w-[19rem] w-[60vw] max-w-[32rem] max-h-[90vh] relative mx-auto text-center ${containerClasses} rounded-lg lg:rounded-3xl flex flex-col gap-1 p-[1.5%] transition-all ${DURATION} ${
+          class={`${containerClasses} min-w-[19rem] w-[60vw] max-w-[32rem] max-h-[80vh] relative mx-auto text-center  rounded-lg lg:rounded-3xl flex flex-col gap-1 p-[1.5%] transition-all ${DURATION} ${
             isShowing
               ? "pointer-events-auto z-[1000] scale-100 opacity-100"
               : "pointer-events-none z-[-1] scale-[120%] opacity-0"
           }`}
           data-name="modal"
+          style={containerStyles}
         >
           <ModalHeader hideModal$={hideModal$} title={title} />
-          <div class="h-full w-full overflow-y-auto">
+          <div class="h-full w-full overflow-y-auto" style={wrapperSyles}>
             <Slot />
           </div>
         </div>

@@ -1,4 +1,4 @@
-export const formatTime = (timeMs: number) => {
+export const formatTimeFromMs = (timeMs: number) => {
   const minutes = Math.floor(timeMs / 1000 / 60);
   const seconds = Math.floor((timeMs / 1000) % 60)
     .toString()
@@ -10,7 +10,7 @@ export const formatTime = (timeMs: number) => {
 };
 
 // takes ms and limit, returns either: seconds (0), decaseconds (0.n), centaseconds (0.xy), milliseconds (0.xyz)
-export const truncateMs = (ms: number, limit: number) => {
+export const truncateMs = (ms: number, limit: number = 0) => {
   const factor = 10 ** (3 - limit); // 0 => 1000; 3 => 1; 2 => 10; 1 => 100;
 
   // 999 / factor(2) = 99.9
@@ -23,3 +23,5 @@ export const truncateMs = (ms: number, limit: number) => {
 
 export const roundToDecimals = (number: number, decimals: number = 1) =>
   Math.round(number * 10 ** decimals) / 10 ** decimals;
+
+export const msToDs = (ms: number) => Math.round(ms / 100);

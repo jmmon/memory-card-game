@@ -3,7 +3,6 @@ import { ThemeEnum, iSelectCardEnum, GameStateEnum } from "~/v3/types/types";
 import type {
   iUserSettings,
   iGameData,
-  iGameSettings,
   iState,
   iCardLayout,
   iBoardLayout,
@@ -13,6 +12,7 @@ import type {
 
 const GAME_DATA: iGameData = {
   gameState: GameStateEnum.IDLE,
+  isSaved: false,
   cards: [],
   mismatchPair: "",
   isShaking: false, // to show shaking? for mismatch pair. Wonder if can be combined with header mismatchAnimation?
@@ -111,9 +111,6 @@ const USER_SETTINGS: iUserSettings = {
   },
 };
 
-// unadjustable settings: needed?
-const GAME_SETTINGS: iGameSettings = {};
-
 const INTERFACE_SETTINGS: iInterfaceSettings = {
   isScrollable: false, // not using currently?
   /** controls score header animations */
@@ -161,7 +158,6 @@ const INITIAL_STATE: iState = {
   cardLayout: CARD_LAYOUT,
   gameData: GAME_DATA,
   userSettings: USER_SETTINGS,
-  gameSettings: GAME_SETTINGS,
   interfaceSettings: INTERFACE_SETTINGS,
 };
 

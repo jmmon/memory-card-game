@@ -1,175 +1,12 @@
 import type { PropFunction, Signal } from "@builder.io/qwik";
-import { component$, isServer, useSignal, useTask$ } from "@builder.io/qwik";
-import { sha256 } from "crypto-js";
-import { stringToColor } from "~/v3/utils/avatarUtils";
-
-const DEFAULT_COLOR_OPTIONS = {
-  backgroundColor: "#fff",
-  saturation: {
-    min: 20,
-    max: 80,
-  },
-  lightness: { min: 20, max: 80 },
-};
-
-export function bufferToHexString(buffer: ArrayBuffer) {
-  const byteArray = new Uint8Array(buffer);
-
-  const hexCodes = [...byteArray].map((value) => {
-    return value.toString(16).padStart(2, "0");
-  });
-
-  return hexCodes.join("");
-}
-
-export function getHash(message: string): Promise<ArrayBuffer> {
-  if (isServer) {
-    return sha256(message);
-    // return createHash("sha256").update(message).digest();
-  }
-  return window.crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(message),
-  );
-}
-
-export async function getHexHashString(userInput: string) {
-  // userInput;
-  // return getRandomBytes();
-  const hash = bufferToHexString(await getHash(userInput));
-  return hash;
-}
-
-export function hexCharToBase(hex: string, base: number) {
-  const OLD_BASE = 16;
-  return parseInt(hex, OLD_BASE)
-    .toString(base)
-    .padStart(OLD_BASE / base, "0");
-}
-
-//
-/**
- * calculates base needed to achieve the target string length
- * by reducing the base of the hex string until we have enough digits
- *
- * @param hex - input string to generate the base
- * @param targetMinimumStringLength - the half of pixels required
- * @return the new base
- */
-function calculateBaseChange(hex: string, targetMinimumStringLength: number) {
-  const initialBase = 16; // the base of hex numbers
-  let toDivideBaseBy = Math.ceil(targetMinimumStringLength / hex.length);
-  let newBase = initialBase;
-
-  while (toDivideBaseBy > 1) {
-    if (newBase === 2) {
-      throw new Error(
-        `too long: { targetMinimumStringLength: ${targetMinimumStringLength}, hex: ${hex}, toDivideBaseBy: ${toDivideBaseBy} }`,
-      );
-    }
-    newBase /= 2;
-    toDivideBaseBy /= 2;
-  }
-
-  return newBase;
-}
-
-export function hexHash2BaseOfLength(hex: string, len: number) {
-  const newBase = calculateBaseChange(hex, len);
-  // calcBaseChange(hex, len);
-
-  return {
-    rebasedHash: hex
-      .split("")
-      .map((hexChar) => hexCharToBase(hexChar, newBase))
-      .join(""),
-    base: newBase,
-  };
-}
-
-export function getPixels(
-  hash: string,
-  cols: number,
-  rows: number,
-  base: number = 2,
-) {
-  // convert 40char hash to 4 * 7 (mirrored for 7 * 7) matrix, 28bits
-  let pixels = "";
-
-  for (let i = 0; i < rows; i++) {
-    for (let j = 0; j < cols; j++) {
-      const halfway = Math.ceil(cols / 2);
-      const J = j >= halfway ? cols - 1 - j : j;
-      const charFromHash = hash.charAt(i * halfway + J);
-      if (base === 2) {
-        pixels += charFromHash;
-      } else {
-        const shouldFill = parseInt(charFromHash, base) % 2;
-        pixels += shouldFill ? "0" : "1";
-      }
-    }
-  }
-
-  return pixels;
-}
-
-function mirrorPixels(cols: number, rows: number, halfPixels: string) {
-  let pixels = "";
-
-  for (let i = 0; i < rows; i++) {
-    for (let j = 0; j < cols; j++) {
-      const halfway = Math.ceil(cols / 2);
-      const J = j >= halfway ? cols - 1 - j : j;
-      const charFromHash = halfPixels.charAt(i * halfway + J);
-      pixels += charFromHash;
-    }
-  }
-
-  return pixels;
-}
-
-export async function calculatePixelData(
-  text: string,
-  cols: number,
-  rows: number,
-  saturation: { min: number; max: number },
-  lightness: { min: number; max: number },
-) {
-  const hash = await getHexHashString(text);
-
-  const allButLast3 = hash.slice(0, -3);
-  const requiredLength = rows * Math.ceil(cols / 2);
-  const { rebasedHash, base } = hexHash2BaseOfLength(
-    allButLast3,
-    requiredLength,
-  );
-
-  const pixels = getPixels(rebasedHash, cols, rows, base);
-
-  const color = stringToColor(hash.slice(-3), saturation, lightness);
-
-  const data = `${pixels}:${color}`;
-  // console.log({ data });
-  return data;
-}
-
-async function calculateOnlyPixels(hash: string, cols: number, rows: number) {
-  // console.log("calculateOnlyPixels:", { hash });
-  const requiredLength = rows * Math.ceil(cols / 2);
-  const { rebasedHash, base } = hexHash2BaseOfLength(hash, requiredLength);
-
-  return getPixels(rebasedHash, cols, rows, base);
-}
-
-export async function calculateOnlyColor(
-  text: string,
-  saturation: { min: number; max: number } = DEFAULT_COLOR_OPTIONS.saturation,
-  lightness: { min: number; max: number } = DEFAULT_COLOR_OPTIONS.lightness,
-) {
-  const hash = await getHexHashString(text);
-  // console.log("calculating color only for text:", text, hash);
-  return stringToColor(hash, saturation, lightness);
-}
+import { component$, useSignal, useTask$ } from "@builder.io/qwik";
+import GAME from "~/v3/constants/game";
+import {
+  calculateOnlyColor,
+  calculateOnlyPixels,
+  getHexHashString,
+  mirrorPixels,
+} from "~/v3/utils/avatarUtils";
 
 interface PixelProps {
   index: number;
@@ -239,7 +76,7 @@ export default component$(
     height = 100,
     classes = "",
     eachBlockSizePx = 1,
-    colorOptions = DEFAULT_COLOR_OPTIONS,
+    colorOptions = GAME.DEFAULT_COLOR_OPTIONS,
     // forceLighter = "nochange",
     /** */
     text,
@@ -266,13 +103,14 @@ export default component$(
     });
     colorOptions = {
       backgroundColor:
-        colorOptions.backgroundColor ?? DEFAULT_COLOR_OPTIONS.backgroundColor,
+        colorOptions.backgroundColor ??
+        GAME.DEFAULT_COLOR_OPTIONS.backgroundColor,
       saturation: {
-        ...DEFAULT_COLOR_OPTIONS.saturation,
+        ...GAME.DEFAULT_COLOR_OPTIONS.saturation,
         ...colorOptions.saturation,
       },
       lightness: {
-        ...DEFAULT_COLOR_OPTIONS.lightness,
+        ...GAME.DEFAULT_COLOR_OPTIONS.lightness,
         ...colorOptions.lightness,
       },
     };
@@ -309,16 +147,26 @@ export default component$(
         );
       }
 
-      if (hash?.value) {
-        generatedPixels = await calculateOnlyPixels(hash.value, cols, rows);
-      } else if (halfPixels) {
-        // generate or get pixels
+      if (halfPixels) {
         generatedPixels = mirrorPixels(cols, rows, halfPixels);
       } else {
-        // hash the textToUseForPixels
-        const hashed = await getHexHashString(textToUseForPixels);
+        let hashed = hash?.value;
+        if (!hashed) {
+          hashed = await getHexHashString(textToUseForPixels);
+        }
         generatedPixels = await calculateOnlyPixels(hashed, cols, rows);
       }
+
+      // if (hash?.value) {
+      //   generatedPixels = await calculateOnlyPixels(hash.value, cols, rows);
+      // } else if (halfPixels) {
+      //   // generate or get pixels
+      //   generatedPixels = mirrorPixels(cols, rows, halfPixels);
+      // } else {
+      //   // hash the textToUseForPixels
+      //   const hashed = await getHexHashString(textToUseForPixels);
+      //   generatedPixels = await calculateOnlyPixels(hashed, cols, rows);
+      // }
 
       // console.log({ generatedPixels, generatedColor });
       const totalColored = generatedPixels
