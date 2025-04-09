@@ -40,6 +40,7 @@ export default component$(() => {
   // TODO: make this replace the --- with the initials e.g. max 3chars at all times
   const initials = useSignal("---");
   const identifier = useSignal(defaultHash.value);
+  const userId = useSignal<string | undefined>("");
 
   const getRandomHash$ = $(async () => {
     identifier.value = getRandomBytes();
@@ -61,7 +62,7 @@ export default component$(() => {
       gameTimeDs: msToDs(ctx.timer.state.time),
       mismatches: ctx.state.gameData.mismatchPairs.length,
       pairs: ctx.state.gameData.successfulPairs.length,
-      userId: identifier.value,
+      userId: userId.value ?? identifier.value,
       initials: initials.value,
     };
 
@@ -194,6 +195,9 @@ export default component$(() => {
               height={computedAvatarSize.value}
               text={identifier}
               colorFrom={initials}
+              outputTo$={({ hash }) => {
+                userId.value = hash;
+              }}
             />
           </div>
           <div class="flex py-[2%] px-[4%]">
@@ -211,7 +215,7 @@ export default component$(() => {
                     type="text"
                     id="game-end-modal-input-initials"
                     class={`monospace text-center bg-slate-800 text-slate-100 `}
-                    style={`width: ${Math.round(GAME.INITIALS_MAX_LENGTH * 1.2)}ch;`}
+                    style={`width: ${Math.round(GAME.INITIALS_MAX_LENGTH * 1.5)}ch;`}
                     maxLength={GAME.INITIALS_MAX_LENGTH}
                     onInput$={(_, t: HTMLInputElement) => {
                       console.log("onInput fires: value:", t.value);
@@ -223,7 +227,7 @@ export default component$(() => {
                 </div>
 
                 <div class="w-full text-xs md:text-sm">
-                  <label for="game-end-modal-input-identifier">
+                  <label for="game-end-modal-input-identifier inline-flex">
                     Identifier: <Asterisk />{" "}
                     <InfoTooltip>
                       <Asterisk /> Identifier is never saved or sent anywhere.

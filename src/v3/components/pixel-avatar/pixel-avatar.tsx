@@ -59,11 +59,13 @@ interface PixelAvatarProps {
       rows,
       halfPixels,
       color,
+      hash,
     }: {
       cols: number;
       rows: number;
       halfPixels: string;
       color: string;
+      hash?: string;
     }) => void
   >;
 }
@@ -147,10 +149,10 @@ export default component$(
         );
       }
 
+      let hashed = hash?.value;
       if (halfPixels) {
         generatedPixels = mirrorPixels(cols, rows, halfPixels);
       } else {
-        let hashed = hash?.value;
         if (!hashed) {
           hashed = await getHexHashString(textToUseForPixels);
         }
@@ -198,6 +200,7 @@ export default component$(
           rows,
           halfPixels: generatedPixels,
           color: generatedColor,
+          hash: hashed,
         });
       }
     });
