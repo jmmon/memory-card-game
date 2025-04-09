@@ -44,7 +44,34 @@ export default component$<InputToggleProps>(
         /* border-color: #10b981; */ /* emerald-500 */
         border-color: #34d399; /* emerald-400 */ 
       }
+      input:focus ~ [data-label="toggle-slot"],
+      input:focus ~ [data-label="toggle-slot"]>[data-label="toggle-switch"] {
+        outline: 1px solid #fff;
+        
+      }
+
+      input:focus ~ [data-label="toggle-slot"]:after {
+        content: "";
+        position: absolute;
+        border-radius: 9999px;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        outline: 1px solid black;
+      }
+      input:focus ~ [data-label="toggle-slot"]>[data-label="toggle-switch"]:after {
+        content: "";
+        position: absolute;
+        border-radius: 9999px;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        outline: 1px solid black;
+      }
     `);
+
     return (
       <div
         class={`${classes} flex gap-[min(.75rem,1.75vw)] items-center justify-between w-full`}
@@ -56,7 +83,7 @@ export default component$<InputToggleProps>(
           <Slot name="label" />
           <input
             disabled={disabled}
-            class="h-6 w-6 flex-shrink-0 cursor-pointer hidden"
+            class="h-0 w-0 flex-shrink-0 cursor-pointer opacity-0"
             type="checkbox"
             name={propertyPath} // do not modify! used in onChange$
             id={id + "-" + propertyPath}
