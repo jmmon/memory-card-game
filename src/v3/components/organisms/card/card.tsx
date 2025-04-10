@@ -69,7 +69,7 @@ export default component$<CardProps>(({ card, index }) => {
   // - when clicking, reveal the face immediately (though it is hidden behind the card back)
   // - when returning, keep the face showing a little bit before hiding again
   useTask$(({ track, cleanup }) => {
-    track(() => isCardFlipped.value);
+    track(isCardFlipped);
 
     let faceHideDelayTimer: ReturnType<typeof setTimeout>;
     let matchHideDelayTimer: ReturnType<typeof setTimeout>;

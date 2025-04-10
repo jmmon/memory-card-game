@@ -523,7 +523,7 @@ const TableDecksizeFilterHeader = component$<TableDeckSizesFilterHeaderProps>(
     const deckSizesSelected = useSignal<number[]>([]);
     const deckSizesUnselected = useSignal<number[]>([]);
     useTask$(({ track }) => {
-      track(() => deckSizeList.value);
+      track(deckSizeList);
       track(() => queryStore.deckSizesFilter);
       deckSizesFilterString.value = queryStore.deckSizesFilter.join(",");
 
