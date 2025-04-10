@@ -1,7 +1,7 @@
 import {
-  // isServer,
+  isServer,
   useSignal,
-  // useTask$,
+  useTask$,
   useVisibleTask$,
 } from "@builder.io/qwik";
 import type { QRL, Signal } from "@builder.io/qwik";
@@ -38,9 +38,9 @@ export const useTimeoutObj = ({
     track(triggerCondition);
     if (!triggerCondition.value) return;
 
-  // useTask$(({ track, cleanup }) => {
-  //   track(triggerCondition);
-  //   if (isServer || !triggerCondition) return;
+    // useTask$(({ track, cleanup }) => {
+    //   track(triggerCondition);
+    //   if (isServer || !triggerCondition) return;
 
     logger(DebugTypeEnum.TASK, LogLevel.ONE, "~~ useTimeoutObj condition met");
     const timer = setTimeout(
@@ -105,9 +105,9 @@ export const useDelayedTimeoutObj = ({
     track(triggerCondition);
     if (!triggerCondition.value) return;
 
-  // useTask$(({ track, cleanup }) => {
-  //   track(triggerCondition);
-  //   if (isServer || !triggerCondition) return;
+    // useTask$(({ track, cleanup }) => {
+    //   track(triggerCondition);
+    //   if (isServer || !triggerCondition) return;
 
     logger(
       DebugTypeEnum.TASK,
@@ -184,11 +184,11 @@ export const useIntervalObj = ({
     isIntervalRunning.value = false; // turn off interval
     if (!triggerCondition.value) return;
 
-  // useTask$(({ track, cleanup }) => {
-  //   track(triggerCondition);
-  //   if (isServer) return;
-  //   isIntervalRunning.value = false; // turn off interval
-  //   if (!triggerCondition) return;
+    // useTask$(({ track, cleanup }) => {
+    //   track(triggerCondition);
+    //   if (isServer) return;
+    //   isIntervalRunning.value = false; // turn off interval
+    //   if (!triggerCondition) return;
 
     logger(
       DebugTypeEnum.TASK,
@@ -220,13 +220,13 @@ export const useIntervalObj = ({
   });
 
   // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ track, cleanup }) => {
-    track(isIntervalRunning);
-    if (!isIntervalRunning.value) return;
-
-  // useTask$(({ track, cleanup }) => {
+  // useVisibleTask$(({ track, cleanup }) => {
   //   track(isIntervalRunning);
-  //   if (isServer || !isIntervalRunning.value) return;
+  //   if (!isIntervalRunning.value) return;
+
+  useTask$(({ track, cleanup }) => {
+    track(isIntervalRunning);
+    if (isServer || !isIntervalRunning.value) return;
 
     const intervalTimer = setInterval(() => {
       logger(

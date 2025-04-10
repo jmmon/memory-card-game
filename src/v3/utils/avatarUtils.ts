@@ -68,7 +68,7 @@ export function bufferToHexString(buffer: ArrayBuffer) {
   return hexCodes.join("");
 }
 
-export function getHash(message: string): Promise<ArrayBuffer> {
+export function hashText(message: string): Promise<ArrayBuffer> {
   if (isServer) {
     return sha256(message);
     // return createHash("sha256").update(message).digest();
@@ -80,9 +80,7 @@ export function getHash(message: string): Promise<ArrayBuffer> {
 }
 
 export async function getHexHashString(userInput: string) {
-  // userInput;
-  // return getRandomBytes();
-  const hash = bufferToHexString(await getHash(userInput));
+  const hash = bufferToHexString(await hashText(userInput));
   return hash;
 }
 

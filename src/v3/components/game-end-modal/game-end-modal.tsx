@@ -1,4 +1,5 @@
 import type { Signal } from "@builder.io/qwik";
+import { server$ } from "@builder.io/qwik-city";
 import {
   component$,
   $,
@@ -29,6 +30,8 @@ const limitSizeMinMax = (val: number, min: number = 60, max: number = 100) =>
 
 const Asterisk = () => <span class="text-red-300">*</span>;
 
+export const serverGetHash = server$(() => getRandomBytes());
+
 export default component$(() => {
   const ctx = useGameContextService();
   const defaultHash = useDefaultHash();
@@ -37,20 +40,13 @@ export default component$(() => {
     ctx.state.interfaceSettings.endOfGameModal.isShowing = false;
   });
 
-  // TODO: make this replace the --- with the initials e.g. max 3chars at all times
   const initials = useSignal("---");
+  const initialsRef = useSignal<HTMLInputElement>(); // to manipulate the input
   const identifier = useSignal(defaultHash.value);
   const userId = useSignal<string | undefined>("");
 
-  const getRandomHash$ = $(async () => {
-    identifier.value = getRandomBytes();
-  });
-
-  // why?
   const selectFieldOnFocus$ = $(
-    (_: FocusEvent, t: HTMLInputElement | HTMLTextAreaElement) => {
-      t.focus();
-    },
+    (_: FocusEvent, t: HTMLInputElement | HTMLTextAreaElement) => t.select(),
   );
 
   const saveScore$ = $(async () => {
@@ -88,8 +84,7 @@ export default component$(() => {
     ),
   );
 
-  // TODO: debounce
-  // maybe make a debounced resizer hook? since there's a few resize events in the code
+  // do I even need to use js to calculate the avatar size??? Why not use CSS?
   //
   useDebouncedOnWindow(
     "resize",
@@ -141,7 +136,6 @@ export default component$(() => {
     <Modal
       isShowing={ctx.state.interfaceSettings.endOfGameModal.isShowing}
       hideModal$={hideModal$}
-      // containerClasses="bg-opacity-[98%] shadow-2xl"
       title={
         ctx.state.interfaceSettings.endOfGameModal.isWin
           ? "You Win!"
@@ -187,13 +181,13 @@ export default component$(() => {
 */}
         </div>
 
-        <hr class="mx-2 border-slate-800" />
+        <hr class="mx-2 border-slate-800 opacity-50" />
 
         <div class={`w-full h-full`}>
           <div class="w-full flex flex-col gap-2 items-center justify-center py-[2%] px-[4%]">
             <h3 class="text-sm md:text-lg ">Avatar:</h3>
             <PixelAvatar
-              width={computedAvatarSize.value}
+              width={computedAvatarSize.value} // do i really need js to set size???
               height={computedAvatarSize.value}
               text={identifier}
               colorFrom={initials}
@@ -213,27 +207,33 @@ export default component$(() => {
                     Initials:
                   </label>
                   <input
+                    ref={initialsRef}
                     disabled={ctx.state.gameData.isSaved}
                     type="text"
                     id="game-end-modal-input-initials"
                     class={`monospace text-center bg-slate-800 text-slate-100 mx-auto`}
                     style={`width: ${Math.round(GAME.INITIALS_MAX_LENGTH * 2.5)}ch;`}
-                    maxLength={GAME.INITIALS_MAX_LENGTH}
-                    onInput$={(_, t: HTMLInputElement) => {
-                      console.log("onInput fires: value:", t.value);
-                      initials.value = t.value.toUpperCase();
+                    maxLength={GAME.INITIALS_MAX_LENGTH + 1}
+                    defaultValue={initials.value}
+                    onInput$={(_: Event, t: HTMLInputElement) => {
+                      const prev = t.value.replace("-", "").toUpperCase();
+                      const newString =
+                        prev.length > GAME.INITIALS_MAX_LENGTH
+                          ? prev.slice(0, GAME.INITIALS_MAX_LENGTH)
+                          : prev.padStart(3, "-");
+                      (initialsRef.value as HTMLInputElement).value = newString;
                     }}
                     onFocus$={selectFieldOnFocus$}
-                    value={initials.value}
                   />
                 </div>
 
                 <div class="flex flex-col w-full text-xs md:text-sm">
-                  <label for="game-end-modal-input-identifier " class="flex gap-[0.2em] items-center mx-auto">
+                  <label
+                    for="game-end-modal-input-identifier "
+                    class="flex gap-[0.2em] items-center mx-auto"
+                  >
                     Identifier: <Asterisk />{" "}
-                    <InfoTooltip
-                      // rootClasses="inline-block"
-                    >
+                    <InfoTooltip>
                       <Asterisk /> Identifier is never saved or sent anywhere.
                       It's only to generate your avatar. If you want your avatar
                       to be consistent across games and devices, use something
@@ -243,7 +243,9 @@ export default component$(() => {
                   </label>
                   <button
                     data-label="generate-random-identifier"
-                    onClick$={getRandomHash$}
+                    onClick$={async () => {
+                      identifier.value = await serverGetHash();
+                    }}
                     class="text-xs px-0 py-0 "
                     style="color: var(--qwik-light-blue);"
                     type="button"
@@ -275,7 +277,7 @@ export default component$(() => {
           </div>
         </div>
 
-        <hr class="mx-2 border-slate-800" />
+        <hr class="mx-2 border-slate-800 opacity-50" />
 
         <GameSettings unsavedUserSettings={unsavedUserSettings}>
           <div
