@@ -27,22 +27,40 @@ export default component$<HeaderSettingsIconProps>(() => {
       opacity: 0.3;
     }
 
-    .settings-button:not(.open):focus .bar-1,
-    .settings-button:not(.open):hover .bar-1 {
+    .settings-button:not(.open):focus .bar-1 {
       transform: rotate(6deg) scaleX(1.06);
       transform-origin: left;
     }
-    .settings-button:not(.open):focus .bar-2,
-    .settings-button:not(.open):hover .bar-2 {
+    .settings-button:not(.open):focus .bar-2 {
       transform: rotate(-6deg) scaleX(1.06);
       transform-origin: center;
     }
-    .settings-button:not(.open):focus .bar-3,
-    .settings-button:not(.open):hover .bar-3 {
+    .settings-button:not(.open):focus .bar-3 {
       transform: translateY(1px) rotate(6deg) scaleX(1.06);
       transform-origin: right;
       opacity: 0.90;
     }
+
+    /* enable hover effects for larger screens */
+    @media screen and min-width(1024px) {
+        .settings-button:not(.open):focus .bar-1
+        ,.settings-button:not(.open):hover .bar-1 {
+          transform: rotate(6deg) scaleX(1.06);
+          transform-origin: left;
+        }
+        .settings-button:not(.open):focus .bar-2
+        ,.settings-button:not(.open):hover .bar-2 {
+          transform: rotate(-6deg) scaleX(1.06);
+          transform-origin: center;
+        }
+        .settings-button:not(.open):focus .bar-3
+        ,.settings-button:not(.open):hover .bar-3 {
+          transform: translateY(1px) rotate(6deg) scaleX(1.06);
+          transform-origin: right;
+          opacity: 0.90;
+        }
+    }
+
   `);
 
   const ref = useSignal<HTMLButtonElement>();
