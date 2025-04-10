@@ -67,6 +67,10 @@ const ChevronStyled = ({ direction }: { direction: "left" | "right" }) => (
   />
 );
 
+export const isScoresDisabled = server$(() => {
+  return process.env.FEATURE_FLAG_SCORES_DISABLED === "true";
+});
+
 export type QueryStore = {
   sortByColumnHistory: SortColumnWithDirection[];
   deckSizesFilter: number[];
@@ -80,6 +84,7 @@ export default component$(() => {
   const ctx = useGameContextService();
   const isLoading = useSignal(true);
   const selectValue = useSignal("default");
+  const size = useSignal<number>(PIXEL_AVATAR_SIZE);
 
   const queryStore = useStore<QueryStore>(
     {
@@ -96,13 +101,21 @@ export default component$(() => {
     { deep: true },
   );
 
-  useTask$(({ track }) => {
-    track(() => ctx.state.userSettings.deck.size);
-    queryStore.deckSizesFilter = [ctx.state.userSettings.deck.size];
+  const windowSignal = useSignal<
+    Partial<typeof window> & { innerWidth: number; innerHeight: number }
+  >({
+    innerWidth: 500,
+    innerHeight: 400,
   });
 
-  const deckSizeList = useSignal<number[]>([]);
+  // stores the data: should I paginate it so it can save previous pages?
+  // e.g. page[1]: data,
+  //      page[2]: undefined | data
+  //      each time it fetches, it can save that page locally
   const sortedScores = useSignal<ScoreWithPercentiles[]>([]);
+  // stores the array of decksizes:
+  //  or could just use the keys of ScoreTotals
+  const deckSizeList = useSignal<number[]>([]);
   // stores each deck size totals, and all totals
   const scoreTotals = useSignal<{
     [key: number]: number;
@@ -112,51 +125,41 @@ export default component$(() => {
   });
 
   const queryAndSaveScores = $(async () => {
-    const isScoresDisabled = await server$(() => {
-      return process.env.FEATURE_FLAG_SCORES_DISABLED === "true";
-    })();
-    if (isScoresDisabled) {
+    if (await isScoresDisabled()) {
       console.log("FEATURE_FLAG: Scores DISABLED");
       return { scores: [] };
     }
+
     isLoading.value = true;
-
     console.log({ queryStore });
-    const scoresPromise = serverDbService.scores.queryWithPercentiles({
-      pageNumber: queryStore.pageNumber,
-      resultsPerPage: queryStore.resultsPerPage,
-      deckSizesFilter:
-        queryStore.deckSizesFilter.length === 0
-          ? [ctx.state.userSettings.deck.size]
-          : queryStore.deckSizesFilter,
-      sortByColumnHistory: queryStore.sortByColumnHistory,
-    });
 
-    // fetch all deck sizes for our dropdown
-    const scoreCountsPromise = serverDbService.scoreCounts.getDeckSizes();
+    const { scores, totals } =
+      await serverDbService.scores.queryWithPercentiles({
+        pageNumber: queryStore.pageNumber,
+        resultsPerPage: queryStore.resultsPerPage,
+        deckSizesFilter:
+          queryStore.deckSizesFilter.length === 0
+            ? [ctx.state.userSettings.deck.size]
+            : queryStore.deckSizesFilter,
+        sortByColumnHistory: queryStore.sortByColumnHistory,
+      });
 
-    const [scoresRes, scoreCounts] = await Promise.all([
-      scoresPromise,
-      scoreCountsPromise,
-    ]);
-    deckSizeList.value = scoreCounts;
-
-    const { scores, totals } = scoresRes;
     const totalCountForQuery = Object.values(totals).reduce(
       (accum, cur) => (accum += cur),
       0,
     );
+    deckSizeList.value = Object.keys(totals).map(Number);
+
+    scoreTotals.value = {
+      ...totals,
+      all: totalCountForQuery,
+    };
 
     console.log({
       totalCount: totalCountForQuery,
       scores,
       deckSizeList: deckSizeList.value,
     });
-
-    scoreTotals.value = {
-      ...totals,
-      all: totalCountForQuery,
-    };
 
     // calculate new page number we should place them on, eg match the centers
     const newTotalPages = Math.ceil(
@@ -178,6 +181,8 @@ export default component$(() => {
 
     queryStore.totalPages = newTotalPages;
     queryStore.pageNumber = newPage;
+    // TODO: instead append the scores? so it keeps the previous pages?
+    // then could sort here on client-side by percentiles or whatever
     sortedScores.value = [...scores];
 
     return { scores };
@@ -278,8 +283,6 @@ export default component$(() => {
     queryAndSaveScores();
   });
 
-  const size = useSignal<number>(PIXEL_AVATAR_SIZE);
-
   const resizePixelAvatar = $(() => {
     if (isServer) {
       return;
@@ -288,6 +291,11 @@ export default component$(() => {
       window.innerWidth <= 639
         ? Math.round(PIXEL_AVATAR_SIZE * 0.8)
         : PIXEL_AVATAR_SIZE;
+  });
+
+  useTask$(({ track }) => {
+    track(() => ctx.state.userSettings.deck.size);
+    queryStore.deckSizesFilter = [ctx.state.userSettings.deck.size];
   });
 
   /*
@@ -306,13 +314,6 @@ export default component$(() => {
     isLoading.value = false;
 
     console.log("done loading");
-  });
-
-  const windowSignal = useSignal<
-    Partial<typeof window> & { innerWidth: number; innerHeight: number }
-  >({
-    innerWidth: 500,
-    innerHeight: 400,
   });
 
   const resizeHandler = $(() => {
@@ -445,11 +446,9 @@ export default component$(() => {
     <Modal
       // isShowing={true}
       isShowing={ctx.state.interfaceSettings.scoresModal.isShowing}
-      hideModal$={() => {
-        ctx.state.interfaceSettings.scoresModal.isShowing = false;
-      }}
+      hideModal$={ctx.handle.hideScores}
       title="Scoreboard"
-      containerClasses="bg-opacity-[98%] shadow-2xl w-full sm:min-w-[31rem] sm:w-[60vw]"
+      containerClasses="w-full sm:min-w-[31rem] sm:w-[60vw]"
       wrapperSyles={{
         overflowY: "hidden",
       }}
@@ -528,11 +527,16 @@ const TableDecksizeFilterHeader = component$<TableDeckSizesFilterHeaderProps>(
       track(() => queryStore.deckSizesFilter);
       deckSizesFilterString.value = queryStore.deckSizesFilter.join(",");
 
-      deckSizeList.value.forEach((each) => {
-        queryStore.deckSizesFilter.includes(each)
-          ? deckSizesSelected.value.push(each)
-          : deckSizesUnselected.value.push(each);
-      });
+      [deckSizesSelected.value, deckSizesUnselected.value] =
+        deckSizeList.value.reduce<[number[], number[]]>(
+          (accum, each) => {
+            queryStore.deckSizesFilter.includes(each)
+              ? accum[0].push(each)
+              : accum[0].push(each);
+            return accum;
+          },
+          [[], []],
+        );
       // deckSizesSelected.value = deckSizeList.value.filter((each) =>
       //   queryStore.deckSizesFilter.includes(each),
       // );

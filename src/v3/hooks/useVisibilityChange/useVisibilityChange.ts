@@ -17,6 +17,10 @@ export const useVisibilityChange = ({
   onShown$,
   onChange$,
 }: UseVisibilityChangeProps) => {
+  // TODO: switch to useOnDocument? could set up all the events regardless of browser
+  // - only the correct ones will fire, since only certain ones exist in certain browsers
+  // - what if two fire? might want to figure out how to handle that, debounce or something?
+  //
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ cleanup }) => {
     let hidden = "hidden";
@@ -76,10 +80,10 @@ export const useVisibilityChange = ({
 
       if (document.body.dataset["visibilitychange"] === "hidden") {
         if (onHidden$) onHidden$();
-        //   gameContext.showSettings();
       } else {
         if (onShown$) onShown$();
       }
+      // runs every function run
       if (onChange$) onChange$();
     }
 

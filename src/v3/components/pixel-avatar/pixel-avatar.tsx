@@ -121,6 +121,7 @@ export default component$(
       track(() => [
         color,
         halfPixels,
+        // can this track the signal instread of the signal value?
         hash?.value,
         text?.value,
         colorFrom?.value,

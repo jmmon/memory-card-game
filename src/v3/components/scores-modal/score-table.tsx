@@ -98,14 +98,13 @@ const generateBgAlpha = (color: string) =>
 
 type ScoreRowProps = { score: ScoreWithPercentiles; size: Signal<number> };
 const ScoreRow = component$<ScoreRowProps>(({ score, size }) => {
-  // TODO: find another way?
   const backgroundColor = useSignal("");
-  useTask$(async ({ track }) => {
+  // now using promise chaining, the task should not block rendering
+  useTask$(({ track }) => {
     track(() => score.initials);
-    backgroundColor.value = generateBgAlpha(
-      await calculateOnlyColor(score.initials),
+    calculateOnlyColor(score.initials).then(
+      (color) => (backgroundColor.value = generateBgAlpha(color)),
     );
-    console.log({ backgroundColor: backgroundColor.value });
   });
 
   return (
