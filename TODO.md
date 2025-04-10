@@ -2,10 +2,10 @@
 3. [low priority] replace the text in the initials box, e.g. start typing and it fills in x dashes in front and adjusts as you type
 
 ## scores modal:
-4. save score button: loading indicator? 
+4. [low priority] save score button: loading indicator? 
 - it already turns green after but can go disabled while pending
 
-## scores button padding
+## scores button padding - make size similar to the hamburger on smaller screens
 ## modal control ?
 - when opening scores, do I want the settings to open? 
 > I guess only if game is not in progress, so it pauses the game
@@ -16,6 +16,14 @@
 - should be closed at start of deck dealing, or not closed at all, rather than "halfway" through
 
 ## modal full width on smaller screens e.g. max-width:640px
+- or only for scores modal? 
+> - or smaller breakpoint for skinnier modals
+
+## new deck size selector, maybe <dropdown> 
+- clear all
+- button selects for each
+
+
 
 
 

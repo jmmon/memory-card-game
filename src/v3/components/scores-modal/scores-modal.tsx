@@ -713,9 +713,7 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
               <button
                 key={number}
                 class={`${BASE_BUTTON_CLASSES} ${
-                  number === queryStore.pageNumber
-                    ? "bg-slate-500 text-slate-600"
-                    : ""
+                  number === queryStore.pageNumber ? "bg-slate-500" : ""
                 }`}
                 data-label={`page-number-${number}`}
                 disabled={number === queryStore.pageNumber}

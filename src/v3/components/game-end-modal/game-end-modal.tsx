@@ -141,7 +141,7 @@ export default component$(() => {
     <Modal
       isShowing={ctx.state.interfaceSettings.endOfGameModal.isShowing}
       hideModal$={hideModal$}
-      containerClasses="bg-opacity-[98%] shadow-2xl"
+      // containerClasses="bg-opacity-[98%] shadow-2xl"
       title={
         ctx.state.interfaceSettings.endOfGameModal.isWin
           ? "You Win!"
@@ -204,7 +204,7 @@ export default component$(() => {
           </div>
           <div class="flex py-[2%] px-[4%]">
             <ModalRow>
-              <div class="flex flex-col gap-1 items-center w-full">
+              <div class="flex flex-col gap-4 items-center w-full">
                 <div class="w-full text-xs md:text-sm flex flex-col">
                   <label
                     class="w-full flex justify-center gap-2"
@@ -216,7 +216,7 @@ export default component$(() => {
                     disabled={ctx.state.gameData.isSaved}
                     type="text"
                     id="game-end-modal-input-initials"
-                    class={`monospace text-center bg-slate-800 text-slate-100 `}
+                    class={`monospace text-center bg-slate-800 text-slate-100 mx-auto`}
                     style={`width: ${Math.round(GAME.INITIALS_MAX_LENGTH * 2.5)}ch;`}
                     maxLength={GAME.INITIALS_MAX_LENGTH}
                     onInput$={(_, t: HTMLInputElement) => {
@@ -228,10 +228,12 @@ export default component$(() => {
                   />
                 </div>
 
-                <div class="w-full text-xs md:text-sm">
-                  <label for="game-end-modal-input-identifier flex gap-[0.2em] items-center mx-auto">
+                <div class="flex flex-col w-full text-xs md:text-sm">
+                  <label for="game-end-modal-input-identifier " class="flex gap-[0.2em] items-center mx-auto">
                     Identifier: <Asterisk />{" "}
-                    <InfoTooltip>
+                    <InfoTooltip
+                      // rootClasses="inline-block"
+                    >
                       <Asterisk /> Identifier is never saved or sent anywhere.
                       It's only to generate your avatar. If you want your avatar
                       to be consistent across games and devices, use something
@@ -242,7 +244,7 @@ export default component$(() => {
                   <button
                     data-label="generate-random-identifier"
                     onClick$={getRandomHash$}
-                    class="text-xs px-0 py-0 ml-2 "
+                    class="text-xs px-0 py-0 "
                     style="color: var(--qwik-light-blue);"
                     type="button"
                     disabled={ctx.state.gameData.isSaved}
@@ -258,15 +260,6 @@ export default component$(() => {
                     bind:value={identifier}
                   />
                 </div>
-                {/*
-                <span class="text-xs text-slate-100">
-                  <Asterisk /> Identifier is never saved or sent anywhere. It's
-                  only to generate your avatar. If you want your avatar to be
-                  consistent across games and devices, use something unique and
-                  consistent like your name or email. The data is hashed and
-                  used to determine pixel placement.
-                </span>
-*/}
               </div>
             </ModalRow>
           </div>
