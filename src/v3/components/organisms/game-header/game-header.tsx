@@ -27,6 +27,7 @@ export default component$<GameHeaderProps>(() => {
         )}
         <HeaderTimerDisplay />
         <Button
+          classes={`my-auto sm:my-0 sm:px-4`}
           onClick$={() =>
             ctx.state.interfaceSettings.scoresModal.isShowing === true
               ? ctx.handle.hideScores()

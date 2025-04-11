@@ -109,7 +109,10 @@ export default component$<GameProps>(
           !ctx.timer.state.isStarted &&
           !ctx.timer.state.isEnded,
       ),
-      initialDelay: GAME.AUTO_SHUFFLE_DELAY,
+      initialDelay:
+        GAME.AUTO_SHUFFLE_DELAY +
+        BOARD.CARD_SHUFFLE_ACTIVE_DURATION +
+        BOARD.CARD_SHUFFLE_PAUSE_DURATION,
       interval: GAME.AUTO_SHUFFLE_INTERVAL,
       action: ctx.handle.shuffleCardPositions,
     });
@@ -120,7 +123,10 @@ export default component$<GameProps>(
      * ================================ */
     useTimeoutObj({
       triggerCondition: useComputed$(
-        () => ctx.state.gameData.shufflingState > 0,
+        () =>
+          ctx.state.gameData.currentFanOutCardIndex ===
+            -(ctx.state.gameData.fanOutCardDelayRounds - 1) &&
+          ctx.state.gameData.shufflingState > 0,
       ),
       delay:
         BOARD.CARD_SHUFFLE_PAUSE_DURATION + BOARD.CARD_SHUFFLE_ACTIVE_DURATION,

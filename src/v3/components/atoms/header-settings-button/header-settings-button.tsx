@@ -60,7 +60,6 @@ export default component$<HeaderSettingsIconProps>(() => {
           opacity: 0.90;
         }
     }
-
   `);
 
   const ref = useSignal<HTMLButtonElement>();

@@ -240,7 +240,7 @@ export default component$(() => {
   });
 
   useStyles$(`
-/* move to global? unless it uses variables */
+  /* move to global? unless it uses variables */
     .card-face img {
       width: 100%;
       height: auto;

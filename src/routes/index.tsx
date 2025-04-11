@@ -83,7 +83,7 @@ const Instructions: FunctionComponent = () => {
         After <strong>two</strong> cards have been flipped, if the{" "}
         <strong>numbers</strong> and <strong>colors</strong> match...
         <br />
-        <div class="bg-slate-700 px-2">
+        <div class="bg-slate-700 p-2">
           <code class="p-0">
             (e.g. <strong>Queen</strong> of <strong>Spades</strong> with{" "}
             <strong>Queen</strong> of <strong>Clubs</strong>; or{" "}

@@ -14,7 +14,6 @@ type ButtonProps = {
 } & PropsOf<"button">;
 export default component$<ButtonProps>((props) => (
   <button
-    {...props}
     ref={props.buttonRef}
     onClick$={props.onClick$}
     class={`transition p-2 border border-slate-200 bg-slate-700 rounded hover:bg-slate-500 ${
