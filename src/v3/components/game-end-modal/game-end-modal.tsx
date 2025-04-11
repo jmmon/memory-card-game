@@ -1,11 +1,5 @@
 import type { Signal } from "@builder.io/qwik";
-import {
-  component$,
-  $,
-  useSignal,
-  useVisibleTask$,
-  useTask$,
-} from "@builder.io/qwik";
+import { component$, $, useSignal, useTask$ } from "@builder.io/qwik";
 import PixelAvatar from "../pixel-avatar/pixel-avatar";
 import Button from "../atoms/button/button";
 import Modal from "../templates/modal/modal";
@@ -21,10 +15,6 @@ import GAME from "~/v3/constants/game";
 import type { iUserSettings } from "~/v3/types/types";
 import { useDefaultHash } from "~/routes/game";
 import useGetSavedTheme from "~/v3/hooks/useGetSavedTheme";
-import useDebouncedOnWindow from "~/v3/hooks/useDebouncedOnWindow";
-
-const limitSizeMinMax = (val: number, min: number = 60, max: number = 100) =>
-  Math.max(min, Math.min(max, val));
 import { getRandomBytesBrowser } from "~/v3/utils/hashUtils";
 
 const Asterisk = () => <span class="text-red-300">*</span>;
@@ -73,33 +63,6 @@ export default component$(() => {
     } catch (err) {
       console.error(err);
     }
-  });
-
-  const computedAvatarSize = useSignal(
-    limitSizeMinMax(
-      (typeof window !== "undefined" ? window.innerHeight : 300) * 0.14,
-    ),
-  );
-
-  // do I even need to use js to calculate the avatar size??? Why not use CSS?
-  //
-  useDebouncedOnWindow(
-    "resize",
-    $(() => {
-      computedAvatarSize.value = limitSizeMinMax(
-        (typeof window !== "undefined" ? window.innerWidth : 300) * 0.14,
-      );
-      console.log("new avater size:", computedAvatarSize.value);
-    }),
-    100,
-  );
-
-  // resize the avatar
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(() => {
-    computedAvatarSize.value = limitSizeMinMax(
-      (typeof window !== "undefined" ? window.innerWidth : 300) * 0.14,
-    );
   });
 
   const unsavedUserSettings = useSignal<iUserSettings>({
@@ -184,8 +147,7 @@ export default component$(() => {
           <div class="w-full flex flex-col gap-2 items-center justify-center py-[2%] px-[4%]">
             <h3 class="text-sm md:text-lg ">Avatar:</h3>
             <PixelAvatar
-              width={computedAvatarSize.value} // do i really need js to set size???
-              height={computedAvatarSize.value}
+              classes="w-[80px] h-[80px] sm:w-[100px] sm:h-[100px]"
               text={identifier}
               colorFrom={initials}
               outputTo$={({ hash }) => {

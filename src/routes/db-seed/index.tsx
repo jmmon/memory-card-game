@@ -156,9 +156,6 @@ export default component$(() => {
     }
   });
 
-  const factor = 3;
-  const size = 16 * factor;
-
   return (
     <div
       class="w-full h-auto max-h-[100vh] flex flex-col justify-start items-center gap-10"
@@ -276,9 +273,7 @@ export default component$(() => {
                     class=" flex gap-4 items-center my-[-16px]"
                   >
                     <PixelAvatar
-                      classes=""
-                      width={size}
-                      height={size}
+                      classes="w-12 h-12"
                       hash={{ value: score.userId }}
                       colorFrom={{ value: score.initials }}
                     />

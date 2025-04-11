@@ -34,8 +34,6 @@ export const Pixel = ({
 };
 
 interface PixelAvatarProps {
-  width?: number;
-  height?: number;
   rows?: number;
   cols?: number;
   text?: Signal<string>;
@@ -74,8 +72,6 @@ export default component$(
   ({
     rows = 16,
     cols = 16,
-    width = 100,
-    height = 100,
     classes = "",
     eachBlockSizePx = 1,
     colorOptions = GAME.DEFAULT_COLOR_OPTIONS,
@@ -152,6 +148,7 @@ export default component$(
 
       let hashed = hash?.value;
       if (halfPixels) {
+        // legacy - when passing in binary string to render pixels
         generatedPixels = mirrorPixels(cols, rows, halfPixels);
       } else {
         if (!hashed) {
@@ -213,14 +210,14 @@ export default component$(
             viewBox={` 0 0 ${cols * eachBlockSizePx} ${
               rows * eachBlockSizePx
             } `}
-            width={width}
-            height={height}
+            width="64px" // overwritten with css
+            height="64px"
             style={`stroke-width: 0px; background-color: ${
               data.value.isMoreColored
                 ? data.value.color
                 : (colorOptions.backgroundColor as string)
             }; `}
-            class={classes}
+            class={`aspect-square ${classes}`}
             data-colored={meta.value.totalColored}
             data-total={meta.value.totalPixels}
             data-avg={meta.value.avg}

@@ -6,8 +6,6 @@ import { ScoreTableColumnEnum, SortDirectionEnum } from "~/v3/types/types";
 
 export const JAN_1_1970_STRING = "1970-01-01T00:00:00.000Z" as const;
 
-export const PIXEL_AVATAR_SIZE = 44 as const;
-
 // export enum HeaderListEnum {
 //   Avatar = "Avatar",
 //   Initials = "Initials",
