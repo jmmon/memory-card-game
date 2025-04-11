@@ -119,9 +119,10 @@ export default component$(() => {
       console.log("FEATURE_FLAG: Scores DISABLED");
       return { scores: [] };
     }
-
     isLoading.value = true;
-    console.log({ queryStore });
+
+    const now = Date.now();
+    console.log("queryAndSaveScores timing...", { queryStore });
 
     const { scores, totals } =
       await serverDbService.scores.queryWithPercentiles({
@@ -133,6 +134,13 @@ export default component$(() => {
             : queryStore.deckSizesFilter,
         sortByColumnHistory: queryStore.sortByColumnHistory,
       });
+
+    const newNow = Date.now();
+    console.log(`~~ done with query:`, {
+      newNow,
+      now,
+      timeMs: newNow - now,
+    });
 
     const totalCountForQuery = Object.values(totals).reduce(
       (accum, cur) => (accum += cur),
@@ -175,12 +183,11 @@ export default component$(() => {
     // then could sort here on client-side by percentiles or whatever
     sortedScores.value = [...scores];
 
+    isLoading.value = false;
     return { scores };
   });
 
-  const handleClickColumnHeader = $(async (e: MouseEvent) => {
-    isLoading.value = true;
-    // console.log({ e });
+  const handleClickColumnHeader = $((e: MouseEvent) => {
     const clickedDataAttr = (e.target as HTMLButtonElement).getAttribute(
       "data-sort-column",
     ) as string;
@@ -193,7 +200,7 @@ export default component$(() => {
     console.log({ clickedDataAttr, clickedColumnTitle, currentSortByColumn });
 
     if (currentSortByColumn.column === clickedColumnTitle) {
-      // same column
+      // same column so toggle direction
       const newDirection =
         currentSortByColumn.direction === SortDirectionEnum.asc
           ? SortDirectionEnum.desc
@@ -211,27 +218,11 @@ export default component$(() => {
 
   const onChangeResultsPerPage$ = $(async (_: Event, t: HTMLSelectElement) => {
     const selectedResultsPerPage = Number(t.value);
+    queryStore.resultsPerPage = selectedResultsPerPage;
 
-    const now = Date.now();
+    console.log({ selectedResultsPerPage });
 
-    console.log({ selectedDeckSize: selectedResultsPerPage, now });
-
-    // handle top option to toggle all
-    if (!isNaN(selectedResultsPerPage)) {
-      queryStore.resultsPerPage = selectedResultsPerPage;
-      // re-select the top because it shows everything
-      selectValue.value = "default";
-      t.value = "default";
-
-      await queryAndSaveScores();
-
-      const newNow = Date.now();
-      console.log(`~~ done with query:`, {
-        newNow,
-        now,
-        timeMs: newNow - now,
-      });
-    }
+    await queryAndSaveScores();
   });
 
   const onChangeSelect$ = $((_: Event, t: HTMLSelectElement) => {
@@ -273,7 +264,6 @@ export default component$(() => {
     queryAndSaveScores();
   });
 
-
   useTask$(({ track }) => {
     track(() => ctx.state.userSettings.deck.size);
     queryStore.deckSizesFilter = [ctx.state.userSettings.deck.size];
@@ -288,11 +278,7 @@ export default component$(() => {
     );
     if (isServer || !isShowing) return;
 
-    isLoading.value = true;
-    await queryAndSaveScores();
-    isLoading.value = false;
-
-    console.log("done loading");
+    queryAndSaveScores();
   });
 
   useStyles$(`
@@ -428,28 +414,34 @@ export default component$(() => {
       }}
     >
       <div class="flex flex-col max-w-full h-[70vh] ">
-        {/* TODO: instead of Select + Options, use a dropdown with checkboxes 
-            (could be disabled for those deckSizes we haven't seen yet) */}
-        <TableDecksizeFilterHeader
-          selectValue={selectValue}
-          onChangeSelect$={onChangeSelect$}
-          queryStore={queryStore}
-          deckSizeList={deckSizeList}
-        />
+        {isLoading.value ? (
+          <p>Loading scores...</p>
+        ) : (
+          <>
+            {/* TODO: instead of Select + Options, use a dropdown with checkboxes 
+              (could be disabled for those deckSizes we haven't seen yet) */}
+            <TableDecksizeFilterHeader
+              selectValue={selectValue}
+              onChangeSelect$={onChangeSelect$}
+              queryStore={queryStore}
+              deckSizeList={deckSizeList}
+            />
 
-        <div class="w-full max-h-[calc(70vh-5.2rem)] overflow-y-auto">
-          <ScoreTable
-            handleClickColumnHeader$={handleClickColumnHeader}
-            sortedScores={sortedScores.value}
-            queryStore={queryStore}
-          />
-        </div>
+            <div class="w-full max-h-[calc(70vh-5.2rem)] overflow-y-auto">
+              <ScoreTable
+                handleClickColumnHeader$={handleClickColumnHeader}
+                sortedScores={sortedScores.value}
+                queryStore={queryStore}
+              />
+            </div>
 
-        <TablePagingFooter
-          queryStore={queryStore}
-          onChangeResultsPerPage$={onChangeResultsPerPage$}
-          queryScores$={queryAndSaveScores}
-        />
+            <TablePagingFooter
+              queryStore={queryStore}
+              onChangeResultsPerPage$={onChangeResultsPerPage$}
+              queryScores$={queryAndSaveScores}
+            />
+          </>
+        )}
       </div>
     </Modal>
   );
@@ -490,27 +482,23 @@ const TableDecksizeFilterHeader = component$<TableDeckSizesFilterHeaderProps>(
     const deckSizesFilterString = useSignal("");
     const deckSizesSelected = useSignal<number[]>([]);
     const deckSizesUnselected = useSignal<number[]>([]);
+
     useTask$(({ track }) => {
       track(deckSizeList);
       track(() => queryStore.deckSizesFilter);
       deckSizesFilterString.value = queryStore.deckSizesFilter.join(",");
 
-      [deckSizesSelected.value, deckSizesUnselected.value] =
-        deckSizeList.value.reduce<[number[], number[]]>(
-          (accum, each) => {
-            queryStore.deckSizesFilter.includes(each)
-              ? accum[0].push(each)
-              : accum[0].push(each);
+      [deckSizesSelected.value, deckSizesUnselected.value] = deckSizeList.value
+        .sort((a, b) => a - b)
+        .reduce<[number[], number[]]>(
+          (accum, eachSize) => {
+            queryStore.deckSizesFilter.includes(eachSize)
+              ? accum[0].push(eachSize)
+              : accum[1].push(eachSize);
             return accum;
           },
           [[], []],
         );
-      // deckSizesSelected.value = deckSizeList.value.filter((each) =>
-      //   queryStore.deckSizesFilter.includes(each),
-      // );
-      // deckSizesUnselected.value = deckSizeList.value.filter(
-      //   (each) => !queryStore.deckSizesFilter.includes(each),
-      // );
     });
     const widthCutoffLength = 100;
     return (
@@ -529,22 +517,21 @@ const TableDecksizeFilterHeader = component$<TableDeckSizesFilterHeaderProps>(
               : deckSizesFilterString.value}
           </option>
           <option value={-1}>Toggle All</option>
-          {deckSizesSelected.value
-            .sort((a, b) => a - b)
-            .concat(deckSizesUnselected.value.sort((a, b) => a - b))
-            .map((deckSize) => (
-              <option
-                key={deckSize}
-                value={deckSize}
-                class={` bg-slate-800 ${
-                  queryStore.deckSizesFilter.includes(deckSize)
-                    ? "text-green-400 font-extrabold"
-                    : ""
-                }`}
-              >
-                {String(deckSize)}
-              </option>
-            ))}
+          {deckSizesSelected.value.map((deckSize) => (
+            <option
+              key={deckSize}
+              value={deckSize}
+              class={` bg-slate-800 text-green-400 font-extrabold`}
+            >
+              {String(deckSize)}
+            </option>
+          ))}
+
+          {deckSizesUnselected.value.map((deckSize) => (
+            <option key={deckSize} value={deckSize} class={`bg-slate-800`}>
+              {String(deckSize)}
+            </option>
+          ))}
         </select>
       </div>
     );
