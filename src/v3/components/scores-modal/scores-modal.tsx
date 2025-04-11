@@ -20,13 +20,11 @@ import {
   DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY,
   MAP_COL_TITLE_TO_OBJ_KEY,
   MAX_SORT_COLUMN_HISTORY,
-  PIXEL_AVATAR_SIZE,
 } from "./constants";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 import Modal from "../templates/modal/modal";
 import serverDbService from "~/v3/services/db";
 import ChevronSvg from "~/media/icons/icons8-chevron-96 convertio.svg?jsx";
-import useDebouncedOnWindow from "~/v3/hooks/useDebouncedOnWindow";
 
 // const ChevronStyled = ({ direction }: { direction: "left" | "right" }) => (
 //   <svg
@@ -84,7 +82,6 @@ export default component$(() => {
   const ctx = useGameContextService();
   const isLoading = useSignal(true);
   const selectValue = useSignal("default");
-  const size = useSignal<number>(PIXEL_AVATAR_SIZE);
 
   const queryStore = useStore<QueryStore>(
     {
@@ -100,13 +97,6 @@ export default component$(() => {
     },
     { deep: true },
   );
-
-  const windowSignal = useSignal<
-    Partial<typeof window> & { innerWidth: number; innerHeight: number }
-  >({
-    innerWidth: 500,
-    innerHeight: 400,
-  });
 
   // stores the data: should I paginate it so it can save previous pages?
   // e.g. page[1]: data,
@@ -283,15 +273,6 @@ export default component$(() => {
     queryAndSaveScores();
   });
 
-  const resizePixelAvatar = $(() => {
-    if (isServer) {
-      return;
-    }
-    size.value =
-      window.innerWidth <= 639
-        ? Math.round(PIXEL_AVATAR_SIZE * 0.8)
-        : PIXEL_AVATAR_SIZE;
-  });
 
   useTask$(({ track }) => {
     track(() => ctx.state.userSettings.deck.size);
@@ -305,9 +286,7 @@ export default component$(() => {
     const isShowing = track(
       () => ctx.state.interfaceSettings.scoresModal.isShowing,
     );
-    if (!isShowing) return;
-
-    resizePixelAvatar();
+    if (isServer || !isShowing) return;
 
     isLoading.value = true;
     await queryAndSaveScores();
@@ -315,16 +294,6 @@ export default component$(() => {
 
     console.log("done loading");
   });
-
-  const resizeHandler = $(() => {
-    resizePixelAvatar();
-    windowSignal.value = {
-      innerWidth: window.innerWidth,
-      innerHeight: window.innerHeight,
-    };
-  });
-
-  useDebouncedOnWindow("resize", resizeHandler, 100);
 
   useStyles$(`
     table {
@@ -472,7 +441,6 @@ export default component$(() => {
           <ScoreTable
             handleClickColumnHeader$={handleClickColumnHeader}
             sortedScores={sortedScores}
-            size={size}
             queryStore={queryStore}
           />
         </div>

@@ -20,10 +20,9 @@ type ScoreTableProps = {
   queryStore: QueryStore;
   handleClickColumnHeader$: QRL<(e: MouseEvent) => void>;
   sortedScores: Signal<ScoreWithPercentiles[]>;
-  size: Signal<number>;
 };
 export default component$<ScoreTableProps>(
-  ({ queryStore, handleClickColumnHeader$, sortedScores, size }) => {
+  ({ queryStore, handleClickColumnHeader$, sortedScores }) => {
     return (
       <table q:slot="scoreboard-tab0" class="scoreboard w-full ">
         <thead class={` text-xs sm:text-sm md:text-md bg-slate-500`}>
@@ -57,7 +56,7 @@ export default component$<ScoreTableProps>(
         </thead>
         <tbody>
           {sortedScores.value.map((score) => (
-            <ScoreRow size={size} key={score.id} score={score} />
+            <ScoreRow key={score.id} score={score} />
           ))}
         </tbody>
       </table>
@@ -96,8 +95,8 @@ const ROW_BG_COLOR_ALPHA = 0.8;
 const generateBgAlpha = (color: string) =>
   color.slice(0, -2) + `${ROW_BG_COLOR_ALPHA})`;
 
-type ScoreRowProps = { score: ScoreWithPercentiles; size: Signal<number> };
-const ScoreRow = component$<ScoreRowProps>(({ score, size }) => {
+type ScoreRowProps = { score: ScoreWithPercentiles };
+const ScoreRow = component$<ScoreRowProps>(({ score }) => {
   const backgroundColor = useSignal("");
   // now using promise chaining, the task should not block rendering
   useTask$(({ track }) => {
@@ -118,14 +117,11 @@ const ScoreRow = component$<ScoreRowProps>(({ score, size }) => {
             backgroundColor: backgroundColor.value,
           }}
         >
-          <td class="flex justify-center" style={{ width: `${size.value}px` }}>
+          <td class="flex justify-center">
             <PixelAvatar
-              colorFrom={{ value: score.initials }}
-              // halfPixels={halfPixels}
+              classes="w-8 h-8 sm:w-12 sm:h-12"
               hash={{ value: score.userId }}
-              width={size.value}
-              height={size.value}
-              classes="pixel-avatar"
+              colorFrom={{ value: score.initials }}
             />
           </td>
           <td>{score.initials}</td>
