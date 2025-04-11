@@ -1,5 +1,4 @@
 import type { Signal } from "@builder.io/qwik";
-import { server$ } from "@builder.io/qwik-city";
 import {
   component$,
   $,
@@ -16,7 +15,6 @@ import GameStats from "../molecules/game-stats/game-stats";
 import InfoTooltip from "../organisms/info-tooltip/info-tooltip";
 import GameSettings from "../organisms/game-settings/game-settings";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
-import { getRandomBytes } from "~/v3/services/db/seed";
 import serverDbService from "~/v3/services/db";
 import { msToDs } from "~/v3/utils/formatTime";
 import GAME from "~/v3/constants/game";
@@ -27,10 +25,9 @@ import useDebouncedOnWindow from "~/v3/hooks/useDebouncedOnWindow";
 
 const limitSizeMinMax = (val: number, min: number = 60, max: number = 100) =>
   Math.max(min, Math.min(max, val));
+import { getRandomBytesBrowser } from "~/v3/utils/hashUtils";
 
 const Asterisk = () => <span class="text-red-300">*</span>;
-
-export const serverGetHash = server$(() => getRandomBytes());
 
 export default component$(() => {
   const ctx = useGameContextService();
@@ -212,11 +209,11 @@ export default component$(() => {
                     type="text"
                     id="game-end-modal-input-initials"
                     class={`monospace text-center bg-slate-800 text-slate-100 mx-auto`}
-                    style={`width: ${Math.round(GAME.INITIALS_MAX_LENGTH * 2.5)}ch;`}
+                    style={`width: ${GAME.INITIALS_MAX_LENGTH * 2.5}ch;`}
                     maxLength={GAME.INITIALS_MAX_LENGTH + 1}
                     defaultValue={initials.value}
                     onInput$={(_: Event, t: HTMLInputElement) => {
-                      const prev = t.value.replace("-", "").toUpperCase();
+                      const prev = t.value.replaceAll("-", "").toUpperCase();
                       const newString =
                         prev.length > GAME.INITIALS_MAX_LENGTH
                           ? prev.slice(0, GAME.INITIALS_MAX_LENGTH)
@@ -232,7 +229,8 @@ export default component$(() => {
                     for="game-end-modal-input-identifier "
                     class="flex gap-[0.2em] items-center mx-auto"
                   >
-                    Identifier: <Asterisk />{" "}
+                    Identifier:
+                    <Asterisk />
                     <InfoTooltip>
                       <Asterisk /> Identifier is never saved or sent anywhere.
                       It's only to generate your avatar. If you want your avatar
@@ -244,7 +242,7 @@ export default component$(() => {
                   <button
                     data-label="generate-random-identifier"
                     onClick$={async () => {
-                      identifier.value = await serverGetHash();
+                      identifier.value = getRandomBytesBrowser();
                     }}
                     class="text-xs px-0 py-0 "
                     style="color: var(--qwik-light-blue);"

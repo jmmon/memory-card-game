@@ -4,9 +4,9 @@ import GAME from "~/v3/constants/game";
 import {
   calculateOnlyColor,
   calculateOnlyPixels,
-  getHexHashString,
   mirrorPixels,
 } from "~/v3/utils/avatarUtils";
+import { getHexHashString } from "~/v3/utils/hashUtils";
 
 interface PixelProps {
   index: number;

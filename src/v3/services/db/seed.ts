@@ -1,17 +1,8 @@
 // import crypto from "node:crypto";
 import { server$ } from "@builder.io/qwik-city";
-import CryptoJS from "crypto-js";
 import type { InsertScore } from "~/v3/db/schemas/types";
 import serverDbService from ".";
-
-const DEFAULT_HASH_LENGTH_BYTES = 32;
-
-export const getRandomBytes = (bytes = DEFAULT_HASH_LENGTH_BYTES) => {
-  return CryptoJS.lib.WordArray.random(bytes).toString(
-    CryptoJS.enc.Hex,
-  ) as string;
-  // return crypto.randomBytes(bytes).toString("hex");
-};
+import { getRandomBytes } from "~/v3/utils/hashUtils";
 
 const ACode = 65;
 const ZCode = 90;

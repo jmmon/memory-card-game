@@ -15,7 +15,7 @@ import { toString } from "~/v3/utils/utils";
 import useGetSavedTheme from "~/v3/hooks/useGetSavedTheme";
 import logger from "~/v3/services/logger";
 import { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
-import { getRandomBytes } from "~/v3/services/db/seed";
+import { getRandomBytes } from "~/v3/utils/hashUtils";
 export { toString };
 
 // for game end modal, provides default hash
