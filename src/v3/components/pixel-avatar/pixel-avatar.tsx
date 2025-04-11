@@ -92,7 +92,6 @@ export default component$(
       pixels: "",
       color: "",
       isMoreColored: false,
-      shouldBeInversed: false,
     });
     const meta = useSignal({
       totalColored: 0,
@@ -157,17 +156,6 @@ export default component$(
         generatedPixels = await calculateOnlyPixels(hashed, cols, rows);
       }
 
-      // if (hash?.value) {
-      //   generatedPixels = await calculateOnlyPixels(hash.value, cols, rows);
-      // } else if (halfPixels) {
-      //   // generate or get pixels
-      //   generatedPixels = mirrorPixels(cols, rows, halfPixels);
-      // } else {
-      //   // hash the textToUseForPixels
-      //   const hashed = await getHexHashString(textToUseForPixels);
-      //   generatedPixels = await calculateOnlyPixels(hashed, cols, rows);
-      // }
-
       // console.log({ generatedPixels, generatedColor });
       const totalColored = generatedPixels
         .split("")
@@ -182,16 +170,14 @@ export default component$(
       };
 
       // if lighter === 'nochange' this is always false
-      // const shouldBeInversed = forceLighter === data.value.isMoreColored;
+      // if isMoreColored !== forceLighter  we can use color for base and white for blocks
+      // if isMoreColored == forceLighter  we can use white for base and color for blocks
       data.value = {
         pixels: generatedPixels,
         color: generatedColor,
         isMoreColored,
-        shouldBeInversed: false,
       };
 
-      // if isMoreColored !== forceLighter  we can use color for base and white for blocks
-      // if isMoreColored == forceLighter  we can use white for base and color for blocks
       if (outputTo$ !== undefined) {
         outputTo$({
           cols,
