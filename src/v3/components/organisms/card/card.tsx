@@ -9,7 +9,7 @@ import BOARD from "~/v3/constants/board";
 import CardView from "~/v3/components/molecules/card-view/card-view";
 
 import type { iCoords, iCard } from "~/v3/types/types";
-import type { FunctionComponent, Signal } from "@builder.io/qwik";
+import type { FunctionComponent } from "@builder.io/qwik";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 
 type FlipTransform = {
@@ -260,9 +260,9 @@ export default component$<CardProps>(({ card, index }) => {
           )}
           <CardFlippingWrapper
             card={card}
-            isSelected={isSelected}
-            isFaceShowing={isFaceShowing}
-            flipTransformAnimation={flipTransformAnimation}
+            isSelected={isSelected.value}
+            isFaceShowing={isFaceShowing.value}
+            flipTransformAnimation={flipTransformAnimation.value}
             roundedCornersPx={ctx.state.cardLayout.roundedCornersPx}
           />
         </div>
@@ -273,9 +273,9 @@ export default component$<CardProps>(({ card, index }) => {
 
 type CardFlippingWrapperProps = {
   card: iCard;
-  isSelected: Signal<boolean>;
-  isFaceShowing: Signal<boolean>;
-  flipTransformAnimation: Signal<string>;
+  isSelected: boolean;
+  isFaceShowing: boolean;
+  flipTransformAnimation: string;
   roundedCornersPx: number;
 };
 
@@ -291,10 +291,10 @@ const CardFlippingWrapper: FunctionComponent<CardFlippingWrapperProps> = ({
     data-label="card-flipping"
     class={`w-full card-flip relative`}
     style={{
-      transform: flipTransformAnimation.value,
+      transform: flipTransformAnimation,
       borderRadius: roundedCornersPx + "px",
       // green selected border and background
-      boxShadow: isSelected.value
+      boxShadow: isSelected
         ? `0 0 ${roundedCornersPx}px ${roundedCornersPx}px var(--card-glow)`
         : "",
       background: "var(--card-background-color)",

@@ -1,4 +1,4 @@
-import type { ClassList, FunctionComponent, Signal } from "@builder.io/qwik";
+import type { ClassList, FunctionComponent } from "@builder.io/qwik";
 import { type QRL, component$, useTask$, useSignal } from "@builder.io/qwik";
 import type {
   ScoreWithPercentiles,
@@ -19,7 +19,7 @@ import { calculateOnlyColor } from "~/v3/utils/avatarUtils";
 type ScoreTableProps = {
   queryStore: QueryStore;
   handleClickColumnHeader$: QRL<(e: MouseEvent) => void>;
-  sortedScores: Signal<ScoreWithPercentiles[]>;
+  sortedScores: ScoreWithPercentiles[];
 };
 export default component$<ScoreTableProps>(
   ({ queryStore, handleClickColumnHeader$, sortedScores }) => {
@@ -55,7 +55,7 @@ export default component$<ScoreTableProps>(
           </tr>
         </thead>
         <tbody>
-          {sortedScores.value.map((score) => (
+          {sortedScores.map((score) => (
             <ScoreRow key={score.id} score={score} />
           ))}
         </tbody>

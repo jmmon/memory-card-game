@@ -2,13 +2,13 @@ import ImageBackFace from "~/media/cards/_backWhite.png?jsx";
 import PlayingCardComponents from "~/v3/components/playing-card-components";
 import CardFace from "~/v3/components/atoms/card-face/card-face";
 
-import type { FunctionComponent, Signal } from "@builder.io/qwik";
+import type { FunctionComponent } from "@builder.io/qwik";
 import type { iCard } from "~/v3/types/types";
 
 // holds the front and back of card
 type CardViewProps = {
   card: iCard;
-  isFaceShowing: Signal<boolean>;
+  isFaceShowing: boolean;
 };
 const CardView: FunctionComponent<CardViewProps> = ({
   card,
@@ -16,7 +16,7 @@ const CardView: FunctionComponent<CardViewProps> = ({
 }) => (
   <>
     <CardFace label="card-front" classes="[transform:rotateY(180deg)]">
-      {isFaceShowing.value && (
+      {isFaceShowing && (
         <div
           class="w-full"
           dangerouslySetInnerHTML={PlayingCardComponents[card.text]}

@@ -440,7 +440,7 @@ export default component$(() => {
         <div class="w-full max-h-[calc(70vh-5.2rem)] overflow-y-auto">
           <ScoreTable
             handleClickColumnHeader$={handleClickColumnHeader}
-            sortedScores={sortedScores}
+            sortedScores={sortedScores.value}
             queryStore={queryStore}
           />
         </div>
