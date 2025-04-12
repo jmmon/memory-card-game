@@ -11,6 +11,7 @@ import CardView from "~/v3/components/molecules/card-view/card-view";
 import type { iCoords, iCard } from "~/v3/types/types";
 import type { FunctionComponent, Signal } from "@builder.io/qwik";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
+import GAME from "~/v3/constants/game";
 
 type FlipTransform = {
   /** percent to translate the card during flip animation (to get to center) */
@@ -136,8 +137,15 @@ export default component$<CardProps>(({ card, index }) => {
       ctx.state.cardLayout,
       newCoords,
     );
-    if (card.position === -1)
-      shuffleTransform.value += ` scale(${cardUtils.generateDeckDealScale(ctx.state.boardLayout, ctx.state.cardLayout)});`;
+    if (card.position === -1) {
+      // append the transform with a scale for dealing the deck
+      const boardBasedScale = cardUtils.generateDeckDealScale(
+        ctx.state.boardLayout,
+        ctx.state.cardLayout,
+      );
+      const scale = Math.max((boardBasedScale + GAME.DECK_DEAL_SCALE) / 2, GAME.DECK_DEAL_SCALE);
+      shuffleTransform.value += ` scale(${scale});`;
+    }
 
     flipTransform.value = cardUtils.generateFlipTranslateTransform(
       ctx.state.boardLayout,
