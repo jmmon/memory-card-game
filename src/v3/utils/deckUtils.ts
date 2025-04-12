@@ -65,13 +65,13 @@ function v3Shuffle_FY_algo<T>(_array: T[]): T[] {
 // const buildPairType = (c1: V3Card, c2: V3Card) => `${c1.id}:${c2.id}`
 
 function refreshPairsId(pair: [iCard, iCard]) {
-  const newId = genId();
-  const id = Number(newId + "0");
-  const pairId = Number(newId + "1");
+  // const newId = genId();
+  const id = genId(6);
+  const pairId = genId(6);
   return pair.map((card, i) => ({
     ...card,
-    id: i === 0 ? id : pairId,
-    pairId: i === 0 ? pairId : id,
+    id: Number(i === 0 ? id : pairId),
+    pairId: Number(i === 0 ? pairId : id),
   })) as [iCard, iCard];
 }
 
@@ -84,15 +84,15 @@ function buildArrOfPairs(fullDeck: iCard[]) {
   return pairs;
 }
 
-function unbuildArrOfPairs(arrOfPairs: Array<[iCard, iCard]>) {
-  // const deck = [];
-  // for (let i = 0; i < arrOfPairs.length; i++) {
-  //   deck.push(...arrOfPairs[i]);
-  // }
-  // return deck;
-
-  return arrOfPairs.flat();
-}
+// function unbuildArrOfPairs(arrOfPairs: Array<[iCard, iCard]>) {
+//   // const deck = [];
+//   // for (let i = 0; i < arrOfPairs.length; i++) {
+//   //   deck.push(...arrOfPairs[i]);
+//   // }
+//   // return deck;
+//
+//   return arrOfPairs.flat();
+// }
 
 function shuffleDeckAndRefreshIds(fullDeck: iCard[]) {
   const pairs = buildArrOfPairs(fullDeck);
@@ -105,7 +105,7 @@ function shuffleDeckAndRefreshIds(fullDeck: iCard[]) {
 
   // shuffle the array of pairs
   const shuffledDeckOfPairs = v3Shuffle_FY_algo(withRefreshedIds);
-  const shuffledPairs = unbuildArrOfPairs(shuffledDeckOfPairs);
+  const shuffledPairs = shuffledDeckOfPairs.flat(); // unbuildArrOfPairs(shuffledDeckOfPairs);
   // console.log({ shuffledDeckOfPairs, shuffledPairs });
 
   return shuffledPairs;
@@ -126,7 +126,7 @@ function shuffleCardPositions(cards: iCard[]) {
     (card, i) =>
       ({
         ...card,
-        prevPosition: isFirstShuffle ? null : card.position,
+        prevPosition: isFirstShuffle ? null : card.position, // dont think I need prevPosition anymore...
         position: randomOrder[i],
       }) as iCard,
   );
