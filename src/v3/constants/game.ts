@@ -29,12 +29,13 @@ type Debug = {
   UTIL: 0 | LogLevelValue;
 };
 
-const isProd = import.meta.env.PROD;
+// const isProd = import.meta.env.PROD;
+const isProd = false;
 const DEBUG: Debug = {
   HANDLER: isProd ? 0 : 0, //LogLevel.ONE,
   HOOK: isProd ? 0 : 0, //LogLevel.TWO,
   TASK: isProd ? 0 : 0, //LogLevel.ONE,
-  SERVICE: isProd ? 0 : 0,
+  SERVICE: isProd ? 0 : LogLevel.ONE, 
   RENDER: isProd ? 0 : 0,
   UTIL: isProd ? 0 : LogLevel.ONE,
 } as const;
@@ -93,8 +94,10 @@ const DEFAULT_COLOR_OPTIONS = {
   },
   lightness: { min: 20, max: 80 },
 };
+const DECK_DEAL_SCALE = 1.2;
 
 const GAME = {
+  DECK_DEAL_SCALE,
   INITIALS_MAX_LENGTH,
   AUTO_SHUFFLE_INTERVAL,
   AUTO_SHUFFLE_DELAY,

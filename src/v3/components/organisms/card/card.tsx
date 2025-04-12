@@ -11,6 +11,7 @@ import CardView from "~/v3/components/molecules/card-view/card-view";
 import type { iCoords, iCard } from "~/v3/types/types";
 import type { FunctionComponent } from "@builder.io/qwik";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
+import GAME from "~/v3/constants/game";
 
 type FlipTransform = {
   /** percent to translate the card during flip animation (to get to center) */
@@ -32,29 +33,17 @@ type CardProps = {
 export default component$<CardProps>(({ card, index }) => {
   const ctx = useGameContextService();
 
-  // const isThisRemoved = useComputed$(() =>
-  //   cardUtils.isCardInPairs(ctx.state.gameData.successfulPairs, card.id),
-  // );
-  // remove helper functions that were unnecessary
   const isThisRemoved = useComputed$(() =>
     ctx.state.gameData.successfulPairs.join(",").includes(String(card.id)),
   );
-
-  // const isThisMismatched = useComputed$(() =>
-  //   ctx.state.gameData.mismatchPair.includes(String(card.id)),
-  // );
-  // pull from last pair in array instead:
   const isThisMismatched = useComputed$(() =>
     ctx.state.gameData.mismatchPairs[
       ctx.state.gameData.mismatchPairs.length - 1
     ]?.includes(String(card.id)),
   );
-
-  // is our card the flipped card?
-  const isCardFlipped = useComputed$(
+  const isThisCardFlipped = useComputed$(
     () => ctx.state.gameData.flippedCardId === card.id,
   );
-
   // two cards can be selected
   const isSelected = useComputed$(() =>
     ctx.state.gameData.selectedCardIds.includes(card.id),
@@ -69,23 +58,23 @@ export default component$<CardProps>(({ card, index }) => {
   // - when clicking, reveal the face immediately (though it is hidden behind the card back)
   // - when returning, keep the face showing a little bit before hiding again
   useTask$(({ track, cleanup }) => {
-    track(isCardFlipped);
+    track(isThisCardFlipped);
 
     let faceHideDelayTimer: ReturnType<typeof setTimeout>;
     let matchHideDelayTimer: ReturnType<typeof setTimeout>;
 
-    if (isCardFlipped.value) {
+    if (isThisCardFlipped.value) {
       // when showing card
       isFaceShowing.value = true;
       matchHideDelay.value = true;
     } else {
       // when hiding card, keep the underside visible for a while
       faceHideDelayTimer = setTimeout(() => {
-        isFaceShowing.value = isCardFlipped.value;
+        isFaceShowing.value = isThisCardFlipped.value;
       }, BOARD.CARD_FLIP_ANIMATION_DURATION * 0.1);
 
       matchHideDelayTimer = setTimeout(() => {
-        matchHideDelay.value = isCardFlipped.value;
+        matchHideDelay.value = isThisCardFlipped.value;
       }, BOARD.CARD_MATCH_HIDE_DELAY_DURATION_MS);
     }
 
@@ -136,8 +125,15 @@ export default component$<CardProps>(({ card, index }) => {
       ctx.state.cardLayout,
       newCoords,
     );
-    if (card.position === -1)
-      shuffleTransform.value += ` scale(${cardUtils.generateDeckDealScale(ctx.state.boardLayout, ctx.state.cardLayout)});`;
+    if (card.position === -1) {
+      // append the transform with a scale for dealing the deck
+      const boardBasedScale = cardUtils.generateDeckDealScale(
+        ctx.state.boardLayout,
+        ctx.state.cardLayout,
+      );
+      const scale = Math.max((boardBasedScale + GAME.DECK_DEAL_SCALE) / 2, GAME.DECK_DEAL_SCALE);
+      shuffleTransform.value += ` scale(${scale});`;
+    }
 
     flipTransform.value = cardUtils.generateFlipTranslateTransform(
       ctx.state.boardLayout,
@@ -148,7 +144,7 @@ export default component$<CardProps>(({ card, index }) => {
   });
 
   const flipTransformAnimation = useComputed$(() =>
-    isCardFlipped.value ||
+    isThisCardFlipped.value ||
     // also keep transformed for a bit after it is removed, if it is currently flipped
     (isThisRemoved.value && matchHideDelay.value)
       ? `translate(${
@@ -190,7 +186,7 @@ export default component$<CardProps>(({ card, index }) => {
         // extra z-index for cards being flipped
         // first number applies while card is first clicked (max necessary is > 52/2)
         // second number applies when flipping down (slightly less and still above 52/2)
-        (isCardFlipped.value
+        (isThisCardFlipped.value
           ? 30
           : isFaceShowing.value || matchHideDelay.value
             ? 28
@@ -233,7 +229,7 @@ export default component$<CardProps>(({ card, index }) => {
           data-id={card.id}
           class={
             `box-content w-full transition-all [transition-duration:200ms] [animation-timing-function:ease-in-out] ` +
-            (isCardFlipped.value
+            (isThisCardFlipped.value
               ? "cursor-pointer"
               : (isThisRemoved.value &&
                 ctx.state.gameData.flippedCardId !== card.pairId

@@ -180,6 +180,7 @@ export default component$(() => {
                         prev.length > GAME.INITIALS_MAX_LENGTH
                           ? prev.slice(0, GAME.INITIALS_MAX_LENGTH)
                           : prev.padStart(3, "-");
+                      // force replace value using ref
                       (initialsRef.value as HTMLInputElement).value = newString;
                     }}
                     onFocus$={selectFieldOnFocus$}
@@ -203,7 +204,7 @@ export default component$(() => {
                   </label>
                   <button
                     data-label="generate-random-identifier"
-                    onClick$={async () => {
+                    onClick$={() => {
                       identifier.value = getRandomBytesBrowser();
                     }}
                     class="text-xs px-0 py-0 "

@@ -1,11 +1,11 @@
-import type { DebugTypeEnum } from "../constants/game";
+import type { DebugType } from "../constants/game";
 import { type LogLevelValue } from "../constants/game";
 import GAME from "../constants/game";
 /**
  * @example logger(DebugTypeEnum.SERVICE, LogLevel.ONE, "~~syncing theme from localstorage:", {theme: themeFromLocalStorage});
  * */
 const logger = (
-  type: keyof typeof DebugTypeEnum,
+  type: DebugType,
   logLevel: LogLevelValue,
   ...logArgs: any[]
 ) => {
