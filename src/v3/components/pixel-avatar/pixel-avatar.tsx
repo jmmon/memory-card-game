@@ -153,7 +153,7 @@ export default component$(
         if (!hashed) {
           hashed = await getHexHashString(textToUseForPixels);
         }
-        generatedPixels = await calculateOnlyPixels(hashed, cols, rows);
+        generatedPixels = calculateOnlyPixels(hashed, cols, rows);
       }
 
       // console.log({ generatedPixels, generatedColor });

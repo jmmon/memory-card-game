@@ -1,5 +1,10 @@
 import GAME from "../constants/game";
-import { getHexHashString, hexCharToBase, numberToString, stringToHash } from "./hashUtils";
+import {
+  getHexHashString,
+  hexCharToBase,
+  numberToString,
+  stringToHash,
+} from "./hashUtils";
 
 /**
  * Generates the color from the initials
@@ -33,7 +38,6 @@ export const stringToColor = (
 
   return `hsla(${hue}, ${sat}%, ${light}%, 1)`;
 };
-
 
 //
 /**
@@ -141,11 +145,7 @@ export async function calculatePixelData(
   return data;
 }
 
-export async function calculateOnlyPixels(
-  hash: string,
-  cols: number,
-  rows: number,
-) {
+export function calculateOnlyPixels(hash: string, cols: number, rows: number) {
   // console.log("calculateOnlyPixels:", { hash });
   const requiredLength = rows * Math.ceil(cols / 2);
   const { rebasedHash, base } = hexHash2BaseOfLength(hash, requiredLength);
