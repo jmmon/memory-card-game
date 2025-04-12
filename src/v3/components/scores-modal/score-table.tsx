@@ -1,5 +1,5 @@
 import type { ClassList, FunctionComponent } from "@builder.io/qwik";
-import { type QRL, component$, useTask$, useSignal } from "@builder.io/qwik";
+import { type QRL, component$, useSignal } from "@builder.io/qwik";
 import type {
   ScoreWithPercentiles,
   SortColumnWithDirection,
@@ -14,7 +14,6 @@ import {
 } from "./constants";
 import { formatTimeFromMs } from "~/v3/utils/formatTime";
 import { lowercaseHyphenate } from "~/v3/utils/utils";
-import { calculateOnlyColor } from "~/v3/utils/avatarUtils";
 
 type ScoreTableProps = {
   queryStore: QueryStore;
@@ -92,57 +91,47 @@ const ScoreTableHeader = component$<ScoreTableHeaderProps>(
 
 const ROW_BG_COLOR_ALPHA = 0.8;
 
-const generateBgAlpha = (color: string) =>
+const appendAlphaToHSL = (color: string) =>
   color.slice(0, -2) + `${ROW_BG_COLOR_ALPHA})`;
 
 type ScoreRowProps = { score: ScoreWithPercentiles };
 const ScoreRow = component$<ScoreRowProps>(({ score }) => {
   const backgroundColor = useSignal("");
-  // now using promise chaining, the task should not block rendering
-  useTask$(({ track }) => {
-    track(() => score.initials);
-    calculateOnlyColor(score.initials).then(
-      (color) => (backgroundColor.value = generateBgAlpha(color)),
-    );
-  });
 
   return (
-    <>
-      {backgroundColor.value === "" ? (
-        <>...</>
-      ) : (
-        <tr
-          class="w-full h-full border border-slate-900 rounded-lg text-xs sm:text-sm md:text-md text-white"
-          style={{
-            backgroundColor: backgroundColor.value,
+    <tr
+      class="w-full h-full border border-slate-900 rounded-lg text-xs sm:text-sm md:text-md text-white"
+      style={{
+        backgroundColor: backgroundColor.value,
+      }}
+    >
+      <td class="flex justify-center">
+        <PixelAvatar
+          classes="w-8 h-8 sm:w-12 sm:h-12"
+          hash={{ value: score.userId }}
+          colorFrom={{ value: score.initials }}
+          outputTo$={({ color }) => {
+            backgroundColor.value = appendAlphaToHSL(color);
           }}
-        >
-          <td class="flex justify-center">
-            <PixelAvatar
-              classes="w-8 h-8 sm:w-12 sm:h-12"
-              hash={{ value: score.userId }}
-              colorFrom={{ value: score.initials }}
-            />
-          </td>
-          <td>{score.initials}</td>
-          <td>{score.deckSize}</td>
-          <td>{score.pairs}</td>
-          <td>
-            <span class="block">
-              <GameTime gameTimeDs={score.gameTimeDs} />
-            </span>
-            <span class="block">{score.timePercentile}%</span>
-          </td>
-          <td>
-            <span class="block">{score.mismatches}</span>
-            <span class="block">{score.mismatchPercentile}%</span>
-          </td>
-          <td>
-            <CreatedAt createdAtMs={score.createdAt} />
-          </td>
-        </tr>
-      )}
-    </>
+        />
+      </td>
+      <td>{score.initials}</td>
+      <td>{score.deckSize}</td>
+      <td>{score.pairs}</td>
+      <td>
+        <span class="block">
+          <GameTime gameTimeDs={score.gameTimeDs} />
+        </span>
+        <span class="block">{score.timePercentile}%</span>
+      </td>
+      <td>
+        <span class="block">{score.mismatches}</span>
+        <span class="block">{score.mismatchPercentile}%</span>
+      </td>
+      <td>
+        <CreatedAt createdAtMs={score.createdAt} />
+      </td>
+    </tr>
   );
 });
 

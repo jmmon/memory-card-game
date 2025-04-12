@@ -403,19 +403,21 @@ export default component$(() => {
       isShowing={ctx.state.interfaceSettings.scoresModal.isShowing}
       hideModal$={ctx.handle.hideScores}
       title="Scoreboard"
-      containerClasses="w-full sm:min-w-[31rem] sm:w-[60vw]"
+      containerClasses="w-full sm:min-w-[31rem] sm:w-[60vw] md:max-w-[50rem]"
       wrapperSyles={{
         overflowY: "hidden",
       }}
-      containerStyles={{
-        maxWidth: "100vw",
-        minWidth: "18rem",
-        display: "flex",
-      }}
+      // containerStyles={{
+      //   maxWidth: "100vw",
+      //   minWidth: "18rem",
+      //   display: "flex",
+      // }}
     >
       <div class="flex flex-col max-w-full h-[70vh] ">
         {isLoading.value ? (
-          <p>Loading scores...</p>
+          <div class="flex justify-center items-center w-full h-full text-slate-400 text-3xl">
+            Loading scores...
+          </div>
         ) : (
           <>
             {/* TODO: instead of Select + Options, use a dropdown with checkboxes 
