@@ -56,6 +56,12 @@ html[data-theme="dark"] span.home-theme-light {
   display: none;
 }
 
+html main.main-height {
+  /* fallback to vh if dvh is not supported */
+  height: 100vh;
+  height: 100dvh;
+}
+
 .playing-card {
   --card-background-color: #fff;
   --card-border-color: #000;
