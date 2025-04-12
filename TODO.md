@@ -1,8 +1,4 @@
-## minus button text seems not vertically aligned on mobile
-## can't see the number while pressing since thumb blocks the view, more gap around the number?
-- 1ch or so? (1ch = 8.9px approx, so could try 0.5rem or 0.75rem)
-## revisit an input-style so you could type in number? (use ref)
-## also slider! would have to make a dropdown, e.g. carot button (somewhere) to reveal slider
+## deck change slider dropdown! e.g. carot button (somewhere) to reveal slider
 - slider dark mode! darker bg/fill
 ## dev mode timer for deck deal duration
 
