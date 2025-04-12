@@ -12,6 +12,8 @@ import scoreService from "./scores.service";
 import scoreCountService from "./scoreCounts.service";
 import { roundToDecimals } from "~/v3/utils/formatTime";
 import { getDB } from "~/v3/db";
+import logger from "../logger";
+import { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
 
 /*
  * These functions are wrapped with server$() before exported, so
@@ -34,7 +36,7 @@ const calculatePercentile = ({
   return roundToDecimals(percentile, 2);
 };
 
-const generateScoreWithPercentiles = (
+const buildScoreWithPercentiles = (
   score: Score,
   entriesLtGameTimeObjSortedDesc: Array<[number, number]>,
   entriesLtMismatchesObjSortedDesc: Array<[number, number]>,
@@ -112,7 +114,7 @@ const calculatePercentilesForScores = (
   // console.log({ ltGameTimeObjSortedDesc, ltMismatchesObjSortedDesc, total });
 
   return scores.map((score) =>
-    generateScoreWithPercentiles(
+    buildScoreWithPercentiles(
       score,
       entriesLtGameTimeObjSortedDesc,
       entriesLtMismatchesObjSortedDesc,
@@ -198,7 +200,7 @@ const sortScores = (
   });
   return result;
 };
-sortScores;
+// sortScores;
 
 /**
  * query scores according to the params
@@ -213,6 +215,11 @@ const queryScoresAndCalculatePercentiles = async ({
   deckSizesFilter = DEFAULT_QUERY_PROPS.deckSizesFilter,
   sortByColumnHistory = DEFAULT_QUERY_PROPS.sortByColumnHistory,
 }: Partial<ScoreQueryProps>) => {
+  logger(
+    DebugTypeEnum.SERVICE,
+    LogLevel.ONE,
+    "queryScoresAndCalculatePercentiles",
+  );
   // need the scores and the counts to calculate
   const [resScores, resCounts] = await Promise.allSettled([
     scoreService.query({
@@ -258,15 +265,12 @@ const queryScoresAndCalculatePercentiles = async ({
       thisCounts,
     );
 
-    // allScoresWithPercentiles = allScoresWithPercentiles.concat(
-    //   scoresWithPercentiles,
-    // );
     allScoresWithPercentiles.push(...scoresWithPercentiles);
   }
 
   return {
-    scores: allScoresWithPercentiles,
-    // scores: sortScores(allScoresWithPercentiles, sortByColumnHistory),
+    // scores: allScoresWithPercentiles,
+    scores: sortScores(allScoresWithPercentiles, sortByColumnHistory),
     totals,
   };
 };
@@ -278,7 +282,13 @@ const serverDbService = {
     getByDeckSize: server$(scoreService.getByDeckSize),
     create: server$(scoreService.create),
     getAll: server$(scoreService.getAll),
-    queryWithPercentiles: server$(queryScoresAndCalculatePercentiles),
+    queryWithPercentiles: server$(function (opts: Partial<ScoreQueryProps>) {
+      this.headers.set(
+        "Cache-Control",
+        "public, max-age=10, s-maxage=60, stale-while-revalidate=3600",
+      );
+      return queryScoresAndCalculatePercentiles(opts);
+    }),
   },
 
   scoreCounts: {

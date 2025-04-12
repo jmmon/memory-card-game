@@ -14,7 +14,10 @@ export const buildOrderBySqlStringWrapped = (
   sortByColumnHistory: Array<SortColumnWithDirection>,
 ) =>
   sql`${sortByColumnHistory
-    .map(({ column, direction }) => `"${column}" ${direction}`)
+    .map(
+      ({ column, direction }) =>
+        `"scores"."${column}" ${direction.toUpperCase()}`,
+    )
     .join(", ")}`;
 
 const clearScoresTable = () => getDB().delete(scores);
