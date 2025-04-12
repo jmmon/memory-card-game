@@ -180,12 +180,15 @@ export default component$<GameSettingsProps>(
           <div class="grid gap-1 p-[min(12px,2.5vw)]">
             <ModalRow>
               <InputToggle
-                text="Dark Mode (Inverted Cards)"
                 onChange$={handleChange$}
                 settings={unsavedUserSettings.value}
                 propertyPath="interface.invertCardColors"
               >
-                <InfoTooltip>
+                <div class="flex flex-wrap gap-x-2" q:slot="label">
+                  <span>Dark Mode</span>
+                  <span>(Inverted Cards)</span>
+                </div>
+                <InfoTooltip q:slot="tooltip">
                   Inverts the cards for dark mode.
                   <br />
                   Takes effect immediately.
