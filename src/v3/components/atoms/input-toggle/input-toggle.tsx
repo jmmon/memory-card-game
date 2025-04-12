@@ -3,21 +3,22 @@ import type { ClassList, PropFunction } from "@builder.io/qwik";
 import type { iUserSettings } from "~/v3/types/types";
 
 type InputToggleProps = {
-  text: string;
   onChange$: PropFunction<(e: Event) => void>;
   settings: iUserSettings;
+  /** set for the `name` property so the change handler can adjust the appropriate setting */
   propertyPath: string;
   classes?: ClassList;
   disabled?: boolean;
+  id?: string;
 };
 export default component$<InputToggleProps>(
   ({
-    text,
     onChange$,
     propertyPath,
     settings,
     classes = "",
     disabled = false,
+    id = "toggle",
   }) => {
     const properties = propertyPath.split(".");
     // css to display the toggle view depending on checkbox state
@@ -75,13 +76,17 @@ export default component$<InputToggleProps>(
       <div
         class={`${classes} flex gap-[min(.75rem,1.75vw)] items-center justify-between w-full`}
       >
-        <label class="flex w-full cursor-pointer items-center justify-between gap-2 text-left text-slate-100">
-          {text}
+        <label
+          class="flex w-full cursor-pointer items-center justify-between gap-3 text-left text-slate-100"
+          // gap is halved because input is also gapped
+        >
+          <Slot name="label" />
           <input
             disabled={disabled}
             class="h-0 w-0 flex-shrink-0 cursor-pointer opacity-0"
             type="checkbox"
-            name={propertyPath || text}
+            name={propertyPath} // do not modify! used in onChange$
+            id={id + "-" + propertyPath}
             onChange$={onChange$}
             checked={settings[properties[0]][properties[1]]}
           />
@@ -97,7 +102,7 @@ export default component$<InputToggleProps>(
           </div>
         </label>
 
-        <Slot />
+        <Slot name="tooltip" />
       </div>
     );
   },
