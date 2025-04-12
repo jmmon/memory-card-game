@@ -1,4 +1,9 @@
-import { useSignal, useVisibleTask$ } from "@builder.io/qwik";
+import {
+  isServer,
+  useSignal,
+  useTask$,
+  useVisibleTask$,
+} from "@builder.io/qwik";
 import type { QRL, Signal } from "@builder.io/qwik";
 import { DebugTypeEnum, LogLevel } from "../constants/game";
 import logger from "../services/logger";
@@ -232,4 +237,101 @@ export const useIntervalObj = ({
     initialDelayDuration,
     intervalDuration,
   };
+};
+
+/**
+ * useIntervalOccurrences?
+ *  should run x occurrences, signal so it can change when deckSize changes
+ *  should have an interval which is signal so it can also adjust by deckSize
+ *  should have a break time, or could just run extra occurrences and check the condition inside the action
+ *  - e.g run 52 intervals triggering intervalAction and then trigger a timeout, after which there is a endAction which is run
+ *  - e.g. opposite of the useInterval, and only run for x occurrences
+ * */
+
+/**
+ * @property triggerCondition - condition to start the interval
+ * @property interval - interval in ms
+ * @property intervalAction - action to perform every interval
+ * @property occurrences - how many occurrences the interval runs
+ * @property endingActionDelay - delay after all occurrences
+ * @property endingAction - action to perform after all occurrences + ending delay
+ * @returns signals to set delay and interval
+ * */
+export const useOccurrencesInterval = ({
+  triggerCondition,
+  intervalAction,
+  interval,
+  occurrences,
+  endingAction,
+  endingActionDelay,
+}: {
+  triggerCondition: Signal<boolean>;
+  intervalAction: QRL<() => void>;
+  interval: Signal<number>;
+  occurrences: Signal<number>;
+  endingAction: QRL<() => void>;
+  endingActionDelay: Signal<number>;
+}) => {
+  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useIntervalObj setup", {
+    triggerCondition: triggerCondition.value,
+    initialDelay: endingActionDelay,
+    interval,
+  });
+
+  const intervalTimer = useSignal<number>();
+  const endingActionTimer = useSignal<number>();
+
+  useTask$(({ track }) => {
+    track(triggerCondition);
+    console.log("triggerCondition", triggerCondition.value);
+    if (isServer || triggerCondition.value === false) return;
+
+    if (endingActionTimer.value) {
+      clearTimeout(endingActionTimer.value);
+      endingActionTimer.value = undefined;
+      // console.log("clearing timeout");
+    }
+
+    if (intervalTimer.value) {
+      clearInterval(intervalTimer.value);
+      intervalTimer.value = undefined;
+      // console.log("clearing interval");
+    }
+
+    let occurrencesCounter = occurrences.value - 1;
+    intervalAction(); // run immediately, then on interval
+
+    intervalTimer.value = window.setInterval(() => {
+      logger(
+        DebugTypeEnum.TASK,
+        LogLevel.ONE,
+        "~~ useIntervalObj interval running",
+      );
+      occurrencesCounter--;
+      intervalAction();
+
+      if (occurrencesCounter === 0) {
+        if (intervalTimer.value) {
+          clearInterval(intervalTimer.value);
+          intervalTimer.value = undefined;
+          console.log("clearing interval");
+        }
+      }
+    }, interval.value);
+
+    // console.log("creating timeout:", interval.value * occurrences.value + endingActionDelay.value);
+    endingActionTimer.value = window.setTimeout(
+      () => {
+        
+        // console.log("running endingAction");
+        endingAction();
+      },
+      interval.value * occurrences.value + endingActionDelay.value,
+    );
+  });
+
+  // return {
+  //   initialDelayDuration,
+  //   intervalDuration,
+  // };
 };

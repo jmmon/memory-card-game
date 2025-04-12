@@ -29,6 +29,8 @@ const GAME_DATA: iGameData = {
   fanOutCardDelayRounds: 3, // e.g. if 100ms between rounds, 3 => 300ms delay before shuffling, to give time to finish the fan-out animation
   /** for determining where deck is dealt from */
   startingPosition: { x: 0, y: 0 },
+
+  dealCardIndex: 0,
 };
 
 // user controlled settings
