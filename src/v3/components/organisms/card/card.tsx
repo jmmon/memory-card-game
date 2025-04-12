@@ -143,7 +143,10 @@ export default component$<CardProps>(({ card, index }) => {
         ctx.state.boardLayout,
         ctx.state.cardLayout,
       );
-      const scale = Math.max((boardBasedScale + GAME.DECK_DEAL_SCALE) / 2, GAME.DECK_DEAL_SCALE);
+      const scale = Math.max(
+        (boardBasedScale + GAME.DECK_DEAL_SCALE) / 2,
+        GAME.DECK_DEAL_SCALE,
+      );
       shuffleTransform.value += ` scale(${scale});`;
     }
 
@@ -176,8 +179,9 @@ export default component$<CardProps>(({ card, index }) => {
   // for current fan-out card, make it higher z-index
   const zIndex = useComputed$(() =>
     ctx.state.gameData.isLoading
-      ? ctx.state.userSettings.deck.size -
-          ctx.state.gameData.currentFanOutCardIndex ===
+      ? // ? ctx.state.userSettings.deck.size -
+        //     ctx.state.gameData.currentFanOutCardIndex ===
+        ctx.state.userSettings.deck.size - ctx.state.gameData.dealCardIndex ===
         index
         ? 10
         : 0

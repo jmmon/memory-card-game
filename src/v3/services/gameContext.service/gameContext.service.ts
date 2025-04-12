@@ -52,6 +52,7 @@ export const useGameContextProvider = ({
   });
 
   const startShuffling = $(async function (
+    hideSettings: boolean = false,
     count: number = GAME.CARD_SHUFFLE_ROUNDS,
   ) {
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "startShuffling");
@@ -59,7 +60,9 @@ export const useGameContextProvider = ({
     await shuffleCardPositions();
     state.gameData.shufflingState = count - 1;
     state.gameData.isLoading = true;
-    state.interfaceSettings.settingsModal.isShowing = false;
+    if (hideSettings) {
+      state.interfaceSettings.settingsModal.isShowing = false;
+    }
 
     logger(DebugTypeEnum.HANDLER, LogLevel.TWO, "~~startShuffling:", {
       gameDataShufflingState: state.gameData.shufflingState,
@@ -83,7 +86,9 @@ export const useGameContextProvider = ({
    * slices the deck to appropriate size
    * */
   const sliceDeck = $(function () {
-    const deckShuffledByPairs = deckUtils.shuffleDeckAndRefreshIds(FULL_DECK);
+    const deckShuffledByPairs = deckUtils
+      .shuffleDeckAndRefreshIds(FULL_DECK)
+      .map((card) => ({ ...card, position: -1 }));
     const cards = deckShuffledByPairs.slice(0, state.userSettings.deck.size);
     state.gameData.cards = cards;
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "sliceDeck", {
@@ -138,11 +143,35 @@ export const useGameContextProvider = ({
     lastFanOut.value = Date.now();
   });
 
+  const lastDeal = useSignal(Date.now());
+
+  const dealCard = $(function () {
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "dealCard:", {
+      dealCardIndex: state.gameData.dealCardIndex,
+    });
+    // set new position
+    const currentIndex =
+      state.userSettings.deck.size - state.gameData.dealCardIndex;
+    state.gameData.cards[currentIndex].position = currentIndex;
+    const now = Date.now();
+    const dealInterval = now - lastDeal.value;
+    logger(DebugTypeEnum.HANDLER, LogLevel.TWO, "dealCard:", {
+      dealCardIndex: state.gameData.dealCardIndex,
+      currentCard: state.gameData.cards[currentIndex],
+      dealInterval,
+    });
+    lastDeal.value = now;
+    state.gameData.dealCardIndex--;
+  });
+
   const initializeDeck = $(async function () {
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "initializeDeck");
+    state.gameData.cards.length = 0;
+    state.gameData.isLoading = true;
     await sliceDeck(); // set to deckSize
     // start fan-out animation (dealing the deck)
-    state.gameData.currentFanOutCardIndex = state.userSettings.deck.size + 1;
+    // state.gameData.currentFanOutCardIndex = state.userSettings.deck.size + 1;
+    state.gameData.dealCardIndex = state.userSettings.deck.size;
   });
 
   const calculateAndResizeBoard = $(function () {
@@ -331,6 +360,7 @@ export const useGameContextProvider = ({
   });
 
   const handlers: iGameHandlers = {
+    dealCard,
     fanOutCard,
     shuffleCardPositions,
     startShuffling,
