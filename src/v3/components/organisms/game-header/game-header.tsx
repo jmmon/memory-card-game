@@ -15,9 +15,9 @@ export default component$<GameHeaderProps>(() => {
 
   return (
     <header
-      class={`z-50 mx-auto text-center text-xs md:text-sm flex gap-3 items-stretch justify-around w-full h-min`}
+      class={`z-[40] mx-auto text-center text-xs md:text-sm flex gap-3 items-stretch justify-around w-full h-min`}
     >
-      <HeaderSection classes="justify-around pointer-events-none">
+      <HeaderSection classes="justify-around">
         {ctx.state.userSettings.interface.showSelectedIds && (
           <HeaderSelectedIds />
         )}

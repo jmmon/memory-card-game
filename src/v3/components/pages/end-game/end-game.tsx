@@ -37,7 +37,6 @@ export default component$(() => {
   return (
     <Modal
       isShowing={ctx.state.interfaceSettings.endOfGameModal.isShowing}
-      // isShowing={true}
       hideModal$={hideModal$}
       title={
         ctx.state.interfaceSettings.endOfGameModal.isWin
@@ -58,16 +57,6 @@ export default component$(() => {
         >
           <Button
             classes="w-full"
-            // onClick$={() => {
-            //   ctx.handle.resetGame({
-            //     deck: {
-            //       ...ctx.state.userSettings.deck,
-            //       size: Number(unsavedUserSettings.value.deck.size),
-            //     },
-            //   });
-            //
-            //   ctx.state.interfaceSettings.endOfGameModal.isShowing = false;
-            // }}
             onClick$={() => {
               saveOrResetSettings$(unsavedUserSettings);
             }}
@@ -76,38 +65,6 @@ export default component$(() => {
           </Button>
         </div>
       </GameSettings>
-
-      {/* <div class="flex flex-col gap-0.5 px-[4%] py-[2%] md:gap-1">
-
-        <GameStats q:slot="game-stats" />
-
-        <ModalRow>
-          <DeckSizeChanger
-            userSettings={unsavedUserSettings}
-            isLocked={unsavedUserSettings.value.deck.isLocked}
-            for="end-game"
-          />
-        </ModalRow>
-
-        <Button
-          onClick$={() => {
-            ctx.handle.resetGame({
-              deck: {
-                ...ctx.state.userSettings.deck,
-                size: Number(unsavedUserSettings.value.deck.size),
-              },
-            });
-
-            ctx.state.interfaceSettings.endOfGameModal.isShowing = false;
-          }}
-        >
-          Play Again
-        </Button>
-
-        <Button onClick$={hideModal$} >
-          Close
-        </Button>
-      </div> */}
     </Modal>
   );
 });
