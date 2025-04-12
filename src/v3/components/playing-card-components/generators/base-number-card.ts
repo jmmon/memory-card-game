@@ -8,8 +8,6 @@ export default ({
   centerContent: string;
 }) => `
   <svg
-    xmlns="http://www.w3.org/2000/svg"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
     class="playing-card ${symbol === "hearts" || symbol === "diamonds" ? "red" : "black"}"
     preserveAspectRatio="xMinYMin meet"
     viewBox="-120 -168 240 336"
