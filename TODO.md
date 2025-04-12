@@ -1,3 +1,17 @@
+## minus button text seems not vertically aligned on mobile
+## can't see the number while pressing since thumb blocks the view, more gap around the number?
+- 1ch or so? (1ch = 8.9px approx, so could try 0.5rem or 0.75rem)
+## revisit an input-style so you could type in number? (use ref)
+## also slider! would have to make a dropdown, e.g. carot button (somewhere) to reveal slider
+- slider dark mode! darker bg/fill
+## dev mode timer for deck deal duration
+
+
+## hash the cardIds instead of using math.random? doesn't matter the ids, as long as each card has its pair hash
+- e.g. math.random (or randomBytes e.g. 4 bytes or something small) for every new round, and append to card.text ['AS' === ace of spades] then hash that string (to obfuscate)
+
+
+
 ## [Soon(TM)] TODO: finish scores!!!
 - cloudflare D1 sql server with drizzle to save scores
 
