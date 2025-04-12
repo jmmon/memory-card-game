@@ -16,7 +16,7 @@ import Popover from "~/v3/components/molecules/popover/popover";
 import INITIAL_STATE from "~/v3/services/gameContext.service/initialState";
 import useGetSavedTheme from "~/v3/hooks/useGetSavedTheme";
 
-const LI_CLASSES = "pl-2 md:pl-4";
+const LI_CLASSES: ClassList = "pl-2 md:pl-4";
 
 type SoonTmProps = { classes?: ClassList };
 const SoonTm: FunctionComponent<SoonTmProps> = ({ classes }) => (
@@ -83,13 +83,14 @@ const Instructions: FunctionComponent = () => {
         After <strong>two</strong> cards have been flipped, if the{" "}
         <strong>numbers</strong> and <strong>colors</strong> match...
         <br />
-        <code>
-          (e.g. <strong>Queen</strong> of <strong>Spades</strong> with{" "}
-          <strong>Queen</strong> of <strong>Clubs</strong>; or{" "}
-          <strong>2</strong> of <strong>Hearts</strong> with <strong>2</strong>{" "}
-          of <strong>Diamonds</strong>,)
-        </code>{" "}
-        <br />
+        <div class="bg-slate-700 p-2">
+          <code class="p-0">
+            (e.g. <strong>Queen</strong> of <strong>Spades</strong> with{" "}
+            <strong>Queen</strong> of <strong>Clubs</strong>; or{" "}
+            <strong>2</strong> of <strong>Hearts</strong> with <strong>2</strong>{" "}
+            of <strong>Diamonds</strong>,)
+          </code>
+        </div>
         ...you found a <strong>pair</strong> and they're removed from the board!
       </li>
       <li class={LI_CLASSES}>
@@ -158,8 +159,8 @@ export const GameStarter = component$(() => {
 
 const HomeComponent: FunctionComponent = () => {
   return (
-    <div class="full w-full">
-      <div class="mx-auto w-max grid items-center justify-between">
+    <div class="full w-full grid">
+      <div class="mx-auto grid items-center justify-between">
         <div class="grid w-full max-w-[600px] items-center justify-center gap-8 text-slate-200">
           <h1 class="text-center text-4xl text-slate-500 mt-4">
             Memory Card Game
