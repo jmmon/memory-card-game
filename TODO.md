@@ -2,6 +2,8 @@
 - slider dark mode! darker bg/fill
 ## dev mode timer for deck deal duration
 
+## +- buttons still not quite right on mobile, try SVGs?
+
 
 ## hash the cardIds instead of using math.random? doesn't matter the ids, as long as each card has its pair hash
 - e.g. math.random (or randomBytes e.g. 4 bytes or something small) for every new round, and append to card.text ['AS' === ace of spades] then hash that string (to obfuscate)
