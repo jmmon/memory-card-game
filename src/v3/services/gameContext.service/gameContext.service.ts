@@ -92,9 +92,13 @@ export const useGameContextProvider = ({
   });
 
   const lastFanOut = useSignal(Date.now());
+  const totalFanOut = useSignal(0);
 
   const fanOutCard = $(function () {
     state.gameData.currentFanOutCardIndex--;
+    if (state.gameData.currentFanOutCardIndex === state.userSettings.deck.size) {
+      totalFanOut.value = Date.now(); // take start reading
+    }
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "fanOutCard:", {
       currentFanOutCardIndex: state.gameData.currentFanOutCardIndex,
     });
@@ -122,8 +126,15 @@ export const useGameContextProvider = ({
         {
           currentFanOutCardIndex: state.gameData.currentFanOutCardIndex,
           pausedDuration,
+          totalDuration: (Date.now() - totalFanOut.value) / 1000 + "s",
         },
       );
+      console.log({
+          totalDuration: (Date.now() - totalFanOut.value) / 1000 + "s",
+
+      })
+      // 2.557s for 18cards
+      // 3.962s for 52cards
       startShuffling();
       return;
     }
