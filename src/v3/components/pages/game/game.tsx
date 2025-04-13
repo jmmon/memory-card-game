@@ -1,4 +1,4 @@
-import { $, component$, useComputed$, useOnDocument } from "@builder.io/qwik";
+import { $, component$, useComputed$, useOnDocument, useSignal } from "@builder.io/qwik";
 
 import {
   useDelayedTimeoutObj,
@@ -84,12 +84,18 @@ export default component$<GameProps>(
     //   action: ctx.handle.fanOutCard,
     // });
 
+    const totalDeal = useSignal(0);
     useOccurrencesInterval({
       triggerCondition: useComputed$(
         () =>
           ctx.state.gameData.dealCardIndex === ctx.state.userSettings.deck.size,
       ),
-      intervalAction: ctx.handle.dealCard,
+      intervalAction: $(() => {
+        if (ctx.state.gameData.dealCardIndex === ctx.state.userSettings.deck.size) {
+          totalDeal.value = Date.now();
+        }
+        ctx.handle.dealCard();
+      }),
       interval: useComputed$(
         () =>
           GAME.FAN_OUT_DURATION_BASE_MS / ctx.state.userSettings.deck.size +
@@ -102,7 +108,10 @@ export default component$<GameProps>(
             GAME.FAN_OUT_DURATION_ADDITIONAL_PER_CARD_MS) *
           3,
       ),
-      endingAction: $(() => ctx.handle.startShuffling()),
+      endingAction: $(() => {
+        console.log({totalDeal: (Date.now() - totalDeal.value) / 1000 + "s"})
+        ctx.handle.startShuffling()
+      }),
     });
 
     // /* ================================
