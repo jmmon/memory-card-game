@@ -96,53 +96,6 @@ export const useGameContextProvider = ({
     });
   });
 
-  const lastFanOut = useSignal(Date.now());
-
-  const fanOutCard = $(function () {
-    state.gameData.currentFanOutCardIndex--;
-    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "fanOutCard:", {
-      currentFanOutCardIndex: state.gameData.currentFanOutCardIndex,
-    });
-    // for skipping, gives a break before shuffle
-    if (
-      state.gameData.currentFanOutCardIndex < 1 &&
-      state.gameData.currentFanOutCardIndex >
-        -(state.gameData.fanOutCardDelayRounds - 1)
-    ) {
-      logger(DebugTypeEnum.HANDLER, LogLevel.TWO, "~~ fanOutCard: paused", {
-        currentFanOutCardIndex: state.gameData.currentFanOutCardIndex,
-      });
-      return;
-    }
-    // end the fan-out and start shuffling
-    if (
-      state.gameData.currentFanOutCardIndex ===
-      -(state.gameData.fanOutCardDelayRounds - 1)
-    ) {
-      const pausedDuration = Date.now() - lastFanOut.value;
-      logger(
-        DebugTypeEnum.HANDLER,
-        LogLevel.TWO,
-        "~~ fanOutCard: startShuffling",
-        {
-          currentFanOutCardIndex: state.gameData.currentFanOutCardIndex,
-          pausedDuration,
-        },
-      );
-      startShuffling();
-      return;
-    }
-    // set new position
-    const currentIndex =
-      state.userSettings.deck.size - state.gameData.currentFanOutCardIndex;
-    state.gameData.cards[currentIndex].position = currentIndex;
-    logger(DebugTypeEnum.HANDLER, LogLevel.TWO, "fanOutCard:", {
-      currentFanOutCardIndex: state.gameData.currentFanOutCardIndex,
-      currentCard: state.gameData.cards[currentIndex],
-    });
-    lastFanOut.value = Date.now();
-  });
-
   const lastDeal = useSignal(Date.now());
 
   const dealCard = $(function () {
@@ -169,8 +122,7 @@ export const useGameContextProvider = ({
     state.gameData.cards.length = 0;
     state.gameData.isLoading = true;
     await sliceDeck(); // set to deckSize
-    // start fan-out animation (dealing the deck)
-    // state.gameData.currentFanOutCardIndex = state.userSettings.deck.size + 1;
+    // start deck deal animation
     state.gameData.dealCardIndex = state.userSettings.deck.size;
   });
 
@@ -361,7 +313,6 @@ export const useGameContextProvider = ({
 
   const handlers: iGameHandlers = {
     dealCard,
-    fanOutCard,
     shuffleCardPositions,
     startShuffling,
     stopShuffling,

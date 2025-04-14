@@ -54,8 +54,6 @@ export type iGameData = {
   isShaking: boolean;
   isLoading: boolean;
   shufflingState: number;
-  currentFanOutCardIndex: number;
-  fanOutCardDelayRounds: number;
   startingPosition: iCoords;
   dealCardIndex: number;
 };
@@ -116,7 +114,6 @@ export type iState = {
 };
 
 export type iGameHandlers = {
-  fanOutCard: QRL<() => void>;
   dealCard: QRL<() => void>;
   shuffleCardPositions: QRL<() => void>;
   sliceDeck: QRL<() => void>;

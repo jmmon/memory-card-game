@@ -1,4 +1,9 @@
-import { $, component$, useComputed$, useOnDocument, useSignal } from "@builder.io/qwik";
+import {
+  $,
+  component$,
+  useComputed$,
+  useOnDocument,
+} from "@builder.io/qwik";
 
 import {
   useDelayedTimeoutObj,
@@ -50,80 +55,25 @@ export default component$<GameProps>(
       userSettings: settings,
     });
 
-    /**
-     * runs the fan out card animation, timeout per each round
-     *
-     * TODO:
-     * create another helper which runs an interval for n occurrences?
-     * instead of a bunch of timeouts created and destroyed over and over
-     *  - perhaps also with an additional wait time at the end
-     *    - instead of having it go negative
-     *  - can then run a handler at the end of the whole process
-     *
-     * */
-    // useTimeoutObj({
-    //   triggerCondition: useComputed$(
-    //     () =>
-    //       ctx.state.gameData.currentFanOutCardIndex >
-    //       -(ctx.state.gameData.fanOutCardDelayRounds - 1),
-    //   ),
-    //   // want to keep it reasonable across all deck sizes
-    //   // so now it takes a base of ~1.5s divided by the cards,
-    //   // and adds a small additional flat value
-    //   // so 52 cards will take longer, but it still starts at the same base value
-    //   // e.g. 1500 base across the cards, + 35ms per card
-    //   //  - e.g. 6 cards == 1500 + 210 => 1710ms / 6 = 285ms per card
-    //   //  - e.g. 18 cards == 1500 + 35*18 = 1500 + 1330 => 1830ms / 18 = ~102ms per card
-    //   //  - e.g. 32 cards == 1500 + 35*32 = 1500 + 70 + 1050 => 2620ms / 32 = ~82ms per card
-    //   //  - e.g. 52 cards == 1500 + 35*52 = 1500 + 1400 + 420 => 3320ms == ~64ms per card
-    //   delay: useComputed$(
-    //     () =>
-    //       GAME.FAN_OUT_DURATION_BASE_MS / ctx.state.userSettings.deck.size +
-    //       GAME.FAN_OUT_DURATION_ADDITIONAL_PER_CARD_MS,
-    //   ),
-    //   action: ctx.handle.fanOutCard,
-    // });
-
-    const totalDeal = useSignal(0);
+    /* ================================
+     * Deal the deck animation
+     * - runs the fan out card animation, timeout per each round
+     * ================================ */
     useOccurrencesInterval({
       triggerCondition: useComputed$(
         () =>
           ctx.state.gameData.dealCardIndex === ctx.state.userSettings.deck.size,
       ),
-      intervalAction: $(() => {
-        if (ctx.state.gameData.dealCardIndex === ctx.state.userSettings.deck.size) {
-          totalDeal.value = Date.now();
-        }
-        ctx.handle.dealCard();
-      }),
       interval: useComputed$(
         () =>
           GAME.FAN_OUT_DURATION_BASE_MS / ctx.state.userSettings.deck.size +
           GAME.FAN_OUT_DURATION_ADDITIONAL_PER_CARD_MS,
       ),
+      intervalAction: ctx.handle.dealCard,
       occurrences: useComputed$(() => ctx.state.userSettings.deck.size),
-      endingActionDelay: useComputed$(
-        () =>
-          (GAME.FAN_OUT_DURATION_BASE_MS / ctx.state.userSettings.deck.size +
-            GAME.FAN_OUT_DURATION_ADDITIONAL_PER_CARD_MS) *
-          3,
-      ),
-      endingAction: $(() => {
-        console.log({totalDeal: (Date.now() - totalDeal.value) / 1000 + "s"})
-        ctx.handle.startShuffling()
-      }),
+      endingActionDelay: 250,
+      endingAction: ctx.handle.startShuffling,
     });
-
-    // /* ================================
-    //  * Set up scroll detection
-    //  *
-    //  * ================================ */
-    // useAccomodateScrollbar<HTMLDivElement>(
-    //   containerRef,
-    //   $(({ isElementScrollable }) => {
-    //     gameContext.interface.isScrollable = isElementScrollable;
-    //   })
-    // );
 
     /* ================================
      * Shuffle on interval (for fun)
@@ -132,20 +82,13 @@ export default component$<GameProps>(
     useIntervalObj({
       triggerCondition: useComputed$(
         () =>
-          // delay until after fan-out phase
-          // ctx.state.gameData.currentFanOutCardIndex ===
-          //   -(ctx.state.gameData.fanOutCardDelayRounds - 1) &&
           ctx.state.gameData.dealCardIndex === 0 &&
-          !ctx.state.gameData.isLoading && 
+          !ctx.state.gameData.isLoading &&
           !ctx.timer.state.isStarted &&
           !ctx.timer.state.isEnded,
       ),
-      initialDelay:
-        GAME.AUTO_SHUFFLE_DELAY 
-        // +
-        // BOARD.CARD_SHUFFLE_ACTIVE_DURATION +
-        // BOARD.CARD_SHUFFLE_PAUSE_DURATION,
-      ,interval: GAME.AUTO_SHUFFLE_INTERVAL,
+      initialDelay: GAME.AUTO_SHUFFLE_DELAY,
+      interval: GAME.AUTO_SHUFFLE_INTERVAL,
       action: ctx.handle.shuffleCardPositions,
     });
 
@@ -153,13 +96,11 @@ export default component$<GameProps>(
      * Handles shuffling rounds
      * - when shuffling state > 0, we shuffle a round and then decrement
      * ================================ */
+    // TODO: swap to occurrencesInterval?
     useTimeoutObj({
       triggerCondition: useComputed$(
         () =>
-
           ctx.state.gameData.dealCardIndex === 0 &&
-          // ctx.state.gameData.currentFanOutCardIndex ===
-          //   -(ctx.state.gameData.fanOutCardDelayRounds - 1) &&
           ctx.state.gameData.shufflingState > 0,
       ),
       delay:

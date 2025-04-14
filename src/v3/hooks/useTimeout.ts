@@ -255,26 +255,28 @@ export const useIntervalObj = ({
  * @property occurrences - how many occurrences the interval runs
  * @property endingActionDelay - delay after all occurrences
  * @property endingAction - action to perform after all occurrences + ending delay
- * @returns signals to set delay and interval
  * */
 export const useOccurrencesInterval = ({
   triggerCondition,
-  intervalAction,
   interval,
+  intervalAction,
   occurrences,
-  endingAction,
   endingActionDelay,
+  endingAction,
 }: {
   triggerCondition: Signal<boolean>;
-  intervalAction: QRL<() => void>;
   interval: Signal<number>;
+  intervalAction: QRL<() => void>;
   occurrences: Signal<number>;
+  endingActionDelay: Signal<number> | number;
   endingAction: QRL<() => void>;
-  endingActionDelay: Signal<number>;
 }) => {
-  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useIntervalObj setup", {
+  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useOccurrencesInterval setup", {
     triggerCondition: triggerCondition.value,
-    initialDelay: endingActionDelay,
+    initialDelay:
+      typeof endingActionDelay === "number"
+        ? endingActionDelay
+        : endingActionDelay.value,
     interval,
   });
 
@@ -283,29 +285,29 @@ export const useOccurrencesInterval = ({
 
   useTask$(({ track }) => {
     track(triggerCondition);
-    console.log("triggerCondition", triggerCondition.value);
+    logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useOccurrencesInterval track", {
+      triggerCondition: triggerCondition.value,
+      isServer,
+    });
     if (isServer || triggerCondition.value === false) return;
 
-    if (endingActionTimer.value) {
-      clearTimeout(endingActionTimer.value);
-      endingActionTimer.value = undefined;
-      // console.log("clearing timeout");
-    }
+    clearTimeout(endingActionTimer.value);
+    endingActionTimer.value = undefined;
 
-    if (intervalTimer.value) {
-      clearInterval(intervalTimer.value);
-      intervalTimer.value = undefined;
-      // console.log("clearing interval");
-    }
+    clearInterval(intervalTimer.value);
+    intervalTimer.value = undefined;
 
+    const startTime = Date.now();
+    let lastOccurrenceTime = 0;
     let occurrencesCounter = occurrences.value - 1;
+
     intervalAction(); // run immediately, then on interval
 
     intervalTimer.value = window.setInterval(() => {
       logger(
-        DebugTypeEnum.TASK,
-        LogLevel.ONE,
-        "~~ useIntervalObj interval running",
+        DebugTypeEnum.HOOK,
+        LogLevel.TWO,
+        "~~ useOccurrencesInterval: interval running",
       );
       occurrencesCounter--;
       intervalAction();
@@ -314,7 +316,15 @@ export const useOccurrencesInterval = ({
         if (intervalTimer.value) {
           clearInterval(intervalTimer.value);
           intervalTimer.value = undefined;
-          console.log("clearing interval");
+
+          const now = Date.now();
+          logger(
+            DebugTypeEnum.HOOK,
+            LogLevel.TWO,
+            "~~ useOccurrencesInterval: finished interval",
+            { totalDuration: now - startTime + "ms" },
+          );
+          lastOccurrenceTime = now;
         }
       }
     }, interval.value);
@@ -322,16 +332,23 @@ export const useOccurrencesInterval = ({
     // console.log("creating timeout:", interval.value * occurrences.value + endingActionDelay.value);
     endingActionTimer.value = window.setTimeout(
       () => {
-        
-        // console.log("running endingAction");
         endingAction();
+
+        const now = Date.now();
+        logger(
+          DebugTypeEnum.HOOK,
+          LogLevel.TWO,
+          "~~ useOccurrencesInterval: endingAction ran",
+          {
+            endingPause: now - lastOccurrenceTime + "ms",
+            totalDuration: now - startTime + "ms",
+          },
+        );
       },
-      interval.value * occurrences.value + endingActionDelay.value,
+      interval.value * (occurrences.value - 1) +
+        (typeof endingActionDelay === "number"
+          ? endingActionDelay
+          : endingActionDelay.value),
     );
   });
-
-  // return {
-  //   initialDelayDuration,
-  //   intervalDuration,
-  // };
 };
