@@ -27,12 +27,12 @@ export default component$<DeckSizeSliderProps>((props) => {
         max={GAME.DECK_SIZE_MAX}
         step="2"
         value={props.userSettings.value.deck.size}
-        onInput$={(e: Event) => {
+        onInput$={(_: Event, t: HTMLInputElement) => {
           props.userSettings.value = {
             ...props.userSettings.value,
             deck: {
               ...props.userSettings.value.deck,
-              size: Number((e.target as HTMLInputElement).value),
+              size: Number(t.value),
             },
           };
         }}

@@ -1,4 +1,9 @@
-import { useSignal, useVisibleTask$ } from "@builder.io/qwik";
+import {
+  isServer,
+  useSignal,
+  useTask$,
+  useVisibleTask$,
+} from "@builder.io/qwik";
 import type { QRL, Signal } from "@builder.io/qwik";
 import { DebugTypeEnum, LogLevel } from "../constants/game";
 import logger from "../services/logger";
@@ -232,4 +237,118 @@ export const useIntervalObj = ({
     initialDelayDuration,
     intervalDuration,
   };
+};
+
+/**
+ * useIntervalOccurrences?
+ *  should run x occurrences, signal so it can change when deckSize changes
+ *  should have an interval which is signal so it can also adjust by deckSize
+ *  should have a break time, or could just run extra occurrences and check the condition inside the action
+ *  - e.g run 52 intervals triggering intervalAction and then trigger a timeout, after which there is a endAction which is run
+ *  - e.g. opposite of the useInterval, and only run for x occurrences
+ * */
+
+/**
+ * @property triggerCondition - condition to start the interval
+ * @property interval - interval in ms
+ * @property intervalAction - action to perform every interval
+ * @property occurrences - how many occurrences the interval runs
+ * @property endingActionDelay - delay after all occurrences
+ * @property endingAction - action to perform after all occurrences + ending delay
+ * */
+export const useOccurrencesInterval = ({
+  triggerCondition,
+  interval,
+  intervalAction,
+  occurrences,
+  endingActionDelay,
+  endingAction,
+}: {
+  triggerCondition: Signal<boolean>;
+  interval: Signal<number>;
+  intervalAction: QRL<() => void>;
+  occurrences: Signal<number>;
+  endingActionDelay: Signal<number> | number;
+  endingAction: QRL<() => void>;
+}) => {
+  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useOccurrencesInterval setup", {
+    triggerCondition: triggerCondition.value,
+    initialDelay:
+      typeof endingActionDelay === "number"
+        ? endingActionDelay
+        : endingActionDelay.value,
+    interval,
+  });
+
+  const intervalTimer = useSignal<number>();
+  const endingActionTimer = useSignal<number>();
+
+  useTask$(({ track }) => {
+    track(triggerCondition);
+    logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useOccurrencesInterval track", {
+      triggerCondition: triggerCondition.value,
+      isServer,
+    });
+    if (isServer || triggerCondition.value === false) return;
+
+    clearTimeout(endingActionTimer.value);
+    endingActionTimer.value = undefined;
+
+    clearInterval(intervalTimer.value);
+    intervalTimer.value = undefined;
+
+    const startTime = Date.now();
+    let lastOccurrenceTime = 0;
+    let occurrencesCounter = occurrences.value - 1;
+
+    intervalAction(); // run immediately, then on interval
+
+    intervalTimer.value = window.setInterval(() => {
+      logger(
+        DebugTypeEnum.HOOK,
+        LogLevel.TWO,
+        "~~ useOccurrencesInterval: interval running",
+      );
+      occurrencesCounter--;
+      intervalAction();
+
+      if (occurrencesCounter === 0) {
+        if (intervalTimer.value) {
+          clearInterval(intervalTimer.value);
+          intervalTimer.value = undefined;
+
+          const now = Date.now();
+          logger(
+            DebugTypeEnum.HOOK,
+            LogLevel.TWO,
+            "~~ useOccurrencesInterval: finished interval",
+            { totalDuration: now - startTime + "ms" },
+          );
+          lastOccurrenceTime = now;
+        }
+      }
+    }, interval.value);
+
+    // console.log("creating timeout:", interval.value * occurrences.value + endingActionDelay.value);
+    endingActionTimer.value = window.setTimeout(
+      () => {
+        endingAction();
+
+        const now = Date.now();
+        logger(
+          DebugTypeEnum.HOOK,
+          LogLevel.TWO,
+          "~~ useOccurrencesInterval: endingAction ran",
+          {
+            endingPause: now - lastOccurrenceTime + "ms",
+            totalDuration: now - startTime + "ms",
+          },
+        );
+      },
+      interval.value * (occurrences.value - 1) +
+        (typeof endingActionDelay === "number"
+          ? endingActionDelay
+          : endingActionDelay.value),
+    );
+  });
 };

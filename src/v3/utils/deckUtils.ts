@@ -84,16 +84,6 @@ function buildArrOfPairs(fullDeck: iCard[]) {
   return pairs;
 }
 
-// function unbuildArrOfPairs(arrOfPairs: Array<[iCard, iCard]>) {
-//   // const deck = [];
-//   // for (let i = 0; i < arrOfPairs.length; i++) {
-//   //   deck.push(...arrOfPairs[i]);
-//   // }
-//   // return deck;
-//
-//   return arrOfPairs.flat();
-// }
-
 function shuffleDeckAndRefreshIds(fullDeck: iCard[]) {
   const pairs = buildArrOfPairs(fullDeck);
 
@@ -105,7 +95,7 @@ function shuffleDeckAndRefreshIds(fullDeck: iCard[]) {
 
   // shuffle the array of pairs
   const shuffledDeckOfPairs = v3Shuffle_FY_algo(withRefreshedIds);
-  const shuffledPairs = shuffledDeckOfPairs.flat(); // unbuildArrOfPairs(shuffledDeckOfPairs);
+  const shuffledPairs = shuffledDeckOfPairs.flat();
   // console.log({ shuffledDeckOfPairs, shuffledPairs });
 
   return shuffledPairs;
