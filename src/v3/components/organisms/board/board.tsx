@@ -2,7 +2,7 @@ import {
   $,
   component$,
   useComputed$,
-  useSignal,
+  // useSignal,
   useStyles$,
   useVisibleTask$,
 } from "@builder.io/qwik";
@@ -19,7 +19,6 @@ import useDebouncedOnWindow from "~/v3/hooks/useDebouncedOnWindow";
 
 export default component$(() => {
   const ctx = useGameContextService();
-  const lastDeckSize = useSignal(ctx.state.userSettings.deck.size);
 
   const isAnyCardFlipped = useComputed$(
     () => ctx.state.gameData.flippedCardId !== -1,
@@ -176,47 +175,15 @@ export default component$(() => {
   /* ================================
    * Handle Adjusting Board
    * - RUNS ON MOUNT
-   * - also when "resize" flip-flops, or when deck.size changes
    * ================================ */
   // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(async ({ track }) => {
-    const newDeckSize = track(() => ctx.state.userSettings.deck.size);
-    const isDeckChanged = lastDeckSize.value !== newDeckSize;
-
-    if (isDeckChanged) {
-      logger(
-        DebugTypeEnum.TASK,
-        LogLevel.ONE,
-        "UVT: decksize change => calculateAndResizeBoard",
-        {
-          boardIsLocked: ctx.state.userSettings.board.isLocked,
-          deckIsLocked: ctx.state.userSettings.deck.isLocked,
-        },
-      );
-
-      lastDeckSize.value = newDeckSize;
-
-      if (ctx.state.userSettings.deck.isLocked) return;
-      ctx.handle.resetGame({
-        ...ctx.state.userSettings,
-        deck: {
-          ...ctx.state.userSettings.deck,
-          size: ctx.state.userSettings.deck.size,
-        },
-      });
-
-      ctx.handle.calculateAndResizeBoard();
-      return;
-    }
-
-    // runs on mount only
-
+  useVisibleTask$((
+  ) => {
     logger(
       DebugTypeEnum.TASK,
       LogLevel.ONE,
       "UVT: mount => calculateAndResize",
     );
-    await ctx.handle.calculateAndResizeBoard();
 
     ctx.handle.initializeDeck(true);
   });

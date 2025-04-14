@@ -56,6 +56,7 @@ export const useGameContextProvider = ({
     count: number = GAME.CARD_SHUFFLE_ROUNDS,
   ) {
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "startShuffling");
+      state.gameData.dealCardIndex = 0; // reset just in case
 
     await shuffleCardPositions();
     state.gameData.shufflingState = count - 1;
@@ -114,14 +115,6 @@ export const useGameContextProvider = ({
     state.gameData.dealCardIndex--;
   });
 
-  const initializeDeck = $(async function () {
-    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "initializeDeck");
-    state.gameData.cards.length = 0;
-    state.gameData.isLoading = true;
-    await sliceDeck(); // set to deckSize
-    // start deck deal animation
-    state.gameData.dealCardIndex = state.userSettings.deck.size;
-  });
 
   const calculateAndResizeBoard = $(function () {
     if (state.userSettings.board.isLocked) {
@@ -261,6 +254,26 @@ export const useGameContextProvider = ({
     });
   });
 
+  const lastDeckSize = useSignal(state.userSettings.deck.size);
+  //
+  // runs on mount, and after resetting game
+  const initializeDeck = $(async function (isStartup?: boolean) {
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "initializeDeck");
+
+    const isDeckSizeChanged = lastDeckSize.value !== state.userSettings.deck.size;
+    state.gameData.isLoading = true;
+
+    await sliceDeck(); // refresh deck, and size if needed
+
+    // if (isDeckChanged) {
+    if ( isStartup || isDeckSizeChanged)
+      await calculateAndResizeBoard();
+    // }
+
+    // start deck deal animation
+    state.gameData.dealCardIndex = state.userSettings.deck.size;
+  });
+
   const resetGame = $(async function (newSettings?: Partial<iUserSettings>) {
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "resetGame:", {
       newSettings: newSettings,
@@ -291,10 +304,11 @@ export const useGameContextProvider = ({
     state.gameData.flippedCardId = INITIAL_STATE.gameData.flippedCardId;
     state.gameData.mismatchPair = INITIAL_STATE.gameData.mismatchPair;
 
-    state.gameData.cards = [...INITIAL_STATE.gameData.cards];
+    // clear the cards
+    state.gameData.cards.length = 0;
     state.gameData.lastClick = -1;
 
-    // hack to ensure the lengths change to update state (particularly for mismatch and success pairs)
+    // ensure scores header resets by changing length
     state.gameData.selectedCardIds.length = 0;
     state.gameData.mismatchPairs.length = 0;
     state.gameData.successfulPairs.length = 0;
@@ -304,9 +318,7 @@ export const useGameContextProvider = ({
     });
 
     await timer.reset();
-    // await calculateAndResizeBoard(); // needed? should happen next, after deck is initialized
     await initializeDeck();
-    // console.log("game reset");
   });
 
   const handlers: iGameHandlers = {
