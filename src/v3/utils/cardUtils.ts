@@ -64,14 +64,14 @@ const generateShuffleTranslateTransformPercent = (
 const getScaleFromDimensions = (
   boardDimension: number,
   cardDimension: number,
-  ratio: number,
+  cardToBoardRatio: number,
   padding: number,
-) => (boardDimension * ratio) / (cardDimension * padding);
+) => (boardDimension * cardToBoardRatio) / (cardDimension * padding);
 
 const generateScaleTransformPercentToCenter = (
   boardLayout: iBoardLayout,
   cardLayout: iCardLayout,
-  ratio: number,
+  cardToBoardRatio: number,
   padding: number,
 ) => {
   const boardRatio = boardLayout.width / boardLayout.height;
@@ -82,14 +82,14 @@ const generateScaleTransformPercentToCenter = (
     return getScaleFromDimensions(
       boardLayout.width,
       cardLayout.width,
-      ratio,
+      cardToBoardRatio,
       padding,
     );
   } else {
     return getScaleFromDimensions(
       boardLayout.height,
       cardLayout.height,
-      ratio,
+      cardToBoardRatio,
       padding,
     );
   }
@@ -184,7 +184,7 @@ const generateCenterCoords = (cols: number, rows: number) => {
 const generateDeckDealScale = (
   boardLayout: iBoardLayout,
   cardLayout: iCardLayout,
-) =>
+) => 
   generateScaleTransformPercentToCenter(
     boardLayout,
     cardLayout,
