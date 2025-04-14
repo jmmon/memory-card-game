@@ -259,7 +259,7 @@ export const useOccurrencesInterval = ({
   interval: Signal<number>;
   intervalAction: QRL<() => void>;
   occurrences: Signal<number>;
-  endingActionDelay: Signal<number> | number;
+  endingActionDelay: number | Signal<number>;
   endingAction: QRL<() => void>;
 }) => {
   logger(DebugTypeEnum.HOOK, LogLevel.ONE, "SETUP useOccurrencesInterval", {
@@ -268,7 +268,7 @@ export const useOccurrencesInterval = ({
       typeof endingActionDelay === "number"
         ? endingActionDelay
         : endingActionDelay.value,
-    interval,
+    interval: interval.value,
   });
 
   const intervalTimer = useSignal<number>();
@@ -283,7 +283,7 @@ export const useOccurrencesInterval = ({
     logger(
       DebugTypeEnum.HOOK,
       LogLevel.ONE,
-      "~~ useOccurrencesInterval condition met",
+      "~~ useOccurrencesInterval condition met, running first occurrence",
       {
         triggerCondition: triggerCondition.value,
       },
@@ -302,51 +302,47 @@ export const useOccurrencesInterval = ({
     intervalAction(); // run immediately, then on interval
 
     intervalTimer.value = window.setInterval(() => {
+      const now = Date.now();
       logger(
         DebugTypeEnum.HOOK,
         LogLevel.TWO,
         "~~ useOccurrencesInterval: interval running",
+        {
+          interval: now - (lastOccurrenceTime || startTime) + "ms",
+          duration: now - startTime + "ms",
+          occurrence: occurrencesCounter,
+        },
       );
+      lastOccurrenceTime = now;
       occurrencesCounter--;
       intervalAction();
 
       if (occurrencesCounter === 0) {
-        if (intervalTimer.value) {
-          clearInterval(intervalTimer.value);
-          intervalTimer.value = undefined;
+        clearInterval(intervalTimer.value);
+        intervalTimer.value = undefined;
 
-          const now = Date.now();
-          logger(
-            DebugTypeEnum.HOOK,
-            LogLevel.TWO,
-            "~~ useOccurrencesInterval: finished interval",
-            { totalDuration: now - startTime + "ms" },
-          );
-          lastOccurrenceTime = now;
-        }
+        endingActionTimer.value = window.setTimeout(
+          () => {
+
+            const now = Date.now();
+            logger(
+              DebugTypeEnum.HOOK,
+              LogLevel.TWO,
+              "~~ useOccurrencesInterval: endingAction runs",
+              {
+                endingPause: now - lastOccurrenceTime + "ms",
+                totalDuration: now - startTime + "ms",
+              },
+            );
+            endingAction();
+          },
+          (typeof endingActionDelay === "number"
+            ? endingActionDelay
+            : endingActionDelay.value),
+        );
       }
     }, interval.value);
 
     // console.log("creating timeout:", interval.value * occurrences.value + endingActionDelay.value);
-    endingActionTimer.value = window.setTimeout(
-      () => {
-        endingAction();
-
-        const now = Date.now();
-        logger(
-          DebugTypeEnum.HOOK,
-          LogLevel.TWO,
-          "~~ useOccurrencesInterval: endingAction ran",
-          {
-            endingPause: now - lastOccurrenceTime + "ms",
-            totalDuration: now - startTime + "ms",
-          },
-        );
-      },
-      interval.value * (occurrences.value - 1) +
-        (typeof endingActionDelay === "number"
-          ? endingActionDelay
-          : endingActionDelay.value),
-    );
   });
 };
