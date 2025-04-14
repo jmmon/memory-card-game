@@ -53,8 +53,9 @@ export default component$<DeckSizeChangerProps>((props) => {
         size: newValue,
       },
     };
-    (inputRef.value as HTMLInputElement).value = String(newValue);
-    (inputRef.value as HTMLInputElement).blur();
+    // assert the ref has a value to the ts compiler (similar to "as HTMLInputElement")
+    inputRef.value!.value = String(newValue);
+    inputRef.value!.blur();
   }, 500);
 
   useStylesScoped$(`
