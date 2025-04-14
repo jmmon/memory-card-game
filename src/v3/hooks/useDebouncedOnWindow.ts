@@ -1,12 +1,13 @@
 import { type KnownEventNames, type QRL, useOnWindow } from "@builder.io/qwik";
-import { useDebouncer$ } from "./useDebouncer";
+import { useDebouncerQrl } from "./useDebouncer";
 
 const useDebouncedOnWindow = <R>(
   event: KnownEventNames,
   onResize: QRL<(e?: Event) => R>,
   delay: number,
 ) => {
-  const onResizeDebounced = useDebouncer$(() => onResize(), delay);
+  // use Qrl version since we just pass the QRL through; else must wrap with a function
+  const onResizeDebounced = useDebouncerQrl(onResize, delay);
   useOnWindow(event, onResizeDebounced);
 };
 

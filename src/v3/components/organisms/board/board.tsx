@@ -189,7 +189,7 @@ export default component$(() => {
   /*
    * track window resizes to recalculate board
    * */
-  useDebouncedOnWindow("resize", ctx.handle.calculateAndResizeBoard, 100);
+  useDebouncedOnWindow("resize", ctx.handle.calculateAndResizeBoard, 250);
 
   /* ================================
    * Handle Adjusting Board
