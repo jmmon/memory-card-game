@@ -30,11 +30,18 @@ export default component$(() => {
 
   // resync when showing or hiding modal e.g. if home changed settings but didn't save
   useTask$(({ track }) => {
-    track(() => ctx.state.interfaceSettings.settingsModal.isShowing);
-    // first save interface changes without requiring save to be clicked
-    // then update signal to match all state settings
-    ctx.state.userSettings.interface = unsavedUserSettings.value.interface;
-    unsavedUserSettings.value = ctx.state.userSettings;
+    const isShowing = track(() => ctx.state.interfaceSettings.settingsModal.isShowing);
+
+    if (isShowing) {
+      // ensure settings are resyncd from ctx when showing
+      unsavedUserSettings.value = ctx.state.userSettings;
+
+    } else {
+      // first save INTERFACE changes without requiring save to be clicked
+      // then update signal to match all state settings
+      ctx.state.userSettings.interface = unsavedUserSettings.value.interface;
+      unsavedUserSettings.value = ctx.state.userSettings;
+    }
   });
 
   return (

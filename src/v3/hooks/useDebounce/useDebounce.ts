@@ -59,8 +59,8 @@ export function useDebounceSignal<T>({
    * Starts timer with current delay, to call action with current args.
    * Also handles cleanup of the timer.
    * */
-  useTask$((taskCtx) => {
-    taskCtx.track(() => [flip.value]);
+  useTask$(({ track, cleanup }) => {
+    track(flip);
 
     // return if uninitialized
     if (flip.value === 0) return;
@@ -73,41 +73,8 @@ export function useDebounceSignal<T>({
       Math.max(0, delaySignal.value),
     );
 
-    taskCtx.cleanup(() => clearTimeout(timer));
+    cleanup(() => clearTimeout(timer));
   });
 
   return { callDebounce, delaySignal, argsSignal };
 }
-
-// export function useDebounceObj<T>({
-//   action,
-//   _delay = 500,
-// }: {
-//   action: QRL<(newValue?: T) => void>;
-//   _delay: number;
-// }) {
-//   const signal = useSignal<T>();
-//   const delay = useSignal(_delay);
-//   const setValue = $((newValue: T) => {
-//     signal.value = newValue;
-//   });
-//   const setDelay = $((num: number) => {
-//     delay.value = Math.max(0, num);
-//   });
-//
-//   // track value changes to restart the timer
-//   useTask$((taskCtx) => {
-//     taskCtx.track(() => [signal.value, delay.value]);
-//
-//     if (signal.value === undefined) return;
-//
-//     const timer = setTimeout(() => {
-//       action(signal.value as T);
-//     }, Math.max(0, delay.value));
-//
-//     taskCtx.cleanup(() => clearTimeout(timer));
-//   });
-//
-//   return { setValue, setDelay };
-// }
-//

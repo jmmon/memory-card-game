@@ -1,5 +1,5 @@
 import type { Signal } from "@builder.io/qwik";
-import { component$, $, useSignal } from "@builder.io/qwik";
+import { component$, $, useSignal, useTask$ } from "@builder.io/qwik";
 import Modal from "~/v3/components/templates/modal/modal";
 import Button from "~/v3/components/atoms/button/button";
 import type { iUserSettings } from "~/v3/types/types";
@@ -32,6 +32,22 @@ export default component$(() => {
         // console.log("game reset", ctx);
         ctx.state.interfaceSettings.endOfGameModal.isShowing = false;
       });
+  });
+
+  // resync when showing or hiding modal e.g. if home changed settings but didn't save
+  useTask$(({ track }) => {
+    const isShowing = track(() => ctx.state.interfaceSettings.settingsModal.isShowing);
+
+    if (isShowing) {
+      // ensure settings are resyncd from ctx when showing
+      unsavedUserSettings.value = ctx.state.userSettings;
+
+    } else {
+      // first save INTERFACE changes without requiring save to be clicked
+      // then update signal to match all state settings
+      ctx.state.userSettings.interface = unsavedUserSettings.value.interface;
+      unsavedUserSettings.value = ctx.state.userSettings;
+    }
   });
 
   return (

@@ -44,6 +44,7 @@ export enum GameStateEnum {
 export type iGameState = keyof typeof GameStateEnum;
 
 export type iGameData = {
+  lastClick: number;
   gameState: GameStateEnum;
   flippedCardId: number;
   selectedCardIds: number[];

@@ -29,18 +29,20 @@ type Debug = {
   UTIL: 0 | LogLevelValue;
 };
 
-const isProd = import.meta.env.PROD;
+// const isProd = import.meta.env.PROD;
+const isProd = false;
 const DEBUG: Debug = {
   HANDLER: isProd ? 0 : LogLevel.TWO, //0, //LogLevel.ONE,
-  HOOK: isProd ? 0 : 0, //LogLevel.TWO,
-  TASK: isProd ? 0 : 0, //LogLevel.ONE,
+  HOOK: isProd ? 0 : LogLevel.TWO,
+  TASK: isProd ? 0 : LogLevel.ONE,
   SERVICE: isProd ? 0 : 0,
-  RENDER: isProd ? 0 : 0,
+  RENDER: isProd ? 0 : LogLevel.ONE,
   UTIL: isProd ? 0 : LogLevel.ONE,
 } as const;
 
 const AUTO_SHUFFLE_INTERVAL = 10000 as const;
 const AUTO_SHUFFLE_DELAY = 10000 as const;
+const AUTO_PAUSE_DELAY_MS = 10000 as const;
 
 const CARD_SHUFFLE_ROUNDS = 5 as const;
 
@@ -80,7 +82,7 @@ const DECK_SIZE_MAX = 52 as const;
 //  52 => 1500 + 20*52 => 1500 + 1040 => 2540ms total (total reduction of 780ms) = 49ms per card
 //      actual 2686
 const FAN_OUT_DURATION_BASE_MS = 1500 as const;
-const FAN_OUT_DURATION_ADDITIONAL_PER_CARD_MS = 20 as const;
+const FAN_OUT_DURATION_ADDITIONAL_PER_CARD_MS = 35 as const;
 
 /**
  * dictate starting position of deck when dealing out cards on initialization
@@ -110,6 +112,7 @@ const GAME = {
   DECK_DEAL_SCALE,
   AUTO_SHUFFLE_INTERVAL,
   AUTO_SHUFFLE_DELAY,
+  AUTO_PAUSE_DELAY_MS,
   CARD_SHUFFLE_ROUNDS,
   START_SHAKE_ANIMATION_EAGER_MS,
   START_SHAKE_WHEN_FLIP_DOWN_IS_PERCENT_COMPLETE,

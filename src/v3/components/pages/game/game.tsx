@@ -18,13 +18,14 @@ import Settings from "~/v3/components/pages/settings/settings";
 import Loading from "~/v3/components/pages/loading/loading";
 import Board from "~/v3/components/organisms/board/board";
 
-import GAME from "~/v3/constants/game";
+import GAME, { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
 import BOARD from "~/v3/constants/board";
 import { useVisibilityChange } from "~/v3/hooks/useVisibilityChange/useVisibilityChange";
 import { useGameContextProvider } from "~/v3/services/gameContext.service/gameContext.service";
 import INITIAL_STATE from "~/v3/services/gameContext.service/initialState";
 import type { iUserSettings } from "~/v3/types/types";
 import { header } from "~/v3/constants/header-constants";
+import logger from "~/v3/services/logger";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
 // export const getKeysIfObject = (obj: object, prefix?: string) => {
@@ -73,6 +74,7 @@ export default component$<GameProps>(
       occurrences: useComputed$(() => ctx.state.userSettings.deck.size),
       endingActionDelay: 250,
       endingAction: ctx.handle.startShuffling,
+      runImmediatelyOnCondition: false,
     });
 
     /* ================================
@@ -157,6 +159,27 @@ export default component$<GameProps>(
       }),
     });
 
+
+    // auto pause game after some inactivity (in case you go away)
+    useTimeoutObj({
+      triggerCondition: useComputed$(
+        () =>
+          !ctx.state.interfaceSettings.settingsModal.isShowing &&
+          !ctx.state.interfaceSettings.endOfGameModal.isShowing &&
+          ctx.timer.state.isStarted &&
+          !ctx.timer.state.isEnded &&
+          ctx.state.gameData.lastClick !== -1,
+      ),
+      delay: GAME.AUTO_PAUSE_DELAY_MS,
+      action: $(() => {
+        ctx.timer.pause();
+        ctx.state.interfaceSettings.settingsModal.isShowing = true;
+        ctx.state.gameData.lastClick = -1;
+        // lastClick.value === -1;
+      }),
+      checkConditionOnTimeout: true,
+    });
+
     // when switching tabs, show settings to pause the game
     useVisibilityChange({
       onHidden$: ctx.handle.showSettings,
@@ -170,6 +193,8 @@ export default component$<GameProps>(
         ctx.handle.toggleModalOnEscape();
       }),
     );
+
+    logger(DebugTypeEnum.RENDER, LogLevel.ONE, "RENDER game.tsx");
 
     return (
       <>
@@ -205,7 +230,7 @@ export default component$<GameProps>(
           }%] ${ctx.state.userSettings.board.isLocked ? "overflow-auto" : ""}`}
           ref={ctx.containerRef}
         >
-          <GameHeader showSettings$={ctx.handle.showSettings} />
+          <GameHeader />
           <Board />
         </div>
 

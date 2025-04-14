@@ -1,9 +1,4 @@
-import {
-  isServer,
-  useSignal,
-  useTask$,
-  useVisibleTask$,
-} from "@builder.io/qwik";
+import { isServer, useSignal, useTask$ } from "@builder.io/qwik";
 import type { QRL, Signal } from "@builder.io/qwik";
 import { DebugTypeEnum, LogLevel } from "../constants/game";
 import logger from "../services/logger";
@@ -13,7 +8,6 @@ import logger from "../services/logger";
  * @property triggerCondition - condition to start the delay timeout
  * @property delay - delay in ms
  * @property checkConditionOnTimeout - check condition on timeout before taking action
- * @returns signals to set delay
  * */
 export const useTimeoutObj = ({
   action,
@@ -27,16 +21,15 @@ export const useTimeoutObj = ({
   checkConditionOnTimeout?: boolean;
 }) => {
   // const delaySignal = useSignal(delay);
-  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useTimeoutObj setup", {
+  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "SETUP useTimeoutObj", {
     triggerCondition: triggerCondition.value,
     initialDelay: delay,
     checkConditionOnTimeout,
   });
 
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ track, cleanup }) => {
-    track(() => triggerCondition.value);
-    if (!triggerCondition.value) return;
+  useTask$(({ track, cleanup }) => {
+    track(triggerCondition);
+    if (isServer || !triggerCondition.value) return;
 
     logger(DebugTypeEnum.TASK, LogLevel.ONE, "~~ useTimeoutObj condition met");
     const timer = setTimeout(
@@ -55,10 +48,6 @@ export const useTimeoutObj = ({
       clearTimeout(timer);
     });
   });
-
-  // return {
-  //   delaySignal,
-  // };
 };
 
 /**
@@ -90,16 +79,15 @@ export const useDelayedTimeoutObj = ({
 }) => {
   const delaySignal = useSignal(initialDelay);
   const intervalSignal = useSignal(interval);
-  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useDelayedTimeoutObj setup", {
+  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "SETUP useDelayedTimeoutObj", {
     triggerCondition: triggerCondition.value,
     initialDelay,
     interval,
   });
 
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ track, cleanup }) => {
-    track(() => triggerCondition.value);
-    if (!triggerCondition.value) return;
+  useTask$(({ track, cleanup }) => {
+    track(triggerCondition);
+    if (isServer || !triggerCondition.value) return;
 
     logger(
       DebugTypeEnum.TASK,
@@ -144,7 +132,7 @@ export const useDelayedTimeoutObj = ({
  * @property triggerCondition - condition to start the initial delay timeout
  * @property interval - interval in ms
  * @property initialDelay=undefined - delay before first run
- * @property runImmediatelyOnCondition=true - run the action immediately when the triggerCondition is met
+ * @property runImmediatelyOnCondition=true - run the action immediately after initial delay (at start of interval)
  * @returns signals to set delay and interval
  * */
 export const useIntervalObj = ({
@@ -163,16 +151,16 @@ export const useIntervalObj = ({
   const initialDelayDuration = useSignal(initialDelay);
   const intervalDuration = useSignal(interval);
   const isIntervalRunning = useSignal(false);
-  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useIntervalObj setup", {
+  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "SETUP useIntervalObj", {
     triggerCondition: triggerCondition.value,
     initialDelay,
     interval,
     runImmediatelyOnCondition,
   });
 
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ track, cleanup }) => {
-    track(() => triggerCondition.value);
+  useTask$(({ track, cleanup }) => {
+    track(triggerCondition);
+    if (isServer) return;
     isIntervalRunning.value = false; // turn off interval
     if (!triggerCondition.value) return;
 
@@ -205,10 +193,9 @@ export const useIntervalObj = ({
     });
   });
 
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ track, cleanup }) => {
-    track(() => isIntervalRunning.value);
-    if (isIntervalRunning.value === false) return;
+  useTask$(({ track, cleanup }) => {
+    track(isIntervalRunning);
+    if (isServer || !isIntervalRunning.value) return;
 
     const intervalTimer = setInterval(() => {
       logger(
@@ -263,21 +250,23 @@ export const useOccurrencesInterval = ({
   occurrences,
   endingActionDelay,
   endingAction,
+  runImmediatelyOnCondition = true,
 }: {
   triggerCondition: Signal<boolean>;
   interval: Signal<number>;
   intervalAction: QRL<() => void>;
   occurrences: Signal<number>;
-  endingActionDelay: Signal<number> | number;
+  endingActionDelay: number | Signal<number>;
   endingAction: QRL<() => void>;
+  runImmediatelyOnCondition?: boolean;
 }) => {
-  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useOccurrencesInterval setup", {
+  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "SETUP useOccurrencesInterval", {
     triggerCondition: triggerCondition.value,
     initialDelay:
       typeof endingActionDelay === "number"
         ? endingActionDelay
         : endingActionDelay.value,
-    interval,
+    interval: interval.value,
   });
 
   const intervalTimer = useSignal<number>();
@@ -285,11 +274,18 @@ export const useOccurrencesInterval = ({
 
   useTask$(({ track }) => {
     track(triggerCondition);
-    logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useOccurrencesInterval track", {
-      triggerCondition: triggerCondition.value,
+    logger(DebugTypeEnum.HOOK, LogLevel.ONE, "TRACK useOccurrencesInterval", {
       isServer,
     });
     if (isServer || triggerCondition.value === false) return;
+    logger(
+      DebugTypeEnum.HOOK,
+      LogLevel.ONE,
+      "~~ useOccurrencesInterval condition met, running first occurrence",
+      {
+        triggerCondition: triggerCondition.value,
+      },
+    );
 
     clearTimeout(endingActionTimer.value);
     endingActionTimer.value = undefined;
@@ -299,56 +295,55 @@ export const useOccurrencesInterval = ({
 
     const startTime = Date.now();
     let lastOccurrenceTime = 0;
-    let occurrencesCounter = occurrences.value - 1;
+    let occurrencesCounter = occurrences.value;
 
-    intervalAction(); // run immediately, then on interval
+    if (runImmediatelyOnCondition) {
+      occurrencesCounter--;
+      intervalAction();
+    }
 
     intervalTimer.value = window.setInterval(() => {
+      const now = Date.now();
       logger(
         DebugTypeEnum.HOOK,
         LogLevel.TWO,
         "~~ useOccurrencesInterval: interval running",
+        {
+          interval: now - (lastOccurrenceTime || startTime) + "ms",
+          duration: now - startTime + "ms",
+          occurrence: occurrencesCounter,
+        },
       );
+      lastOccurrenceTime = now;
+
       occurrencesCounter--;
       intervalAction();
 
       if (occurrencesCounter === 0) {
-        if (intervalTimer.value) {
-          clearInterval(intervalTimer.value);
-          intervalTimer.value = undefined;
+        clearInterval(intervalTimer.value);
+        intervalTimer.value = undefined;
 
-          const now = Date.now();
-          logger(
-            DebugTypeEnum.HOOK,
-            LogLevel.TWO,
-            "~~ useOccurrencesInterval: finished interval",
-            { totalDuration: now - startTime + "ms" },
-          );
-          lastOccurrenceTime = now;
-        }
+        endingActionTimer.value = window.setTimeout(
+          () => {
+            const now = Date.now();
+            logger(
+              DebugTypeEnum.HOOK,
+              LogLevel.TWO,
+              "~~ useOccurrencesInterval: endingAction runs",
+              {
+                endingPause: now - lastOccurrenceTime + "ms",
+                totalDuration: now - startTime + "ms",
+              },
+            );
+            endingAction();
+          },
+          typeof endingActionDelay === "number"
+            ? endingActionDelay
+            : endingActionDelay.value,
+        );
       }
     }, interval.value);
 
     // console.log("creating timeout:", interval.value * occurrences.value + endingActionDelay.value);
-    endingActionTimer.value = window.setTimeout(
-      () => {
-        endingAction();
-
-        const now = Date.now();
-        logger(
-          DebugTypeEnum.HOOK,
-          LogLevel.TWO,
-          "~~ useOccurrencesInterval: endingAction ran",
-          {
-            endingPause: now - lastOccurrenceTime + "ms",
-            totalDuration: now - startTime + "ms",
-          },
-        );
-      },
-      interval.value * (occurrences.value - 1) +
-        (typeof endingActionDelay === "number"
-          ? endingActionDelay
-          : endingActionDelay.value),
-    );
   });
 };
