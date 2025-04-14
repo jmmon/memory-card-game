@@ -27,7 +27,7 @@ export const useTimeoutObj = ({
   checkConditionOnTimeout?: boolean;
 }) => {
   // const delaySignal = useSignal(delay);
-  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useTimeoutObj setup", {
+  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "SETUP useTimeoutObj", {
     triggerCondition: triggerCondition.value,
     initialDelay: delay,
     checkConditionOnTimeout,
@@ -90,7 +90,7 @@ export const useDelayedTimeoutObj = ({
 }) => {
   const delaySignal = useSignal(initialDelay);
   const intervalSignal = useSignal(interval);
-  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useDelayedTimeoutObj setup", {
+  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "SETUP useDelayedTimeoutObj", {
     triggerCondition: triggerCondition.value,
     initialDelay,
     interval,
@@ -163,7 +163,7 @@ export const useIntervalObj = ({
   const initialDelayDuration = useSignal(initialDelay);
   const intervalDuration = useSignal(interval);
   const isIntervalRunning = useSignal(false);
-  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useIntervalObj setup", {
+  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "SETUP useIntervalObj", {
     triggerCondition: triggerCondition.value,
     initialDelay,
     interval,
@@ -271,7 +271,7 @@ export const useOccurrencesInterval = ({
   endingActionDelay: Signal<number> | number;
   endingAction: QRL<() => void>;
 }) => {
-  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useOccurrencesInterval setup", {
+  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "SETUP useOccurrencesInterval", {
     triggerCondition: triggerCondition.value,
     initialDelay:
       typeof endingActionDelay === "number"
@@ -285,11 +285,18 @@ export const useOccurrencesInterval = ({
 
   useTask$(({ track }) => {
     track(triggerCondition);
-    logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useOccurrencesInterval track", {
-      triggerCondition: triggerCondition.value,
+    logger(DebugTypeEnum.HOOK, LogLevel.ONE, "TRACK useOccurrencesInterval", {
       isServer,
     });
     if (isServer || triggerCondition.value === false) return;
+    logger(
+      DebugTypeEnum.HOOK,
+      LogLevel.ONE,
+      "~~ useOccurrencesInterval condition met",
+      {
+        triggerCondition: triggerCondition.value,
+      },
+    );
 
     clearTimeout(endingActionTimer.value);
     endingActionTimer.value = undefined;

@@ -29,13 +29,14 @@ type Debug = {
   UTIL: 0 | LogLevelValue;
 };
 
-const isProd = import.meta.env.PROD;
+// const isProd = import.meta.env.PROD;
+const isProd = false;
 const DEBUG: Debug = {
   HANDLER: isProd ? 0 : LogLevel.TWO, //0, //LogLevel.ONE,
-  HOOK: isProd ? 0 : 0, //LogLevel.TWO,
-  TASK: isProd ? 0 : 0, //LogLevel.ONE,
+  HOOK: isProd ? 0 : LogLevel.TWO,
+  TASK: isProd ? 0 : LogLevel.ONE,
   SERVICE: isProd ? 0 : 0,
-  RENDER: isProd ? 0 : 0,
+  RENDER: isProd ? 0 : LogLevel.ONE,
   UTIL: isProd ? 0 : LogLevel.ONE,
 } as const;
 
