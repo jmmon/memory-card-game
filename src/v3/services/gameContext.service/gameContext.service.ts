@@ -12,6 +12,8 @@ import deckUtils from "~/v3/utils/deckUtils";
 import boardUtils from "~/v3/utils/boardUtils";
 import INITIAL_STATE from "./initialState";
 import GAME, { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
+import type {
+  iGameData} from "~/v3/types/types";
 import {
   GameStateEnum,
   type iGameHandlers,
@@ -28,16 +30,23 @@ const GameContext = createContextId<GameService>("gameContext2");
 
 export const useGameContextProvider = ({
   userSettings,
+  gameData,
 }: {
-  userSettings: iUserSettings;
+  userSettings: Partial<iUserSettings>;
+  gameData?: Partial<iGameData>;
 }) => {
   // state
   const timer: iTimer = useTimer();
   const state = useStore<iState>({
     ...INITIAL_STATE,
     userSettings: {
+      ...INITIAL_STATE.userSettings,
       ...userSettings,
     },
+    gameData: {
+      ...INITIAL_STATE.gameData,
+      ...gameData
+    }
   });
   const boardRef = useSignal<HTMLDivElement>();
   const containerRef = useSignal<HTMLDivElement>();
