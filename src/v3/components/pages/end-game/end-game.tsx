@@ -59,7 +59,6 @@ export default component$(() => {
           ? "You Win!"
           : "Game Over"
       }
-      containerClasses="bg-opacity-[98%] shadow-2xl"
       options={{
         detectClickOutside: false,
       }}

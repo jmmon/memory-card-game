@@ -49,7 +49,6 @@ export default component$(() => {
       isShowing={ctx.state.interfaceSettings.settingsModal.isShowing}
       hideModal$={ctx.handle.hideSettings}
       title="Game Settings"
-      containerClasses="bg-opacity-[98%] shadow-2xl"
     >
       <GameSettings
         startShuffling$={ctx.handle.startShuffling}
