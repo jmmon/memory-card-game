@@ -2,7 +2,7 @@ import type { Signal } from "@builder.io/qwik";
 import { component$, $, useSignal, useTask$ } from "@builder.io/qwik";
 import Modal from "~/v3/components/templates/modal/modal";
 import Button from "~/v3/components/atoms/button/button";
-import type { iUserSettings } from "~/v3/types/types";
+import { GameStateEnum, type iUserSettings } from "~/v3/types/types";
 import GameStats from "../../molecules/game-stats/game-stats";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 import useGetSavedTheme from "~/v3/hooks/useGetSavedTheme";
@@ -55,7 +55,7 @@ export default component$(() => {
       isShowing={ctx.state.interfaceSettings.endOfGameModal.isShowing}
       hideModal$={hideModal$}
       title={
-        ctx.state.interfaceSettings.endOfGameModal.isWin
+        ctx.state.gameData.gameState === GameStateEnum.ENDED_WIN
           ? "You Win!"
           : "Game Over"
       }

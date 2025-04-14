@@ -185,7 +185,9 @@ export default component$(() => {
       "UVT: mount => calculateAndResize",
     );
 
-    ctx.handle.initializeDeck(true);
+    // pass in userSettings so they don't get wiped from the homepage
+    // reset game so everything resets on browser back/forward
+    ctx.handle.resetGame(ctx.state.userSettings, true);
   });
 
   useStyles$(`

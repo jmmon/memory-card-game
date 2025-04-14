@@ -39,7 +39,8 @@ export enum iSelectCardEnum {
 export enum GameStateEnum {
   IDLE = "IDLE",
   STARTED = "STARTED",
-  ENDED = "ENDED",
+  ENDED_WIN = "ENDED_WIN",
+  ENDED_LOSE = "ENDED_LOSE",
 }
 export type iGameState = keyof typeof GameStateEnum;
 
@@ -118,7 +119,7 @@ export type iGameHandlers = {
   dealCard: QRL<() => void>;
   shuffleCardPositions: QRL<() => void>;
   sliceDeck: QRL<() => void>;
-  resetGame: QRL<(settings?: Partial<iUserSettings>) => void>;
+  resetGame: QRL<(settings?: Partial<iUserSettings>, isStartup?: boolean) => void>;
   isEndGameConditionsMet: QRL<
     () =>
       | { isEnded: false }
@@ -129,7 +130,6 @@ export type iGameHandlers = {
   >;
   startShuffling: QRL<(hideSettings?: boolean, count?: number) => void>;
   stopShuffling: QRL<() => void>;
-  initializeDeck: QRL<(isStartup?: boolean) => void>;
   calculateAndResizeBoard: QRL<() => void>;
   startGame: QRL<() => void>;
   showSettings: QRL<() => void>;

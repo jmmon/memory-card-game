@@ -1,12 +1,9 @@
-## bug: win game but leave open game modal. Go back then forward: 
-## related: bug: open settings, then go back and go forward. 
-- modal still shows! board/cards get reset
-> - esc also closes/opens end-game modal (if prev game was ended) or normal modal (if not ended)
-- **solution: initializeDeck should wipe the end-game state as well 
-    and hide all modals!**
+## BUG: back/forward still will show the old cards for a half second
+- **solution? hoist context up to the layout? then can reset cards in homepage so they are wiped when going back to /game**
+> - could also implement a wrapper fn for updating settings or preparing settings
+> - would also sync settings from game back to homepage
 
-## deck change slider dropdown! e.g. carot button (somewhere) to reveal slider
-- slider dark mode! darker bg/fill
+
 
 ## +- buttons still not quite right on mobile, try SVGs?
 - should be simple to make, a couple paths for plus (with stroke width)
@@ -23,10 +20,10 @@ e.g. 16x16 viewport, with 2 strokewidth? would path start on 8.5? or 8?
 - cloudflare D1 sql server with drizzle to save scores
 
 
-## TODO: deck size changer with slide as well?
-- maybe hidden under dropdown so it can use the whole width, easier on mobile
-  - also keep the buttons
-  - or try a press and hold for the buttons, debounced timer to make it easier
+## TODO: deck size change slider dropdown! e.g. carot button (somewhere) to reveal slider
+- can use the whole width, easier on mobile
+  - (also keep the buttons)
+- slider dark mode! darker bg/fill
 
 ## bug:
 - seems like settings modal is closed after dealing deck, when starting shuffling?
