@@ -40,50 +40,93 @@ const USER_SETTINGS: iUserSettings = {
    * fun ideas for challenges
    * ====================================== */
 
+  /**
+   * how to score for challenge modes?
+   * I guess have to track each of them.
+   * */
+
   /*
-   * TODO: maxAllowableMismatches: number;
+   * TODO: maxAllowableMismatches: number; (range 0-(pairs - 1) e.g. 2-25)
+   *    but it gets exponentailly harder with increased count, guess that's just the challenge!
+   *    e.g. 52 cards => 25 max mismatches allowed by the slider
    * @default -1 // no limit
    * challenge mode
    * Player loses after x mismatches
    * - perhaps the square root of the number of cards?
    *   - e.g. 9 cards gives 3 chances, 3rd mismatch = fail
    *   - e.g. 16 cards gives 4 chances, 4th mismatch = fail
+   * e.g. implement logic in isEndGameConditionsMet to check mismatches count
+   *  and implement a slider/counter
+   * => leads to potentially a heavy challenge
+   * challenge level: n
    */
   maxAllowableMismatches: -1,
   /*
    * TODO:reorganizeBoardOnGaps: boolean;
    * @default false
    * Reorganize board on successful pair (eliminate gaps and resize)
+   * e.g. splice out the pair cards and recalculate board
+   *   and implement a toggle
+   * => leads to slight confusion
+   * challenge level: 1
    */
   reorgnanizeBoardOnGaps: false,
 
   /* TODO:
-   * challenge mode
    * shuffle board after successful pair
+   *  >>
+   *  >> e.g. handleAddToSuccessfulPairsIfMatching will shuffle after pair only
+   *  >>
+   *  >> => leads to less than 1 shuffle per round
+   *  >>  challenge level: 2
    */
   shuffleBoardAfterPair: false,
   /* TODO:
-   * shuffle board after x mismatches
-   *  0 = off (default)
-   *  1 = shuffle board after every mismatch (really difficult)
-   *  5 = shuffle board after every 5 mismatches (less difficult)
+   * shuffle board after x mismatches (range 0-5? or 0-(pairs - 1))
+   *  >> 0 = off (default)
+   *  >> 1 = shuffle board after every mismatch (really difficult)
+   *  >> 5 = shuffle board after every 5 mismatches (less difficult)
+   *  >> 
+   *  >>  e.g. if > 0, take mismatches % n and shuffle if 0
+   *  >> 
+   *  >>  => leads to less than 1 shuffle per round
+   *  >>  challenge level: 1 | 2
    * */
   shuffleBoardAfterMismatches: 0,
   /* TODO:
    * shuffle board after every round (success OR mismatch)
-   */
+   *  >>
+   *  >> e.g. handleAddToSuccessfulPairsIfMatching will finally shuffle
+   *  >>
+   *  >> => leads to 1 shuffle per round
+   *  >> challenge level: 2
+   * */
   shuffleBoardAfterEveryRound: false,
   /* TODO:
-   * shuffle picked cards after placed back down after mismatch
-   * e.g. possibly swap the two cards to the opposite locations?
+   *  >> shuffle picked cards after placed back down after mismatch
+   *  >> e.g. possibly swap the two cards to the opposite locations?
+   *  >> not much of a challenge mode but why not
+   *  >>
+   *  >> e.g. handleAddToSuccessfulPairsIfMatching if mismatch, will also swap the two card positions
+   *  >>
+   *  >> => leads to only slightly confusing two cards
+   *  >> challenge level: 1
    */
   shufflePickedAfterMismatch: false,
   /*
-   * TODO:shuffleBoardOnSelectCard: SelectCardEnum
-   * @default OFF
-   *  - ONE = shuffle cards after picking first card
-   *  - TWO = shuffle cards after picking second card
-   *  - BOTH = shuffle cards after picking either card (two shuffles per round!)
+   * TODO:
+   * shuffleBoardOnSelectCard: SelectCardEnum
+   *  >> @default OFF
+   *  >>  - ONE = shuffle cards after picking first card
+   *  >>  - TWO = shuffle cards after picking second card
+   *  >>  - BOTH = shuffle cards after picking either card (two shuffles per round!)
+   *  >>
+   *  >>  e.g. probably do this after unflipping the card, or else the flip
+   *  >>      animation might do a 180 while it's picked
+   *  >>    OR do it right once picking the card, but still might make the animation look funny
+   *  >>
+   *  >>  => leads to 1-2 shuffles per round!
+   *  >>  challenge level: 2 | 3
    */
   shuffleBoardOnSelectCard: iSelectCardEnum.OFF,
 

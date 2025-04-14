@@ -56,7 +56,7 @@ export const useGameContextProvider = ({
     count: number = GAME.CARD_SHUFFLE_ROUNDS,
   ) {
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "startShuffling");
-      state.gameData.dealCardIndex = 0; // reset just in case
+    state.gameData.dealCardIndex = 0; // reset just in case
 
     await shuffleCardPositions();
     state.gameData.shufflingState = count - 1;
@@ -114,7 +114,6 @@ export const useGameContextProvider = ({
     lastDeal.value = now;
     state.gameData.dealCardIndex--;
   });
-
 
   const calculateAndResizeBoard = $(function () {
     if (state.userSettings.board.isLocked) {
@@ -191,7 +190,8 @@ export const useGameContextProvider = ({
 
   const toggleModalOnEscape = $(function () {
     if (
-      state.gameData.gameState === GameStateEnum.ENDED &&
+      (state.gameData.gameState === GameStateEnum.ENDED_WIN ||
+        state.gameData.gameState === GameStateEnum.ENDED_LOSE) &&
       !state.interfaceSettings.settingsModal.isShowing
     ) {
       if (state.interfaceSettings.endOfGameModal.isShowing) {
@@ -242,42 +242,40 @@ export const useGameContextProvider = ({
   });
 
   const endGame = $(function (isWin: boolean) {
-    state.gameData.gameState = GameStateEnum.ENDED;
     timer.stop();
-    state.interfaceSettings.endOfGameModal.isWin = isWin;
+    state.gameData.gameState = isWin
+      ? GameStateEnum.ENDED_WIN
+      : GameStateEnum.ENDED_LOSE;
     state.interfaceSettings.endOfGameModal.isShowing = true;
 
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "endGame:", {
-      isResetting: timer.state.isStarted,
-      isWin: state.interfaceSettings.endOfGameModal.isWin,
+      isStarted: timer.state.isStarted,
+      isWin,
       endOfGameModalIsShowing: state.interfaceSettings.endOfGameModal.isShowing,
     });
   });
 
   const lastDeckSize = useSignal(state.userSettings.deck.size);
-  //
-  // runs on mount, and after resetting game
+
+  // internal, could combine with resetGame
   const initializeDeck = $(async function (isStartup?: boolean) {
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "initializeDeck");
 
-    const isDeckSizeChanged = lastDeckSize.value !== state.userSettings.deck.size;
-    state.gameData.isLoading = true;
+    const isDeckSizeChanged =
+      lastDeckSize.value !== state.userSettings.deck.size;
 
     await sliceDeck(); // refresh deck, and size if needed
 
     // if (isDeckChanged) {
-    if ( isStartup || isDeckSizeChanged)
-      await calculateAndResizeBoard();
+    if (isStartup || isDeckSizeChanged) await calculateAndResizeBoard();
     // }
 
     // start deck deal animation
     state.gameData.dealCardIndex = state.userSettings.deck.size;
   });
 
-  const resetGame = $(async function (newSettings?: Partial<iUserSettings>) {
-    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "resetGame:", {
-      newSettings: newSettings,
-    });
+  // should probably call this on init?
+  const resetGame = $(async function (newSettings?: Partial<iUserSettings>, isStartup?: boolean) {
     state.gameData.isLoading = true;
     if (newSettings !== undefined) {
       state.userSettings = {
@@ -298,6 +296,9 @@ export const useGameContextProvider = ({
       };
     }
 
+    state.interfaceSettings.endOfGameModal.isShowing = false;
+    state.interfaceSettings.settingsModal.isShowing = false;
+
     state.gameData.gameState = GameStateEnum.IDLE;
     state.gameData.isShaking = INITIAL_STATE.gameData.isShaking;
     state.gameData.shufflingState = INITIAL_STATE.gameData.shufflingState;
@@ -313,12 +314,13 @@ export const useGameContextProvider = ({
     state.gameData.mismatchPairs.length = 0;
     state.gameData.successfulPairs.length = 0;
 
-    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "~~resetGame:", {
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "resetGame:", {
+      newSettings: newSettings, 
       gameData: state.gameData,
     });
 
     await timer.reset();
-    await initializeDeck();
+    await initializeDeck(isStartup);
   });
 
   const handlers: iGameHandlers = {
@@ -327,7 +329,6 @@ export const useGameContextProvider = ({
     startShuffling,
     stopShuffling,
     sliceDeck,
-    initializeDeck,
     calculateAndResizeBoard,
     showSettings,
     hideSettings,
