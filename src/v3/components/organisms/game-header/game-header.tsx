@@ -5,12 +5,10 @@ import HeaderGameDimensions from "~/v3/components/atoms/header-game-dimensions/h
 import HeaderTimerDisplay from "~/v3/components/atoms/header-timer-display/header-timer-display";
 import HeaderScoresDisplay from "~/v3/components/atoms/header-scores-display/header-scores-display";
 
-import type { QRL } from "@builder.io/qwik";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 import HeaderSettingsButton from "../../atoms/header-settings-button/header-settings-button";
 
-type GameHeaderProps = { showSettings$: QRL<() => void> };
-export default component$<GameHeaderProps>(() => {
+export default component$(() => {
   const ctx = useGameContextService();
 
   return (

@@ -229,7 +229,7 @@ export default component$<GameProps>(
           }%] ${ctx.state.userSettings.board.isLocked ? "overflow-auto" : ""}`}
           ref={ctx.containerRef}
         >
-          <GameHeader showSettings$={ctx.handle.showSettings} />
+          <GameHeader />
           <Board />
         </div>
 
