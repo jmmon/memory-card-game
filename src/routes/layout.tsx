@@ -25,7 +25,7 @@ export default component$(() => {
   // (or use localstorage for game settings lol so it saves across sessions as preferences...)
 
   return (
-    <main class="w-full main-height">
+    <main class="full-height main-scroll">
       <Slot />
       {/* SVG card symbols pre-rendered but hidden; so cards can build from these */}
       <CardSymbols />
