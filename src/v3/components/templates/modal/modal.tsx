@@ -3,6 +3,7 @@ import { component$, $, Slot } from "@builder.io/qwik";
 import ModalHeader from "~/v3/components/molecules/modal-header/modal-header";
 
 import type { ClassList, PropFunction } from "@builder.io/qwik";
+import Backdrop from "../../pages/backdrop/backdrop";
 
 const DURATION = "duration-[300ms]";
 // const IS_SHOWING_DELAY = 50;
@@ -12,7 +13,7 @@ type ModalOptions = { detectClickOutside: boolean };
 
 const DEFAULT_OPTIONS: Partial<ModalOptions> = { detectClickOutside: true };
 
-type ModalProps = {
+type Props = {
   isShowing: boolean;
   hideModal$: PropFunction<() => void>;
   containerClasses?: ClassList;
@@ -24,43 +25,38 @@ type ModalProps = {
   options?: Partial<ModalOptions>;
 };
 
-export default component$<ModalProps>(
+export default component$<Props>(
   ({
     isShowing,
     hideModal$,
-    containerClasses = "",
-    bgClasses = "backdrop-blur-sm",
+    containerClasses,
+    bgClasses,
     title,
-    bgStyles,
     containerStyles,
     wrapperSyles,
     options = DEFAULT_OPTIONS,
   }) => {
     containerClasses = DEFAULT_CONTAINER_BG + " " + containerClasses;
 
-    const closeModal$ = $((e: MouseEvent) => {
+    const clickBackdrop$ = $((e: MouseEvent) => {
       if (!options.detectClickOutside) return;
-      if ((e.target as HTMLElement).dataset.name === "background") {
+      // can't use t directly, have to grab from MouseEvent or else any click will close the modal
+      if ((e.target as HTMLElement).getAttribute('data-name') === "backdrop") {
         hideModal$(); // fn to turn off boolean
       }
     });
 
     // bg z-index needs to be more than card flip z-index (30) but less than header z-index (50)
     return (
-      <div
-        data-name="background"
-        class={`top-0 left-0 absolute w-full h-full bg-black flex justify-center items-center transition-all ${DURATION} ${
-          isShowing
-            ? `pointer-events-auto ${bgClasses} z-[35] bg-opacity-20 `
-            : "pointer-events-none z-[-1] bg-opacity-0"
-        }`}
-        onClick$={closeModal$}
-        style={bgStyles}
+      <Backdrop
+        isShowing={isShowing}
+        bgClasses={`backdrop-blur-[6px] ${bgClasses}`}
+        onClick={clickBackdrop$}
       >
         <div
           class={`bg-opacity-[98%] shadow-2xl ${containerClasses} min-w-[19rem] w-full sm:w-[80vw] sm:max-w-[32rem] max-h-[80vh] relative mx-auto text-center sm:rounded-lg lg:rounded-3xl flex flex-col gap-1 p-[1.5%] transition-all ${DURATION} ${
             isShowing
-              ? "pointer-events-auto z-[1000] scale-100 opacity-100"
+              ? "pointer-events-auto z-[34] scale-100 opacity-100"
               : "pointer-events-none z-[-1] scale-[120%] opacity-0"
           }`}
           data-name="modal"
@@ -71,7 +67,7 @@ export default component$<ModalProps>(
             <Slot />
           </div>
         </div>
-      </div>
+      </Backdrop>
     );
   },
 );

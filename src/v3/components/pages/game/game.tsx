@@ -238,6 +238,7 @@ export default component$<GameProps>(
         </div>
 
         <Loading isShowing={ctx.state.gameData.isLoading} />
+
         <Settings />
         <EndGame />
       </>
