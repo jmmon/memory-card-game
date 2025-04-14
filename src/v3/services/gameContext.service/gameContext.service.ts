@@ -303,7 +303,7 @@ export const useGameContextProvider = ({
     });
 
     await timer.reset();
-    await calculateAndResizeBoard();
+    // await calculateAndResizeBoard(); // needed? should happen next, after deck is initialized
     await initializeDeck();
     // console.log("game reset");
   });
