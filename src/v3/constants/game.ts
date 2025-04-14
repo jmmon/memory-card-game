@@ -31,7 +31,7 @@ type Debug = {
 
 const isProd = import.meta.env.PROD;
 const DEBUG: Debug = {
-  HANDLER: isProd ? 0 : 0, //LogLevel.ONE,
+  HANDLER: isProd ? 0 : LogLevel.TWO, //0, //LogLevel.ONE,
   HOOK: isProd ? 0 : 0, //LogLevel.TWO,
   TASK: isProd ? 0 : 0, //LogLevel.ONE,
   SERVICE: isProd ? 0 : 0,
@@ -64,7 +64,7 @@ const DECK_SIZE_MAX = 52 as const;
 // so 52 cards will take longer, but it still starts at the same base value
 // e.g. 1500 base across the cards, + 35ms per card
 //  - e.g. 6 cards == 1500 + 210 => 1710ms / 6 = 285ms per card
-//  - e.g. 18 cards == 1500 + 35*18 = 1500 + 1330 => 1830ms / 18 = ~102ms per card
+//  - e.g. 18 cards == 1500 + 35*18 = 1500 + 630 => 2130ms / 18 = ~118ms per card
 //  - e.g. 32 cards == 1500 + 35*32 = 1500 + 70 + 1050 => 2620ms / 32 = ~82ms per card
 //  - e.g. 52 cards == 1500 + 35*52 = 1500 + 1400 + 420 => 3320ms == ~64ms per card
 //
@@ -74,7 +74,11 @@ const DECK_SIZE_MAX = 52 as const;
 //
 //adjust to 20ms per card:
 //  6 => 1500 + 120 => 1620 total (total reduction of 90ms) => 270ms each
+//      actual 2430ms
+//  18 => 1500 + 450 => 1950 total  => 108ms
+//      actual 2073ms
 //  52 => 1500 + 20*52 => 1500 + 1040 => 2540ms total (total reduction of 780ms) = 49ms per card
+//      actual 2686
 
 const FAN_OUT_DURATION_BASE_MS = 1500 as const;
 const FAN_OUT_DURATION_ADDITIONAL_PER_CARD_MS = 20 as const;

@@ -54,9 +54,8 @@ export type iGameData = {
   isShaking: boolean;
   isLoading: boolean;
   shufflingState: number;
-  currentFanOutCardIndex: number;
-  fanOutCardDelayRounds: number;
   startingPosition: iCoords;
+  dealCardIndex: number;
 };
 
 // settings user will be able to change
@@ -115,7 +114,7 @@ export type iState = {
 };
 
 export type iGameHandlers = {
-  fanOutCard: QRL<() => void>;
+  dealCard: QRL<() => void>;
   shuffleCardPositions: QRL<() => void>;
   sliceDeck: QRL<() => void>;
   resetGame: QRL<(settings?: Partial<iUserSettings>) => void>;
@@ -127,7 +126,7 @@ export type iGameHandlers = {
           isWin: boolean;
         }
   >;
-  startShuffling: QRL<(count?: number) => void>;
+  startShuffling: QRL<(hideSettings?: boolean, count?: number) => void>;
   stopShuffling: QRL<() => void>;
   initializeDeck: QRL<(isStartup?: boolean) => void>;
   calculateAndResizeBoard: QRL<() => void>;
