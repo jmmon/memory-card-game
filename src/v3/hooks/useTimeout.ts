@@ -1,8 +1,4 @@
-import {
-  isServer,
-  useSignal,
-  useTask$,
-} from "@builder.io/qwik";
+import { isServer, useSignal, useTask$ } from "@builder.io/qwik";
 import type { QRL, Signal } from "@builder.io/qwik";
 import { DebugTypeEnum, LogLevel } from "../constants/game";
 import logger from "../services/logger";
@@ -254,6 +250,7 @@ export const useOccurrencesInterval = ({
   occurrences,
   endingActionDelay,
   endingAction,
+  runImmediatelyOnCondition = true,
 }: {
   triggerCondition: Signal<boolean>;
   interval: Signal<number>;
@@ -261,6 +258,7 @@ export const useOccurrencesInterval = ({
   occurrences: Signal<number>;
   endingActionDelay: number | Signal<number>;
   endingAction: QRL<() => void>;
+  runImmediatelyOnCondition?: boolean;
 }) => {
   logger(DebugTypeEnum.HOOK, LogLevel.ONE, "SETUP useOccurrencesInterval", {
     triggerCondition: triggerCondition.value,
@@ -297,9 +295,12 @@ export const useOccurrencesInterval = ({
 
     const startTime = Date.now();
     let lastOccurrenceTime = 0;
-    let occurrencesCounter = occurrences.value - 1;
+    let occurrencesCounter = occurrences.value;
 
-    intervalAction(); // run immediately, then on interval
+    if (runImmediatelyOnCondition) {
+      occurrencesCounter--;
+      intervalAction();
+    }
 
     intervalTimer.value = window.setInterval(() => {
       const now = Date.now();
@@ -314,6 +315,7 @@ export const useOccurrencesInterval = ({
         },
       );
       lastOccurrenceTime = now;
+
       occurrencesCounter--;
       intervalAction();
 
@@ -323,7 +325,6 @@ export const useOccurrencesInterval = ({
 
         endingActionTimer.value = window.setTimeout(
           () => {
-
             const now = Date.now();
             logger(
               DebugTypeEnum.HOOK,
@@ -336,9 +337,9 @@ export const useOccurrencesInterval = ({
             );
             endingAction();
           },
-          (typeof endingActionDelay === "number"
+          typeof endingActionDelay === "number"
             ? endingActionDelay
-            : endingActionDelay.value),
+            : endingActionDelay.value,
         );
       }
     }, interval.value);
