@@ -74,6 +74,7 @@ export default component$<GameProps>(
       occurrences: useComputed$(() => ctx.state.userSettings.deck.size),
       endingActionDelay: 250,
       endingAction: ctx.handle.startShuffling,
+      runImmediatelyOnCondition: false,
     });
 
     /* ================================
