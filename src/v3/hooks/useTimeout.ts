@@ -2,7 +2,6 @@ import {
   isServer,
   useSignal,
   useTask$,
-  useVisibleTask$,
 } from "@builder.io/qwik";
 import type { QRL, Signal } from "@builder.io/qwik";
 import { DebugTypeEnum, LogLevel } from "../constants/game";
@@ -13,7 +12,6 @@ import logger from "../services/logger";
  * @property triggerCondition - condition to start the delay timeout
  * @property delay - delay in ms
  * @property checkConditionOnTimeout - check condition on timeout before taking action
- * @returns signals to set delay
  * */
 export const useTimeoutObj = ({
   action,
@@ -33,14 +31,9 @@ export const useTimeoutObj = ({
     checkConditionOnTimeout,
   });
 
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ track, cleanup }) => {
+  useTask$(({ track, cleanup }) => {
     track(triggerCondition);
-    if (!triggerCondition.value) return;
-
-  // useTask$(({ track, cleanup }) => {
-  //   track(triggerCondition);
-  //   if (isServer || !triggerCondition) return;
+    if (isServer || !triggerCondition.value) return;
 
     logger(DebugTypeEnum.TASK, LogLevel.ONE, "~~ useTimeoutObj condition met");
     const timer = setTimeout(
@@ -59,10 +52,6 @@ export const useTimeoutObj = ({
       clearTimeout(timer);
     });
   });
-
-  // return {
-  //   delaySignal,
-  // };
 };
 
 /**
@@ -100,14 +89,9 @@ export const useDelayedTimeoutObj = ({
     interval,
   });
 
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ track, cleanup }) => {
+  useTask$(({ track, cleanup }) => {
     track(triggerCondition);
-    if (!triggerCondition.value) return;
-
-  // useTask$(({ track, cleanup }) => {
-  //   track(triggerCondition);
-  //   if (isServer || !triggerCondition) return;
+    if (isServer || !triggerCondition.value) return;
 
     logger(
       DebugTypeEnum.TASK,
@@ -152,7 +136,7 @@ export const useDelayedTimeoutObj = ({
  * @property triggerCondition - condition to start the initial delay timeout
  * @property interval - interval in ms
  * @property initialDelay=undefined - delay before first run
- * @property runImmediatelyOnCondition=true - run the action immediately when the triggerCondition is met
+ * @property runImmediatelyOnCondition=true - run the action immediately after initial delay (at start of interval)
  * @returns signals to set delay and interval
  * */
 export const useIntervalObj = ({
@@ -178,17 +162,11 @@ export const useIntervalObj = ({
     runImmediatelyOnCondition,
   });
 
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ track, cleanup }) => {
+  useTask$(({ track, cleanup }) => {
     track(triggerCondition);
+    if (isServer) return;
     isIntervalRunning.value = false; // turn off interval
     if (!triggerCondition.value) return;
-
-  // useTask$(({ track, cleanup }) => {
-  //   track(triggerCondition);
-  //   if (isServer) return;
-  //   isIntervalRunning.value = false; // turn off interval
-  //   if (!triggerCondition) return;
 
     logger(
       DebugTypeEnum.TASK,
@@ -219,14 +197,9 @@ export const useIntervalObj = ({
     });
   });
 
-  // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$(({ track, cleanup }) => {
+  useTask$(({ track, cleanup }) => {
     track(isIntervalRunning);
-    if (!isIntervalRunning.value) return;
-
-  // useTask$(({ track, cleanup }) => {
-  //   track(isIntervalRunning);
-  //   if (isServer || !isIntervalRunning.value) return;
+    if (isServer || !isIntervalRunning.value) return;
 
     const intervalTimer = setInterval(() => {
       logger(
