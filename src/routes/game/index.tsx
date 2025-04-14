@@ -57,7 +57,7 @@ export const useConsumeParams = (paramsSettings: Signal<iUserSettings>) => {
   const consumedSettings = useSignal<iUserSettings>(INITIAL_STATE.userSettings);
 
   useTask$(({ track }) => {
-    track(() => paramsSettings.value);
+    track(paramsSettings);
     if (isParamsConsumed.value) return;
 
     isParamsConsumed.value = true;

@@ -60,7 +60,7 @@ export function useDebounceSignal<T>({
    * Also handles cleanup of the timer.
    * */
   useTask$((taskCtx) => {
-    taskCtx.track(() => [flip.value]);
+    taskCtx.track(flip);
 
     // return if uninitialized
     if (flip.value === 0) return;
