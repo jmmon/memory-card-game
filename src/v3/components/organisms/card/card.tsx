@@ -34,7 +34,6 @@ type CardProps = {
 export default component$<CardProps>(({ card, index }) => {
   const ctx = useGameContextService();
 
-  // remove helper functions that were unnecessary
   const isThisRemoved = useComputed$(() =>
     ctx.state.gameData.successfulPairs.join(",").includes(String(card.id)),
   );
@@ -50,7 +49,6 @@ export default component$<CardProps>(({ card, index }) => {
   const isThisCardFlipped = useComputed$(
     () => ctx.state.gameData.flippedCardId === card.id,
   );
-
   // two cards can be selected
   const isSelected = useComputed$(() =>
     ctx.state.gameData.selectedCardIds.includes(card.id),
@@ -132,6 +130,7 @@ export default component$<CardProps>(({ card, index }) => {
       ctx.state.cardLayout,
       newCoords,
     );
+
     // dealing the deck: scale
     if (card.position === -1) {
       // append the transform with a scale
