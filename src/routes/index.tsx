@@ -87,8 +87,8 @@ const Instructions: FunctionComponent = () => {
           <code class="p-0">
             (e.g. <strong>Queen</strong> of <strong>Spades</strong> with{" "}
             <strong>Queen</strong> of <strong>Clubs</strong>; or{" "}
-            <strong>2</strong> of <strong>Hearts</strong> with <strong>2</strong>{" "}
-            of <strong>Diamonds</strong>,)
+            <strong>2</strong> of <strong>Hearts</strong> with{" "}
+            <strong>2</strong> of <strong>Diamonds</strong>,)
           </code>
         </div>
         ...you found a <strong>pair</strong> and they're removed from the board!
@@ -159,7 +159,7 @@ export const GameStarter = component$(() => {
 
 const HomeComponent: FunctionComponent = () => {
   return (
-    <div class="flex h-screen flex-col items-center justify-between ">
+    <div class="flex full-height flex-col items-center justify-between ">
       <div class="grid w-full max-w-[600px] items-center justify-center gap-8 text-slate-200">
         <h1 class="text-center text-4xl text-slate-500 mt-4">
           Memory Card Game

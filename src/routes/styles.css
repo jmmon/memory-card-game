@@ -36,11 +36,14 @@ body {
 
 }
 
-.full {
-  height: 100vh;
-  height: 100svh;
+.main-scroll {
   overflow-y: auto;
   scrollbar-gutter: stable both-edges;
+}
+
+.full-height {
+  height: 100vh;
+  height: 100svh;
 }
 
 html[data-theme="light"] span.home-theme-light {
