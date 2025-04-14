@@ -35,8 +35,12 @@ export const useTimeoutObj = ({
 
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ track, cleanup }) => {
-    track(() => triggerCondition.value);
+    track(triggerCondition);
     if (!triggerCondition.value) return;
+
+  // useTask$(({ track, cleanup }) => {
+  //   track(triggerCondition);
+  //   if (isServer || !triggerCondition) return;
 
     logger(DebugTypeEnum.TASK, LogLevel.ONE, "~~ useTimeoutObj condition met");
     const timer = setTimeout(
@@ -98,8 +102,12 @@ export const useDelayedTimeoutObj = ({
 
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ track, cleanup }) => {
-    track(() => triggerCondition.value);
+    track(triggerCondition);
     if (!triggerCondition.value) return;
+
+  // useTask$(({ track, cleanup }) => {
+  //   track(triggerCondition);
+  //   if (isServer || !triggerCondition) return;
 
     logger(
       DebugTypeEnum.TASK,
@@ -172,9 +180,15 @@ export const useIntervalObj = ({
 
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ track, cleanup }) => {
-    track(() => triggerCondition.value);
+    track(triggerCondition);
     isIntervalRunning.value = false; // turn off interval
     if (!triggerCondition.value) return;
+
+  // useTask$(({ track, cleanup }) => {
+  //   track(triggerCondition);
+  //   if (isServer) return;
+  //   isIntervalRunning.value = false; // turn off interval
+  //   if (!triggerCondition) return;
 
     logger(
       DebugTypeEnum.TASK,
@@ -207,8 +221,12 @@ export const useIntervalObj = ({
 
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(({ track, cleanup }) => {
-    track(() => isIntervalRunning.value);
-    if (isIntervalRunning.value === false) return;
+    track(isIntervalRunning);
+    if (!isIntervalRunning.value) return;
+
+  // useTask$(({ track, cleanup }) => {
+  //   track(isIntervalRunning);
+  //   if (isServer || !isIntervalRunning.value) return;
 
     const intervalTimer = setInterval(() => {
       logger(
