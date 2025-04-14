@@ -21,6 +21,8 @@ export const onGet: RequestHandler = async (requestEvent) => {
 
 export default component$(() => {
   useStyles$(styles);
+  // if context is here, can properly sync settings from game back to the homescreen
+  // (or use localstorage for game settings lol so it saves across sessions as preferences...)
 
   return (
     <main class="w-full main-height">
