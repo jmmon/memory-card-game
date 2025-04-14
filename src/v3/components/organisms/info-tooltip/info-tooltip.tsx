@@ -1,3 +1,4 @@
+import type { ClassList} from "@builder.io/qwik";
 import { Slot, component$ } from "@builder.io/qwik";
 import type { PopoverRootProps } from "@qwik-ui/headless/components/popover/popover-root";
 import QuestionMark from "~/media/icons/question-mark.svg?jsx";

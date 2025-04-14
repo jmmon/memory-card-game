@@ -11,7 +11,8 @@ import CardView from "~/v3/components/molecules/card-view/card-view";
 import type { iCoords, iCard } from "~/v3/types/types";
 import type { FunctionComponent, Signal } from "@builder.io/qwik";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
-import GAME from "~/v3/constants/game";
+import GAME, { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
+import logger from "~/v3/services/logger";
 
 type FlipTransform = {
   /** percent to translate the card during flip animation (to get to center) */
@@ -201,6 +202,8 @@ export default component$<CardProps>(({ card, index }) => {
             ? 28
             : 0),
   );
+
+  logger(DebugTypeEnum.RENDER, LogLevel.THREE, "RENDER card.tsx", {index});
 
   return (
     <div

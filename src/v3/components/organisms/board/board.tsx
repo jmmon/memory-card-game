@@ -315,6 +315,8 @@ export default component$(() => {
     }
   `);
 
+  logger(DebugTypeEnum.RENDER, LogLevel.TWO, "RENDER board.tsx");
+
   return (
     <div
       class={`relative h-full max-h-full w-full max-w-full items-center ${isAnyCardFlipped.value ? "cursor-pointer" : ""}`}

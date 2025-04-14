@@ -99,9 +99,6 @@ export const useGameContextProvider = ({
   const lastDeal = useSignal(Date.now());
 
   const dealCard = $(function () {
-    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "dealCard:", {
-      dealCardIndex: state.gameData.dealCardIndex,
-    });
     // set new position
     const currentIndex =
       state.userSettings.deck.size - state.gameData.dealCardIndex;

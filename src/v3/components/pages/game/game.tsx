@@ -18,13 +18,14 @@ import Settings from "~/v3/components/pages/settings/settings";
 import Loading from "~/v3/components/pages/loading/loading";
 import Board from "~/v3/components/organisms/board/board";
 
-import GAME from "~/v3/constants/game";
+import GAME, { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
 import BOARD from "~/v3/constants/board";
 import { useVisibilityChange } from "~/v3/hooks/useVisibilityChange/useVisibilityChange";
 import { useGameContextProvider } from "~/v3/services/gameContext.service/gameContext.service";
 import INITIAL_STATE from "~/v3/services/gameContext.service/initialState";
 import type { iUserSettings } from "~/v3/types/types";
 import { header } from "~/v3/constants/header-constants";
+import logger from "~/v3/services/logger";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
 // export const getKeysIfObject = (obj: object, prefix?: string) => {
@@ -170,6 +171,8 @@ export default component$<GameProps>(
         ctx.handle.toggleModalOnEscape();
       }),
     );
+
+    logger(DebugTypeEnum.RENDER, LogLevel.ONE, "RENDER game.tsx");
 
     return (
       <>
