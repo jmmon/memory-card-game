@@ -12,7 +12,7 @@ const Backdrop = component$<Props>(
     <div
       data-name="backdrop"
       onClick$={onClick}
-      class={`overflow-hidden top-0 left-0 absolute w-full h-full bg-black flex justify-center items-center transition-all duration-[300ms]
+      class={`overflow-hidden top-0 left-0 absolute w-full full-height bg-black flex justify-center items-center transition-all duration-[300ms]
       ${
         isShowing
           ? `pointer-events-auto z-[32] bg-opacity-20 backdrop-blur-[2px] sm:backdrop-blur-[3px] ${bgClasses}`

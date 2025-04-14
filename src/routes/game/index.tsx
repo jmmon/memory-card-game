@@ -91,7 +91,7 @@ export default component$(() => {
   logger(DebugTypeEnum.RENDER, LogLevel.ONE, "RENDER /game route");
 
   return (
-    <div class="flex h-full w-full flex-col items-center overflow-hidden">
+    <div class="flex full-height w-full flex-col items-center overflow-hidden">
       <h1 class="absolute left-0 top-0 pl-[min(1.5vw,1rem)] z-[1] text-sm text-slate-600/80 md:text-lg lg:text-2xl">
         Memory Card Game
       </h1>
