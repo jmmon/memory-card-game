@@ -82,7 +82,7 @@ const DECK_SIZE_MAX = 52 as const;
 //      actual 2686
 
 const FAN_OUT_DURATION_BASE_MS = 1500 as const;
-const FAN_OUT_DURATION_ADDITIONAL_PER_CARD_MS = 20 as const;
+const FAN_OUT_DURATION_ADDITIONAL_PER_CARD_MS = 35 as const;
 
 /**
  * dictate starting position of deck when dealing out cards on initialization
