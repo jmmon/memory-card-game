@@ -25,13 +25,13 @@ export default component$<GameSettingsProps>(
     classes = "",
     isShufflingDisabled,
   }) => {
-    const handleChange$ = $((e: Event) => {
-      const properties = (e.target as HTMLInputElement).name.split(".");
+    const handleChange$ = $((_: Event, t: HTMLInputElement) => {
+      const properties = t.name.split(".");
       unsavedUserSettings.value = {
         ...unsavedUserSettings.value,
         [properties[0]]: {
           ...unsavedUserSettings.value[properties[0]],
-          [properties[1]]: (e.target as HTMLInputElement).checked,
+          [properties[1]]: t.type === "checkbox" ? t.checked : t.value,
         },
       };
     });

@@ -4,7 +4,7 @@ import type { iUserSettings } from "~/v3/types/types";
 
 type InputLock = {
   text: string;
-  onChange$: PropFunction<(e: Event) => void>;
+  onChange$: PropFunction<(e: Event, t: HTMLInputElement) => void>;
   settings: iUserSettings;
   propertyPath: string;
   classes?: ClassList;

@@ -3,7 +3,7 @@ import type { ClassList, PropFunction } from "@builder.io/qwik";
 import type { iUserSettings } from "~/v3/types/types";
 
 type InputToggleProps = {
-  onChange$: PropFunction<(e: Event) => void>;
+  onChange$: PropFunction<(e: Event, t: HTMLInputElement) => void>;
   settings: iUserSettings;
   /** set for the `name` property so the change handler can adjust the appropriate setting */
   propertyPath: string;

@@ -27,6 +27,7 @@ export default component$<DeckSizeChangerProps>((props) => {
       GAME.DECK_SIZE_MAX,
     );
 
+    // modify the signal directly
     props.userSettings.value = {
       ...props.userSettings.value,
       deck: {
