@@ -159,37 +159,35 @@ export const GameStarter = component$(() => {
 
 const HomeComponent: FunctionComponent = () => {
   return (
-    <div class="full w-full grid">
-      <div class="mx-auto grid items-center justify-between">
-        <div class="grid w-full max-w-[600px] items-center justify-center gap-8 text-slate-200">
-          <h1 class="text-center text-4xl text-slate-500 mt-4">
-            Memory Card Game
-          </h1>
+    <div class="flex h-screen flex-col items-center justify-between ">
+      <div class="grid w-full max-w-[600px] items-center justify-center gap-8 text-slate-200">
+        <h1 class="text-center text-4xl text-slate-500 mt-4">
+          Memory Card Game
+        </h1>
 
-          <div>
-            <h3 class="text-center text-2xl text-slate-300">Goal:</h3>
-            <p class="text-center text-3xl ">Clear the board to win!</p>
-          </div>
-
-          <Instructions />
-
-          <GameStarter />
+        <div>
+          <h3 class="text-center text-2xl text-slate-300">Goal:</h3>
+          <p class="text-center text-3xl ">Clear the board to win!</p>
         </div>
 
-        <div class="mt-6 flex flex-col items-center">
-          <a
-            href="/older-versions"
-            class="p-2 text-center text-slate-500 underline hover:text-slate-300"
-          >
-            Prototype versions...
-          </a>
-          <a
-            href="/cards"
-            class="p-2 text-center text-slate-500 underline hover:text-slate-300"
-          >
-            Cards...
-          </a>
-        </div>
+        <Instructions />
+
+        <GameStarter />
+      </div>
+
+      <div class="mt-6 flex flex-col items-center">
+        <a
+          href="/older-versions"
+          class="p-2 text-center text-slate-500 underline hover:text-slate-300"
+        >
+          Prototype versions...
+        </a>
+        <a
+          href="/cards"
+          class="p-2 text-center text-slate-500 underline hover:text-slate-300"
+        >
+          Cards...
+        </a>
       </div>
     </div>
   );
