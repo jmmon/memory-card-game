@@ -5,9 +5,11 @@ import type { ClassList, Signal } from "@builder.io/qwik";
 import type { iUserSettings } from "~/v3/types/types";
 import InfoTooltip from "../../organisms/info-tooltip/info-tooltip";
 import { useDebouncer$ } from "~/v3/hooks/useDebouncer";
+import MinusIcon from "~/media/icons/minus.svg?jsx";
+import PlusIcon from "~/media/icons/plus.svg?jsx";
 
 const BUTTON_STYLES: ClassList =
-  "p-0 w-6 h-6 bg-slate-700 border-slate-500 text-2xl rounded border flex justify-center items-center text-center align-middle disabled:opacity-30 disabled:scale-[0.85]";
+  "p-0 w-6 h-6 bg-slate-700 border-slate-500 text-slate-100 text-2xl rounded border flex justify-center items-center text-center align-middle disabled:opacity-30 disabled:scale-[0.85]";
 
 type DeckSizeChangerProps = {
   userSettings: Signal<iUserSettings>;
@@ -75,7 +77,7 @@ export default component$<DeckSizeChangerProps>((props) => {
       <label class="w-6/12 text-left text-slate-100" for={name}>
         Card Count:
       </label>
-      <div class="grid grid-cols-[1fr_auto_1fr] gap-4 items-center justify-center text-center">
+      <div class="grid grid-cols-[1fr_auto_1fr] gap-4 items-center justify-center text-slate-100">
         <button
           name={name + "-decrement"}
           id={name + "-decrement"}
@@ -86,7 +88,7 @@ export default component$<DeckSizeChangerProps>((props) => {
             props.userSettings.value.deck.size <= GAME.DECK_SIZE_MIN
           }
         >
-          -
+          <MinusIcon width="16px" height="16px" />
         </button>
         <input
           onInput$={debouncedSetSize$}
@@ -108,7 +110,7 @@ export default component$<DeckSizeChangerProps>((props) => {
             props.userSettings.value.deck.size >= GAME.DECK_SIZE_MAX
           }
         >
-          +
+          <PlusIcon width="16px" height="16px" />
         </button>
       </div>
       <InfoTooltip>
