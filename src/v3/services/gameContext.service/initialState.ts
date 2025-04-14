@@ -23,13 +23,12 @@ const GAME_DATA: iGameData = {
   isLoading: true,
   /** counts down from e.g. 5 to do 5 rounds of card swaps */
   shufflingState: 0,
-  /** which card we are currently dealing from deck, counts down from deckSize */
-  currentFanOutCardIndex: 0,
-  /** counter counts past 0 into negative for this many occurrances */
-  fanOutCardDelayRounds: 3, // e.g. if 100ms between rounds, 3 => 300ms delay before shuffling, to give time to finish the fan-out animation
   /** for determining where deck is dealt from */
   startingPosition: { x: 0, y: 0 },
 
+  /** when dealing, counts down from max cards to 0 
+   * so current card index === deck.size - dealCardIndex
+   * */
   dealCardIndex: 0,
 };
 
