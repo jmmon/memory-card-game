@@ -1,8 +1,17 @@
+## bug: win game but leave open game modal. Go back then forward: 
+## related: bug: open settings, then go back and go forward. 
+- modal still shows! board/cards get reset
+> - esc also closes/opens end-game modal (if prev game was ended) or normal modal (if not ended)
+- **solution: initializeDeck should wipe the end-game state as well 
+    and hide all modals!**
+
 ## deck change slider dropdown! e.g. carot button (somewhere) to reveal slider
 - slider dark mode! darker bg/fill
-## dev mode timer for deck deal duration
 
 ## +- buttons still not quite right on mobile, try SVGs?
+- should be simple to make, a couple paths for plus (with stroke width)
+- one path for minus
+e.g. 16x16 viewport, with 2 strokewidth? would path start on 8.5? or 8?
 
 
 ## hash the cardIds instead of using math.random? doesn't matter the ids, as long as each card has its pair hash
