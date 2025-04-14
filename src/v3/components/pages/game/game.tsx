@@ -1,9 +1,4 @@
-import {
-  $,
-  component$,
-  useComputed$,
-  useOnDocument,
-} from "@builder.io/qwik";
+import { $, component$, useComputed$, useOnDocument } from "@builder.io/qwik";
 
 import {
   useDelayedTimeoutObj,
@@ -26,6 +21,7 @@ import INITIAL_STATE from "~/v3/services/gameContext.service/initialState";
 import type { iUserSettings } from "~/v3/types/types";
 import { header } from "~/v3/constants/header-constants";
 import logger from "~/v3/services/logger";
+import { useLocation } from "@builder.io/qwik-city";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
 // export const getKeysIfObject = (obj: object, prefix?: string) => {
@@ -48,12 +44,20 @@ import logger from "~/v3/services/logger";
 //
 // export const keysSettings = getKeysIfObject(INITIAL_STATE.userSettings);
 
-type GameProps = { settings: iUserSettings };
+type GameProps = { settings: Partial<iUserSettings> };
 export default component$<GameProps>(
   ({ settings = INITIAL_STATE.userSettings }) => {
+    const loc = useLocation();
     // console.log("game component settings:", { settings });
     const ctx = useGameContextProvider({
       userSettings: settings,
+      ...(loc.prevUrl?.pathname === "/"
+        ? {
+            gameData: {
+              cards: [], // make sure state is cleared if going back/forward
+            },
+          }
+        : {}),
     });
 
     /* ================================
@@ -158,7 +162,6 @@ export default component$<GameProps>(
         ctx.state.interfaceSettings.successAnimation = false;
       }),
     });
-
 
     // auto pause game after some inactivity (in case you go away)
     useTimeoutObj({
