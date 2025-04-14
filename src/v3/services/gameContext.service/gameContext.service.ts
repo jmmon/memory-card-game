@@ -292,6 +292,7 @@ export const useGameContextProvider = ({
     state.gameData.mismatchPair = INITIAL_STATE.gameData.mismatchPair;
 
     state.gameData.cards = [...INITIAL_STATE.gameData.cards];
+    state.gameData.lastClick = -1;
 
     // hack to ensure the lengths change to update state (particularly for mismatch and success pairs)
     state.gameData.selectedCardIds.length = 0;

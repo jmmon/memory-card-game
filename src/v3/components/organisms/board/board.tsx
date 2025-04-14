@@ -8,7 +8,6 @@ import {
 } from "@builder.io/qwik";
 import cardUtils from "~/v3/utils/cardUtils";
 import useDebounceSignal from "~/v3/hooks/useDebounce";
-import { useTimeoutObj } from "~/v3/hooks/useTimeout";
 import Card from "~/v3/components/organisms/card/card";
 import BOARD from "~/v3/constants/board";
 import { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
@@ -21,7 +20,6 @@ import useDebouncedOnWindow from "~/v3/hooks/useDebouncedOnWindow";
 export default component$(() => {
   const ctx = useGameContextService();
   const lastDeckSize = useSignal(ctx.state.userSettings.deck.size);
-  const lastClick = useSignal(-1);
 
   const isAnyCardFlipped = useComputed$(
     () => ctx.state.gameData.flippedCardId !== -1,
@@ -71,7 +69,7 @@ export default component$(() => {
       await handleAddToSuccessfulPairsIfMatching();
     }
     ctx.state.gameData.flippedCardId = -1;
-    lastClick.value = Date.now();
+    ctx.state.gameData.lastClick = Date.now();
   });
 
   const unflipDebounce = useDebounceSignal<number>({
@@ -88,6 +86,7 @@ export default component$(() => {
       cardId,
     );
 
+    // selected a new card
     if (newSelected.length !== ctx.state.gameData.selectedCardIds.length) {
       ctx.state.gameData.selectedCardIds = newSelected;
 
@@ -105,9 +104,10 @@ export default component$(() => {
       }
     }
 
+    // selected an old card
     // flip it either way
     ctx.state.gameData.flippedCardId = cardId;
-    lastClick.value = Date.now();
+    ctx.state.gameData.lastClick = Date.now();
   });
 
   const handleClickCard = $(
@@ -163,28 +163,10 @@ export default component$(() => {
         isClickedOnCard,
         clickedId: clickedId as number,
       },
-      delay: BOARD.MINIMUM_TIME_BETWEEN_CLICKS - (Date.now() - lastClick.value),
+      delay: Math.max(0, BOARD.MINIMUM_TIME_BETWEEN_CLICKS - (Date.now() - ctx.state.gameData.lastClick)),
     });
   });
 
-  // auto pause game after some inactivity (in case you go away)
-  useTimeoutObj({
-    triggerCondition: useComputed$(
-      () =>
-        !ctx.state.interfaceSettings.settingsModal.isShowing &&
-        !ctx.state.interfaceSettings.endOfGameModal.isShowing &&
-        ctx.timer.state.isStarted &&
-        !ctx.timer.state.isEnded &&
-        lastClick.value !== -1,
-    ),
-    delay: BOARD.AUTO_PAUSE_DELAY_MS,
-    action: $(() => {
-      ctx.timer.pause();
-      ctx.state.interfaceSettings.settingsModal.isShowing = true;
-      lastClick.value === -1;
-    }),
-    checkConditionOnTimeout: true,
-  });
 
   /*
    * track window resizes to recalculate board

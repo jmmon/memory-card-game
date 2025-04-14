@@ -12,6 +12,7 @@ import type {
 } from "~/v3/types/types";
 
 const GAME_DATA: iGameData = {
+  lastClick: -1,
   gameState: GameStateEnum.IDLE,
   cards: [],
   mismatchPair: "",

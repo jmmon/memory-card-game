@@ -158,6 +158,27 @@ export default component$<GameProps>(
       }),
     });
 
+
+    // auto pause game after some inactivity (in case you go away)
+    useTimeoutObj({
+      triggerCondition: useComputed$(
+        () =>
+          !ctx.state.interfaceSettings.settingsModal.isShowing &&
+          !ctx.state.interfaceSettings.endOfGameModal.isShowing &&
+          ctx.timer.state.isStarted &&
+          !ctx.timer.state.isEnded &&
+          ctx.state.gameData.lastClick !== -1,
+      ),
+      delay: GAME.AUTO_PAUSE_DELAY_MS,
+      action: $(() => {
+        ctx.timer.pause();
+        ctx.state.interfaceSettings.settingsModal.isShowing = true;
+        ctx.state.gameData.lastClick = -1;
+        // lastClick.value === -1;
+      }),
+      checkConditionOnTimeout: true,
+    });
+
     // when switching tabs, show settings to pause the game
     useVisibilityChange({
       onHidden$: ctx.handle.showSettings,
