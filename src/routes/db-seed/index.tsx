@@ -273,7 +273,7 @@ export default component$(() => {
                     class=" flex gap-4 items-center my-[-16px]"
                   >
                     <PixelAvatar
-                      classes="w-12 h-12"
+                      classes="w-12 h-12 flex-shrink-0"
                       hash={{ value: score.userId }}
                       colorFrom={{ value: score.initials }}
                     />
