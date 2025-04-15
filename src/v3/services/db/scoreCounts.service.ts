@@ -12,7 +12,7 @@ import type {
   Score,
   ScoreCount,
 } from "~/v3/db/schemas/types";
-import { buildOrderBySqlStringWrapped } from "./scores.service";
+import { buildOrderBy } from "./scores.service";
 
 const getAllScoreCounts = () => getDB().select().from(scoreCounts);
 
@@ -25,12 +25,15 @@ const queryScoreCounts = ({
     .from(scoreCounts)
     .where(inArray(scoreCounts.deckSize, deckSizesFilter))
     .orderBy(
-      buildOrderBySqlStringWrapped([
-        {
-          column: ScoreTableColumnEnum.deck_size,
-          direction: sortDirection,
-        },
-      ]),
+      ...buildOrderBy(
+        [
+          {
+            column: ScoreTableColumnEnum.deck_size,
+            direction: sortDirection,
+          },
+        ],
+        scoreCounts,
+      ),
     )
     .execute();
 
@@ -44,16 +47,18 @@ const getDeckSizeList = () =>
     .select({ deckSize: scoreCounts.deckSize })
     .from(scoreCounts)
     .orderBy(
-      buildOrderBySqlStringWrapped([
-        {
-          column: ScoreTableColumnEnum.deck_size,
-          direction: SortDirectionEnum.asc,
-        },
-      ]),
+      ...buildOrderBy(
+        [
+          {
+            column: ScoreTableColumnEnum.deck_size,
+            direction: SortDirectionEnum.asc,
+          },
+        ],
+        scoreCounts,
+      ),
     ) // sort by deckSize
     .execute()
     .then((set) => set.map(({ deckSize }) => deckSize)); // map to number[]
-// .then((deckSizes) => deckSizes.filter((each) => each !== null) as number[]); // filter null
 
 const createScoreCount = async ({
   deckSize,

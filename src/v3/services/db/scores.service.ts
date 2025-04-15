@@ -1,4 +1,4 @@
-import { asc, count, desc, eq, inArray, sql } from "drizzle-orm";
+import { AnyColumn, asc, count, desc, eq, inArray } from "drizzle-orm";
 import type { SortColumnWithDirection } from "../../types/types";
 import { DEFAULT_QUERY_PROPS } from "./constants";
 import type { ScoreQueryProps } from "./types";
@@ -10,42 +10,29 @@ import { getDB } from "~/v3/db";
 const getAllScores = () => getDB().select().from(scores);
 // db.execute(sql`select * from Scores`)
 
-export const buildOrderBySqlStringWrapped = (
-  sortByColumnHistory: Array<SortColumnWithDirection>,
-) =>
-  sql`${sortByColumnHistory
-    .map(
-      ({ column, direction }) =>
-        `"${column}" ${direction.toUpperCase()}`,
-    )
-    .join(", ")}`;
-
-
-const unUnderscore = (column: string) => {
-  const parts = column.split('_');
-  
-  if (parts.length === 1) return parts[0] as keyof Score;
+const unUnderscore = <T>(columnWithUnderscores: string) => {
+  const parts = columnWithUnderscores.split("_");
   let total = parts[0];
+  if (parts.length === 1) return total as keyof T;
+
   for (let i = 1; i < parts.length; i++) {
-    
     total += parts[i][0].toUpperCase() + parts[i].slice(1);
   }
-  return total as keyof Score;
-}
-const buildOrderBy = (
-  sortByColumnHistory: Array<SortColumnWithDirection>,
-) => {
+  return total as keyof T;
+};
+
+export const buildOrderBy = <T>(sortByColumnHistory: Array<SortColumnWithDirection>, table: T) => {
   const list = [];
-  for (const {column, direction} of sortByColumnHistory) {
+  for (const { column, direction } of sortByColumnHistory) {
+    const tableColumn = table[unUnderscore<T>(column)] as AnyColumn;
     if (direction === "asc") {
-      list.push(asc(scores[unUnderscore(column)]));
+      list.push(asc(tableColumn));
     } else {
-      list.push(desc(scores[unUnderscore(column)]))
+      list.push(desc(tableColumn));
     }
   }
-
   return list;
-}
+};
 
 const clearScoresTable = () => getDB().delete(scores);
 
@@ -61,8 +48,7 @@ const queryScores = async ({
   sortByColumnHistory =
     sortByColumnHistory ?? DEFAULT_QUERY_PROPS.sortByColumnHistory;
 
-  // const sqlOrderBy = buildOrderBySqlStringWrapped(sortByColumnHistory);
-  const sqlOrderByList = buildOrderBy(sortByColumnHistory);
+  const sqlOrderByList = buildOrderBy(sortByColumnHistory, scores);
   // console.log({
   //   pageNumber,
   //   resultsPerPage,
@@ -91,12 +77,11 @@ const queryScores = async ({
     .where(inArray(scores.deckSize, deckSizesFilter))
     // sort using multiple sort column priorities
     .orderBy(...sqlOrderByList)
+    // .orderBy(sqlOrderBy)
     .offset((pageNumber - 1) * resultsPerPage)
     .limit(resultsPerPage);
 
-  console.log("sqlQuery:", {toSql: sqlQuery.toSQL()});
-
-
+  console.log("sqlQuery:", { toSql: sqlQuery.toSQL() });
 
   return sqlQuery;
 };
