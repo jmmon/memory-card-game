@@ -50,7 +50,7 @@ export default component$<ModalProps>(
     return (
       <div
         data-name="background"
-        class={`top-0 left-0 absolute w-full h-full bg-black flex justify-center items-center transition-all ${DURATION} ${
+        class={`overflow-hidden top-0 left-0 absolute w-full h-full bg-black flex justify-center items-center transition-all ${DURATION} ${
           isShowing
             ? `pointer-events-auto ${bgClasses} z-[35] bg-opacity-20 `
             : "pointer-events-none z-[-1] bg-opacity-0"
