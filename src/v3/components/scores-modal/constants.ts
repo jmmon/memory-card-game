@@ -42,9 +42,13 @@ export const MAP_COL_TITLE_TO_OBJ_KEY: { [key: string]: ScoreTableColumn } = {
 export const DEFAULT_SORT_BY_COLUMNS_MAP: {
   [key in ScoreTableColumnEnum]: SortColumnWithDirection;
 } = {
+  [ScoreTableColumnEnum.game_time_ds]: {
+    column: ScoreTableColumnEnum.game_time_ds,
+    direction: SortDirectionEnum.asc,
+  },
   [ScoreTableColumnEnum.deck_size]: {
     column: ScoreTableColumnEnum.deck_size,
-    direction: SortDirectionEnum.desc,
+    direction: SortDirectionEnum.asc,
   },
   // [ScoreTableColumnnEnum.timePercentile]: {
   //   column: "timePercentile",
@@ -54,10 +58,6 @@ export const DEFAULT_SORT_BY_COLUMNS_MAP: {
   //   column: "mismatchPercentile",
   //   direction: "desc",
   // },
-  [ScoreTableColumnEnum.game_time_ds]: {
-    column: ScoreTableColumnEnum.game_time_ds,
-    direction: SortDirectionEnum.asc,
-  },
   [ScoreTableColumnEnum.mismatches]: {
     column: ScoreTableColumnEnum.mismatches,
     direction: SortDirectionEnum.asc,

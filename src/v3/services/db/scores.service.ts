@@ -1,4 +1,4 @@
-import { count, eq, inArray, sql } from "drizzle-orm";
+import { asc, count, desc, eq, inArray, sql } from "drizzle-orm";
 import type { SortColumnWithDirection } from "../../types/types";
 import { DEFAULT_QUERY_PROPS } from "./constants";
 import type { ScoreQueryProps } from "./types";
@@ -16,9 +16,36 @@ export const buildOrderBySqlStringWrapped = (
   sql`${sortByColumnHistory
     .map(
       ({ column, direction }) =>
-        `"scores"."${column}" ${direction.toUpperCase()}`,
+        `"${column}" ${direction.toUpperCase()}`,
     )
     .join(", ")}`;
+
+
+const unUnderscore = (column: string) => {
+  const parts = column.split('_');
+  
+  if (parts.length === 1) return parts[0] as keyof Score;
+  let total = parts[0];
+  for (let i = 1; i < parts.length; i++) {
+    
+    total += parts[i][0].toUpperCase() + parts[i].slice(1);
+  }
+  return total as keyof Score;
+}
+const buildOrderBy = (
+  sortByColumnHistory: Array<SortColumnWithDirection>,
+) => {
+  const list = [];
+  for (const {column, direction} of sortByColumnHistory) {
+    if (direction === "asc") {
+      list.push(asc(scores[unUnderscore(column)]));
+    } else {
+      list.push(desc(scores[unUnderscore(column)]))
+    }
+  }
+
+  return list;
+}
 
 const clearScoresTable = () => getDB().delete(scores);
 
@@ -34,14 +61,15 @@ const queryScores = async ({
   sortByColumnHistory =
     sortByColumnHistory ?? DEFAULT_QUERY_PROPS.sortByColumnHistory;
 
-  const sqlOrderBy = buildOrderBySqlStringWrapped(sortByColumnHistory);
-  console.log({
-    pageNumber,
-    resultsPerPage,
-    deckSizesFilter,
-    sortByColumnHistory,
-    sqlOrderBy,
-  });
+  // const sqlOrderBy = buildOrderBySqlStringWrapped(sortByColumnHistory);
+  const sqlOrderByList = buildOrderBy(sortByColumnHistory);
+  // console.log({
+  //   pageNumber,
+  //   resultsPerPage,
+  //   deckSizesFilter,
+  //   sortByColumnHistory,
+  //   sqlOrderBy,
+  // });
   //
   // const test = await db.query.scores.findMany({
   //   where: inArray(scores.deckSize, deckSizesFilter),
@@ -62,11 +90,13 @@ const queryScores = async ({
     // grab scores with deckSize in our array of deckSizes
     .where(inArray(scores.deckSize, deckSizesFilter))
     // sort using multiple sort column priorities
-    .orderBy(sqlOrderBy)
+    .orderBy(...sqlOrderByList)
     .offset((pageNumber - 1) * resultsPerPage)
     .limit(resultsPerPage);
 
-  console.log("sqlQuery:", sqlQuery.toSQL());
+  console.log("sqlQuery:", {toSql: sqlQuery.toSQL()});
+
+
 
   return sqlQuery;
 };

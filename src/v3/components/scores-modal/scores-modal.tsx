@@ -124,8 +124,8 @@ export default component$(() => {
     const now = Date.now();
     console.log("queryAndSaveScores timing...", { queryStore });
 
-    const { scores, totals } =
-      await serverDbService.scores.queryWithPercentiles({
+    const [scoresRes, deckSizesRes] = await Promise.all([
+      serverDbService.scores.queryWithPercentiles({
         pageNumber: queryStore.pageNumber,
         resultsPerPage: queryStore.resultsPerPage,
         deckSizesFilter:
@@ -133,7 +133,9 @@ export default component$(() => {
             ? [ctx.state.userSettings.deck.size]
             : queryStore.deckSizesFilter,
         sortByColumnHistory: queryStore.sortByColumnHistory,
-      });
+      }),
+      serverDbService.scoreCounts.getDeckSizes(),
+    ]);
 
     const newNow = Date.now();
     console.log(`~~ done with query:`, {
@@ -142,11 +144,14 @@ export default component$(() => {
       timeMs: newNow - now,
     });
 
+
+    const { scores, totals } = scoresRes;
+
     const totalCountForQuery = Object.values(totals).reduce(
       (accum, cur) => (accum += cur),
       0,
     );
-    deckSizeList.value = Object.keys(totals).map(Number);
+    deckSizeList.value = deckSizesRes;
 
     scoreTotals.value = {
       ...totals,
@@ -357,30 +362,31 @@ export default component$(() => {
       text-shadow: none;
     }
 
-    table.scoreboard td + td {
+    table.scoreboard tbody td + td {
       border-left: 1px solid #44444480;
     }
+
 
     table.scoreboard tbody {
       background-color: #fff;
     }
 
     table.scoreboard tbody tr > :not(:first-child) {
-      padding: 0 0.5em;
+      padding: 0 0.25em;
       font-weight: 600;
       text-shadow: 1px 1px 3px #000;
     }
-    @media screen and max-width(640px) {
-        table.scoreboard tbody tr > :nth-child(2) {
-          padding: 0 0.25em;
-        }
-    }
+    /* @media screen and (max-width: 640px) {
+      table.scoreboard tbody tr > :nth-child(2) {
+        padding: 0;
+      }
+    } */
 
     table.scoreboard thead tr > :first-child {
-      width: 36px; /* size of avatar on small screens, it auto adjusts larger if needed on large screens */
+      width: 0px; /* it auto adjusts larger if needed on large screens */
     }
     table.scoreboard thead tr > :nth-child(2) {
-      width: 3ch;
+      width: 3em;
     }
 
     table.scoreboard {
@@ -488,8 +494,12 @@ const TableDecksizeFilterHeader = component$<TableDeckSizesFilterHeaderProps>(
     useTask$(({ track }) => {
       track(deckSizeList);
       track(() => queryStore.deckSizesFilter);
+      console.log('header track:', {deckSizeList, queryStore});
+
+      // for display:
       deckSizesFilterString.value = queryStore.deckSizesFilter.join(",");
 
+      // for highlighting/sorting the dropdown sizes:
       [deckSizesSelected.value, deckSizesUnselected.value] = deckSizeList.value
         .sort((a, b) => a - b)
         .reduce<[number[], number[]]>(

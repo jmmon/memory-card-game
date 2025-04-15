@@ -1,5 +1,12 @@
-## end game:
-3. [low priority] replace the text in the initials box, e.g. start typing and it fills in x dashes in front and adjusts as you type
+#  YAY! I fixed the reordering of the sorted scores!
+
+## how to handle percentile sorting?
+1. only show percentiles when filtering for ONE deck size
+- since percentiles are per-decksize anyway
+2. DON'T sort by percentiles?? only by the raw number
+
+
+
 
 ## scores modal:
 4. [low priority] save score button: loading indicator? 

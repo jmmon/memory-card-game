@@ -202,6 +202,59 @@ const sortScores = (
 };
 // sortScores;
 
+
+const calculatePercentilesWhileMaintainingOrder = (allScores: Score[], scoreCounts: ScoreCount[]) => {
+
+  const allScoresWithPercentilesByScoreId: ScoreWithPercentiles[] = [];
+  const totals: { [key: number]: number } = {};
+
+  // run the calculations for each deck size
+  // appends to the total by deck size, which is NOT what I want
+  //
+  //
+  //need to go through all scores and keep track of which original index points to which scoreId
+  //allScores.map(({id}) => id)
+  //can go through allScoresWithPercentiles and order them according to the idList
+  //
+  //
+  //might be a better way to do this in one step (or fewer steps) perhaps, but whatevs
+  //
+
+  const orderedListOfScoreIds = allScores.map(({id}) => id);
+
+  for (let i = 0; i < scoreCounts.length; i++) {
+    const thisCounts = scoreCounts[i];
+    totals[thisCounts.deckSize] = thisCounts.totalScores;
+
+    // messes up the order!!!!!
+    // need to get a map of indices from allScores so they can be placed back in proper places
+
+    const scores = allScores.filter(
+      ({ deckSize }) => deckSize === thisCounts.deckSize,
+    );
+    const scoresWithPercentiles = calculatePercentilesForScores(
+      scores,
+      thisCounts,
+    );
+
+    // set to the allScoresWithPercentiles by scoreId so we can pull them back out using our list
+    scoresWithPercentiles.forEach((score) => {
+      allScoresWithPercentilesByScoreId[score.id] = score;
+    });
+
+    // this messes up the order!!!!!
+    // allScoresWithPercentiles.push(...scoresWithPercentiles);
+  }
+
+  const reorderedScores = orderedListOfScoreIds.map((id) => allScoresWithPercentilesByScoreId[id]);
+  return {
+    scores: reorderedScores,
+    // scores: allScoresWithPercentiles,
+    // scores: sortScores(allScoresWithPercentiles, sortByColumnHistory),
+    totals,
+  };
+
+}
 /**
  * query scores according to the params
  * query counts according to the decksizes listed
@@ -244,35 +297,14 @@ const queryScoresAndCalculatePercentiles = async ({
 
   const allScores = resScores.value;
   const scoreCounts = resCounts.value;
-  console.log("fresh from query:", {
-    first: allScores[0],
-    last: allScores[allScores.length - 1],
-  });
+  console.log("fresh from query:", allScores.map((score) => JSON.stringify(score))
+  //   {
+  //   first: allScores[0],
+  //   last: allScores[allScores.length - 1],
+  // }
+  );
 
-  const allScoresWithPercentiles: ScoreWithPercentiles[] = [];
-  const totals: { [key: number]: number } = {};
-
-  // run the calculations for each deck size
-  for (let i = 0; i < scoreCounts.length; i++) {
-    const thisCounts = scoreCounts[i];
-    totals[thisCounts.deckSize] = thisCounts.totalScores;
-
-    const scores = allScores.filter(
-      ({ deckSize }) => deckSize === thisCounts.deckSize,
-    );
-    const scoresWithPercentiles = calculatePercentilesForScores(
-      scores,
-      thisCounts,
-    );
-
-    allScoresWithPercentiles.push(...scoresWithPercentiles);
-  }
-
-  return {
-    // scores: allScoresWithPercentiles,
-    scores: sortScores(allScoresWithPercentiles, sortByColumnHistory),
-    totals,
-  };
+  return calculatePercentilesWhileMaintainingOrder(allScores, scoreCounts);
 };
 
 const serverDbService = {
