@@ -134,7 +134,14 @@ export default component$(() => {
             : queryStore.deckSizesFilter,
         sortByColumnHistory: queryStore.sortByColumnHistory,
       }),
-      serverDbService.scoreCounts.getDeckSizes(),
+      // skip this query if we are getting all deckSizes (only works if we also have data for every decksize)
+      // if there's not all the sizes in our dropdown list, we will never have 24 for our value, so it will
+      // continue to fetch this query, although that is not needed.
+      // - Could separate this query so it's not combined with the Scores query,
+      //    - the dropdown list should be separate
+      queryStore.deckSizesFilter.length === 24
+        ? []
+        : serverDbService.scoreCounts.getDeckSizes(),
     ]);
 
     const newNow = Date.now();
@@ -144,14 +151,16 @@ export default component$(() => {
       timeMs: newNow - now,
     });
 
-
     const { scores, totals } = scoresRes;
 
     const totalCountForQuery = Object.values(totals).reduce(
       (accum, cur) => (accum += cur),
       0,
     );
-    deckSizeList.value = deckSizesRes;
+    deckSizeList.value =
+      queryStore.deckSizesFilter.length === 24
+        ? Object.keys(totals).map(Number) // is this already sorted? (I think so - does it even matter)
+        : deckSizesRes;
 
     scoreTotals.value = {
       ...totals,
@@ -494,7 +503,7 @@ const TableDecksizeFilterHeader = component$<TableDeckSizesFilterHeaderProps>(
     useTask$(({ track }) => {
       track(deckSizeList);
       track(() => queryStore.deckSizesFilter);
-      console.log('header track:', {deckSizeList, queryStore});
+      console.log("header track:", { deckSizeList, queryStore });
 
       // for display:
       deckSizesFilterString.value = queryStore.deckSizesFilter.join(",");
