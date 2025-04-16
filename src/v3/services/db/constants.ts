@@ -4,7 +4,7 @@ import {
   SortDirectionEnum,
   type SortColumnWithDirection,
 } from "../../types/types";
-import { DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY } from "~/v3/components/scores-modal/constants";
+import { DEFAULT_SORT_BY_COLUMNS_MAP } from "~/v3/components/scores-modal/constants";
 
 export const DEFAULT_QUERY_PROPS = {
   pageNumber: 1,
@@ -12,11 +12,7 @@ export const DEFAULT_QUERY_PROPS = {
   maxDeckSizes: 24,
   deckSizesFilter: [GAME.DECK_SIZE_DEFAULT],
   sortByColumnHistory: [
-    DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY[ScoreTableColumnEnum.game_time_ds as any]
-    // {
-    //   column: ScoreTableColumnEnum.game_time_ds,
-    //   direction: SortDirectionEnum.asc,
-    // },
+    DEFAULT_SORT_BY_COLUMNS_MAP[ScoreTableColumnEnum.game_time_ds],
   ] as Array<SortColumnWithDirection>,
   sortDirection: SortDirectionEnum.asc,
 };
