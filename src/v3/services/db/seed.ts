@@ -2,7 +2,6 @@
 import { server$ } from "@builder.io/qwik-city";
 import type { InsertScore } from "~/v3/db/schemas/types";
 import serverDbService from ".";
-import { getRandomBytes } from "~/v3/utils/hashUtils";
 
 const ACode = 65;
 const ZCode = 90;

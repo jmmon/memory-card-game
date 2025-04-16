@@ -1,5 +1,5 @@
 import { $, component$, useSignal, useTask$ } from "@builder.io/qwik";
-import { routeLoader$, server$ } from "@builder.io/qwik-city";
+import { RequestHandler, routeLoader$, server$ } from "@builder.io/qwik-city";
 import PixelAvatar from "~/v3/components/pixel-avatar/pixel-avatar";
 import type { Score, ScoreCount } from "~/v3/db/schemas/types";
 import serverDbService from "~/v3/services/db";
@@ -80,10 +80,21 @@ export const serverRunSeed = server$(async (obj: Parameters) => {
   }
 });
 
+/*
+ * NOTE: did 10,000 scores for all 24 sizes
+ * size 52 took 157.1 seconds for 10,000 scores (2min 37.1s)
+ * total took 3727.2 seconds (62min 7.2s)
+ * avg per decksize: ~155.3 seconds
+ * */
 export const useParams = routeLoader$((requestEvent) => {
-  if (process.env.FEATURE_FLAG_SCORES_DISABLED === "true") {
+  if (import.meta.env.FEATURE_FLAG_SCORES_DISABLED === "true") {
     return { message: "Scores disabled" };
   }
+  
+  // NOTE: wrangler will make it PROD as well! have to comment this out for dev seeding
+  // if (import.meta.env.PROD) {
+  //   throw requestEvent.redirect(308, '/');
+  // }
 
   const obj = Object.fromEntries(requestEvent.query.entries());
 
