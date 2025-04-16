@@ -1,45 +1,13 @@
 import {
-  AnyColumn,
-  asc,
-  // count,
-  desc,
-  // eq,
   inArray,
 } from "drizzle-orm";
-import type { SortColumnWithDirection } from "../../types/types";
 import { DEFAULT_QUERY_PROPS } from "./constants";
 import type { ScoreQueryProps } from "./types";
 import { scores } from "~/v3/db/schemas";
 import type { InsertScore } from "~/v3/db/schemas/types";
 import { getDB } from "~/v3/db";
-import { SQLiteTable } from "drizzle-orm/sqlite-core";
+import { buildOrderBy } from "./utils";
 
-const deUnderscore = <T extends SQLiteTable>(columnWithUnderscores: string) => {
-  const parts = columnWithUnderscores.split("_");
-  let total = parts[0];
-  if (parts.length === 1) return total as keyof T;
-
-  for (let i = 1; i < parts.length; i++) {
-    total += parts[i][0].toUpperCase() + parts[i].slice(1);
-  }
-  return total as keyof T;
-};
-
-export const buildOrderBy = <T extends SQLiteTable>(
-  sortByColumnHistory: Array<SortColumnWithDirection>,
-  table: T,
-) => {
-  const list = [];
-  for (const { column, direction } of sortByColumnHistory) {
-    const tableColumn = table[deUnderscore<T>(column)] as AnyColumn;
-    if (direction === "asc") {
-      list.push(asc(tableColumn));
-    } else {
-      list.push(desc(tableColumn));
-    }
-  }
-  return list;
-};
 
 const getAllScores = () => getDB().select().from(scores);
 

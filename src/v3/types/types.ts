@@ -56,6 +56,8 @@ export type ScoreWithPercentiles = Score & {
   mismatchPercentile?: number;
 };
 
+export type ScoresByDeckSize = Record<number, Score[]>;
+
 export enum ScoreTableColumnEnum {
   initials = "initials",
   deck_size = "deck_size",
