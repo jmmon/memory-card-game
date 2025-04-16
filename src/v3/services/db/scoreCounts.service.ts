@@ -2,40 +2,37 @@ import { eq, inArray } from "drizzle-orm";
 import { getDB, scoreCounts } from "../../db";
 import {
   ScoreTableColumnEnum,
-  SortDirectionEnum,
   type LessThanOurScoreObj,
 } from "../../types/types";
-import { DEFAULT_QUERY_PROPS } from "./constants";
-import type { CountsQueryProps } from "./types";
+// import { DEFAULT_QUERY_PROPS } from "./constants";
+// import type { CountsQueryProps } from "./types";
 import type {
   InsertScoreCount,
   Score,
   ScoreCount,
 } from "~/v3/db/schemas/types";
 import { buildOrderBy } from "./scores.service";
+import { DEFAULT_SORT_BY_COLUMNS_MAP } from "~/v3/components/scores-modal/constants";
 
 const getAllScoreCounts = () => getDB().select().from(scoreCounts);
 
-const queryScoreCounts = ({
-  deckSizesFilter = DEFAULT_QUERY_PROPS.deckSizesFilter,
-  sortDirection = DEFAULT_QUERY_PROPS.sortDirection,
-}: Partial<CountsQueryProps>) =>
-  getDB()
-    .select()
-    .from(scoreCounts)
-    .where(inArray(scoreCounts.deckSize, deckSizesFilter))
-    .orderBy(
-      ...buildOrderBy(
-        [
-          {
-            column: ScoreTableColumnEnum.deck_size,
-            direction: sortDirection,
-          },
-        ],
-        scoreCounts,
-      ),
-    )
-    .execute();
+// const queryScoreCounts = ({
+//   deckSizesFilter = DEFAULT_QUERY_PROPS.deckSizesFilter,
+//   sortDirection = DEFAULT_QUERY_PROPS.sortDirection,
+// }: Partial<CountsQueryProps>) =>
+//   getAllScoreCounts()
+//     .where(inArray(scoreCounts.deckSize, deckSizesFilter))
+//     .orderBy(
+//       ...buildOrderBy(
+//         [
+//           {
+//             column: ScoreTableColumnEnum.deck_size,
+//             direction: sortDirection,
+//           },
+//         ],
+//         scoreCounts,
+//       ),
+//     );
 
 const clearScoreCountsTable = () => getDB().delete(scoreCounts);
 
@@ -48,67 +45,49 @@ const getDeckSizeList = () =>
     .from(scoreCounts)
     .orderBy(
       ...buildOrderBy(
-        [
-          {
-            column: ScoreTableColumnEnum.deck_size,
-            direction: SortDirectionEnum.asc,
-          },
-        ],
+        [DEFAULT_SORT_BY_COLUMNS_MAP[ScoreTableColumnEnum.deck_size]],
         scoreCounts,
       ),
     ) // sort by deckSize
     .execute()
-    .then((set) => set.map(({ deckSize }) => deckSize)); // map to number[]
+    .then((counts) => counts.map(({ deckSize }) => deckSize));
 
-const createScoreCount = async ({
-  deckSize,
-  mismatches,
-  gameTimeDs,
-}: Score) => {
-  return (
-    await getDB()
-      .insert(scoreCounts)
-      .values({
-        createdAt: Date.now(),
-        deckSize: deckSize,
-        worseThanOurMismatchesMap: JSON.stringify({
-          [mismatches]: 0,
-        }),
-        worseThanOurGameTimeMap: JSON.stringify({
-          [gameTimeDs]: 0,
-        }),
-        totalScores: 1,
-      })
-      .returning()
-  )[0];
-};
-
-const getScoreCountsByDeckSize = async (deckSizes: number[]) =>
+const createScoreCount = async ({ deckSize, mismatches, gameTimeDs }: Score) =>
   getDB()
-    .select()
-    .from(scoreCounts)
-    .where(inArray(scoreCounts.deckSize, deckSizes));
+    .insert(scoreCounts)
+    .values({
+      createdAt: Date.now(),
+      deckSize: deckSize,
+      worseThanOurMismatchesMap: `{${mismatches}: 0}`, // 0 other scores worse than ours, since we're the only score
+      worseThanOurGameTimeMap: `{${gameTimeDs}: 0}`, // 0 other scores worse than ours, since we're the only score
+      totalScores: 1,
+    })
+    .returning()
+    .then((newCounts) => newCounts[0]);
 
-const updateScoreCountById = async (id: number, update: InsertScoreCount) =>
-  (
-    await getDB()
-      .update(scoreCounts)
-      .set(update)
-      .where(eq(scoreCounts.id, id))
-      .returning()
-  )[0];
+const getManyScoreCountsByDeckSize = async (deckSizes: number[]) =>
+  getAllScoreCounts().where(inArray(scoreCounts.deckSize, deckSizes));
 
-const updateScoreCountByDeckSize = async (
-  deckSize: number,
-  update: InsertScoreCount,
-) =>
-  (
-    await getDB()
-      .update(scoreCounts)
-      .set(update)
-      .where(eq(scoreCounts.deckSize, deckSize))
-      .returning()
-  )[0];
+const getOneScoreCountByDeckSize = async (deckSize: number) =>
+  getAllScoreCounts()
+    .where(eq(scoreCounts.deckSize, deckSize))
+    .then((count) => count[0]);
+
+// const updateScoreCountById = async (id: number, update: InsertScoreCount) =>
+//   getDB()
+//     .update(scoreCounts)
+//     .set(update)
+//     .where(eq(scoreCounts.id, id))
+//     .returning()
+//     .then((counts) => counts[0]);
+
+const updateScoreCountByDeckSize = async (update: InsertScoreCount) =>
+  getDB()
+    .update(scoreCounts)
+    .set(update)
+    .where(eq(scoreCounts.deckSize, update.deckSize))
+    .returning()
+    .then((counts) => counts[0]);
 
 /*
  * adding a score to the list:
@@ -173,53 +152,6 @@ const updateScoreCountByDeckSize = async (
  *
  *
  * */
-
-// const updateWorseThanOurMismatchesJson = (
-//   score: Score,
-//   total: number,
-//   oldJson: LessThanOurScoreObj,
-// ) => {
-//   let resultObj: LessThanOurScoreObj = {};
-//   const sortedOldJsonEntries = Object.entries(oldJson)
-//     .map(([k, v]) => [Number(k), v])
-//     .sort(([mismatchesA], [mismatchesB]) => mismatchesA - mismatchesB);
-//   // console.log("sorted by mismatches ascending:", sortedOldJsonEntries);
-//
-//   let nextBetterCount = total;
-//   let isNeedToInsert = true;
-//
-//   // looping from worst scores to best scores
-//   for (let i = 0; i < sortedOldJsonEntries.length; i++) {
-//     const [thisMismatches, thisCount] = sortedOldJsonEntries[i];
-//
-//     if (score.mismatches > thisMismatches) {
-//       resultObj[thisMismatches] = thisCount + 1;
-//
-//       // save the old score in case it's just above our new one
-//       nextBetterCount = thisCount;
-//     } else if (score.mismatches < thisMismatches) {
-//       // we did better than this score
-//       // this score did not lift
-//       resultObj[thisMismatches] = thisCount; // don't change the worse score, it did not improve
-//     } else if (thisMismatches === score.mismatches) {
-//       // if same score is found, we just keep the previous score
-//       isNeedToInsert = false;
-//       resultObj[thisMismatches] = thisCount; // don't change the worse score
-//     }
-//   }
-//
-//   if (isNeedToInsert) {
-//     resultObj[score.mismatches] = nextBetterCount;
-//     // sort for looks, unnecessary
-//     resultObj = Object.fromEntries(
-//       Object.entries(resultObj)
-//         .map(([k, v]) => [Number(k), v])
-//         .sort(([mismatchesA], [mismatchesB]) => mismatchesA - mismatchesB),
-//     );
-//   }
-//
-//   return resultObj;
-// };
 
 /* e.g.
  * 0, 1, 0, 1, 0,
@@ -319,61 +251,175 @@ const updateScoreCountByDeckSize = async (
  * (best)                                  (worst)
  * */
 
-// const updateWorseThanOurGameTimeJson = (
+// TODO:
+// finish more efficient version
+// - don't really need to go through all, can go through only the ones WORSE than us
+// - can reuse the entries that are better than our score
+//
+// also, could change how we calculate scores:
+// - only increment the next highest/worse count
+// - then when calculating scores, would need to go over all worse-than and total them
+//   - then calculate percentile from that total
+// - WARN: this will mean totals must be calculated from the worst up
+//
+//
+// also probably don't need to sort again below if it stays in order
+// - would need to insert in the loop so it's in the correct place
+// this is the update function, so if we maintain order in here during updates, then
+// we don't need to ever sort the json
+//
+//  can I just splice it in? still might need the total "worse" counts so I could know the correct counts I think?
+//
+//  NOTE:
+//  walk the array from worst to best scores, counting the totals worse so far ?? or maybe not need the totals
+//  find the index where mine will fit
+//  NOTE:
+//  if it's the BEST score, need the total to calculate e.g. total - 1, since mine is the only best
+//  ->
+//  if it's the WORST score, grab the next better score and increment it, nothing else changes
+//  if it's not a new entry, grab the next better score and increment it, nothing else changes
+//  ->
+//  if it's a new entry and not the best, 
+//  - have to grab the next BETTER score and use it for my score,
+//  - and next better score count becomes 1, since mine is the only one score directly worse
+//
+//
+
+//
+// const updateWorseThanOurScoreJson2 = (
 //   score: Score,
 //   total: number,
 //   oldJson: LessThanOurScoreObj,
+//   key: "gameTimeDs" | "mismatches",
 // ) => {
 //   const newLessThanOurScoreJson: LessThanOurScoreObj = {};
-//   const entries = Object.entries(oldJson)
+//   const sortedEntries = Object.entries(oldJson)
 //     .map(([k, v]) => [Number(k), v])
-//     .sort(([timeA], [timeB]) => timeA - timeB);
+//
+//   const ourScore = score[key];
+//
+//   // handle 1 length case:
+//   if (sortedEntries.length === 1) {
+//     const [currentScore] = sortedEntries[0];
+//     if (ourScore > currentScore) {
+//       // ours is higher (worse)
+//       // so their number should increase
+//       // and we should have 0
+//       // and theirs should be first
+//       newLessThanOurScoreJson[currentScore] = 1;
+//       newLessThanOurScoreJson[ourScore] = 0;
+//       // nextBetterCount = currentLessThanCount;
+//     } else {
+//       if (ourScore < currentScore) {
+//         // ours is better so we have 1 that is worse
+//         newLessThanOurScoreJson[ourScore] = 1;
+//       }
+//       // old score (or equal score) gets appended next, with 0
+//       // (it's either worse than ours or equal to ours)
+//       newLessThanOurScoreJson[currentScore] = 0;
+//     }
+//     return newLessThanOurScoreJson;
+//   }
 //
 //   let nextBetterCount = total;
 //   let isNeedToInsert = true;
 //
-//   for (let i = 0; i < entries.length; i++) {
-//     const [thisGameTime, thisLessThanCount] = entries[i];
+//   // TODO: handle >1 length case
+//   // grab current and previous datas
+//   // increment only the next better score (it is higher than us)
+//   // - that will let us reduce the size of json, would then need to total the counts for the percentiles
+//   // start from lowest score (best score)
+//   // once we find a score that is worse or equal, we know where our score stands
+//   // - then increment the prev score's counts by 1 to indicate there is now one more worse than it
+//   // when breaking, use the index to find where to splice from the untouched part to patch it on afterwards
 //
-//     if (score.gameTimeDs > thisGameTime) {
-//       newLessThanOurScoreJson[thisGameTime] = thisLessThanCount + 1;
-//       nextBetterCount = thisLessThanCount;
-//     } else if (score.gameTimeDs < thisGameTime) {
-//       // do nothing
-//       newLessThanOurScoreJson[thisGameTime] = thisLessThanCount;
+//   // maybe just try to use splice???
+//   // indexOf to find index where score matches
+//   // then go back one index to find next better (lower) score to increment it
+//   // or if needed, splice in our new record for our new score if it didn't exist
+//
+//   // TODO: handle case where ours is the highest score, aka better than [0]
+//
+//   const [bestScore, bestCount] = sortedEntries[0];
+//   if (ourScore < bestScore) { // ours is the best, so need to get our total
+//     // need to determine how many scores are in the next worse score
+//     // i think sum up all scores from [1] to the end, and subtract from total
+//     const ourTotal = total - sortedEntries.slice(1).reduce((accum, [_, count]) => accum + count, 0);
+//
+//     //then can append the entire array, or unshift ours and return the entire thing
+//
+//     sortedEntries.unshift([ourScore, ourTotal]);
+//     return sortedEntries;
+//   }
+//
+//   // maybe should walk backwards through the array?, so then I can always have the total
+//   // then it's simple to find out the next counts
+//
+//   let i = 1; // start at 1 and 0 for cur/prev
+//   
+//   while(i < sortedEntries.length) {
+//     const [prevScore, prevCount] = sortedEntries[i - 1];
+//     const [curScore, curCount] = sortedEntries[i];
+//
+//     console.assert(prevScore < curScore, "it's not sorted properly");
+//     //if (ourScore < curScore && ourScore < prevScore) {
+//     //  // ours is best
+//     //  newLessThanOurScoresObj[ourScore] = total - (sum of all below);
+//     //}
+//
+//     if (ourScore > curScore && ourScore > prevScore) {
+//       // do nothing? aka insert same value
+//       newLessThanOurScoreObj[curScore] = curCount;
+//
+//     } else if (ourScore === curScore && ourScore > prevScore) {
+//       // prev score is better than ours, and cur score is the same
+//       // increment curScore
+//       
+//
+//     } else if (ourScore > curScore && ourScore < prevScore) {
+//       // we are in between, our score is better than prevScore but worse than curScore
+//       // curScore has to increment
+//
 //     } else {
-//       // equal
-//       isNeedToInsert = false;
-//       newLessThanOurScoreJson[thisGameTime] = thisLessThanCount;
+//       // TODO:
+//
+//       break; // break the loop since nothing else to do
 //     }
+//
+//
+//     i++;
 //   }
 //
-//   if (isNeedToInsert) {
-//     newLessThanOurScoreJson[score.gameTimeDs] = nextBetterCount;
-//     const final = Object.entries(newLessThanOurScoreJson)
-//       .map(([k, v]) => [Number(k), v])
-//       .sort(([timeA], [timeB]) => timeA - timeB);
-//     return Object.fromEntries(final);
-//   }
-//   return newLessThanOurScoreJson;
-// };
+//   // TODO:
+//   // loop will break , and we can combine the untouched part and the modified part and it should keep in same order
+//
+//   const priorHalf = newLessThanOurScoreJson.push([score[key], nextBetterCount]);
+//   const latterHalf = sortedEntries.slice(i);
+//
+//   return priorHalf.concat(latterHalf);
+//
+// }
 
-const updateWorseThanOurScoreJson = (
+// something like O(n*5)? map, sort, for, map, sort
+// could be more like O(n)
+const updateWorseThanOurScoreMap = (
   score: Score,
   total: number,
-  oldJson: LessThanOurScoreObj,
+  oldJson: string,
   key: "gameTimeDs" | "mismatches",
 ) => {
   const newLessThanOurScoreJson: LessThanOurScoreObj = {};
-  const entries = Object.entries(oldJson)
+  const sortedEntries = Object.entries(
+    JSON.parse(oldJson) as LessThanOurScoreObj,
+  )
     .map(([k, v]) => [Number(k), v])
     .sort(([scoreA], [scoreB]) => scoreA - scoreB);
 
   let nextBetterCount = total;
   let isNeedToInsert = true;
 
-  for (let i = 0; i < entries.length; i++) {
-    const [thisScore, thisLessThanCount] = entries[i];
+  for (let i = 0; i < sortedEntries.length; i++) {
+    const [thisScore, thisLessThanCount] = sortedEntries[i];
 
     if (score[key] > thisScore) {
       newLessThanOurScoreJson[thisScore] = thisLessThanCount + 1;
@@ -393,73 +439,60 @@ const updateWorseThanOurScoreJson = (
     const final = Object.entries(newLessThanOurScoreJson)
       .map(([k, v]) => [Number(k), v])
       .sort(([scoreA], [scoreB]) => scoreA - scoreB);
-    return Object.fromEntries(final);
+    return JSON.stringify(Object.fromEntries(final));
   }
-  return newLessThanOurScoreJson;
+
+  return JSON.stringify(newLessThanOurScoreJson);
 };
 
 /*
  * */
 
-const addScoreToExistingCount = async (
-  foundOneScoreCount: ScoreCount,
+const addScoreToExistingCount = (
+  {
+    deckSize,
+    totalScores,
+    worseThanOurMismatchesMap,
+    worseThanOurGameTimeMap,
+  }: ScoreCount,
   score: Score,
-) => {
-  const updatedWorseThanMismatches = updateWorseThanOurScoreJson(
-    score,
-    foundOneScoreCount.totalScores,
-    JSON.parse(foundOneScoreCount.worseThanOurMismatchesMap),
-    "mismatches",
-  );
-  const updatedWorseThanGameTime = updateWorseThanOurScoreJson(
-    score,
-    foundOneScoreCount.totalScores,
-    JSON.parse(foundOneScoreCount.worseThanOurGameTimeMap),
-    "gameTimeDs",
-  );
-
-  return updateScoreCountById(foundOneScoreCount.id, {
-    deckSize: foundOneScoreCount.deckSize,
-    worseThanOurMismatchesMap: JSON.stringify(updatedWorseThanMismatches),
-    worseThanOurGameTimeMap: JSON.stringify(updatedWorseThanGameTime),
-    totalScores: foundOneScoreCount.totalScores + 1,
+) =>
+  updateScoreCountByDeckSize({
+    deckSize: deckSize,
+    worseThanOurMismatchesMap: updateWorseThanOurScoreMap(
+      score,
+      totalScores,
+      worseThanOurMismatchesMap,
+      "mismatches",
+    ),
+    worseThanOurGameTimeMap: updateWorseThanOurScoreMap(
+      score,
+      totalScores,
+      worseThanOurGameTimeMap,
+      "gameTimeDs",
+    ),
+    totalScores: totalScores + 1,
     createdAt: Date.now(),
   });
-};
 
 // in the end, we will end up with 52 - 6 = 46 / 2 + 1 = 24 different deckSizes
 const saveScoreToCount = async (score: Score) => {
-  // console.log("saveScoreToCounts:", { score });
-  const foundOneScoreCount = (
-    await getScoreCountsByDeckSize([score.deckSize])
-  )[0] as ScoreCount | undefined;
-
-  // console.log("saveScoreToCounts:", { foundOneScoreCounts });
-
-  if (foundOneScoreCount === undefined) {
-    // creating a new scoreCounts
-    return createScoreCount(score);
-  } else {
-    // update worseThanOurScoreJson: for all keys greater than our score, increment the values by 1
-    return addScoreToExistingCount(foundOneScoreCount, score);
-  }
+  const foundOneScoreCount = await getOneScoreCountByDeckSize(score.deckSize);
+  return foundOneScoreCount
+    ? addScoreToExistingCount(foundOneScoreCount, score)
+    : createScoreCount(score);
 };
 
 const scoreCountService = {
-  clear: clearScoreCountsTable,
-  query: queryScoreCounts,
-  getDeckSizes: getDeckSizeList,
-  create: createScoreCount,
-  getByDeckSize: getScoreCountsByDeckSize,
-  updateById: updateScoreCountById,
-  addScoreToCountById: addScoreToExistingCount,
-  updateByDeckSize: updateScoreCountByDeckSize,
-  // /*
-  //  * the main way to add a score: also updates the scoreCounts
-  //  *  - creates Score
-  //  *  - creates or updates ScoreCounts
-  //  * */
-  saveScoreToCount,
   getAll: getAllScoreCounts,
+  getDeckSizes: getDeckSizeList,
+  getByDeckSize: getManyScoreCountsByDeckSize,
+  clear: clearScoreCountsTable,
+  /*
+   * the main way to add a score: also updates the scoreCounts
+   *  - creates Score
+   *  - creates or updates ScoreCounts
+   * */
+  saveScoreToCount,
 };
 export default scoreCountService;

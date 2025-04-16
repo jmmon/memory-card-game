@@ -1,16 +1,20 @@
-import { AnyColumn, asc, count, desc, eq, inArray } from "drizzle-orm";
+import {
+  AnyColumn,
+  asc,
+  // count,
+  desc,
+  // eq,
+  inArray,
+} from "drizzle-orm";
 import type { SortColumnWithDirection } from "../../types/types";
 import { DEFAULT_QUERY_PROPS } from "./constants";
 import type { ScoreQueryProps } from "./types";
 import { scores } from "~/v3/db/schemas";
-import type { InsertScore, Score } from "~/v3/db/schemas/types";
+import type { InsertScore } from "~/v3/db/schemas/types";
 import { getDB } from "~/v3/db";
+import { SQLiteTable } from "drizzle-orm/sqlite-core";
 
-// getCategory(deckSize): returns list of scores matching deck size
-const getAllScores = () => getDB().select().from(scores);
-// db.execute(sql`select * from Scores`)
-
-const unUnderscore = <T>(columnWithUnderscores: string) => {
+const deUnderscore = <T extends SQLiteTable>(columnWithUnderscores: string) => {
   const parts = columnWithUnderscores.split("_");
   let total = parts[0];
   if (parts.length === 1) return total as keyof T;
@@ -21,10 +25,13 @@ const unUnderscore = <T>(columnWithUnderscores: string) => {
   return total as keyof T;
 };
 
-export const buildOrderBy = <T>(sortByColumnHistory: Array<SortColumnWithDirection>, table: T) => {
+export const buildOrderBy = <T extends SQLiteTable>(
+  sortByColumnHistory: Array<SortColumnWithDirection>,
+  table: T,
+) => {
   const list = [];
   for (const { column, direction } of sortByColumnHistory) {
-    const tableColumn = table[unUnderscore<T>(column)] as AnyColumn;
+    const tableColumn = table[deUnderscore<T>(column)] as AnyColumn;
     if (direction === "asc") {
       list.push(asc(tableColumn));
     } else {
@@ -34,7 +41,7 @@ export const buildOrderBy = <T>(sortByColumnHistory: Array<SortColumnWithDirecti
   return list;
 };
 
-const clearScoresTable = () => getDB().delete(scores);
+const getAllScores = () => getDB().select().from(scores);
 
 const queryScores = async ({
   pageNumber,
@@ -56,28 +63,12 @@ const queryScores = async ({
   //   sortByColumnHistory,
   //   sqlOrderBy,
   // });
-  //
-  // const test = await db.query.scores.findMany({
-  //   where: inArray(scores.deckSize, deckSizesFilter),
-  //   orderBy: sqlOrderBy,
-  //   // offset: (pageNumber - 1) * resultsPerPage,
-  //   // limit: resultsPerPage,
-  // });
-  // // console.log('query:', {test});
-  // // const sortBy
-  // return test.slice(
-  //   (pageNumber - 1) * resultsPerPage,
-  //   pageNumber * resultsPerPage,
-  // );
 
-  const sqlQuery = getDB()
-    .select()
-    .from(scores)
+  const sqlQuery = getAllScores()
     // grab scores with deckSize in our array of deckSizes
     .where(inArray(scores.deckSize, deckSizesFilter))
     // sort using multiple sort column priorities
     .orderBy(...sqlOrderByList)
-    // .orderBy(sqlOrderBy)
     .offset((pageNumber - 1) * resultsPerPage)
     .limit(resultsPerPage);
 
@@ -147,39 +138,34 @@ const queryScores = async ({
 //   };
 // };
 
-const getScoresByDeckSize = (deckSize: number) =>
-  getAllScores().where(eq(scores.deckSize, deckSize));
+// const getScoresByDeckSize = (deckSize: number) =>
+//   getAllScores().where(eq(scores.deckSize, deckSize));
 
 const createScore = async (newScore: InsertScore) => {
   if (!newScore.createdAt) newScore.createdAt = Date.now();
-  const returnedScore: Score = (
-    await getDB().insert(scores).values(newScore).returning()
-  )[0];
+  const returnedScore = await getDB()
+    .insert(scores)
+    .values(newScore)
+    .returning()
+    .then((scores) => scores[0]);
   // console.log("createScore: after insert:", { returnedScore });
   return returnedScore;
 };
 
-const getDistinctDeckSizesList = () =>
-  getDB()
-    .selectDistinct({ deckSize: scores.deckSize })
-    .from(scores)
-    .then((objects) => objects.map(({ deckSize }) => deckSize));
+// not really needed
 
-const getCountByDeckSize = (deckSize: number) =>
-  getDB()
-    .select({ count: count() })
-    .from(scores)
-    .where(eq(scores.deckSize, deckSize));
+// const getCountByDeckSize = (deckSize: number) =>
+//   getDB()
+//     .select({ count: count() })
+//     .from(scores)
+//     .where(eq(scores.deckSize, deckSize));
+
+const clearScoresTable = () => getDB().delete(scores);
 
 const scoreService = {
-  clear: clearScoresTable,
-  query: queryScores,
-  getByDeckSize: getScoresByDeckSize,
   create: createScore,
   getAll: getAllScores,
-  getDeckSizes: getDistinctDeckSizesList,
-  getCountByDeckSize,
-  // queryWithPointer: queryScoresWithPointer,
-  // queryWithPercentiles: server$(queryScoresAndCalculatePercentiles),
+  query: queryScores,
+  clear: clearScoresTable,
 };
 export default scoreService;
