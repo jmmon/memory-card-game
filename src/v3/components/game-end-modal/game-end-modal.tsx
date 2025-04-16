@@ -151,6 +151,7 @@ export default component$(() => {
               text={identifier}
               colorFrom={initials}
               outputTo$={({ hash }) => {
+                // let PixelAvatar hash it so we don't have to hash twice
                 userId.value = hash;
               }}
             />
@@ -181,7 +182,8 @@ export default component$(() => {
                           ? prev.slice(0, GAME.INITIALS_MAX_LENGTH)
                           : prev.padStart(3, "-");
                       // force replace value using ref
-                      (initialsRef.value as HTMLInputElement).value = newString;
+                      initialsRef.value!.value = newString;
+                      initials.value = newString;
                     }}
                     onFocus$={selectFieldOnFocus$}
                   />

@@ -29,8 +29,8 @@ type Debug = {
   UTIL: 0 | LogLevelValue;
 };
 
-// const isProd = import.meta.env.PROD;
-const isProd = false;
+export const isProd = import.meta.env.PROD;
+// const isProd = false;
 const DEBUG: Debug = {
   HANDLER: isProd ? 0 : 0, //LogLevel.ONE,
   HOOK: isProd ? 0 : 0, //LogLevel.TWO,
