@@ -560,7 +560,9 @@ const TableDecksizeFilterHeader = component$<TableDeckSizesFilterHeaderProps>(
 );
 
 const BASE_BUTTON_CLASSES: ClassList =
-  "disabled:opacity-40 text-slate-100 p-1 inline";
+  "disabled:opacity-40 text-slate-100 flex justify-center items-center w-[1em] min-w-min h-[1.4em] leading-[1.2]";
+
+const PAGE_BUTTONS_MAX = 13;
 
 type TablePagingFooterProps = {
   queryStore: QueryStore;
@@ -575,7 +577,7 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
       next: true,
       last: true,
       maxPageButtons: 7,
-      prevPage: queryStore.pageNumber,
+      prevPage: queryStore.pageNumber, // used for?
     });
 
     const remainingPageButtonSlots = useSignal(buttons.maxPageButtons);
@@ -585,6 +587,19 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
       const currentPage = queryStore.pageNumber;
 
       const bonus = Math.floor((remainingPageButtonSlots.value - 1) / 2);
+    // with 11 max, I'm getting up to 5 "number" buttons on one side,
+    // when at the start or the end page
+    // e.g. 10 total buttons, 6 number and then << < > >>
+    //
+    // TODO:
+    // would like more dynamic:
+    // - if on second to last or first page, hide the last/first button
+    // - if on the last/first page, hide both next/last or prev/first buttons
+    // - and should always attempt to show up to MAX buttons
+    //  - so if 11 MAX, and on page 1, should show 1 thru 9 and next/last === 11
+    //
+    // - or maybe something with ".." and then a 5 or 10 step?
+    // 1 2 3 4 5 .. 10 > >>
 
       const startPage = Math.max(1, currentPage - bonus);
       const endPage = Math.min(queryStore.totalPages, currentPage + bonus) + 1;
@@ -601,9 +616,10 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
         queryStore.totalResults,
       ]);
 
-      buttons.first = buttons.prev = queryStore.pageNumber > 1;
-      buttons.last = buttons.next =
-        queryStore.pageNumber < queryStore.totalPages;
+      buttons.first = queryStore.pageNumber > 1;
+      buttons.prev = queryStore.pageNumber > 1;
+      buttons.last = queryStore.pageNumber < queryStore.totalPages;
+      buttons.next = queryStore.pageNumber < queryStore.totalPages;
 
       remainingPageButtonSlots.value =
         buttons.maxPageButtons -
@@ -641,22 +657,7 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
         default:
           pageNumber = queryStore.pageNumber;
       }
-      // pageNumber =
-      // label[0] === "page"
-      //   ? Number(label[2])
-      //   : label[0] === "first"
-      //     ? 1
-      // : label[0] === "previous"
-      //   ? pageNumber - 1 < 1
-      //     ? 1
-      //     : pageNumber - 1
-      // : label[0] === "next"
-      //   ? pageNumber + 1 > queryStore.totalPages
-      //     ? queryStore.totalPages
-      //     : pageNumber + 1
-      // : label[0] === "last"
-      //   ? queryStore.totalPages
-      //   : queryStore.pageNumber;
+
       console.log("clicked page number button:", { label, pageNumber });
       buttons.prevPage = queryStore.pageNumber;
       queryStore.pageNumber = pageNumber;
@@ -666,16 +667,11 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
 
     return (
       <div class="flex-grow-0 flex flex-col h-[3.2rem]">
-        <div
-          class={` grid  w-full p-1 flex-grow-0 `}
-          // style={{
-          //   gridTemplateColumns: `${DECK_SIZES_WIDTH} 1fr ${DECK_SIZES_WIDTH}`,
-          // }}
-        >
-          <div class="justify-center flex gap-2 w-full" onClick$={onClick$}>
+        <div class={` grid  w-full p-1 flex-grow-0 `}>
+          <div class="justify-center flex gap-1 w-full" onClick$={onClick$}>
             <button
               disabled={!buttons.first}
-              class={`${BASE_BUTTON_CLASSES} flex items-center justify-center`}
+              class={BASE_BUTTON_CLASSES}
               data-label="first-page"
             >
               <ChevronStyled direction="left" />
@@ -711,7 +707,7 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
             </button>
             <button
               disabled={!buttons.last}
-              class={`${BASE_BUTTON_CLASSES} flex`}
+              class={BASE_BUTTON_CLASSES}
               data-label="last-page"
             >
               <ChevronStyled direction="right" />
