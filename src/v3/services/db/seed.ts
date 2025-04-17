@@ -25,10 +25,10 @@ const generateRandomMsWithinRange = (
 /**
  * in decaseconds (tenths)
  * */
-const generateRandomGameTimeDs = (deckSize: number) =>
+export const generateRandomGameTimeDs = (deckSize: number) =>
   (deckSize * 1000 + Math.round(Math.random() * 1000) * 100) / 100;
 
-const generateRandomMismatches = (deckSize: number) =>
+export const generateRandomMismatches = (deckSize: number) =>
   Math.max(
     0,
     Math.round(
@@ -43,7 +43,6 @@ const generateScoreData = (deckSize: number) => {
     deckSize,
     gameTimeDs: generateRandomGameTimeDs(deckSize), // decaseconds
     mismatches: generateRandomMismatches(deckSize),
-    // userId: '0000000000000000111111111111111100000000000000001111111111111111000000000000000011111111111111110000000000000000111111111111111100000000000000001111111111111111000000000000000011111111111111110000000000000000111111111111111100000000000000001111111111111111',
     // userId: ('0'.repeat(8) + "1".repeat(8)).repeat(16),
 //     userId: '10101010\
 // 01011111\

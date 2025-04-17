@@ -58,8 +58,8 @@ const createScoreCount = async ({ deckSize, mismatches, gameTimeDs }: Score) =>
     .values({
       createdAt: Date.now(),
       deckSize: deckSize,
-      worseThanOurMismatchesMap: `{${mismatches}: 0}`, // 0 other scores worse than ours, since we're the only score
-      worseThanOurGameTimeMap: `{${gameTimeDs}: 0}`, // 0 other scores worse than ours, since we're the only score
+      worseThanOurMismatchesMap: `{"${mismatches}": 0}`, // 0 other scores worse than ours, since we're the only score
+      worseThanOurGameTimeMap: `{"${gameTimeDs}": 0}`, // 0 other scores worse than ours, since we're the only score
       totalScores: 1,
     })
     .returning()
@@ -106,7 +106,7 @@ const addScoreToExistingCount = (
     deckSize: deckSize,
     worseThanOurMismatchesMap: updateWorseThanOurScoreMap(
       score,
-      totalScores,
+      totalScores, // previous total
       worseThanOurMismatchesMap,
       "mismatches",
     ),

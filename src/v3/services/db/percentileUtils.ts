@@ -19,7 +19,7 @@ const buildScoreWithPercentiles = (
     ...score,
     timePercentile: calculatePercentile(
       total,
-      ltGameTimeObjSortedAscByScore[score.gameTimeDs],
+      ltGameTimeObjSortedAscByScore[score.gameTimeDs], // v2 would need the sum here
     ),
     mismatchPercentile: calculatePercentile(
       total,
@@ -334,16 +334,16 @@ export const calculatePercentilesWhileMaintainingOrder = (
 // could be more like O(n)
 export const updateWorseThanOurScoreMap = (
   score: Score,
-  total: number,
+  total: number, // previous total, since this is run before the update to the scoreCounts
   oldJson: string,
   key: "gameTimeDs" | "mismatches",
 ) => {
   const newLessThanOurScoreJson: LessThanOurScoreObj = {};
   const sortedEntries = Object.entries(
-    JSON.parse(oldJson) as LessThanOurScoreObj,
+    JSON.parse(oldJson) as Record<string, number>,
   )
     .map(([k, v]) => [Number(k), v])
-    .sort(([scoreA], [scoreB]) => scoreA - scoreB);
+    // .sort(([scoreA], [scoreB]) => scoreA - scoreB); // don't need to sort here since it's already sorted
 
   let nextBetterCount = total;
   let isNeedToInsert = true;

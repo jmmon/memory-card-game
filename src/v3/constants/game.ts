@@ -29,7 +29,7 @@ type Debug = {
   UTIL: 0 | LogLevelValue;
 };
 
-export const isProd = import.meta.env.PROD;
+export const isProd = import.meta.env?.PROD || false;
 // const isProd = false;
 const DEBUG: Debug = {
   HANDLER: isProd ? 0 : 0, //LogLevel.ONE,

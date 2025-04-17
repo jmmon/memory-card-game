@@ -40,7 +40,7 @@ export const serverRunSeed = server$(async (obj: Parameters) => {
   };
 
   const start = Date.now();
-  // console.log({opts});
+  console.log({opts});
 
   try {
     await runSeed(opts);
