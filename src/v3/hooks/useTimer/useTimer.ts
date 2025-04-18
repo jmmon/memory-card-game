@@ -1,5 +1,5 @@
 import { $, useComputed$, useStore, useTask$ } from "@builder.io/qwik";
-import { StatusEnum, type UseTimerOpts, type iTimerState } from "./types";
+import { StatusEnum, UseTimer, type UseTimerOpts, type iTimerState } from "./types";
 
 /**
  * Not currently using these handler props, but may come in handy
@@ -10,7 +10,7 @@ export const useTimer = ({
   onStop$,
   onReset$,
   onResume$,
-}: Partial<UseTimerOpts> = {}) => {
+}: Partial<UseTimerOpts> = {}): UseTimer => {
   const state = useStore<iTimerState>({
     /**
      * @param status - actually controls the timer
@@ -69,7 +69,7 @@ export const useTimer = ({
   });
 
   /**
-   * Resume timer, and run callback if exists
+   * @property resume - Resume timer, and run callback if exists
    * Only resume the timer via status
    * */
   const resume = $(() => {
@@ -83,7 +83,7 @@ export const useTimer = ({
   });
 
   /**
-   * Pause timer, and run callback if exists
+   * @propert pause - Pause timer, and run callback if exists
    * Only pauses the timer when game is started and not ended
    * */
   const pause = $(() => {
@@ -163,9 +163,9 @@ export const useTimer = ({
     () => (state.isPaused || state.isEnded) && state.blink,
   );
 
-  const timer = {
-    shouldBlink,
+  const timer: UseTimer = {
     state,
+    shouldBlink,
     start,
     stop,
     pause,

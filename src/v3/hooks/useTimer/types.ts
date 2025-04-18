@@ -1,4 +1,4 @@
-import type { QRL } from "@builder.io/qwik";
+import type { QRL, Signal } from "@builder.io/qwik";
 import type { useTimer } from "./useTimer";
 
 export enum StatusEnum {
@@ -46,6 +46,47 @@ export type iTimerState = {
   blink: boolean;
 };
 
+export type UseTimer = {
+    /**
+     * @property shouldBlink - signal to show a blinking state when active timer is paused
+     *  Just for looks, to blink the timer display
+     * */
+    shouldBlink: Signal<boolean>;
+    /**
+     * @property state - Holds timer state
+     * */
+    state: iTimerState;
+    /**
+     * @property start - Function to start the timer
+     *  will trigger onStart$ callback if exists
+     * */
+    start: QRL<() => void>;
+    /**
+     * @property stop - Function to stop the timer
+     *  will trigger onStop$ callback if exists
+     * */
+    stop: QRL<() => void>;
+    /**
+     * @property pause - Function to pause the timer
+     *  - Only pauses timer if it is already running
+     *    else it has no effect
+     *  will trigger onPause$ callback if exists
+     * */
+    pause: QRL<() => void>;
+    /**
+     * @property reset - Function to reset the timer
+     *  will trigger onReset$ callback if exists
+     * */
+    reset: QRL<() => void>;
+    /**
+     * @property resume - Function to resume the timer
+     *  - Only resumes timer if it was already running
+     *    else it has no effect
+     *  will trigger onResume$ callback if exists
+     * */
+    resume: QRL<() => void>;
+}
+
 export type UseTimerOpts = {
   onPause$: QRL<() => void>;
   onStart$: QRL<() => void>;
@@ -55,4 +96,4 @@ export type UseTimerOpts = {
   isPaused: boolean;
 };
 
-export type iTimer = ReturnType<typeof useTimer>;
+// export type iTimer = ReturnType<typeof useTimer>;

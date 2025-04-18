@@ -20,8 +20,8 @@ import {
 } from "~/v3/types/types";
 import logger from "../logger";
 import cardUtils from "~/v3/utils/cardUtils";
-import type { iTimer } from "~/v3/hooks/useTimer/types";
 import { FULL_DECK } from "~/v3/utils/cards";
+import { UseTimer } from "~/v3/hooks/useTimer/types";
 
 export type GameService = ReturnType<typeof useGameContextProvider>;
 const GameContext = createContextId<GameService>("gameContext2");
@@ -32,7 +32,7 @@ export const useGameContextProvider = ({
   userSettings: iUserSettings;
 }) => {
   // state
-  const timer: iTimer = useTimer();
+  const timer: UseTimer = useTimer();
   const state = useStore<iState>({
     ...INITIAL_STATE,
     userSettings: {
@@ -205,7 +205,6 @@ export const useGameContextProvider = ({
   const showScores = $(function () {
     timer.pause();
     state.interfaceSettings.scoresModal.isShowing = true;
-    state.interfaceSettings.settingsModal.isShowing = true;
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "showScores:", {
       timerIsPaused: timer.state.isPaused,
       interfaceSettingsScoresModalIsShowing:
@@ -215,7 +214,6 @@ export const useGameContextProvider = ({
 
   const hideScores = $(function () {
     state.interfaceSettings.scoresModal.isShowing = false;
-    state.interfaceSettings.settingsModal.isShowing = false;
     timer.resume();
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "hideScores:", {
       timerIsPaused: timer.state.isPaused,
