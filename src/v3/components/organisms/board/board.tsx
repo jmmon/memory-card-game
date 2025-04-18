@@ -225,7 +225,7 @@ export default component$(() => {
       transition-property: transform;
       transition-timing-function: cubic-bezier(0.40, 1.3, 0.62, 1.045);
       transition-duration: ${
-        BOARD.CARD_SHUFFLE_PAUSE_DURATION + BOARD.CARD_SHUFFLE_ACTIVE_DURATION
+        BOARD.CARD_SHUFFLE_ACTIVE_DURATION
       }ms;
     }
 

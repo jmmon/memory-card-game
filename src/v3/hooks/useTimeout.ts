@@ -248,7 +248,7 @@ export const useOccurrencesInterval = ({
   interval,
   intervalAction,
   occurrences,
-  endingActionDelay,
+  endingActionDelay = 0,
   endingAction,
   runImmediatelyOnCondition = true,
 }: {
@@ -256,7 +256,7 @@ export const useOccurrencesInterval = ({
   interval: Signal<number>;
   intervalAction: QRL<() => void>;
   occurrences: Signal<number>;
-  endingActionDelay: number | Signal<number>;
+  endingActionDelay?: number | Signal<number>;
   endingAction: QRL<() => void>;
   runImmediatelyOnCondition?: boolean;
 }) => {
@@ -323,6 +323,12 @@ export const useOccurrencesInterval = ({
         clearInterval(intervalTimer.value);
         intervalTimer.value = undefined;
 
+        if (endingActionDelay === 0) {
+          endingAction();
+          return;
+        }
+
+        // set timeout for ending action if we have a delay
         endingActionTimer.value = window.setTimeout(
           () => {
             const now = Date.now();

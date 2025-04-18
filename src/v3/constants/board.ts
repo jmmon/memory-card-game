@@ -5,9 +5,9 @@ const CARD_FLIP_ANIMATION_DURATION = 700 as const;
 const CARD_SHAKE_ANIMATION_DURATION = 600 as const;
 
 // after initial instant transform, wait this long before starting animation
-const CARD_SHUFFLE_PAUSE_DURATION = 100 as const;
+const CARD_SHUFFLE_PAUSE_DURATION = 50 as const;
 // animation duration
-const CARD_SHUFFLE_ACTIVE_DURATION = 350 as const;
+const CARD_SHUFFLE_ACTIVE_DURATION = 450 as const;
 
 const MINIMUM_TIME_BETWEEN_CLICKS = 500 as const;
 const CARD_RATIO_VS_CONTAINER = 0.9 as const;

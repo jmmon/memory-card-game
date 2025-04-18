@@ -51,10 +51,12 @@ export default component$<GameProps>(
     // console.log("game component settings:", { settings });
     const ctx = useGameContextProvider({
       userSettings: settings,
+      // make sure state is cleared if going back/forward
+      // else the cards will be on the board before it starts the deck deal animation
       ...(loc.prevUrl?.pathname === "/"
         ? {
             gameData: {
-              cards: [], // make sure state is cleared if going back/forward
+              cards: [], 
             },
           }
         : {}),
@@ -82,6 +84,27 @@ export default component$<GameProps>(
     });
 
     /* ================================
+     * Handles shuffling rounds
+     * - runs when isShuffling (after startShuffling is called)
+     * ================================ */
+    useOccurrencesInterval({
+      triggerCondition: useComputed$(
+        () =>
+          ctx.state.gameData.dealCardIndex === 0 &&
+          ctx.state.gameData.isShuffling === true,
+      ),
+      interval: useComputed$(
+        () =>
+          BOARD.CARD_SHUFFLE_PAUSE_DURATION +
+          BOARD.CARD_SHUFFLE_ACTIVE_DURATION,
+      ),
+      intervalAction: ctx.handle.shuffleCardPositions,
+      occurrences: useComputed$(() => ctx.state.gameData.shuffleRounds),
+      endingAction: ctx.handle.stopShuffling,
+      runImmediatelyOnCondition: true,
+    });
+
+    /* ================================
      * Shuffle on interval (for fun)
      * - gives it a nice look if you leave the tab open (and you haven't started the game)
      * ================================ */
@@ -89,6 +112,7 @@ export default component$<GameProps>(
       triggerCondition: useComputed$(
         () =>
           ctx.state.gameData.dealCardIndex === 0 &&
+          !ctx.state.gameData.isShuffling &&
           !ctx.state.gameData.isLoading &&
           !ctx.timer.state.isStarted &&
           !ctx.timer.state.isEnded,
@@ -98,26 +122,6 @@ export default component$<GameProps>(
       action: ctx.handle.shuffleCardPositions,
     });
 
-    /* ================================
-     * Handles shuffling rounds
-     * - when shuffling state > 0, we shuffle a round and then decrement
-     * ================================ */
-    // TODO: swap to occurrencesInterval?
-    useTimeoutObj({
-      triggerCondition: useComputed$(
-        () =>
-          ctx.state.gameData.dealCardIndex === 0 &&
-          ctx.state.gameData.shufflingState > 0,
-      ),
-      delay:
-        BOARD.CARD_SHUFFLE_PAUSE_DURATION + BOARD.CARD_SHUFFLE_ACTIVE_DURATION,
-      action: $(() => {
-        ctx.handle.shuffleCardPositions();
-        ctx.state.gameData.shufflingState--;
-
-        if (ctx.state.gameData.shufflingState <= 0) ctx.handle.stopShuffling();
-      }),
-    });
 
     /* ================================
      * Handle Shake Animation Timers
@@ -171,15 +175,10 @@ export default component$<GameProps>(
           !ctx.state.interfaceSettings.endOfGameModal.isShowing &&
           ctx.timer.state.isStarted &&
           !ctx.timer.state.isEnded &&
-          ctx.state.gameData.lastClick !== -1,
+          ctx.state.gameData.lastClick !== -1, // if clicked recently, will be not -1
       ),
       delay: GAME.AUTO_PAUSE_DELAY_MS,
-      action: $(() => {
-        ctx.timer.pause();
-        ctx.state.interfaceSettings.settingsModal.isShowing = true;
-        ctx.state.gameData.lastClick = -1;
-        // lastClick.value === -1;
-      }),
+      action: ctx.handle.showSettings,
       checkConditionOnTimeout: true,
     });
 
@@ -193,6 +192,8 @@ export default component$<GameProps>(
       $((event: KeyboardEvent) => {
         if (event.key !== "Escape") return;
 
+        // smart modal toggle, if game is ended toggle end-game modal
+        // else toggle settings
         ctx.handle.toggleModalOnEscape();
       }),
     );
