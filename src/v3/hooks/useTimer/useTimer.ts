@@ -1,5 +1,6 @@
 import { $, useComputed$, useStore, useTask$ } from "@builder.io/qwik";
-import { StatusEnum, UseTimer, type UseTimerOpts, type iTimerState } from "./types";
+import type { UseTimer} from "./types";
+import { StatusEnum, type UseTimerOpts, type iTimerState } from "./types";
 
 /**
  * Not currently using these handler props, but may come in handy

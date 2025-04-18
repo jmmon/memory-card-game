@@ -21,7 +21,7 @@ import {
 import logger from "../logger";
 import cardUtils from "~/v3/utils/cardUtils";
 import { FULL_DECK } from "~/v3/utils/cards";
-import { UseTimer } from "~/v3/hooks/useTimer/types";
+import type { UseTimer } from "~/v3/hooks/useTimer/types";
 
 export type GameService = ReturnType<typeof useGameContextProvider>;
 const GameContext = createContextId<GameService>("gameContext2");

@@ -1,4 +1,4 @@
-import { Score } from "~/v3/db/schemas/types";
+import type { Score } from "~/v3/db/schemas/types";
 import { generateRandomGameTimeDs, generateRandomMismatches } from "./seed";
 
 export const createScores = (count: number = 10_000, _deckSize: number = 52) => {

@@ -1,6 +1,7 @@
-import { AnyColumn, asc, desc } from "drizzle-orm";
-import { SQLiteTable } from "drizzle-orm/sqlite-core";
-import { SortColumnWithDirection } from "~/v3/types/types";
+import type { AnyColumn} from "drizzle-orm";
+import { asc, desc } from "drizzle-orm";
+import type { SQLiteTable } from "drizzle-orm/sqlite-core";
+import type { SortColumnWithDirection } from "~/v3/types/types";
 
 const deUnderscore = <T extends SQLiteTable>(columnWithUnderscores: string) => {
   const parts = columnWithUnderscores.split("_");

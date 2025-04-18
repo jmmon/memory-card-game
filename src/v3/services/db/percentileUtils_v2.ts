@@ -1,5 +1,5 @@
-import { Score } from "~/v3/db/schemas/types";
-import { LessThanOurScoreObj } from "~/v3/types/types";
+import type { Score } from "~/v3/db/schemas/types";
+import type { LessThanOurScoreObj } from "~/v3/types/types";
 
 const OLD_updateWorseThanOurScoreMap = (
   score: Score,

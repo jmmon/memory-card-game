@@ -1,5 +1,5 @@
-import { Score, ScoreCount } from "~/v3/db/schemas/types";
-import { LessThanOurScoreObj, ScoreWithPercentiles, ScoresByDeckSize } from "~/v3/types/types";
+import type { Score, ScoreCount } from "~/v3/db/schemas/types";
+import type { LessThanOurScoreObj, ScoreWithPercentiles, ScoresByDeckSize } from "~/v3/types/types";
 import { roundToDecimals } from "~/v3/utils/formatTime";
 
 // this is puting the number in the middle of the percentile range than the lower end
