@@ -55,11 +55,11 @@ const convertLessThanOurScoreObj = (obj) => {
 
 const total = 10_000;
 
-const oldMap = {};
+const oldMap = {"0": 1, "1": 0};
 
 const newMap = convertLessThanOurScoreObj(oldMap);
 console.log({newMap});
-const firstItem = "520";
+const firstItem = Object.entries(oldMap)[0][0];
 const sumOfValues = Object.values(newMap).reduce((sum, cur) => sum + cur, 0);
 console.assert(total - oldMap[firstItem] === total - sumOfValues, `sum of values is wrong: newSum: ${sumOfValues}, oldSum: ${oldMap[firstItem]}`);
 
