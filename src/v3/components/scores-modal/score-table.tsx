@@ -19,12 +19,13 @@ type ScoreTableProps = {
   queryStore: QueryStore;
   handleClickColumnHeader$: QRL<(e: MouseEvent) => void>;
   sortedScores: ScoreWithPercentiles[];
+  isLoading: boolean;
 };
 export default component$<ScoreTableProps>(
-  ({ queryStore, handleClickColumnHeader$, sortedScores }) => {
+  ({ queryStore, handleClickColumnHeader$, sortedScores, isLoading }) => {
     return (
-      <table q:slot="scoreboard-tab0" class="scoreboard w-full ">
-        <thead class={` text-xs sm:text-sm md:text-md bg-slate-500`}>
+      <table q:slot="scoreboard-tab0" class={`scoreboard ${isLoading ? "loading" : ""} w-full `}>
+        <thead class={` text-xs sm:text-sm  bg-slate-500`}>
           <tr>
             {HEADER_LIST.map((header) => {
               const hyphenated = lowercaseHyphenate(header);
@@ -54,9 +55,14 @@ export default component$<ScoreTableProps>(
           </tr>
         </thead>
         <tbody>
-          {sortedScores.map((score) => (
-            <ScoreRow key={score.id} score={score} />
-          ))}
+          {/* TODO: pull isLoading into here, and render skeleton rows if it's loading */}
+          {isLoading ? (
+            <RowsSkeleton />
+          ) : (
+            sortedScores.map((score) => (
+              <ScoreRow key={score.id} score={score} />
+            ))
+          )}
         </tbody>
       </table>
     );
@@ -90,6 +96,7 @@ const ScoreTableHeader = component$<ScoreTableHeaderProps>(
 );
 
 const ROW_BG_COLOR_ALPHA = 0.8;
+const AVATAR_WIDTH: ClassList = "w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12";
 
 const appendAlphaToHSL = (color: string) =>
   color.slice(0, -2) + `${ROW_BG_COLOR_ALPHA})`;
@@ -100,14 +107,14 @@ const ScoreRow = component$<ScoreRowProps>(({ score }) => {
 
   return (
     <tr
-      class="w-full h-full border border-slate-900 rounded-lg text-xs sm:text-sm md:text-md text-white"
+      class={`${backgroundColor.value === "" ? "opacity-0" : "opacity-100"} w-full h-full border border-slate-900 text-xs sm:text-sm lg:text-[1rem] text-white`}
       style={{
         backgroundColor: backgroundColor.value,
       }}
     >
-      <td class="flex justify-center">
+      <td>
         <PixelAvatar
-          classes="w-8 h-8 sm:w-12 sm:h-12"
+          classes={AVATAR_WIDTH}
           hash={{ value: score.userId }}
           colorFrom={{ value: score.initials }}
           outputTo$={({ color }) => {
@@ -134,6 +141,35 @@ const ScoreRow = component$<ScoreRowProps>(({ score }) => {
     </tr>
   );
 });
+
+type ScoreRowSkeletonProps = {};
+const ScoreRowSkeleton = component$<ScoreRowSkeletonProps>(() => {
+  return (
+    <tr class="w-full h-full border border-slate-900 text-xs sm:text-sm lg:text-[1rem] text-white">
+      <td>
+        <div class={AVATAR_WIDTH} />
+      </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+  );
+});
+
+const RowsSkeleton = () => {
+  return (
+    <>
+      {Array(20)
+        .fill(0)
+        .map((_, i) => (
+          <ScoreRowSkeleton key={i} />
+        ))}
+    </>
+  );
+};
 
 const TIME_LABEL_COLOR: ClassList = "text-slate-300/100";
 

@@ -190,45 +190,39 @@ export default component$(
     });
 
     return (
-      <>
-        {data.value.pixels && (
-          <svg
-            viewBox={` 0 0 ${cols * eachBlockSizePx} ${
-              rows * eachBlockSizePx
-            } `}
-            width="64px" // overwritten with css
-            height="64px"
-            style={`stroke-width: 0px; background-color: ${
-              data.value.isMoreColored
-                ? data.value.color
-                : (colorOptions.backgroundColor as string)
-            }; `}
-            class={`aspect-square ${classes}`}
-            data-colored={meta.value.totalColored}
-            data-total={meta.value.totalPixels}
-            data-avg={meta.value.avg}
-            shape-rendering="crispEdges"
-          >
-            {data.value.pixels
-              .split("")
-              .map((pixel, index) =>
-                data.value.isMoreColored === (pixel === "1") ? null : (
-                  <Pixel
-                    key={`${index}:${pixel}`}
-                    index={index}
-                    pixelColor={
-                      data.value.isMoreColored
-                        ? (colorOptions.backgroundColor as string)
-                        : data.value.color
-                    }
-                    eachBlockSizePx={eachBlockSizePx}
-                    cols={cols}
-                  />
-                ),
-              )}
-          </svg>
-        )}
-      </>
+      <svg
+        viewBox={` 0 0 ${cols * eachBlockSizePx} ${rows * eachBlockSizePx} `}
+        width="64px" // overwritten with css
+        height="64px"
+        style={`stroke-width: 0px; background-color: ${
+          data.value.isMoreColored
+            ? data.value.color
+            : (colorOptions.backgroundColor as string)
+        };`}
+        class={`aspect-square ${classes}`}
+        data-colored={meta.value.totalColored}
+        data-total={meta.value.totalPixels}
+        data-avg={meta.value.avg}
+        shape-rendering="crispEdges"
+      >
+        {data.value.pixels
+          .split("")
+          .map((pixel, index) =>
+            data.value.isMoreColored === (pixel === "1") ? null : (
+              <Pixel
+                key={`${index}:${pixel}`}
+                index={index}
+                pixelColor={
+                  data.value.isMoreColored
+                    ? (colorOptions.backgroundColor as string)
+                    : data.value.color
+                }
+                eachBlockSizePx={eachBlockSizePx}
+                cols={cols}
+              />
+            ),
+          )}
+      </svg>
     );
   },
 );

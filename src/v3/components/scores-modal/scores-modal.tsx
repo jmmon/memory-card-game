@@ -98,15 +98,29 @@ export default component$(() => {
     { deep: true },
   );
 
-  // stores the data: should I paginate it so it can save previous pages?
+  // stores the data:
+  // TODO: should I paginate it so it can save previous pages?
   // e.g. page[1]: data,
   //      page[2]: undefined | data
   //      each time it fetches, it can save that page locally
+  // problems: 
+  // - have to dedupe by id, so it could be a map by id
+  // - would have to re-sort based on changing sorting order
+  // - or e.g. just wipe data when changing column sorting
+  // - > 
+  // - so then the map would only help when only changing the page size, but nothing else
+  // - could store all the query params as json and use that as a key
+  // - > 
+  // - key of query params (sortByColumnHistory, deckSizesFilter, pageNumber, resultsPerPage)
+  // - value of map<id, score>
+  //
   const sortedScores = useSignal<ScoreWithPercentiles[]>([]);
+
   // stores the array of decksizes:
   //  or could just use the keys of ScoreTotals
   const deckSizeList = useSignal<number[]>([]);
   // stores each deck size totals, and all totals
+  // what is this used for??
   const scoreTotals = useSignal<{
     [key: number]: number;
     all: number;
@@ -114,7 +128,9 @@ export default component$(() => {
     all: 0,
   });
 
-  const queryAndSaveScores = $(async () => {
+  // should this take actual props instead of the store?
+  // take query props, then it can save the store at the end after it's done
+  const queryScores$ = $(async (newQueryParams: QueryStore) => {
     if (await isScoresDisabled()) {
       console.log("FEATURE_FLAG: Scores DISABLED");
       return { scores: [] };
@@ -122,24 +138,25 @@ export default component$(() => {
     isLoading.value = true;
 
     const now = Date.now();
-    console.log("queryAndSaveScores timing...", { queryStore });
+    console.log("queryAndSaveScores timing...", { queryStore: newQueryParams });
+    // const prevResultsPerPage = queryData.resultsPerPage;
 
     const [scoresRes, deckSizesRes] = await Promise.all([
       serverDbService.scores.queryWithPercentiles({
-        pageNumber: queryStore.pageNumber,
-        resultsPerPage: queryStore.resultsPerPage,
+        pageNumber: newQueryParams.pageNumber,
+        resultsPerPage: newQueryParams.resultsPerPage,
         deckSizesFilter:
-          queryStore.deckSizesFilter.length === 0
-            ? [ctx.state.userSettings.deck.size]
-            : queryStore.deckSizesFilter,
-        sortByColumnHistory: queryStore.sortByColumnHistory,
+          newQueryParams.deckSizesFilter.length === 0
+            ? [ctx.state.userSettings.deck.size] // default just in case
+            : newQueryParams.deckSizesFilter,
+        sortByColumnHistory: newQueryParams.sortByColumnHistory,
       }),
       // skip this query if we are getting all deckSizes (only works if we also have data for every decksize)
       // if there's not all the sizes in our dropdown list, we will never have 24 for our value, so it will
       // continue to fetch this query, although that is not needed.
       // - Could separate this query so it's not combined with the Scores query,
       //    - the dropdown list should be separate
-      queryStore.deckSizesFilter.length === 24
+      newQueryParams.deckSizesFilter.length === 24
         ? []
         : serverDbService.scoreCounts.getDeckSizes(),
     ]);
@@ -158,7 +175,7 @@ export default component$(() => {
       0,
     );
     deckSizeList.value =
-      queryStore.deckSizesFilter.length === 24
+      newQueryParams.deckSizesFilter.length === 24
         ? Object.keys(totals).map(Number) // is this already sorted? (I think so - does it even matter)
         : deckSizesRes;
 
@@ -173,28 +190,56 @@ export default component$(() => {
       deckSizeList: deckSizeList.value,
     });
 
-    // calculate new page number we should place them on, eg match the centers
     const newTotalPages = Math.ceil(
-      totalCountForQuery / queryStore.resultsPerPage,
+      totalCountForQuery / newQueryParams.resultsPerPage,
     );
-    const prevPagePercent = Math.min(
-      1,
-      queryStore.pageNumber / queryStore.totalPages,
-    );
-    const newPage =
-      queryStore.pageNumber === 1
-        ? 1
-        : Math.ceil(prevPagePercent * newTotalPages);
-    console.log("Finished querying scores:", {
-      newTotalPages,
-      prevPagePercent,
-      newPage,
-    });
 
+    // TODO: only should do these calculations if the resultsPerPage has changed!
+    if (newQueryParams.resultsPerPage !== queryStore.resultsPerPage) {
+      // calculate new page number we should place them on, eg match the centers
+      const prevPagePercent = Math.min(
+        1,
+        newQueryParams.pageNumber / newQueryParams.totalPages,
+      );
+      // ahh probably this is the issue...
+      // i think this is supposed to keep you seeing the same data when switching page-sizes
+      // e.g. it sets your new page to the same percentage you were at before
+      // so if you were on page 50/100 at page-size of 100 you are at 50%
+      // and then you switch to 25 page-size, attempt to place you at page 200/400
+      const newPage =
+        newQueryParams.pageNumber === 1
+          ? 1
+          : // : Math.ceil(prevPagePercent * newTotalPages);
+            Math.floor(prevPagePercent * newTotalPages); // try math.floor instead? or just truncate it?
+      console.log("Finished querying scores:", {
+        newTotalPages,
+        prevPagePercent,
+        newPage,
+      });
+
+      // only change current page number if we changed resultsPerPage
+      queryStore.pageNumber = newPage;
+      queryStore.resultsPerPage = newQueryParams.resultsPerPage;
+    } else {
+      console.log("Finished querying scores:", {
+        newTotalPages,
+        newPage: newQueryParams.pageNumber,
+      });
+      queryStore.pageNumber = newQueryParams.pageNumber;
+    }
+    queryStore.sortByColumnHistory = newQueryParams.sortByColumnHistory;
+    queryStore.deckSizesFilter = newQueryParams.deckSizesFilter;
+    // always set new total pages, in case there's more data now
     queryStore.totalPages = newTotalPages;
-    queryStore.pageNumber = newPage;
+    queryStore.totalResults = totalCountForQuery;
+
     // TODO: instead append the scores? so it keeps the previous pages?
     // then could sort here on client-side by percentiles or whatever
+    // - could make a map of page: data
+    // > - but then if changing page size, would mess up the cache
+    // - could just store the entire list, dedup based on id
+    // > - then adjusting page size can just slice from the list
+    //
     sortedScores.value = [...scores];
 
     isLoading.value = false;
@@ -227,46 +272,58 @@ export default component$(() => {
         ...queryStore.sortByColumnHistory,
       ].slice(0, MAX_SORT_COLUMN_HISTORY);
     }
-    queryAndSaveScores();
+    queryScores$({
+      sortByColumnHistory: queryStore.sortByColumnHistory,
+      deckSizesFilter: queryStore.deckSizesFilter,
+      pageNumber: queryStore.pageNumber,
+      resultsPerPage: queryStore.resultsPerPage,
+      totalResults: queryStore.totalResults,
+      totalPages: queryStore.totalPages,
+    });
   });
 
-  const onChangeResultsPerPage$ = $(async (_: Event, t: HTMLSelectElement) => {
+  const onChangeResultsPerPage$ = $((_: Event, t: HTMLSelectElement) => {
     const selectedResultsPerPage = Number(t.value);
-    queryStore.resultsPerPage = selectedResultsPerPage;
+    // queryStore.resultsPerPage = selectedResultsPerPage;
 
     console.log({ selectedResultsPerPage });
 
-    await queryAndSaveScores();
+    queryScores$({
+      sortByColumnHistory: queryStore.sortByColumnHistory,
+      deckSizesFilter: queryStore.deckSizesFilter,
+      pageNumber: queryStore.pageNumber,
+      resultsPerPage: selectedResultsPerPage,
+      totalResults: queryStore.totalResults,
+      totalPages: queryStore.totalPages,
+    });
   });
 
   const onChangeSelect$ = $((_: Event, t: HTMLSelectElement) => {
     const selectedDeckSize = Number(t.value);
     console.log("select changed:", { selectedDeckSize });
 
+    let newDeckSizesFilter = [ctx.state.userSettings.deck.size];
     // handle top option to toggle all e.g. default
     if (selectedDeckSize === -1) {
       const midway = deckSizeList.value.length / 2;
 
       // if we have fewer than midway selected, we select all. Else, we select our own deckSize
       if (queryStore.deckSizesFilter.length <= midway) {
-        queryStore.deckSizesFilter = [...deckSizeList.value];
+        newDeckSizesFilter = [...deckSizeList.value];
       } else {
-        queryStore.deckSizesFilter = [ctx.state.userSettings.deck.size];
+        newDeckSizesFilter = [ctx.state.userSettings.deck.size];
       }
     } else {
       const indexIfExists =
         queryStore.deckSizesFilter.indexOf(selectedDeckSize);
 
       if (indexIfExists !== -1) {
-        queryStore.deckSizesFilter = queryStore.deckSizesFilter.filter(
+        newDeckSizesFilter = queryStore.deckSizesFilter.filter(
           (size) => size !== selectedDeckSize,
         );
         console.log("~~ decksize existed");
       } else {
-        queryStore.deckSizesFilter = [
-          ...queryStore.deckSizesFilter,
-          selectedDeckSize,
-        ];
+        newDeckSizesFilter = [...queryStore.deckSizesFilter, selectedDeckSize];
         console.log("~~ decksize NOT existed");
       }
     }
@@ -275,7 +332,14 @@ export default component$(() => {
     selectValue.value = "default";
     t.value = "default";
 
-    queryAndSaveScores();
+    queryScores$({
+      sortByColumnHistory: queryStore.sortByColumnHistory,
+      deckSizesFilter: newDeckSizesFilter, // pass in temp var to be set later
+      pageNumber: queryStore.pageNumber,
+      resultsPerPage: queryStore.resultsPerPage,
+      totalResults: queryStore.totalResults,
+      totalPages: queryStore.totalPages,
+    });
   });
 
   useTask$(({ track }) => {
@@ -292,23 +356,34 @@ export default component$(() => {
     );
     if (isServer || !isShowing) return;
 
-    queryAndSaveScores();
+    queryScores$({
+      sortByColumnHistory: queryStore.sortByColumnHistory,
+      deckSizesFilter: queryStore.deckSizesFilter,
+      pageNumber: queryStore.pageNumber,
+      resultsPerPage: queryStore.resultsPerPage,
+      totalResults: queryStore.totalResults,
+      totalPages: queryStore.totalPages,
+    });
   });
 
   useStyles$(`
     table {
       position: relative;
       overflow: hidden;
+      --gradiant-dark: #aaa;
+      --gradiant-light: #fff;
     }
 
     table.scoreboard thead {
       overflow: hidden;
       border: 1px solid #444;
-      z-index: -1;
+      position: relative;
     }
     table.scoreboard tbody {
+      position: relative;
       z-index: 1;
     }
+
 
     table.scoreboard th.rotate {
       height: 6em;
@@ -316,7 +391,7 @@ export default component$(() => {
     }
 
     /* Magic Numbers.. might need tweaking */
-     table.scoreboard th.rotate > div {
+    table.scoreboard th.rotate > div {
       width: 2em;
       transform-origin: left top;
       transform:
@@ -341,11 +416,6 @@ export default component$(() => {
       width: 9.5em;
       /* x padding does not mess with the border, yay! */
       padding: 0em 2em;
-
-    }
-    table.scoreboard {
-      --gradiant-dark: #aaa;
-      --gradiant-light: #fff;
     }
     table.scoreboard th.rotate > div > * > span {
       /* for when text is not gradiant */
@@ -371,44 +441,70 @@ export default component$(() => {
       text-shadow: none;
     }
 
-    table.scoreboard tbody td + td {
+    table.scoreboard:not(.loading) tbody td + td {
       border-left: 1px solid #44444480;
     }
 
-
-    table.scoreboard tbody {
-      background-color: #fff;
-    }
-
-    table.scoreboard tbody tr > :not(:first-child) {
-      padding: 0 0.25em;
-      font-weight: 600;
-      text-shadow: 1px 1px 3px #000;
-    }
-    /* @media screen and (max-width: 640px) {
-      table.scoreboard tbody tr > :nth-child(2) {
-        padding: 0;
-      }
+    /* table.scoreboard.loading thead tr th {
+      opacity: 0;
     } */
 
-    table.scoreboard thead tr > :first-child {
-      width: 0px; /* it auto adjusts larger if needed on large screens */
-    }
-    table.scoreboard thead tr > :nth-child(2) {
-      width: 3em;
-    }
-
-    table.scoreboard {
-      min-width: max-content;
-      background: #000;
-    }
-    table.scoreboard tfoot {
-      height: 2rem;
+    table.scoreboard tbody tr > :not(:first-child) {
+      /* padding: 0 0.25em; */
+      font-weight: 600;
+      text-shadow: 1px 1px 3px #000;
     }
 
     table.scoreboard tbody tr, 
     table.scoreboard tbody tr .pixel-avatar {
-      transition: all 0.1s ease-in-out;
+      transition: all 100ms ease-in-out;
+    }
+
+/* 
+* 752.84 total width
+* avatar: 51
+*
+* initials: 97.72 = 12.98%
+* decksize: 63.45 = 8.43%
+* pairs: 63.45 = 8.43%
+* gametime: 149.11 = 19.8%
+* mismatches: 130.97 = 17.4%
+* createdAt: 197.2 = 26.2%
+*
+* */
+    table.scoreboard thead tr td {
+      width: 8.43% /* it auto adjusts larger if needed on large screens */
+    }
+    table.scoreboard thead tr > :nth-child(2) {
+      width: 12.98%; /* it auto adjusts larger if needed on large screens */
+    }
+    table.scoreboard thead tr > :nth-child(5) {
+      width: 19.8%; /* it auto adjusts larger if needed on large screens */
+    }
+    table.scoreboard thead tr > :nth-child(6) {
+      width: 17.4%; /* it auto adjusts larger if needed on large screens */
+    }
+    table.scoreboard thead tr > :nth-child(7) {
+      width: 26.2%; /* it auto adjusts larger if needed on large screens */
+    }
+
+    table.scoreboard thead tr > :first-child {
+      width: 35px; /* it auto adjusts larger if needed on large screens */
+    }
+    @media screen and (min-width: 640px) {
+      table.scoreboard thead tr > :first-child {
+        width: 43px; /* it auto adjusts larger if needed on large screens */
+      }
+    }
+    @media screen and (min-width: 1024px) {
+      table.scoreboard thead tr > :first-child {
+        width: 51px; /* it auto adjusts larger if needed on large screens */
+      }
+    }
+
+    .scrollbar-styles {
+      scrollbar-color: #6b7280 #1f2937;
+      scrollbar-width: thin;
     }
   `);
 
@@ -418,47 +514,36 @@ export default component$(() => {
       isShowing={ctx.state.interfaceSettings.scoresModal.isShowing}
       hideModal$={ctx.handle.hideScores}
       title="Scoreboard"
-      containerClasses="w-full sm:min-w-[31rem] sm:w-[60vw] md:max-w-[50rem]"
+      // containerClasses="w-full sm:min-w-[31rem] sm:w-[60vw] md:max-w-[50rem]"
+      containerClasses="w-full sm:w-[max(640px,60vw)] sm:max-w-[max(640px,60vw)]  md:w-[80vw] md:max-w-[50rem]"
       wrapperSyles={{
         overflowY: "hidden",
       }}
-      // containerStyles={{
-      //   maxWidth: "100vw",
-      //   minWidth: "18rem",
-      //   display: "flex",
-      // }}
     >
-      <div class="flex flex-col max-w-full h-[70vh] ">
-        {isLoading.value ? (
-          <div class="flex justify-center items-center w-full h-full text-slate-400 text-3xl">
-            Loading scores...
-          </div>
-        ) : (
-          <>
-            {/* TODO: instead of Select + Options, use a dropdown with checkboxes 
+      <div class="grid grid-rows-[20px_1fr_42px] sm:grid-rows-[23px_1fr_49px]  lg:grid-rows-[28px_1fr_63px] max-w-full h-[70vh] ">
+        {/* TODO: instead of Select + Options, use a dropdown with checkboxes 
               (could be disabled for those deckSizes we haven't seen yet) */}
-            <TableDecksizeFilterHeader
-              selectValue={selectValue}
-              onChangeSelect$={onChangeSelect$}
-              queryStore={queryStore}
-              deckSizeList={deckSizeList}
-            />
+        <TableDecksizeFilterHeader
+          selectValue={selectValue}
+          onChangeSelect$={onChangeSelect$}
+          queryStore={queryStore}
+          deckSizeList={deckSizeList}
+        />
 
-            <div class="w-full max-h-[calc(70vh-5.2rem)] overflow-y-auto">
-              <ScoreTable
-                handleClickColumnHeader$={handleClickColumnHeader}
-                sortedScores={sortedScores.value}
-                queryStore={queryStore}
-              />
-            </div>
+        <div class={`w-full ${isLoading.value ? "overflow-y-hidden" : "overflow-y-auto"} [scrollbar-gutter:stable] scrollbar-styles`}>
+          <ScoreTable
+            isLoading={isLoading.value}
+            handleClickColumnHeader$={handleClickColumnHeader}
+            sortedScores={sortedScores.value}
+            queryStore={queryStore}
+          />
+        </div>
 
-            <TablePagingFooter
-              queryStore={queryStore}
-              onChangeResultsPerPage$={onChangeResultsPerPage$}
-              queryScores$={queryAndSaveScores}
-            />
-          </>
-        )}
+        <TablePagingFooter
+          queryStore={queryStore}
+          onChangeResultsPerPage$={onChangeResultsPerPage$}
+          queryScores$={queryScores$}
+        />
       </div>
     </Modal>
   );
@@ -487,7 +572,6 @@ const SelectEl = component$<SelectElProps>(
   ),
 );
 
-const DECK_SIZES_WIDTH = "3em";
 type TableDeckSizesFilterHeaderProps = {
   selectValue: Signal<string>;
   onChangeSelect$: QRL<(e: Event, t: HTMLSelectElement) => any>;
@@ -509,8 +593,9 @@ const TableDecksizeFilterHeader = component$<TableDeckSizesFilterHeaderProps>(
       deckSizesFilterString.value = queryStore.deckSizesFilter.join(",");
 
       // for highlighting/sorting the dropdown sizes:
+      // separate into selected and unselected
       [deckSizesSelected.value, deckSizesUnselected.value] = deckSizeList.value
-        .sort((a, b) => a - b)
+        .sort((a, b) => a - b) // ascending
         .reduce<[number[], number[]]>(
           (accum, eachSize) => {
             queryStore.deckSizesFilter.includes(eachSize)
@@ -521,15 +606,16 @@ const TableDecksizeFilterHeader = component$<TableDeckSizesFilterHeaderProps>(
           [[], []],
         );
     });
+
     const widthCutoffLength = 100;
     return (
-      <div class="flex-grow-0 flex max-w-full overflow-hidden justify-between bg-slate-700 items-center gap-1 h-[2rem] p-1">
+      <div class="flex-grow-0 flex justify-center items-center max-w-full overflow-hidden bg-slate-700 text-xs sm:text-sm lg:text-lg p-0.5">
         <select
-          class={` bg-slate-800 w-full text-xs md:text-sm lg:text-md justify-self-start `}
+          class={` bg-slate-800 w-full justify-self-start `}
           value={selectValue.value}
           onChange$={onChangeSelect$}
         >
-          <option value="default">
+          <option value="default" data-label="current-selection">
             {deckSizesFilterString.value.length > widthCutoffLength
               ? deckSizesFilterString.value.substring(
                   0,
@@ -538,6 +624,7 @@ const TableDecksizeFilterHeader = component$<TableDeckSizesFilterHeaderProps>(
               : deckSizesFilterString.value}
           </option>
           <option value={-1}>Toggle All</option>
+
           {deckSizesSelected.value.map((deckSize) => (
             <option
               key={deckSize}
@@ -564,9 +651,11 @@ const BASE_BUTTON_CLASSES: ClassList =
 
 const PAGE_BUTTONS_MAX = 13;
 
+const DECK_SIZES_WIDTH = "7em";
+
 type TablePagingFooterProps = {
   queryStore: QueryStore;
-  queryScores$: QRL<() => any>;
+  queryScores$: QRL<(queryStoreProp: QueryStore) => any>;
   onChangeResultsPerPage$: QRL<(e: Event, t: HTMLSelectElement) => any>;
 };
 const TablePagingFooter = component$<TablePagingFooterProps>(
@@ -576,40 +665,41 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
       prev: true,
       next: true,
       last: true,
-      maxPageButtons: 7,
       prevPage: queryStore.pageNumber, // used for?
     });
 
-    const remainingPageButtonSlots = useSignal(buttons.maxPageButtons);
     const remainingPageButtons = useSignal<number[]>([]);
 
-    const calculateRemainingPageButtons = $(() => {
-      const currentPage = queryStore.pageNumber;
+    const calculateRemainingPageButtons = $(
+      (remainingButtons = PAGE_BUTTONS_MAX) => {
+        const currentPage = queryStore.pageNumber;
 
-      const bonus = Math.floor((remainingPageButtonSlots.value - 1) / 2);
-    // with 11 max, I'm getting up to 5 "number" buttons on one side,
-    // when at the start or the end page
-    // e.g. 10 total buttons, 6 number and then << < > >>
-    //
-    // TODO:
-    // would like more dynamic:
-    // - if on second to last or first page, hide the last/first button
-    // - if on the last/first page, hide both next/last or prev/first buttons
-    // - and should always attempt to show up to MAX buttons
-    //  - so if 11 MAX, and on page 1, should show 1 thru 9 and next/last === 11
-    //
-    // - or maybe something with ".." and then a 5 or 10 step?
-    // 1 2 3 4 5 .. 10 > >>
+        const bonus = Math.floor((remainingButtons - 1) / 2);
+        // with 11 max, I'm getting up to 5 "number" buttons on one side,
+        // when at the start or the end page
+        // e.g. 10 total buttons, 6 number and then << < > >>
+        //
+        // TODO:
+        // would like more dynamic:
+        // - if on second to last or first page, hide the last/first button
+        // - if on the last/first page, hide both next/last or prev/first buttons
+        // - and should always attempt to show up to MAX buttons
+        //  - so if 11 MAX, and on page 1, should show 1 thru 9 and next/last === 11
+        //
+        // - or maybe something with ".." and then a 5 or 10 step?
+        // 1 2 3 4 5 .. 10 > >>
 
-      const startPage = Math.max(1, currentPage - bonus);
-      const endPage = Math.min(queryStore.totalPages, currentPage + bonus) + 1;
+        const startPage = Math.max(1, currentPage - bonus);
+        const endPage =
+          Math.min(queryStore.totalPages, currentPage + bonus) + 1;
 
-      return Array(endPage - startPage)
-        .fill(0)
-        .map((_, i) => startPage + i);
-    });
+        return Array(endPage - startPage)
+          .fill(0)
+          .map((_, i) => startPage + i);
+      },
+    );
 
-    useTask$(async ({ track }) => {
+    useTask$(({ track }) => {
       track(() => [
         queryStore.pageNumber,
         queryStore.totalPages,
@@ -621,34 +711,38 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
       buttons.last = queryStore.pageNumber < queryStore.totalPages;
       buttons.next = queryStore.pageNumber < queryStore.totalPages;
 
-      remainingPageButtonSlots.value =
-        buttons.maxPageButtons -
+      const remainingButtons =
+        PAGE_BUTTONS_MAX -
         Object.values(buttons).filter((v) => v === true).length;
 
-      remainingPageButtons.value = await calculateRemainingPageButtons();
+      calculateRemainingPageButtons(remainingButtons).then(
+        (numberButtons) => (remainingPageButtons.value = numberButtons),
+      );
     });
 
     const onClick$ = $((e: MouseEvent) => {
       const label = (e.target as HTMLButtonElement).dataset["label"]?.split(
         "-",
       );
-      if (!label) return;
+      if (!label || label[0] !== "page") return;
 
       let pageNumber = queryStore.pageNumber;
-      switch (label[0]) {
+      buttons.prevPage = pageNumber;
+
+      switch (label[1]) {
         case "first":
           pageNumber = 1;
           break;
         case "next":
           pageNumber =
-            pageNumber >= queryStore.totalPages
+            pageNumber > queryStore.totalPages - 1
               ? queryStore.totalPages
               : pageNumber + 1;
           break;
-        case "page":
+        case "number":
           pageNumber = Number(label[2]);
           break;
-        case "previous":
+        case "prev":
           pageNumber = pageNumber < 2 ? 1 : pageNumber - 1;
           break;
         case "last":
@@ -658,21 +752,27 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
           pageNumber = queryStore.pageNumber;
       }
 
-      console.log("clicked page number button:", { label, pageNumber });
-      buttons.prevPage = queryStore.pageNumber;
-      queryStore.pageNumber = pageNumber;
+      // queryStore.pageNumber = pageNumber;
 
-      queryScores$();
+      console.log("clicked page number button:", { label, pageNumber });
+      queryScores$({
+        sortByColumnHistory: queryStore.sortByColumnHistory,
+        deckSizesFilter: queryStore.deckSizesFilter,
+        pageNumber: pageNumber,
+        resultsPerPage: queryStore.resultsPerPage,
+        totalResults: queryStore.totalResults,
+        totalPages: queryStore.totalPages,
+      });
     });
 
     return (
-      <div class="flex-grow-0 flex flex-col h-[3.2rem]">
-        <div class={` grid  w-full p-1 flex-grow-0 `}>
+      <div class="flex-grow-0 flex flex-col justify-center gap-0.5 text-xs sm:text-sm lg:text-lg h-[3.5em] px-1">
+        <div class={`grid w-full flex-grow-0`}>
           <div class="justify-center flex gap-1 w-full" onClick$={onClick$}>
             <button
               disabled={!buttons.first}
               class={BASE_BUTTON_CLASSES}
-              data-label="first-page"
+              data-label="page-first"
             >
               <ChevronStyled direction="left" />
               <ChevronStyled direction="left" />
@@ -680,7 +780,7 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
             <button
               disabled={!buttons.prev}
               class={BASE_BUTTON_CLASSES}
-              data-label="previous-page"
+              data-label="page-prev"
             >
               <ChevronStyled direction="left" />
             </button>
@@ -701,14 +801,14 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
             <button
               disabled={!buttons.next}
               class={BASE_BUTTON_CLASSES}
-              data-label="next-page"
+              data-label="page-next"
             >
               <ChevronStyled direction="right" />
             </button>
             <button
               disabled={!buttons.last}
               class={BASE_BUTTON_CLASSES}
-              data-label="last-page"
+              data-label="page-last"
             >
               <ChevronStyled direction="right" />
               <ChevronStyled direction="right" />
@@ -717,23 +817,30 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
         </div>
 
         <div
-          class={` grid  w-full flex-grow-0 `}
+          class={`flex-grow-0 grid w-full`}
           style={{
             gridTemplateColumns: `${DECK_SIZES_WIDTH} 1fr ${DECK_SIZES_WIDTH}`,
           }}
         >
           <SelectEl
-            classes={`text-xs md:text-sm lg:text-md z-10 justify-self-start`}
+            classes={`text-xs md:text-sm lg:text-lg z-10 justify-self-start`}
             value={queryStore.resultsPerPage}
             onChange$={onChangeResultsPerPage$}
-            listOfOptions={[5, 10, 25, 50, 100]}
+            listOfOptions={[25, 50, 100, 200]}
           />
 
-          <div class="flex-grow">Total Pages: {queryStore.totalPages}</div>
+          <div class=" text-slate-200">
+            ({(queryStore.pageNumber - 1) * queryStore.resultsPerPage}-
+            {queryStore.pageNumber * queryStore.resultsPerPage} /{" "}
+            {queryStore.totalResults})
+          </div>
+
           <div
-            class={`w-[${DECK_SIZES_WIDTH}] pointer-events-none`}
+            class={` text-slate-400 pointer-events-none justify-self-end`}
             data-label="empty-spacer"
-          />
+          >
+            {queryStore.totalPages} pages
+          </div>
         </div>
       </div>
     );
