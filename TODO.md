@@ -1,9 +1,24 @@
+## Challenge modes:
+I think what I'll do is save it for later
+it will be set up as a brand new table completely separate from Scores
+then I can have the modal with a couple tabs (or something)
+and the scores can be kept separate since they should not be compared with normal-game scores
+
+
+
+
 #  YAY! I fixed the reordering of the sorted scores!
 
 ## how to handle percentile sorting?
 1. only show percentiles when filtering for ONE deck size
 - since percentiles are per-decksize anyway
 2. DON'T sort by percentiles?? only by the raw number
+
+when dealing with same deck-size scores, the sorting will be the same for score and score-percentile
+- e.g. 0 mismatches === highest percentile, infinity mismatches === lowest percentile
+
+- they can still show the percentiles but they won't be sortable
+- maybe put them in parenthesis
 
 
 
