@@ -51,119 +51,11 @@ export const useGameContextProvider = ({
   const boardRef = useSignal<HTMLDivElement>();
   const containerRef = useSignal<HTMLDivElement>();
 
-  const shuffleCardPositions = $(function () {
-    // shuffle and set new positions, save old positions
-    const newCards = deckUtils.shuffleCardPositions(state.gameData.cards);
-    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "shuffleCardPositions:", {
-      newCards,
-    });
-    state.gameData.cards = newCards;
-  });
-
-  const startShuffling = $(async function (
-    hideSettings: boolean = false,
-    count: number = GAME.CARD_SHUFFLE_ROUNDS,
-  ) {
-    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "startShuffling");
-    state.gameData.dealCardIndex = 0; // reset just in case
-
-    await shuffleCardPositions();
-    state.gameData.shufflingState = count - 1;
-    state.gameData.isLoading = true;
-    if (hideSettings) {
-      state.interfaceSettings.settingsModal.isShowing = false;
-    }
-
-    logger(DebugTypeEnum.HANDLER, LogLevel.TWO, "~~startShuffling:", {
-      gameDataShufflingState: state.gameData.shufflingState,
-      gameDataIsLoading: state.gameData.isLoading,
-      interfaceSettingsSettingsModalIsShowing:
-        state.interfaceSettings.settingsModal.isShowing,
-    });
-  });
-
-  const stopShuffling = $(function () {
-    state.gameData.shufflingState = 0;
-    state.gameData.isLoading = false;
-    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "stopShuffling:", {
-      gameDataShufflingState: state.gameData.shufflingState,
-      gameDataIsLoading: state.gameData.isLoading,
-    });
-  });
-
-  /**
-   * gets fresh pairs with fresh ids,
-   * slices the deck to appropriate size
-   * */
-  const sliceDeck = $(function () {
-    const deckShuffledByPairs = deckUtils
-      .shuffleDeckAndRefreshIds(FULL_DECK)
-      .map((card) => ({ ...card, position: -1 }));
-    const cards = deckShuffledByPairs.slice(0, state.userSettings.deck.size);
-    state.gameData.cards = cards;
-    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "sliceDeck", {
-      gameDataCards: state.gameData.cards,
-    });
-  });
-
-  const lastDeal = useSignal(Date.now());
-
-  const dealCard = $(function () {
-    // set new position
-    const currentIndex =
-      state.userSettings.deck.size - state.gameData.dealCardIndex;
-    state.gameData.cards[currentIndex].position = currentIndex;
-    const now = Date.now();
-    const dealInterval = now - lastDeal.value;
-    logger(DebugTypeEnum.HANDLER, LogLevel.TWO, "dealCard:", {
-      dealCardIndex: state.gameData.dealCardIndex,
-      currentCard: state.gameData.cards[currentIndex],
-      dealInterval,
-    });
-    lastDeal.value = now;
-    state.gameData.dealCardIndex--;
-  });
-
-  const calculateAndResizeBoard = $(function () {
-    if (state.userSettings.board.isLocked) {
-      logger(
-        DebugTypeEnum.HANDLER,
-        LogLevel.ONE,
-        "calculateAndResizeBoard: BOARD LOCKED",
-      );
-      return;
-    }
-
-    const { width, height } = boardUtils.calculateBoardDimensions(
-      containerRef.value as HTMLDivElement,
-      boardRef.value as HTMLDivElement,
-    );
-    const { cardLayout, boardLayout } = boardUtils.calculateLayouts(
-      width,
-      height,
-      state.userSettings.deck.size,
-    );
-    state.cardLayout = cardLayout;
-    state.boardLayout = {
-      ...state.boardLayout,
-      ...boardLayout,
-    };
-
-    // update deck-dealing position when resized
-    state.gameData.startingPosition = cardUtils.generateCenterCoords(
-      boardLayout.columns,
-      boardLayout.rows,
-    );
-
-    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "calculateAndResizeBoard:", {
-      boardLayout: state.boardLayout,
-      cardLayout: state.cardLayout,
-    });
-  });
-
   const showSettings = $(function () {
     timer.pause();
     state.interfaceSettings.settingsModal.isShowing = true;
+    state.gameData.lastClick = -1;
+    
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "showSettings:", {
       timerIsPaused: timer.state.isPaused,
       ingerfaceSettingsSettingsModalIsShowing:
@@ -174,6 +66,7 @@ export const useGameContextProvider = ({
   const hideSettings = $(function () {
     state.interfaceSettings.settingsModal.isShowing = false;
     timer.resume();
+
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "hideSettings:", {
       timerIsPaused: timer.state.isPaused,
       ingerfaceSettingsSettingsModalIsShowing:
@@ -183,6 +76,7 @@ export const useGameContextProvider = ({
 
   const showEndGameModal = $(function () {
     state.interfaceSettings.endOfGameModal.isShowing = true;
+
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "showEndGameModal:", {
       interfaceSettingsEndOfGameModalIsShowing:
         state.interfaceSettings.endOfGameModal.isShowing,
@@ -191,6 +85,7 @@ export const useGameContextProvider = ({
 
   const hideEndGameModal = $(function () {
     state.interfaceSettings.endOfGameModal.isShowing = false;
+
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "hideEndGameModal:", {
       interfaceSettingsEndOfGameModalIsShowing:
         state.interfaceSettings.endOfGameModal.isShowing,
@@ -255,7 +150,7 @@ export const useGameContextProvider = ({
     state.gameData.gameState = isWin
       ? GameStateEnum.ENDED_WIN
       : GameStateEnum.ENDED_LOSE;
-    state.interfaceSettings.endOfGameModal.isShowing = true;
+    showEndGameModal();
 
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "endGame:", {
       isStarted: timer.state.isStarted,
@@ -264,6 +159,78 @@ export const useGameContextProvider = ({
     });
   });
 
+  // also generates coords for deck dealing position, after calculating layouts
+  const calculateAndResizeBoard = $(function () {
+    if (state.userSettings.board.isLocked) {
+      logger(
+        DebugTypeEnum.HANDLER,
+        LogLevel.ONE,
+        "calculateAndResizeBoard: BOARD LOCKED",
+      );
+      return;
+    }
+
+    const { width, height } = boardUtils.calculateBoardDimensions(
+      containerRef.value as HTMLDivElement,
+      boardRef.value as HTMLDivElement,
+    );
+    const { cardLayout, boardLayout } = boardUtils.calculateLayouts(
+      width,
+      height,
+      state.userSettings.deck.size,
+    );
+    state.cardLayout = cardLayout;
+    state.boardLayout = {
+      ...state.boardLayout,
+      ...boardLayout,
+    };
+
+    // update deck-dealing position when resized
+    state.gameData.startingPosition = cardUtils.generateCenterCoords(
+      boardLayout.columns,
+      boardLayout.rows,
+    );
+
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "calculateAndResizeBoard:", {
+      boardLayout: state.boardLayout,
+      cardLayout: state.cardLayout,
+    });
+  });
+
+
+  /**
+   * gets fresh pairs with fresh ids,
+   * slices the deck to appropriate size
+   * sets position to -1 for dealing deck position
+   * */
+  const sliceDeck = $(function () {
+    const deckShuffledByPairs = deckUtils
+      .shuffleDeckAndRefreshIds(FULL_DECK)
+      .map((card) => ({ ...card, position: -1 }));
+    const cards = deckShuffledByPairs.slice(0, state.userSettings.deck.size);
+    state.gameData.cards = cards;
+
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "sliceDeck", {
+      gameDataCards: state.gameData.cards,
+    });
+  });
+
+  /** internal, only called from resetGame
+   * */
+  const startDealingDeck = $(function (
+    shouldHideSettings: boolean = false,
+  ) {
+    state.gameData.isLoading = true;
+    // start deck deal animation
+    state.gameData.dealCardIndex = state.userSettings.deck.size;
+
+    if (shouldHideSettings) {
+      hideSettings();
+
+    }
+  });
+
+  // track for changed deck size for recalculating board
   const lastDeckSize = useSignal(state.userSettings.deck.size);
 
   // internal, could combine with resetGame
@@ -275,15 +242,12 @@ export const useGameContextProvider = ({
 
     await sliceDeck(); // refresh deck, and size if needed
 
-    // if (isDeckChanged) {
     if (isStartup || isDeckSizeChanged) await calculateAndResizeBoard();
-    // }
 
-    // start deck deal animation
-    state.gameData.dealCardIndex = state.userSettings.deck.size;
+    startDealingDeck(true);
   });
 
-  // should probably call this on init?
+  // called at init or after saving settings and resetting game
   const resetGame = $(async function (newSettings?: Partial<iUserSettings>, isStartup?: boolean) {
     state.gameData.isLoading = true;
     if (newSettings !== undefined) {
@@ -310,7 +274,6 @@ export const useGameContextProvider = ({
 
     state.gameData.gameState = GameStateEnum.IDLE;
     state.gameData.isShaking = INITIAL_STATE.gameData.isShaking;
-    state.gameData.shufflingState = INITIAL_STATE.gameData.shufflingState;
     state.gameData.flippedCardId = INITIAL_STATE.gameData.flippedCardId;
     state.gameData.mismatchPair = INITIAL_STATE.gameData.mismatchPair;
 
@@ -331,6 +294,69 @@ export const useGameContextProvider = ({
     await timer.reset();
     await initializeDeck(isStartup);
   });
+
+  const shuffleCardPositions = $(function () {
+    // shuffle and set new positions, save old positions
+    const newCards = deckUtils.shuffleCardPositions(state.gameData.cards);
+    state.gameData.cards = newCards;
+
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "shuffleCardPositions:", {
+      newCards,
+    });
+  });
+
+  // new style with intervalOccurrences
+  const startShuffling = $(function (
+    shouldHideSettings: boolean = false,
+    count: number = GAME.CARD_SHUFFLE_ROUNDS,
+  ) {
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "startShuffling");
+    state.gameData.dealCardIndex = 0; // reset just in case
+    state.gameData.shuffleRounds = count; // set occurrences
+    state.gameData.isLoading = true;
+    state.gameData.isShuffling = true;
+
+    if (shouldHideSettings) {
+      hideSettings();
+    }
+
+    logger(DebugTypeEnum.HANDLER, LogLevel.TWO, "~~startShuffling:", {
+      gameDataIsShuffling: state.gameData.isShuffling,
+      gameDataShuffleRounds: state.gameData.shuffleRounds,
+      gameDataIsLoading: state.gameData.isLoading,
+      interfaceSettingsSettingsModalIsShowing:
+        state.interfaceSettings.settingsModal.isShowing,
+    });
+  });
+
+  const stopShuffling = $(function () {
+    state.gameData.isShuffling = false;
+    state.gameData.isLoading = false;
+
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "stopShuffling:", {
+      gameDataIsShuffling: state.gameData.isShuffling,
+      gameDataIsLoading: state.gameData.isLoading,
+    });
+  });
+
+  const lastDeal = useSignal(Date.now()); // just for logging
+
+  const dealCard = $(function () {
+    // set new position
+    const currentIndex =
+      state.userSettings.deck.size - state.gameData.dealCardIndex;
+    state.gameData.cards[currentIndex].position = currentIndex;
+    const now = Date.now();
+    const dealInterval = now - lastDeal.value;
+    logger(DebugTypeEnum.HANDLER, LogLevel.TWO, "dealCard:", {
+      dealCardIndex: state.gameData.dealCardIndex,
+      currentCard: state.gameData.cards[currentIndex],
+      dealInterval,
+    });
+    lastDeal.value = now;
+    state.gameData.dealCardIndex--;
+  });
+
 
   const handlers: iGameHandlers = {
     dealCard,
@@ -358,15 +384,13 @@ export const useGameContextProvider = ({
     boardRef,
     containerRef,
   };
-  // e.g. ctx.state.gameData, ctx.state.boardLayout,
-  // e.g. ctx.timer.state
-  // e.g. ctx.handle.shuffleCardPositions
 
-  // provide the service
+  // provide the service to children
   useContextProvider(GameContext, service);
+
   // return for immediate use
   return service;
 };
 
-// use the service
+// helper to use the service
 export const useGameContextService = () => useContext<GameService>(GameContext);

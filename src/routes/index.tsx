@@ -31,9 +31,8 @@ const SoonTmPopover = component$(() => {
       --slate-400: #94a3b8;
       border-color: var(--slate-400);
       color: var(--slate-400);
-
     }
-`);
+  `);
   return (
     <Popover
       panelClasses="max-w-[80vw]"
@@ -77,7 +76,7 @@ const Instructions: FunctionComponent = () => {
       <li class={LI_CLASSES}>
         <strong>{actionString}</strong> a card to view it.
         <br />
-        <strong>{actionString} again</strong> to return the card to the board.
+        {actionString} <strong>again</strong> to return the card to the board.
       </li>
       <li class={LI_CLASSES}>
         After <strong>two</strong> cards have been flipped, if the{" "}
@@ -99,7 +98,7 @@ const Instructions: FunctionComponent = () => {
       </li>
       <li class={LI_CLASSES}>
         At the end, view your <strong>game time</strong>,{" "}
-        <strong>pairs found</strong>, and <strong>mismatches found</strong>.
+        <strong>pair count,</strong> and <strong>mismatch count.</strong>
       </li>
       <li class={`text-slate-500 ${LI_CLASSES}`}>
         COMING SOON

@@ -51,7 +51,7 @@ export default component$(() => {
       title="Game Settings"
     >
       <GameSettings
-        startShuffling$={ctx.handle.startShuffling}
+        startShuffling$={() => ctx.handle.startShuffling(true)}
         unsavedUserSettings={unsavedUserSettings}
         isShufflingDisabled={
           ctx.state.gameData.gameState !== GameStateEnum.IDLE

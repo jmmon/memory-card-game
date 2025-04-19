@@ -21,9 +21,11 @@ const GAME_DATA: iGameData = {
   selectedCardIds: [],
   successfulPairs: [],
   mismatchPairs: [],
-  isLoading: true,
-  /** counts down from e.g. 5 to do 5 rounds of card swaps */
-  shufflingState: 0,
+  isLoading: false,
+  /** new start trigger for intervalOccurrences */
+  isShuffling: false,
+  /** constant set before starting shuffling */
+  shuffleRounds: GAME.CARD_SHUFFLE_ROUNDS,
   /** for determining where deck is dealt from */
   startingPosition: { x: 0, y: 0 },
 
