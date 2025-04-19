@@ -1,4 +1,4 @@
-import { $, component$, useComputed$, useOnDocument } from "@builder.io/qwik";
+import { $, component$, isServer, useComputed$, useOnDocument, useSignal, useTask$ } from "@builder.io/qwik";
 
 import {
   useDelayedTimeoutObj,
@@ -198,6 +198,19 @@ export default component$<GameProps>(
       }),
     );
 
+    // when modal is open and then browser back - forward,
+    // prevents modal from showing and closing initially
+    // - shuffle animation triggers isLoading so modals are immediately available
+    // after initial render, and properly render as hidden
+    const hasInitialized = useSignal(false);
+    useTask$(({track}) => {
+      track(() => ctx.state.gameData.isLoading);
+      if (isServer) return;
+      if (ctx.state.gameData.isLoading) {
+        hasInitialized.value = true;
+      }
+    })
+
     logger(DebugTypeEnum.RENDER, LogLevel.ONE, "RENDER game.tsx");
 
     return (
@@ -240,8 +253,17 @@ export default component$<GameProps>(
 
         <Loading isShowing={ctx.state.gameData.isLoading} />
 
+        {/*
         <Settings />
         <EndGame />
+*/}
+
+        {hasInitialized.value && 
+          <Settings />
+        }
+        {hasInitialized.value && 
+          <EndGame />
+        }
       </>
     );
   },

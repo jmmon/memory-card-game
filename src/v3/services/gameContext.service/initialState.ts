@@ -21,7 +21,7 @@ const GAME_DATA: iGameData = {
   selectedCardIds: [],
   successfulPairs: [],
   mismatchPairs: [],
-  isLoading: true,
+  isLoading: false,
   /** new start trigger for intervalOccurrences */
   isShuffling: false,
   /** constant set before starting shuffling */
