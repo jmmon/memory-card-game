@@ -29,8 +29,8 @@ type Debug = {
   UTIL: 0 | LogLevelValue;
 };
 
-// const isProd = import.meta.env.PROD;
-const isProd = false;
+const isProd = import.meta.env.PROD; // also affects wrangler serve
+// const isProd = false;
 const DEBUG: Debug = {
   HANDLER: isProd ? 0 : LogLevel.TWO, //0, //LogLevel.ONE,
   HOOK: isProd ? 0 : LogLevel.TWO,
@@ -81,7 +81,6 @@ const DECK_SIZE_MAX = 52 as const;
 //      actual 2073ms
 //  52 => 1500 + 20*52 => 1500 + 1040 => 2540ms total (total reduction of 780ms) = 49ms per card
 //      actual 2686
-
 const FAN_OUT_DURATION_BASE_MS = 1500 as const;
 const FAN_OUT_DURATION_ADDITIONAL_PER_CARD_MS = 35 as const;
 
