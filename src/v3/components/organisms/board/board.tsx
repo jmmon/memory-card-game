@@ -6,7 +6,6 @@ import {
   useVisibleTask$,
 } from "@builder.io/qwik";
 import cardUtils from "~/v3/utils/cardUtils";
-import useDebounceSignal from "~/v3/hooks/useDebounce";
 import Card from "~/v3/components/organisms/card/card";
 import BOARD from "~/v3/constants/board";
 import { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
@@ -15,6 +14,9 @@ import type { iPair } from "~/v3/types/types";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 import logger from "~/v3/services/logger";
 import useDebouncedOnWindow from "~/v3/hooks/useDebouncedOnWindow";
+import {
+  useAdjustableDebouncerQrl,
+} from "~/v3/hooks/useDebouncer";
 
 export default component$(() => {
   const ctx = useGameContextService();
@@ -70,10 +72,10 @@ export default component$(() => {
     ctx.state.gameData.lastClick = Date.now();
   });
 
-  const unflipDebounce = useDebounceSignal<number>({
-    _delay: BOARD.MINIMUM_TIME_BETWEEN_CLICKS,
-    _action$: unflipCard,
-  });
+  const unflipDebounced = useAdjustableDebouncerQrl(
+    unflipCard,
+    BOARD.MINIMUM_TIME_BETWEEN_CLICKS,
+  );
 
   // runs when the clicked item is a card
   const handleClickUnflippedCard = $((cardId: number) => {
@@ -97,7 +99,7 @@ export default component$(() => {
       if (isFinalPair) {
         ctx.state.gameData.flippedCardId = cardId;
         ctx.timer.pause();
-        unflipDebounce.callDebounce();
+        unflipDebounced();
         return;
       }
     }
@@ -133,13 +135,10 @@ export default component$(() => {
     },
   );
 
-  const clickCardDebounce = useDebounceSignal<{
-    isClickedOnCard: boolean;
-    clickedId: number;
-  }>({
-    _action$: handleClickCard,
-    _delay: BOARD.MINIMUM_TIME_BETWEEN_CLICKS,
-  });
+  const clickCardDebounced = useAdjustableDebouncerQrl(
+    handleClickCard,
+    BOARD.MINIMUM_TIME_BETWEEN_CLICKS,
+  );
 
   const handleClickBoard$ = $((e: MouseEvent) => {
     // attempt to get the card id if click is on a card
@@ -155,16 +154,15 @@ export default component$(() => {
     });
 
     if (!isAnyCardFlipped.value && !isClickedOnCard) return;
-
-    clickCardDebounce.callDebounce({
-      newValue: {
+    clickCardDebounced(
+      {
         isClickedOnCard,
         clickedId: clickedId as number,
       },
-      delay: Math.max(0, BOARD.MINIMUM_TIME_BETWEEN_CLICKS - (Date.now() - ctx.state.gameData.lastClick)),
-    });
+      BOARD.MINIMUM_TIME_BETWEEN_CLICKS -
+        (Date.now() - ctx.state.gameData.lastClick),
+    );
   });
-
 
   /*
    * track window resizes to recalculate board
