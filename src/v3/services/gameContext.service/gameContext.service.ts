@@ -159,7 +159,7 @@ export const useGameContextProvider = ({
     });
   });
 
-  // also generates coords for deck dealing position, after calculating layouts
+  // also generates coords for deck dealing position
   const calculateAndResizeBoard = $(function () {
     if (state.userSettings.board.isLocked) {
       logger(
@@ -183,9 +183,14 @@ export const useGameContextProvider = ({
     state.boardLayout = boardLayout;
 
     // update deck-dealing position when resized
-    state.gameData.startingPosition = cardUtils.generateCenterCoords(
+    state.gameData.startingCoords = cardUtils.generateCenterCoords(
       boardLayout.columns,
       boardLayout.rows,
+    );
+
+    // update deck-dealing scale
+    state.gameData.startingScale = Math.max(
+      cardUtils.generateDeckDealScale(boardLayout, cardLayout), GAME.DECK_DEAL_SCALE_MIN,
     );
 
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "calculateAndResizeBoard:", {

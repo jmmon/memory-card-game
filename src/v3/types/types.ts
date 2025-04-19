@@ -45,6 +45,8 @@ export enum GameStateEnum {
 export type iGameState = keyof typeof GameStateEnum;
 
 export type iGameData = {
+  startingCoords: iCoords;
+  startingScale: number;
   lastClick: number;
   gameState: GameStateEnum;
   flippedCardId: number;
@@ -55,9 +57,8 @@ export type iGameData = {
   mismatchPair: iPair | "";
   isShaking: boolean;
   isLoading: boolean;
-  isShuffling: boolean;
   shuffleRounds: number;
-  startingPosition: iCoords;
+  isShuffling: boolean;
   dealCardIndex: number;
 };
 

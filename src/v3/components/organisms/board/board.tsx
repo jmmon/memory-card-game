@@ -176,8 +176,7 @@ export default component$(() => {
    * - RUNS ON MOUNT
    * ================================ */
   // eslint-disable-next-line qwik/no-use-visible-task
-  useVisibleTask$((
-  ) => {
+  useVisibleTask$(() => {
     logger(
       DebugTypeEnum.TASK,
       LogLevel.ONE,
