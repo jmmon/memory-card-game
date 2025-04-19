@@ -59,7 +59,9 @@ export type iGameData = {
   isLoading: boolean;
   shuffleRounds: number;
   isShuffling: boolean;
+  isDealing: boolean;
   dealCardIndex: number;
+  shouldCloseModalDuringDeckAnimations: boolean;
 };
 
 // settings user will be able to change
@@ -117,12 +119,33 @@ export type iState = {
   interfaceSettings: iInterfaceSettings;
 };
 
+export type StartShufflingOpts = {
+  shouldHideSettings: boolean;
+  shouldShowLoading: boolean;
+  count: number;
+};
+export type ResetGameOpts = {
+  forceRecalculateBoard: boolean;
+  shouldCloseModalDuringDeckAnimations: boolean;
+};
+export type InitializeDeckOpts = {
+  forceRecalculateBoard: boolean;
+};
+export type StopDealingOpts = {
+  willShuffle: boolean;
+};
+export type StartDealingOpts = {
+  shouldHideSettings: boolean;
+}
+
 export type iGameHandlers = {
   dealCard: QRL<() => void>;
+  startDealing: QRL<(opts?: Partial<StartDealingOpts>) => void>;
+  stopDealing: QRL<(opts?: Partial<StopDealingOpts>) => void>;
   shuffleCardPositions: QRL<() => void>;
   sliceDeck: QRL<() => void>;
   resetGame: QRL<
-    (settings?: Partial<iUserSettings>, isStartup?: boolean) => void
+    (settings?: Partial<iUserSettings>, opts?: Partial<ResetGameOpts>) => void
   >;
   isEndGameConditionsMet: QRL<
     () =>
@@ -132,7 +155,7 @@ export type iGameHandlers = {
           isWin: boolean;
         }
   >;
-  startShuffling: QRL<(shouldHideSettings?: boolean, count?: number) => void>;
+  startShuffling: QRL<(opts?: Partial<StartShufflingOpts>) => void>;
   stopShuffling: QRL<() => void>;
   calculateAndResizeBoard: QRL<() => void>;
   startGame: QRL<() => void>;

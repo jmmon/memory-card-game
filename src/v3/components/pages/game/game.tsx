@@ -1,4 +1,12 @@
-import { $, component$, isServer, useComputed$, useOnDocument, useSignal, useTask$ } from "@builder.io/qwik";
+import {
+  $,
+  component$,
+  isServer,
+  useComputed$,
+  useOnDocument,
+  useSignal,
+  useTask$,
+} from "@builder.io/qwik";
 
 import {
   useDelayedTimeoutObj,
@@ -68,8 +76,7 @@ export default component$<GameProps>(
      * ================================ */
     useOccurrencesInterval({
       triggerCondition: useComputed$(
-        () =>
-          ctx.state.gameData.dealCardIndex === ctx.state.userSettings.deck.size,
+        () => ctx.state.gameData.isDealing === true,
       ),
       interval: useComputed$(
         () =>
@@ -79,8 +86,8 @@ export default component$<GameProps>(
       intervalAction: ctx.handle.dealCard,
       occurrences: useComputed$(() => ctx.state.userSettings.deck.size),
       endingActionDelay: 250,
-      endingAction: ctx.handle.startShuffling,
-      runImmediatelyOnCondition: false,
+      endingAction: ctx.handle.stopDealing, // also starts shuffling by default
+      runImmediatelyOnCondition: false, // gives slight pause of one interval
     });
 
     /* ================================
@@ -89,9 +96,7 @@ export default component$<GameProps>(
      * ================================ */
     useOccurrencesInterval({
       triggerCondition: useComputed$(
-        () =>
-          ctx.state.gameData.dealCardIndex === 0 &&
-          ctx.state.gameData.isShuffling === true,
+        () => ctx.state.gameData.isShuffling === true,
       ),
       interval: useComputed$(
         () =>
@@ -111,7 +116,7 @@ export default component$<GameProps>(
       // only run if game is not active
       triggerCondition: useComputed$(
         () =>
-          ctx.state.gameData.dealCardIndex === 0 &&
+          !ctx.state.gameData.isDealing &&
           !ctx.state.gameData.isShuffling &&
           !ctx.state.gameData.isLoading &&
           !ctx.timer.state.isStarted &&
@@ -119,9 +124,15 @@ export default component$<GameProps>(
       ),
       initialDelay: GAME.AUTO_SHUFFLE_DELAY,
       interval: GAME.AUTO_SHUFFLE_INTERVAL,
-      action: ctx.handle.shuffleCardPositions,
+      // action: ctx.handle.shuffleCardPositions,
+      action: $(() =>
+        ctx.handle.startShuffling({
+          shouldHideSettings: false,
+          shouldShowLoading: false,
+          count: 3,
+        }),
+      ),
     });
-
 
     /* ================================
      * Handle Shake Animation Timers

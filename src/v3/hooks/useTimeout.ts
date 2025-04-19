@@ -243,6 +243,7 @@ export const useIntervalObj = ({
  * @property endingActionDelay - delay after all occurrences
  * @property endingAction - action to perform after all occurrences + ending delay
  * @property runImmediatelyOnCondition=true - run the action immediately (at start of interval)
+ * @property cancelUponFalseCondition=true - cancel early if condition becomes false. Skips endingAction
  * */
 export const useOccurrencesInterval = ({
   triggerCondition,
@@ -252,6 +253,7 @@ export const useOccurrencesInterval = ({
   endingActionDelay = 0,
   endingAction,
   runImmediatelyOnCondition = true,
+  cancelUponFalseCondition = true,
 }: {
   triggerCondition: Signal<boolean>;
   interval: Signal<number>;
@@ -260,6 +262,7 @@ export const useOccurrencesInterval = ({
   endingActionDelay?: number | Signal<number>;
   endingAction: QRL<() => void>;
   runImmediatelyOnCondition?: boolean;
+  cancelUponFalseCondition?: boolean;
 }) => {
   logger(DebugTypeEnum.HOOK, LogLevel.ONE, "SETUP useOccurrencesInterval", {
     triggerCondition: triggerCondition.value,
@@ -317,6 +320,12 @@ export const useOccurrencesInterval = ({
       );
       lastOccurrenceTime = now;
 
+      if (cancelUponFalseCondition && !triggerCondition.value) {
+        clearInterval(intervalTimer.value);
+        intervalTimer.value = undefined;
+        return;
+      }
+
       occurrencesCounter--;
       intervalAction();
 
@@ -324,6 +333,7 @@ export const useOccurrencesInterval = ({
         clearInterval(intervalTimer.value);
         intervalTimer.value = undefined;
 
+        // no need to use timeout if there's no delay
         if (endingActionDelay === 0) {
           endingAction();
           return;

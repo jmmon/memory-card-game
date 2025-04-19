@@ -13,7 +13,13 @@ import boardUtils from "~/v3/utils/boardUtils";
 import INITIAL_STATE from "./initialState";
 import GAME, { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
 import type {
-  iGameData} from "~/v3/types/types";
+  InitializeDeckOpts,
+  ResetGameOpts,
+  StartDealingOpts,
+  StartShufflingOpts,
+  StopDealingOpts,
+  iGameData,
+} from "~/v3/types/types";
 import {
   GameStateEnum,
   type iGameHandlers,
@@ -159,6 +165,11 @@ export const useGameContextProvider = ({
     });
   });
 
+  const readyGame = $(function () {
+    state.gameData.shouldCloseModalDuringDeckAnimations = false;
+    state.gameData.isLoading = false;
+  });
+
   // also generates coords for deck dealing position
   const calculateAndResizeBoard = $(function () {
     if (state.userSettings.board.isLocked) {
@@ -216,16 +227,24 @@ export const useGameContextProvider = ({
     });
   });
 
+  const DEFAULT_OPTS_START_DEALING: StartDealingOpts = {
+    shouldHideSettings: false,
+  };
   /** only called from resetGame currently
    * */
-  const startDealingDeck = $(function (
-    shouldHideSettings: boolean = false,
-  ) {
-    state.gameData.isLoading = true;
-    // start deck deal animation
+  const startDealing = $(function (opts?: Partial<StartDealingOpts>) {
+    const { shouldHideSettings } = {
+      ...DEFAULT_OPTS_START_DEALING,
+      ...opts,
+    };
     state.gameData.dealCardIndex = state.userSettings.deck.size;
+    state.gameData.isLoading = true;
+    state.gameData.isDealing = true;
 
-    if (shouldHideSettings) {
+    if (
+      shouldHideSettings &&
+      state.gameData.shouldCloseModalDuringDeckAnimations
+    ) {
       hideSettingsModal();
     }
   });
@@ -233,25 +252,48 @@ export const useGameContextProvider = ({
   // track for changed deck size for recalculating board
   const lastDeckSize = useSignal(state.userSettings.deck.size);
 
-  // internal, could combine with resetGame
-  const initializeDeck = $(async function (isStartup?: boolean) {
+  const DEFAULT_OPTS_INITIALIZE_DECK: InitializeDeckOpts = {
+    forceRecalculateBoard: false,
+  };
+  /** currently only called from resetGame
+   * */
+  const initializeDeck = $(async function (opts?: Partial<InitializeDeckOpts>) {
+    const { forceRecalculateBoard } = {
+      ...DEFAULT_OPTS_INITIALIZE_DECK,
+      ...opts,
+    };
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "initializeDeck");
 
     const isDeckSizeChanged =
       lastDeckSize.value !== state.userSettings.deck.size;
+
     lastDeckSize.value = state.userSettings.deck.size;
 
     await sliceDeck(); // refresh deck, and size if needed
 
-    if (isStartup || isDeckSizeChanged) {
-      await calculateAndResizeBoard()
+    if (forceRecalculateBoard || isDeckSizeChanged) {
+      await calculateAndResizeBoard();
     }
 
-    startDealingDeck(true);
+    startDealing({
+      shouldHideSettings: true,
+    });
   });
 
-  // called at init or after saving settings and resetting game
-  const resetGame = $(async function (newSettings?: Partial<iUserSettings>, isStartup?: boolean) {
+  const DEFAULT_OPTS_RESET_GAME: ResetGameOpts = {
+    forceRecalculateBoard: false, // for first run e.g. startup
+    shouldCloseModalDuringDeckAnimations: false,
+  };
+  /** called at init or after saving settings and resetting game
+   * */
+  const resetGame = $(async function (
+    newSettings?: Partial<iUserSettings>,
+    opts?: Partial<ResetGameOpts>,
+  ) {
+    const { forceRecalculateBoard, shouldCloseModalDuringDeckAnimations } = {
+      ...DEFAULT_OPTS_RESET_GAME,
+      ...opts,
+    };
     state.gameData.isLoading = true;
     if (newSettings !== undefined) {
       state.userSettings = {
@@ -279,10 +321,15 @@ export const useGameContextProvider = ({
     state.gameData.isShaking = INITIAL_STATE.gameData.isShaking;
     state.gameData.flippedCardId = INITIAL_STATE.gameData.flippedCardId;
     state.gameData.mismatchPair = INITIAL_STATE.gameData.mismatchPair;
+    state.gameData.shouldCloseModalDuringDeckAnimations =
+      shouldCloseModalDuringDeckAnimations;
 
     // clear the cards
     state.gameData.cards.length = 0;
     state.gameData.lastClick = -1;
+    // stop animations
+    state.gameData.isShuffling = false;
+    state.gameData.isDealing = false;
 
     // ensure scores header resets by changing length
     state.gameData.selectedCardIds.length = 0;
@@ -295,7 +342,7 @@ export const useGameContextProvider = ({
     });
 
     await timer.reset();
-    await initializeDeck(isStartup);
+    await initializeDeck({ forceRecalculateBoard });
   });
 
   const shuffleCardPositions = $(function () {
@@ -309,17 +356,30 @@ export const useGameContextProvider = ({
   });
 
   // new style with intervalOccurrences
-  const startShuffling = $(function (
-    shouldHideSettings: boolean = false,
-    count: number = GAME.CARD_SHUFFLE_ROUNDS,
-  ) {
+  const DEFAULT_OPTS_START_SHUFFLING: StartShufflingOpts = {
+    shouldHideSettings: true,
+    shouldShowLoading: true,
+    count: GAME.CARD_SHUFFLE_ROUNDS,
+  };
+  const startShuffling = $(function (opts?: Partial<StartShufflingOpts>) {
+    const { shouldHideSettings, shouldShowLoading, count } = {
+      ...DEFAULT_OPTS_START_SHUFFLING,
+      ...opts,
+    };
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "startShuffling");
-    state.gameData.dealCardIndex = 0; // reset just in case
+
     state.gameData.shuffleRounds = count; // set occurrences
-    state.gameData.isLoading = true;
     state.gameData.isShuffling = true;
 
-    if (shouldHideSettings) {
+    if (shouldShowLoading) {
+      state.gameData.isLoading = true;
+    }
+
+    // allow keeping settings open if is in initialization
+    if (
+      shouldHideSettings &&
+      state.gameData.shouldCloseModalDuringDeckAnimations
+    ) {
       hideSettingsModal();
     }
 
@@ -334,7 +394,7 @@ export const useGameContextProvider = ({
 
   const stopShuffling = $(function () {
     state.gameData.isShuffling = false;
-    state.gameData.isLoading = false;
+    readyGame();
 
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "stopShuffling:", {
       gameDataIsShuffling: state.gameData.isShuffling,
@@ -349,6 +409,7 @@ export const useGameContextProvider = ({
     const currentIndex =
       state.userSettings.deck.size - state.gameData.dealCardIndex;
     state.gameData.cards[currentIndex].position = currentIndex;
+
     const now = Date.now();
     const dealInterval = now - lastDeal.value;
     logger(DebugTypeEnum.HANDLER, LogLevel.TWO, "dealCard:", {
@@ -357,12 +418,37 @@ export const useGameContextProvider = ({
       dealInterval,
     });
     lastDeal.value = now;
+
     state.gameData.dealCardIndex--;
+    if (state.gameData.dealCardIndex === 0) {
+      state.gameData.isDealing = false;
+    }
   });
 
+  const DEFAULT_OPTS_STOP_DEALING: StopDealingOpts = {
+    willShuffle: true,
+  };
+  const stopDealing = $(function (opts?: Partial<StopDealingOpts>) {
+    const { willShuffle } = {
+      ...DEFAULT_OPTS_STOP_DEALING,
+      ...opts,
+    };
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "stopDealing", {
+      willShuffle,
+    });
+    state.gameData.isDealing = false;
+    state.gameData.dealCardIndex = 0;
+    if (willShuffle) {
+      startShuffling();
+      return;
+    }
+    readyGame();
+  });
 
   const handlers: iGameHandlers = {
     dealCard,
+    stopDealing,
+    startDealing,
     shuffleCardPositions,
     startShuffling,
     stopShuffling,

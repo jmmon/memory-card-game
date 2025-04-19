@@ -27,6 +27,8 @@ const GAME_DATA: iGameData = {
   isLoading: false,
   /** new start trigger for intervalOccurrences */
   isShuffling: false,
+  /** overrides hideSettings during deck dealing and shuffling */
+  shouldCloseModalDuringDeckAnimations: false,
   /** constant set before starting shuffling */
   shuffleRounds: GAME.CARD_SHUFFLE_ROUNDS,
 
@@ -34,6 +36,7 @@ const GAME_DATA: iGameData = {
    * so current card index === deck.size - dealCardIndex
    * */
   dealCardIndex: 0,
+  isDealing: false,
 };
 
 // user controlled settings

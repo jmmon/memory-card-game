@@ -141,6 +141,8 @@ export default component$(() => {
   );
 
   const handleClickBoard$ = $((e: MouseEvent) => {
+    if (ctx.state.gameData.isShuffling || ctx.state.gameData.isDealing) return;
+
     // attempt to get the card id if click is on a card
     // removed cards don't intercept click events, so they're filtered out automatically
     // checks the data-id attribute, so whatever part of the card has that MUST take pointer events
@@ -183,7 +185,10 @@ export default component$(() => {
 
     // pass in userSettings so they don't get wiped from the homepage
     // reset game so everything resets on browser back/forward
-    ctx.handle.resetGame(ctx.state.userSettings, true);
+    ctx.handle.resetGame(ctx.state.userSettings, {
+      forceRecalculateBoard: true,
+      shouldCloseModalDuringDeckAnimations: false,
+    });
   });
 
   useStyles$(`

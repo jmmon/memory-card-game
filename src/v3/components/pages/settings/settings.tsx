@@ -17,10 +17,14 @@ export default component$(() => {
       title="Game Settings"
     >
       <GameSettings
-        startShuffling$={() => ctx.handle.startShuffling(true)}
+        startShuffling$={() => ctx.handle.startShuffling({
+          shouldHideSettings: false,
+        })}
         unsavedUserSettings={unsavedUserSettings}
         isShufflingDisabled={
-          ctx.state.gameData.gameState !== GameStateEnum.IDLE
+          ctx.state.gameData.gameState !== GameStateEnum.IDLE ||
+          ctx.state.gameData.isDealing ||
+          ctx.state.gameData.isShuffling
         }
       >
         {ctx.timer.state.time > 0 && <GameStats q:slot="game-stats" />}
