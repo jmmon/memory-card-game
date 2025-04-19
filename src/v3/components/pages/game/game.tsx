@@ -56,7 +56,7 @@ export default component$<GameProps>(
       ...(loc.prevUrl?.pathname === "/"
         ? {
             gameData: {
-              cards: [], 
+              cards: [],
             },
           }
         : {}),
@@ -101,7 +101,6 @@ export default component$<GameProps>(
       intervalAction: ctx.handle.shuffleCardPositions,
       occurrences: useComputed$(() => ctx.state.gameData.shuffleRounds),
       endingAction: ctx.handle.stopShuffling,
-      runImmediatelyOnCondition: true,
     });
 
     /* ================================
@@ -109,6 +108,7 @@ export default component$<GameProps>(
      * - gives it a nice look if you leave the tab open (and you haven't started the game)
      * ================================ */
     useIntervalObj({
+      // only run if game is not active
       triggerCondition: useComputed$(
         () =>
           ctx.state.gameData.dealCardIndex === 0 &&
@@ -167,7 +167,9 @@ export default component$<GameProps>(
       }),
     });
 
-    // auto pause game after some inactivity (in case you go away)
+    /* ================================
+     * Auto pause after inactivity
+     * ================================ */
     useTimeoutObj({
       triggerCondition: useComputed$(
         () =>
@@ -178,13 +180,13 @@ export default component$<GameProps>(
           ctx.state.gameData.lastClick !== -1, // if clicked recently, will be not -1
       ),
       delay: GAME.AUTO_PAUSE_DELAY_MS,
-      action: ctx.handle.showSettings,
+      action: ctx.handle.showSettingsModal,
       checkConditionOnTimeout: true,
     });
 
     // when switching tabs, show settings to pause the game
     useVisibilityChange({
-      onHidden$: ctx.handle.showSettings,
+      onHidden$: ctx.handle.showSettingsModal,
     });
 
     useOnDocument(
@@ -203,13 +205,13 @@ export default component$<GameProps>(
     // - shuffle animation triggers isLoading so modals are immediately available
     // after initial render, and properly render as hidden
     const hasInitialized = useSignal(false);
-    useTask$(({track}) => {
+    useTask$(({ track }) => {
       track(() => ctx.state.gameData.isLoading);
       if (isServer) return;
       if (ctx.state.gameData.isLoading) {
         hasInitialized.value = true;
       }
-    })
+    });
 
     logger(DebugTypeEnum.RENDER, LogLevel.ONE, "RENDER game.tsx");
 
@@ -258,12 +260,8 @@ export default component$<GameProps>(
         <EndGame />
 */}
 
-        {hasInitialized.value && 
-          <Settings />
-        }
-        {hasInitialized.value && 
-          <EndGame />
-        }
+        {hasInitialized.value && <Settings />}
+        {hasInitialized.value && <EndGame />}
       </>
     );
   },

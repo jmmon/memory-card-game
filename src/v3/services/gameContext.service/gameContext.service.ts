@@ -45,17 +45,17 @@ export const useGameContextProvider = ({
     },
     gameData: {
       ...INITIAL_STATE.gameData,
-      ...gameData
-    }
+      ...gameData,
+    },
   });
   const boardRef = useSignal<HTMLDivElement>();
   const containerRef = useSignal<HTMLDivElement>();
 
-  const showSettings = $(function () {
+  const showSettingsModal = $(function () {
     timer.pause();
     state.interfaceSettings.settingsModal.isShowing = true;
     state.gameData.lastClick = -1;
-    
+
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "showSettings:", {
       timerIsPaused: timer.state.isPaused,
       ingerfaceSettingsSettingsModalIsShowing:
@@ -63,7 +63,7 @@ export const useGameContextProvider = ({
     });
   });
 
-  const hideSettings = $(function () {
+  const hideSettingsModal = $(function () {
     state.interfaceSettings.settingsModal.isShowing = false;
     timer.resume();
 
@@ -74,7 +74,7 @@ export const useGameContextProvider = ({
     });
   });
 
-  const showEndGameModal = $(function () {
+  const showEndOfGameModal = $(function () {
     state.interfaceSettings.endOfGameModal.isShowing = true;
 
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "showEndGameModal:", {
@@ -83,7 +83,7 @@ export const useGameContextProvider = ({
     });
   });
 
-  const hideEndGameModal = $(function () {
+  const hideEndOfGameModal = $(function () {
     state.interfaceSettings.endOfGameModal.isShowing = false;
 
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "hideEndGameModal:", {
@@ -99,17 +99,17 @@ export const useGameContextProvider = ({
       !state.interfaceSettings.settingsModal.isShowing
     ) {
       if (state.interfaceSettings.endOfGameModal.isShowing) {
-        hideEndGameModal();
+        hideEndOfGameModal();
       } else {
-        showEndGameModal();
+        showEndOfGameModal();
       }
       return;
     }
 
     if (state.interfaceSettings.settingsModal.isShowing) {
-      hideSettings();
+      hideSettingsModal();
     } else {
-      showSettings();
+      showSettingsModal();
     }
   });
 
@@ -150,7 +150,7 @@ export const useGameContextProvider = ({
     state.gameData.gameState = isWin
       ? GameStateEnum.ENDED_WIN
       : GameStateEnum.ENDED_LOSE;
-    showEndGameModal();
+    showEndOfGameModal();
 
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "endGame:", {
       isStarted: timer.state.isStarted,
@@ -180,10 +180,7 @@ export const useGameContextProvider = ({
       state.userSettings.deck.size,
     );
     state.cardLayout = cardLayout;
-    state.boardLayout = {
-      ...state.boardLayout,
-      ...boardLayout,
-    };
+    state.boardLayout = boardLayout;
 
     // update deck-dealing position when resized
     state.gameData.startingPosition = cardUtils.generateCenterCoords(
@@ -192,11 +189,10 @@ export const useGameContextProvider = ({
     );
 
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "calculateAndResizeBoard:", {
-      boardLayout: state.boardLayout,
-      cardLayout: state.cardLayout,
+      boardLayout,
+      cardLayout,
     });
   });
-
 
   /**
    * gets fresh pairs with fresh ids,
@@ -215,7 +211,7 @@ export const useGameContextProvider = ({
     });
   });
 
-  /** internal, only called from resetGame
+  /** only called from resetGame currently
    * */
   const startDealingDeck = $(function (
     shouldHideSettings: boolean = false,
@@ -225,7 +221,7 @@ export const useGameContextProvider = ({
     state.gameData.dealCardIndex = state.userSettings.deck.size;
 
     if (shouldHideSettings) {
-      hideSettings();
+      hideSettingsModal();
     }
   });
 
@@ -289,7 +285,7 @@ export const useGameContextProvider = ({
     state.gameData.successfulPairs.length = 0;
 
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "resetGame:", {
-      newSettings: newSettings, 
+      newSettings: newSettings,
       gameData: state.gameData,
     });
 
@@ -319,7 +315,7 @@ export const useGameContextProvider = ({
     state.gameData.isShuffling = true;
 
     if (shouldHideSettings) {
-      hideSettings();
+      hideSettingsModal();
     }
 
     logger(DebugTypeEnum.HANDLER, LogLevel.TWO, "~~startShuffling:", {
@@ -367,10 +363,10 @@ export const useGameContextProvider = ({
     stopShuffling,
     sliceDeck,
     calculateAndResizeBoard,
-    showSettings,
-    hideSettings,
-    showEndGameModal,
-    hideEndGameModal,
+    showSettingsModal,
+    hideSettingsModal,
+    showEndOfGameModal,
+    hideEndOfGameModal,
     isEndGameConditionsMet,
     startGame,
     endGame,

@@ -2,7 +2,6 @@ import {
   $,
   component$,
   useComputed$,
-  // useSignal,
   useStyles$,
   useVisibleTask$,
 } from "@builder.io/qwik";
@@ -224,9 +223,7 @@ export default component$(() => {
     .card-shuffle-transform {
       transition-property: transform;
       transition-timing-function: cubic-bezier(0.40, 1.3, 0.62, 1.045);
-      transition-duration: ${
-        BOARD.CARD_SHUFFLE_ACTIVE_DURATION
-      }ms;
+      transition-duration: ${BOARD.CARD_SHUFFLE_ACTIVE_DURATION}ms;
     }
 
     .shake-card {

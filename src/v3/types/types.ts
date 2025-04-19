@@ -88,11 +88,11 @@ export type iInterfaceSettings = {
 export type iBoardLayout = {
   width: number;
   height: number;
-  columns: number;
-  rows: number;
   area: number;
-  rowHeight: number;
+  columns: number;
   colWidth: number;
+  rows: number;
+  rowHeight: number;
 };
 
 export type iCardLayout = {
@@ -135,10 +135,10 @@ export type iGameHandlers = {
   stopShuffling: QRL<() => void>;
   calculateAndResizeBoard: QRL<() => void>;
   startGame: QRL<() => void>;
-  showSettings: QRL<() => void>;
-  hideSettings: QRL<() => void>;
-  showEndGameModal: QRL<() => void>;
-  hideEndGameModal: QRL<() => void>;
+  showSettingsModal: QRL<() => void>;
+  hideSettingsModal: QRL<() => void>;
+  showEndOfGameModal: QRL<() => void>;
+  hideEndOfGameModal: QRL<() => void>;
   toggleModalOnEscape: QRL<() => void>;
   endGame: QRL<(isWin: boolean) => void>;
 };

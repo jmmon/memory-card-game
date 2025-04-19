@@ -7,6 +7,7 @@ import InfoTooltip from "../../organisms/info-tooltip/info-tooltip";
 import { useDebouncer$ } from "~/v3/hooks/useDebouncer";
 import MinusIcon from "~/media/icons/minus.svg?jsx";
 import PlusIcon from "~/media/icons/plus.svg?jsx";
+import { selectFieldOnFocus$ } from "~/v3/handlers/handlers";
 
 const BUTTON_STYLES: ClassList =
   "p-0 w-6 h-6 bg-slate-700 border-slate-500 text-slate-100 text-2xl rounded border flex justify-center items-center text-center align-middle disabled:opacity-30 disabled:scale-[0.85]";
@@ -61,6 +62,7 @@ export default component$<DeckSizeChangerProps>((props) => {
     inputRef.value!.blur();
   }, 500);
 
+
   useStylesScoped$(`
     input::-webkit-outer-spin-button,
     input::-webkit-inner-spin-button {
@@ -88,7 +90,7 @@ export default component$<DeckSizeChangerProps>((props) => {
             props.userSettings.value.deck.size <= GAME.DECK_SIZE_MIN
           }
         >
-          <MinusIcon width="16px" height="16px" />
+          <MinusIcon style="width: 16px; height: 16px"/>
         </button>
         <input
           onInput$={debouncedSetSize$}
@@ -99,6 +101,7 @@ export default component$<DeckSizeChangerProps>((props) => {
           step="2"
           class="w-8 bg-slate-700 text-center text-slate-100 h-6"
           value={props.userSettings.value.deck.size}
+          onFocus$={selectFieldOnFocus$}
         />
         <button
           name={name + "-increment"}
@@ -110,7 +113,7 @@ export default component$<DeckSizeChangerProps>((props) => {
             props.userSettings.value.deck.size >= GAME.DECK_SIZE_MAX
           }
         >
-          <PlusIcon width="16px" height="16px" />
+          <PlusIcon style="width: 16px; height: 16px"/>
         </button>
       </div>
       <InfoTooltip>

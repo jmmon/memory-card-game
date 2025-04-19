@@ -7,7 +7,7 @@ import logger from "../services/logger";
  * @property action - action after delay
  * @property triggerCondition - condition to start the delay timeout
  * @property delay - delay in ms
- * @property checkConditionOnTimeout - check condition on timeout before taking action
+ * @property checkConditionOnTimeout=false - check condition on timeout before taking action
  * */
 export const useTimeoutObj = ({
   action,
@@ -242,6 +242,7 @@ export const useIntervalObj = ({
  * @property occurrences - how many occurrences the interval runs
  * @property endingActionDelay - delay after all occurrences
  * @property endingAction - action to perform after all occurrences + ending delay
+ * @property runImmediatelyOnCondition=true - run the action immediately (at start of interval)
  * */
 export const useOccurrencesInterval = ({
   triggerCondition,
