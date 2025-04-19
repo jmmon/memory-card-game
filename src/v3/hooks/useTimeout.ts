@@ -4,9 +4,9 @@ import { DebugTypeEnum, LogLevel } from "../constants/game";
 import logger from "../services/logger";
 
 /**
- * @property action - action after delay
  * @property triggerCondition - condition to start the delay timeout
  * @property delay - delay in ms
+ * @property action - action after delay
  * @property checkConditionOnTimeout=false - check condition on timeout before taking action
  * */
 export const useTimeoutObj = ({
@@ -32,6 +32,7 @@ export const useTimeoutObj = ({
     if (isServer || !triggerCondition.value) return;
 
     logger(DebugTypeEnum.TASK, LogLevel.ONE, "~~ useTimeoutObj condition met");
+
     const timer = setTimeout(
       () => {
         logger(DebugTypeEnum.TASK, LogLevel.ONE, "~~ useTimeoutObj timeout", {
@@ -51,29 +52,29 @@ export const useTimeoutObj = ({
 };
 
 /**
- * @property actionOnStart - action after initialDelay
- * @property actionOnEnd - action after initialDelay + interval
  * @property triggerCondition - condition to start the initial delay timeout
- * @property interval - interval in ms
  * @property initialDelay - delay before first run
+ * @property actionOnStart - action after initialDelay
+ * @property interval - interval in ms
+ * @property actionOnEnd - action after initialDelay + interval
  * @property checkConditionOnStartTimeout=false - check condition on start timeout before taking action
  * @property checkConditionOnEndTimeout=false - check condition on end timeout before taking action
  * @returns signals to set delay and interval
  * */
 export const useDelayedTimeoutObj = ({
-  actionOnStart,
-  actionOnEnd,
   triggerCondition,
   initialDelay,
+  actionOnStart,
   interval,
+  actionOnEnd,
   checkConditionOnStartTimeout = false,
   checkConditionOnEndTimeout = false,
 }: {
-  actionOnStart: QRL<() => void | any>;
-  actionOnEnd: QRL<() => void | any>;
   triggerCondition: Signal<boolean>;
   initialDelay: number;
+  actionOnStart: QRL<() => void | any>;
   interval: number;
+  actionOnEnd: QRL<() => void | any>;
   checkConditionOnStartTimeout?: boolean;
   checkConditionOnEndTimeout?: boolean;
 }) => {
@@ -136,10 +137,10 @@ export const useDelayedTimeoutObj = ({
  * @returns signals to set delay and interval
  * */
 export const useIntervalObj = ({
-  action,
   triggerCondition,
-  interval,
   initialDelay,
+  interval,
+  action,
   runImmediatelyOnCondition = true,
 }: {
   action: QRL<() => void>;
@@ -197,15 +198,6 @@ export const useIntervalObj = ({
     track(isIntervalRunning);
     if (isServer || !isIntervalRunning.value) return;
 
-    const intervalTimer = setInterval(() => {
-      logger(
-        DebugTypeEnum.TASK,
-        LogLevel.ONE,
-        "~~ useIntervalObj interval running",
-      );
-      action();
-    }, intervalDuration.value);
-
     if (runImmediatelyOnCondition) {
       logger(
         DebugTypeEnum.TASK,
@@ -214,6 +206,15 @@ export const useIntervalObj = ({
       );
       action();
     }
+
+    const intervalTimer = setInterval(() => {
+      logger(
+        DebugTypeEnum.TASK,
+        LogLevel.ONE,
+        "~~ useIntervalObj interval running",
+      );
+      action();
+    }, intervalDuration.value);
 
     cleanup(() => {
       clearInterval(intervalTimer);
@@ -227,23 +228,12 @@ export const useIntervalObj = ({
 };
 
 /**
- * useIntervalOccurrences?
- *  should run x occurrences, signal so it can change when deckSize changes
- *  should have an interval which is signal so it can also adjust by deckSize
- *  should have a break time, or could just run extra occurrences and check the condition inside the action
- *  - e.g run 52 intervals triggering intervalAction and then trigger a timeout, after which there is a endAction which is run
- *  - e.g. opposite of the useInterval, and only run for x occurrences
- * */
-
-/**
  * @property triggerCondition - condition to start the interval
  * @property interval - interval in ms
  * @property intervalAction - action to perform every interval
  * @property occurrences - how many occurrences the interval runs
  * @property endingActionDelay - delay after all occurrences
  * @property endingAction - action to perform after all occurrences + ending delay
- * @property runImmediatelyOnCondition=true - run the action immediately (at start of interval)
- * @property cancelUponFalseCondition=true - cancel early if condition becomes false. Skips endingAction
  * */
 export const useOccurrencesInterval = ({
   triggerCondition,
@@ -253,7 +243,6 @@ export const useOccurrencesInterval = ({
   endingActionDelay = 0,
   endingAction,
   runImmediatelyOnCondition = true,
-  cancelUponFalseCondition = true,
 }: {
   triggerCondition: Signal<boolean>;
   interval: Signal<number>;
@@ -262,7 +251,6 @@ export const useOccurrencesInterval = ({
   endingActionDelay?: number | Signal<number>;
   endingAction: QRL<() => void>;
   runImmediatelyOnCondition?: boolean;
-  cancelUponFalseCondition?: boolean;
 }) => {
   logger(DebugTypeEnum.HOOK, LogLevel.ONE, "SETUP useOccurrencesInterval", {
     triggerCondition: triggerCondition.value,
@@ -281,7 +269,7 @@ export const useOccurrencesInterval = ({
     logger(DebugTypeEnum.HOOK, LogLevel.ONE, "TRACK useOccurrencesInterval", {
       isServer,
     });
-    if (isServer || triggerCondition.value === false) return;
+    if (isServer || !triggerCondition.value) return;
     logger(
       DebugTypeEnum.HOOK,
       LogLevel.ONE,
@@ -320,47 +308,41 @@ export const useOccurrencesInterval = ({
       );
       lastOccurrenceTime = now;
 
-      if (cancelUponFalseCondition && !triggerCondition.value) {
-        clearInterval(intervalTimer.value);
-        intervalTimer.value = undefined;
-        return;
-      }
-
       occurrencesCounter--;
       intervalAction();
 
-      if (occurrencesCounter === 0) {
-        clearInterval(intervalTimer.value);
-        intervalTimer.value = undefined;
-
-        // no need to use timeout if there's no delay
-        if (endingActionDelay === 0) {
-          endingAction();
-          return;
-        }
-
-        // set timeout for ending action if we have a delay
-        endingActionTimer.value = window.setTimeout(
-          () => {
-            const now = Date.now();
-            logger(
-              DebugTypeEnum.HOOK,
-              LogLevel.TWO,
-              "~~ useOccurrencesInterval: endingAction runs",
-              {
-                endingPause: now - lastOccurrenceTime + "ms",
-                totalDuration: now - startTime + "ms",
-              },
-            );
-            endingAction();
-          },
-          typeof endingActionDelay === "number"
-            ? endingActionDelay
-            : endingActionDelay.value,
-        );
+      if (occurrencesCounter > 0) {
+        return;
       }
-    }, interval.value);
+      clearInterval(intervalTimer.value);
+      intervalTimer.value = undefined;
 
-    // console.log("creating timeout:", interval.value * occurrences.value + endingActionDelay.value);
+      if (!endingActionDelay) {
+        // no need to set a timer for 0 delay
+        endingAction();
+        return;
+      }
+
+      // set timeout for ending action if we have a delay
+      endingActionTimer.value = window.setTimeout(
+        () => {
+          const now = Date.now();
+          logger(
+            DebugTypeEnum.HOOK,
+            LogLevel.TWO,
+            "~~ useOccurrencesInterval: endingAction runs",
+            {
+              endingPause: now - lastOccurrenceTime + "ms",
+              totalDuration: now - startTime + "ms",
+            },
+          );
+          endingAction();
+        },
+        typeof endingActionDelay === "number"
+          ? endingActionDelay
+          : endingActionDelay.value,
+      );
+
+    }, interval.value);
   });
 };
