@@ -23,7 +23,7 @@
     "lint": "eslint \"src/**/*.ts*\"",
     "lint:fix": "eslint \"src/**/*.ts*\" --fix",
     "preview": "qwik build preview && pnpm vite preview --open",
-    "serve": "git branch --show-current && wrangler pages dev ./dist --compatibility-flags=nodejs_als",
+    "serve": "branch=$(git branch --show-current); echo \"* *\"; echo \" *  Running on branch $branch  *\"; echo \"* *\" && wrangler pages dev ./dist --compatibility-flags=nodejs_als",
     "serve.clean": "rm -rf ./dist && rm -rf ./server && pnpm run lint:fix; pnpm run build; pnpm run serve",
     "start": "vite --open --mode ssr",
     "qwik": "qwik"
