@@ -226,7 +226,6 @@ export const useGameContextProvider = ({
 
     if (shouldHideSettings) {
       hideSettings();
-
     }
   });
 
@@ -239,10 +238,13 @@ export const useGameContextProvider = ({
 
     const isDeckSizeChanged =
       lastDeckSize.value !== state.userSettings.deck.size;
+    lastDeckSize.value = state.userSettings.deck.size;
 
     await sliceDeck(); // refresh deck, and size if needed
 
-    if (isStartup || isDeckSizeChanged) await calculateAndResizeBoard();
+    if (isStartup || isDeckSizeChanged) {
+      await calculateAndResizeBoard()
+    }
 
     startDealingDeck(true);
   });
