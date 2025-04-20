@@ -266,13 +266,12 @@ export default component$<GameProps>(
 
         <Loading isShowing={ctx.state.gameData.isLoading} />
 
-        {/*
-        <Settings />
-        <EndGame />
-*/}
-
-        {hasInitialized.value && <Settings />}
-        {hasInitialized.value && <EndGame />}
+        {hasInitialized.value && (
+          <>
+            <Settings />
+            <EndGame />
+          </>
+        )}
       </>
     );
   },
