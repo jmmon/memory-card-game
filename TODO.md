@@ -1,19 +1,5 @@
-## BUG: back/forward still will show the old cards for a half second
-- **solution? hoist context up to the layout? then can reset cards in homepage so they are wiped when going back to /game**
-> - could also implement a wrapper fn for updating settings or preparing settings
-> - would also sync settings from game back to homepage
-
-
-
-## +- buttons still not quite right on mobile, try SVGs?
-- should be simple to make, a couple paths for plus (with stroke width)
-- one path for minus
-e.g. 16x16 viewport, with 2 strokewidth? would path start on 8.5? or 8?
-
-
 ## hash the cardIds instead of using math.random? doesn't matter the ids, as long as each card has its pair hash
 - e.g. math.random (or randomBytes e.g. 4 bytes or something small) for every new round, and append to card.text ['AS' === ace of spades] then hash that string (to obfuscate)
-
 
 
 ## [Soon(TM)] TODO: finish scores!!!
@@ -26,14 +12,13 @@ e.g. 16x16 viewport, with 2 strokewidth? would path start on 8.5? or 8?
 - slider dark mode! darker bg/fill
 
 ## bug:
-- seems like settings modal is closed after dealing deck, when starting shuffling?
 
-## bug:
+- less extra work for dark mode.
+> - use localstorage as single source of truth
+> - don't store in context/settings, would be much simpler
 - dark mode theme loading happens late, look into examples from qwik website
-  - insert script into head to load on startup immediately;
-  - could also check computer preferences...
-
-## perf: deck dealing/fan-out interval instead of timeouts
+> - insert script into head to load on startup immediately;
+> - could also check computer preferences...
 
 ## perf: change all cards into hidden SVG defs? then can load entire cards upfront like the symbol defs
 
@@ -75,13 +60,9 @@ e.g. 16x16 viewport, with 2 strokewidth? would path start on 8.5? or 8?
  brightness (number) slider e.g. 100%-10%
 > - also save in localstorage
 
-## TODO: less extra work for dark mode.
-- break up single hook into multiple
-> - only need one onLoad and one onShow per route
-- seems like onShow is needed for the settings modal for switching tabs back and forth
-
-## TODO: invert dark mode: more customization
-- make it affect the svg symbols rather than the entire card
+## TODO: Invert Dark Mode
+- more customization?
+> - make it affect the svg symbols rather than the entire card
 > - then can customise how each card or symbol or color looks instead of a blanket filter
 
 ## TODO: challenge modes

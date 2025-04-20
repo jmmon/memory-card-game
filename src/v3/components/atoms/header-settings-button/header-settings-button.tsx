@@ -76,8 +76,8 @@ export default component$<HeaderSettingsIconProps>(() => {
       onClick$={() => {
         debounceUnfocus();
         ctx.state.interfaceSettings.settingsModal.isShowing
-          ? ctx.handle.hideSettings()
-          : ctx.handle.showSettings();
+          ? ctx.handle.hideSettingsModal()
+          : ctx.handle.showSettingsModal();
       }}
       classes={`p-[0.5em] my-auto text-[1.2em] sm:text-[1.5em] h-min settings-button ${ctx.state.interfaceSettings.settingsModal.isShowing ? "open bg-slate-800 border-slate-300 hover-bg-slate-700" : ""}`}
     >

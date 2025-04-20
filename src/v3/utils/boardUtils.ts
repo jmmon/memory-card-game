@@ -1,5 +1,6 @@
 import BOARD from "~/v3/constants/board";
 import GAME from "~/v3/constants/game";
+import type { iBoardLayout, iCardLayout } from "../types/types";
 
 export const calculateBoardDimensions = (
   container: HTMLElement,
@@ -41,7 +42,7 @@ export const calculateLayouts = (
   const newCardWidth = newCardHeight * BOARD.CARD_RATIO;
   const cardArea = newCardWidth * newCardHeight;
 
-  const cardLayout = {
+  const cardLayout: iCardLayout = {
     width: newCardWidth,
     height: newCardHeight,
     roundedCornersPx: BOARD.CORNERS_WIDTH_RATIO * newCardWidth,
@@ -55,13 +56,13 @@ export const calculateLayouts = (
   };
 
   // save board width/height
-  const boardLayout = {
+  const boardLayout: iBoardLayout = {
     width: boardWidth,
     height: boardHeight,
     area: boardArea,
-    rows,
     columns,
     colWidth: boardWidth / columns,
+    rows,
     rowHeight: boardHeight / rows,
   };
 

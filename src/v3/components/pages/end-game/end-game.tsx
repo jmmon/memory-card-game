@@ -1,59 +1,20 @@
-import type { Signal } from "@builder.io/qwik";
-import { component$, $, useSignal, useTask$ } from "@builder.io/qwik";
+import { component$ } from "@builder.io/qwik";
 import Modal from "~/v3/components/templates/modal/modal";
 import Button from "~/v3/components/atoms/button/button";
-import { GameStateEnum, type iUserSettings } from "~/v3/types/types";
 import GameStats from "../../molecules/game-stats/game-stats";
-import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
-import useGetSavedTheme from "~/v3/hooks/useGetSavedTheme";
 import GameSettings from "../../organisms/game-settings/game-settings";
+import { GameStateEnum } from "~/v3/types/types";
+import useSyncedSettings from "~/v3/hooks/useSyncedSettings";
 
 export default component$(() => {
-  const ctx = useGameContextService();
-  // for adjusting deck size before restarting
-  const unsavedUserSettings = useSignal<iUserSettings>(ctx.state.userSettings);
-
-  useGetSavedTheme(
-    { ctx, unsavedUserSettings },
-    {
-      onLoad: false,
-    },
-  );
-
-  const hideModal$ = $(() => {
-    ctx.state.interfaceSettings.endOfGameModal.isShowing = false;
-  });
-
-  const saveOrResetSettings$ = $((newSettings?: Signal<iUserSettings>) => {
-    ctx.handle
-      .resetGame(newSettings ? newSettings.value : undefined)
-      .then(() => {
-        // resync and hide modal after new settings are saved
-        // console.log("game reset", ctx);
-        ctx.state.interfaceSettings.endOfGameModal.isShowing = false;
-      });
-  });
-
-  // resync when showing or hiding modal e.g. if home changed settings but didn't save
-  useTask$(({ track }) => {
-    const isShowing = track(() => ctx.state.interfaceSettings.settingsModal.isShowing);
-
-    if (isShowing) {
-      // ensure settings are resyncd from ctx when showing
-      unsavedUserSettings.value = ctx.state.userSettings;
-
-    } else {
-      // first save INTERFACE changes without requiring save to be clicked
-      // then update signal to match all state settings
-      ctx.state.userSettings.interface = unsavedUserSettings.value.interface;
-      unsavedUserSettings.value = ctx.state.userSettings;
-    }
-  });
+  // syncs and provides settings
+  const { unsavedUserSettings, saveOrResetSettings$, ctx } =
+    useSyncedSettings("endOfGameModal");
 
   return (
     <Modal
       isShowing={ctx.state.interfaceSettings.endOfGameModal.isShowing}
-      hideModal$={hideModal$}
+      hideModal$={ctx.handle.hideEndOfGameModal}
       title={
         ctx.state.gameData.gameState === GameStateEnum.ENDED_WIN
           ? "You Win!"

@@ -12,6 +12,9 @@ import type {
 } from "~/v3/types/types";
 
 const GAME_DATA: iGameData = {
+  /** for determining where deck is dealt from */
+  startingCoords: { x: 0, y: 0 },
+  startingScale: GAME.DECK_DEAL_SCALE_MIN,
   lastClick: -1,
   gameState: GameStateEnum.IDLE,
   cards: [],
@@ -24,15 +27,16 @@ const GAME_DATA: iGameData = {
   isLoading: false,
   /** new start trigger for intervalOccurrences */
   isShuffling: false,
+  /** overrides hideSettings during deck dealing and shuffling */
+  shouldCloseModalDuringDeckAnimations: false,
   /** constant set before starting shuffling */
   shuffleRounds: GAME.CARD_SHUFFLE_ROUNDS,
-  /** for determining where deck is dealt from */
-  startingPosition: { x: 0, y: 0 },
 
   /** when dealing, counts down from max cards to 0 
    * so current card index === deck.size - dealCardIndex
    * */
   dealCardIndex: 0,
+  isDealing: false,
 };
 
 // user controlled settings
