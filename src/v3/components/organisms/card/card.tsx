@@ -11,7 +11,7 @@ import CardView from "~/v3/components/molecules/card-view/card-view";
 import type { iCoords, iCard } from "~/v3/types/types";
 import type { FunctionComponent } from "@builder.io/qwik";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
-import GAME, { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
+import { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
 import logger from "~/v3/services/logger";
 
 type FlipTransform = {
@@ -118,32 +118,22 @@ export default component$<CardProps>(({ card, index }) => {
 
     // for -1 case, can tweak constants to change percent positions for deck initialization
     //    startingPosition is calculated inside handle.initializeDeck
-    const newCoords =
-      card.position === -1
-        ? ctx.state.gameData.startingPosition
-        : cardUtils.getXYFromPosition(
-            card.position,
-            ctx.state.boardLayout.columns,
-          );
+    let newCoords: iCoords;
+    if (card.position === -1) {
+      newCoords = ctx.state.gameData.startingCoords;
+      // append the transform with a scale
+      shuffleTransform.value += ` scale(${ctx.state.gameData.startingScale}) `;
+    } else {
+      newCoords = cardUtils.getXYFromPosition(
+        card.position,
+        ctx.state.boardLayout.columns,
+      );
+    }
 
     shuffleTransform.value = cardUtils.generateShuffleTranslateTransformPercent(
       ctx.state.cardLayout,
       newCoords,
     );
-
-    // dealing the deck: scale
-    if (card.position === -1) {
-      // append the transform with a scale
-      const boardBasedScale = cardUtils.generateDeckDealScale(
-        ctx.state.boardLayout,
-        ctx.state.cardLayout,
-      );
-      const scale = Math.max(
-        (boardBasedScale + GAME.DECK_DEAL_SCALE) / 2,
-        GAME.DECK_DEAL_SCALE,
-      );
-      shuffleTransform.value += ` scale(${scale});`;
-    }
 
     flipTransform.value = cardUtils.generateFlipTranslateTransform(
       ctx.state.boardLayout,
@@ -202,7 +192,7 @@ export default component$<CardProps>(({ card, index }) => {
             : 0),
   );
 
-  logger(DebugTypeEnum.RENDER, LogLevel.THREE, "RENDER card.tsx", {index});
+  logger(DebugTypeEnum.RENDER, LogLevel.THREE, "RENDER card.tsx", { index });
 
   return (
     <div

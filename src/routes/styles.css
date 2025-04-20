@@ -29,11 +29,9 @@ html[data-theme="dark"] {
 }
 
 body {
-
   background: var(--qwik-dark-background);
   color: var(--qwik-dark-text);
   overflow-x: hidden;
-
 }
 
 .main-scroll {
@@ -66,6 +64,10 @@ html main.main-height {
   /* fallback to vh if dvh is not supported */
   height: 100vh;
   height: 100svh;
+}
+
+html[data-theme="dark"] .instructions code {
+  background-color: #1e293b;
 }
 
 .playing-card {

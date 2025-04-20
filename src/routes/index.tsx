@@ -72,7 +72,7 @@ const SoonTmPopover = component$(() => {
 const Instructions: FunctionComponent = () => {
   const actionString = "Tap/Click";
   return (
-    <ul class="my-4 mx-auto border-box text-md grid w-full max-w-[60ch] list-disc gap-4 px-6 marker:text-slate-400 md:text-lg">
+    <ul class="instructions my-4 mx-auto border-box text-md grid w-full max-w-[60ch] list-disc gap-4 px-6 marker:text-slate-400 md:text-lg">
       <li class={LI_CLASSES}>
         <strong>{actionString}</strong> a card to view it.
         <br />
@@ -82,14 +82,12 @@ const Instructions: FunctionComponent = () => {
         After <strong>two</strong> cards have been flipped, if the{" "}
         <strong>numbers</strong> and <strong>colors</strong> match...
         <br />
-        <div class="bg-slate-700 p-2">
-          <code class="p-0">
+          <code class="block bg-slate-700 p-[0.6em] py-[0.3em]">
             (e.g. <strong>Queen</strong> of <strong>Spades</strong> with{" "}
             <strong>Queen</strong> of <strong>Clubs</strong>; or{" "}
             <strong>2</strong> of <strong>Hearts</strong> with{" "}
             <strong>2</strong> of <strong>Diamonds</strong>,)
           </code>
-        </div>
         ...you found a <strong>pair</strong> and they're removed from the board!
       </li>
       <li class={LI_CLASSES}>
