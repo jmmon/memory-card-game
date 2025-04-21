@@ -342,16 +342,19 @@ export const updateWorseThanOurScoreMap = (
   const sortedEntries = Object.entries(
     JSON.parse(oldJson) as Record<string, number>,
   )
-    .map(([k, v]) => [Number(k), v])
+    // .map(([k, v]) => [Number(k), v])
     // .sort(([scoreA], [scoreB]) => scoreA - scoreB); // don't need to sort here since it's already sorted
 
   let nextBetterCount = total;
   let isNeedToInsert = true;
   const newScore = score[key];
+  let thisScore = 0;
+  let thisLessThanCount = 0;
 
   // from lowest scores to highest
   for (let i = 0; i < sortedEntries.length; i++) {
-    const [thisScore, thisLessThanCount] = sortedEntries[i];
+    thisScore = Number(sortedEntries[i][0]);
+    thisLessThanCount = sortedEntries[i][1];
 
     if (newScore > thisScore) {
       newLessThanOurScoreJson[thisScore] = thisLessThanCount + 1;
@@ -369,8 +372,8 @@ export const updateWorseThanOurScoreMap = (
   if (isNeedToInsert) {
     newLessThanOurScoreJson[score[key]] = nextBetterCount;
     const final = Object.entries(newLessThanOurScoreJson)
-      .map(([k, v]) => [Number(k), v])
-      .sort(([scoreA], [scoreB]) => scoreA - scoreB);
+      // .map(([k, v]) => [Number(k), v])
+      .sort(([scoreA], [scoreB]) => Number(scoreA) - Number(scoreB));
     return JSON.stringify(Object.fromEntries(final));
   }
 
