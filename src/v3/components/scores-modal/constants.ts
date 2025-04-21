@@ -32,43 +32,33 @@ export const MAP_COL_TITLE_TO_OBJ_KEY: { [key: string]: ScoreTableColumn } = {
   initials: "initials",
   "deck-size": "deck_size",
   pairs: "pairs",
-  "game-time": "game_time_ds",
   mismatches: "mismatches",
-  // "game-time": "timePercentile",
-  // mismatches: "mismatchPercentile",
+  "game-time": "game_time_ds",
   date: "created_at",
 } as const;
 
-export const DEFAULT_SORT_BY_COLUMNS_MAP: {
+export const COLUMNS_MAP_SORT_BY_DEFAULT: {
   [key in ScoreTableColumnEnum]: SortColumnWithDirection;
 } = {
-  [ScoreTableColumnEnum.game_time_ds]: {
-    column: ScoreTableColumnEnum.game_time_ds,
+  [ScoreTableColumnEnum.initials]: {
+    column: ScoreTableColumnEnum.initials,
     direction: SortDirectionEnum.asc,
   },
   [ScoreTableColumnEnum.deck_size]: {
     column: ScoreTableColumnEnum.deck_size,
     direction: SortDirectionEnum.asc,
   },
-  // [ScoreTableColumnnEnum.timePercentile]: {
-  //   column: "timePercentile",
-  //   direction: "desc",
-  // },
-  // [ScoreTableColumnnEnum.mismatchPercentile]: {
-  //   column: "mismatchPercentile",
-  //   direction: "desc",
-  // },
+  [ScoreTableColumnEnum.pairs]: {
+    column: ScoreTableColumnEnum.pairs,
+    direction: SortDirectionEnum.desc,
+  },
   [ScoreTableColumnEnum.mismatches]: {
     column: ScoreTableColumnEnum.mismatches,
     direction: SortDirectionEnum.asc,
   },
-  [ScoreTableColumnEnum.initials]: {
-    column: ScoreTableColumnEnum.initials,
+  [ScoreTableColumnEnum.game_time_ds]: {
+    column: ScoreTableColumnEnum.game_time_ds,
     direction: SortDirectionEnum.asc,
-  },
-  [ScoreTableColumnEnum.pairs]: {
-    column: ScoreTableColumnEnum.pairs,
-    direction: SortDirectionEnum.desc,
   },
   [ScoreTableColumnEnum.created_at]: {
     column: ScoreTableColumnEnum.created_at,
@@ -77,7 +67,7 @@ export const DEFAULT_SORT_BY_COLUMNS_MAP: {
 } as const;
 
 export const DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY = Object.values(
-  DEFAULT_SORT_BY_COLUMNS_MAP,
+  COLUMNS_MAP_SORT_BY_DEFAULT,
 );
 
-export const MAX_SORT_COLUMN_HISTORY = 2 as const;
+export const MAX_SORT_COLUMN_HISTORY = 3 as const;

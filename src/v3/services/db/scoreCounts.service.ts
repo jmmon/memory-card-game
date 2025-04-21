@@ -3,36 +3,16 @@ import { getDB, scoreCounts } from "../../db";
 import {
   ScoreTableColumnEnum,
 } from "../../types/types";
-// import { DEFAULT_QUERY_PROPS } from "./constants";
-// import type { CountsQueryProps } from "./types";
 import type {
   InsertScoreCount,
   Score,
   ScoreCount,
 } from "~/v3/db/schemas/types";
-import { DEFAULT_SORT_BY_COLUMNS_MAP } from "~/v3/components/scores-modal/constants";
+import { COLUMNS_MAP_SORT_BY_DEFAULT } from "~/v3/components/scores-modal/constants";
 import { buildOrderBy } from "./utils";
 import { updateWorseThanOurScoreMap } from "./percentileUtils";
 
 const getAllScoreCounts = () => getDB().select().from(scoreCounts);
-
-// const queryScoreCounts = ({
-//   deckSizesFilter = DEFAULT_QUERY_PROPS.deckSizesFilter,
-//   sortDirection = DEFAULT_QUERY_PROPS.sortDirection,
-// }: Partial<CountsQueryProps>) =>
-//   getAllScoreCounts()
-//     .where(inArray(scoreCounts.deckSize, deckSizesFilter))
-//     .orderBy(
-//       ...buildOrderBy(
-//         [
-//           {
-//             column: ScoreTableColumnEnum.deck_size,
-//             direction: sortDirection,
-//           },
-//         ],
-//         scoreCounts,
-//       ),
-//     );
 
 const clearScoreCountsTable = () => getDB().delete(scoreCounts);
 
@@ -45,10 +25,10 @@ const getDeckSizeList = () =>
     .from(scoreCounts)
     .orderBy(
       ...buildOrderBy(
-        [DEFAULT_SORT_BY_COLUMNS_MAP[ScoreTableColumnEnum.deck_size]],
+        [COLUMNS_MAP_SORT_BY_DEFAULT[ScoreTableColumnEnum.deck_size]],
         scoreCounts,
       ),
-    ) // sort by deckSize
+    )
     .execute()
     .then((counts) => counts.map(({ deckSize }) => deckSize));
 
@@ -73,14 +53,6 @@ const getOneScoreCountByDeckSize = async (deckSize: number) =>
     .where(eq(scoreCounts.deckSize, deckSize))
     .then((count) => count[0]);
 
-// const updateScoreCountById = async (id: number, update: InsertScoreCount) =>
-//   getDB()
-//     .update(scoreCounts)
-//     .set(update)
-//     .where(eq(scoreCounts.id, id))
-//     .returning()
-//     .then((counts) => counts[0]);
-
 const updateScoreCountByDeckSize = async (update: InsertScoreCount) =>
   getDB()
     .update(scoreCounts)
@@ -89,10 +61,8 @@ const updateScoreCountByDeckSize = async (update: InsertScoreCount) =>
     .returning()
     .then((counts) => counts[0]);
 
-
 /*
  * */
-
 const addScoreToExistingCount = (
   {
     deckSize,

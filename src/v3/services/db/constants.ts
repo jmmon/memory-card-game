@@ -1,18 +1,16 @@
 import GAME from "~/v3/constants/game";
 import {
   ScoreTableColumnEnum,
-  SortDirectionEnum,
   type SortColumnWithDirection,
 } from "../../types/types";
-import { DEFAULT_SORT_BY_COLUMNS_MAP } from "~/v3/components/scores-modal/constants";
+import { COLUMNS_MAP_SORT_BY_DEFAULT } from "~/v3/components/scores-modal/constants";
 
-export const DEFAULT_QUERY_PROPS = {
+export const SCORES_QUERY_PROPS_DEFAULT = {
   pageNumber: 1,
   resultsPerPage: 10,
   maxDeckSizes: 24,
   deckSizesFilter: [GAME.DECK_SIZE_DEFAULT],
   sortByColumnHistory: [
-    DEFAULT_SORT_BY_COLUMNS_MAP[ScoreTableColumnEnum.game_time_ds],
+    COLUMNS_MAP_SORT_BY_DEFAULT[ScoreTableColumnEnum.game_time_ds],
   ] as Array<SortColumnWithDirection>,
-  sortDirection: SortDirectionEnum.asc,
 };

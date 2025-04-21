@@ -1,7 +1,7 @@
 import { server$ } from "@builder.io/qwik-city";
 import type { InsertScore } from "~/v3/db/schemas/types";
 import type { ScoreQueryProps } from "./types";
-import { DEFAULT_QUERY_PROPS } from "./constants";
+import { SCORES_QUERY_PROPS_DEFAULT } from "./constants";
 import scoreService from "./scores.service";
 import scoreCountService from "./scoreCounts.service";
 import { getDB } from "~/v3/db";
@@ -24,10 +24,10 @@ import { calculatePercentilesWhileMaintainingOrder } from "./percentileUtils";
  * return scores and totals of each deck size
  * */
 const queryScoresAndCalculatePercentiles = async ({
-  pageNumber = DEFAULT_QUERY_PROPS.pageNumber,
-  resultsPerPage = DEFAULT_QUERY_PROPS.resultsPerPage,
-  deckSizesFilter = DEFAULT_QUERY_PROPS.deckSizesFilter,
-  sortByColumnHistory = DEFAULT_QUERY_PROPS.sortByColumnHistory,
+  pageNumber = SCORES_QUERY_PROPS_DEFAULT.pageNumber,
+  resultsPerPage = SCORES_QUERY_PROPS_DEFAULT.resultsPerPage,
+  deckSizesFilter = SCORES_QUERY_PROPS_DEFAULT.deckSizesFilter,
+  sortByColumnHistory = SCORES_QUERY_PROPS_DEFAULT.sortByColumnHistory,
 }: Partial<ScoreQueryProps>) => {
   logger(
     DebugTypeEnum.SERVICE,

@@ -6,25 +6,26 @@ import {
   useStore,
   useStyles$,
   useTask$,
+  useVisibleTask$,
 } from "@builder.io/qwik";
 import {
   SortDirectionEnum,
   type ScoreWithPercentiles,
   type SortColumnWithDirection,
 } from "~/v3/types/types";
-import { server$ } from "@builder.io/qwik-city";
 import { isServer } from "@builder.io/qwik/build";
 import ScoreTable from "./score-table";
 import {
-  DEFAULT_SORT_BY_COLUMNS_MAP,
+  COLUMNS_MAP_SORT_BY_DEFAULT,
   DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY,
   MAP_COL_TITLE_TO_OBJ_KEY,
-  MAX_SORT_COLUMN_HISTORY,
+  MAX_SORT_COLUMN_HISTORY as SORT_COLUMN_HISTORY_MAX,
 } from "./constants";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 import Modal from "../templates/modal/modal";
 import serverDbService from "~/v3/services/db";
 import ChevronSvg from "~/media/icons/icons8-chevron-96 convertio.svg?jsx";
+import { server$ } from "@builder.io/qwik-city";
 
 // const ChevronStyled = ({ direction }: { direction: "left" | "right" }) => (
 //   <svg
@@ -87,7 +88,7 @@ export default component$(() => {
     {
       sortByColumnHistory: DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY.slice(
         0,
-        MAX_SORT_COLUMN_HISTORY,
+        SORT_COLUMN_HISTORY_MAX,
       ),
       deckSizesFilter: [ctx.state.userSettings.deck.size], // default to our deck.size
       pageNumber: 1,
@@ -247,9 +248,10 @@ export default component$(() => {
   });
 
   const handleClickColumnHeader = $((e: MouseEvent) => {
+    // console.log({target: e.target});
     const clickedDataAttr = (e.target as HTMLButtonElement).getAttribute(
       "data-sort-column",
-    ) as string;
+    ) as string
 
     // tweak some words to match the object keys
     const clickedColumnTitle = MAP_COL_TITLE_TO_OBJ_KEY[clickedDataAttr];
@@ -268,9 +270,9 @@ export default component$(() => {
     } else {
       // set new column & direction
       queryStore.sortByColumnHistory = [
-        DEFAULT_SORT_BY_COLUMNS_MAP[clickedColumnTitle],
+        COLUMNS_MAP_SORT_BY_DEFAULT[clickedColumnTitle],
         ...queryStore.sortByColumnHistory,
-      ].slice(0, MAX_SORT_COLUMN_HISTORY);
+      ].slice(0, SORT_COLUMN_HISTORY_MAX);
     }
     queryScores$({
       sortByColumnHistory: queryStore.sortByColumnHistory,
@@ -367,11 +369,9 @@ export default component$(() => {
   });
 
   useStyles$(`
-    table {
+    table.scoreboard {
       position: relative;
       overflow: hidden;
-      --gradiant-dark: #aaa;
-      --gradiant-light: #fff;
     }
 
     table.scoreboard thead {
@@ -384,14 +384,97 @@ export default component$(() => {
       z-index: 1;
     }
 
-
-    table.scoreboard th.rotate {
+    table.scoreboard th {
       height: 6em;
       white-space: nowrap;
+      position: relative;
+      --button-color: #cbd5e1;
+      --button-rotate: 0deg;
+      --button-scale: 0.8;
+      --button-opacity: 0.3;
+      --text-color: #cbd5e1;
+      --text-opacity: 0.7;
+      --text-weight: 500;
+      font-weight: var(--text-weight);
     }
 
-    /* Magic Numbers.. might need tweaking */
-    table.scoreboard th.rotate > div {
+    /* 
+     * styling the sort buttons 
+     * */
+    table.scoreboard th div.header-buttons-container {
+      position: absolute;
+      bottom: 0;
+      left: 0.5em;
+      display: flex;
+      align-items: end;
+      width: calc(99% - 0.5em);
+      justify-content: center;
+    }
+    table.scoreboard th div.header-buttons-container button {
+      padding: 0 0.5em;
+    }
+    table.scoreboard th div.header-buttons-container button svg {
+      transition: all 0.1s ease-in-out;
+      pointer-events: none;
+    }
+    table.scoreboard th.desc div.header-buttons-container button svg {
+      --button-rotate: 180deg;
+    }
+    table.scoreboard th[data-sort-priority="1"] {
+      --button-color: #fff;
+      --button-opacity: 1;
+      --button-scale: 1.15;
+      --text-color: #fff;
+      --text-opacity: 1;
+      --text-weight: 900;
+      text-shadow: 1px 1px 3px #000;
+    }
+    table.scoreboard th[data-sort-priority="2"] {
+      --button-color: #f1f5f9;
+      --button-opacity: 1;
+      --text-color: #f1f5f9;
+      --text-opacity: 1;
+      --text-weight: 700;
+    }
+    table.scoreboard th[data-sort-priority="3"] {
+      /* text-slate-200 */
+      --button-color: #e2e8f0;
+      --button-opacity: 0.8;
+      --text-color: #e2e8f0;
+      --text-opacity: 0.9;
+    }
+    table.scoreboard th[data-sort-priority="4"] {
+      /* text-slate-300 */
+      --button-color: #cbd5e1;
+      --button-opacity: 0.8;
+      --text-color: #cbd5e1;
+      --text-opacity: 0.9;
+    }
+    
+
+    table.scoreboard th.desc div.header-buttons-container button svg,
+    table.scoreboard th.asc div.header-buttons-container button svg {
+      transform: rotate(var(--button-rotate)) scale(var(--button-scale));
+      opacity: var(--button-opacity);
+      color: var(--button-color);
+    }
+
+
+    /* 
+     * Angled sort column headers
+     * */
+    table.scoreboard th > div.rotate {
+      pointer-events: none;
+    }
+    table.scoreboard th div.rotate > div > span {
+      color: var(--text-color);
+      opacity: var(--text-opacity);
+      font-weight: var(--text-weight);
+    }
+
+    /* Rotation -  Magic Numbers... might need tweaking */
+    table.scoreboard th > div.rotate {
+      /* width also acts as a minimum column width */
       width: 2em;
       transform-origin: left top;
       transform:
@@ -399,66 +482,37 @@ export default component$(() => {
         rotate(-45deg);
     }
 
-    table.scoreboard th.rotate > div > button {
-      /* clear regular button border */
-      border: none;
-      border-radius: 0;
-      background: none;
-
-      transition: all 0.1s ease-in-out;
-    }
-
-    table.scoreboard th.rotate > div > div,
-    table.scoreboard th.rotate > div > button {
-      border-top: 1px solid #222;
+    table.scoreboard th > div.rotate > div {
       text-align: left;
       /* width needed to make the border stretch to the top */
       width: 9.5em;
       /* x padding does not mess with the border, yay! */
-      padding: 0em 2em;
-    }
-    table.scoreboard th.rotate > div > * > span {
-      /* for when text is not gradiant */
-      color: var(--gradiant-dark);
-      pointer-events: none;
-      font-weight: 900;
-      text-shadow: 1px 1px 3px #000;
+      padding: 0 0 0 3em;
     }
 
 
-    table.scoreboard thead .asc  {
-      --gradiant-start: var(--gradiant-dark);
-      --gradiant-end: var(--gradiant-light);
-    }
-    table.scoreboard thead .desc  {
-      --gradiant-start: var(--gradiant-light);
-      --gradiant-end: var(--gradiant-dark);
-    }
-    table.scoreboard th.rotate > div > button:hover > span {
-       background: linear-gradient(to right, var(--gradiant-start), var(--gradiant-end));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-      text-shadow: none;
-    }
 
-    table.scoreboard:not(.loading) tbody td + td {
-      border-left: 1px solid #44444480;
-    }
 
-    /* table.scoreboard.loading thead tr th {
-      opacity: 0;
-    } */
 
-    table.scoreboard tbody tr > :not(:first-child) {
-      /* padding: 0 0.25em; */
+    /* table body */
+    table.scoreboard tbody td + td {
+      border-left-width: 1px;
+      border-left-style: solid;
+      border-left-color: rgb(127 127 127 / 0.25);
       font-weight: 600;
       text-shadow: 1px 1px 3px #000;
     }
-
-    table.scoreboard tbody tr, 
-    table.scoreboard tbody tr .pixel-avatar {
-      transition: all 100ms ease-in-out;
+    table.scoreboard.loading tbody td + td {
+      border-left-color: rgb(127 127 127 / 0.15);
     }
+
+    table.scoreboard tbody tr {
+      transition: all 100ms ease-in-out;
+      border-style: solid;
+      border-bottom-width: 1px;
+      border-bottom-color: #0f172a;
+    }
+
 
 /* 
 * 752.84 total width
@@ -508,9 +562,12 @@ export default component$(() => {
     }
   `);
 
+  useVisibleTask$(() => {
+    ctx.handle.showScores();
+  })
+
   return (
     <Modal
-      // isShowing={true}
       isShowing={ctx.state.interfaceSettings.scoresModal.isShowing}
       hideModal$={ctx.handle.hideScores}
       title="Scoreboard"

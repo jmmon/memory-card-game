@@ -347,11 +347,13 @@ export const updateWorseThanOurScoreMap = (
 
   let nextBetterCount = total;
   let isNeedToInsert = true;
+  const newScore = score[key];
 
+  // from lowest scores to highest
   for (let i = 0; i < sortedEntries.length; i++) {
     const [thisScore, thisLessThanCount] = sortedEntries[i];
 
-    if (score[key] > thisScore) {
+    if (newScore > thisScore) {
       newLessThanOurScoreJson[thisScore] = thisLessThanCount + 1;
       nextBetterCount = thisLessThanCount;
     } else if (score[key] < thisScore) {

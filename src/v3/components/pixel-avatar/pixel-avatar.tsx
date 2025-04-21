@@ -1,4 +1,4 @@
-import type { PropFunction, Signal } from "@builder.io/qwik";
+import type { ClassList, PropFunction, Signal } from "@builder.io/qwik";
 import { component$, useSignal, useTask$ } from "@builder.io/qwik";
 import GAME from "~/v3/constants/game";
 import {
@@ -41,7 +41,7 @@ interface PixelAvatarProps {
   forceLighter?: boolean | "nochange";
   coloredSquaresStrokeWidth?: number;
   eachBlockSizePx?: number;
-  classes?: string;
+  classes?: ClassList;
   colorOptions?: {
     backgroundColor?: string;
     saturation: { min: number; max: number };

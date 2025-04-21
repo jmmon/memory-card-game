@@ -76,7 +76,7 @@ export type SortDirection = keyof typeof SortDirectionEnum;
 
 export type SortColumnWithDirection = {
   column: ScoreTableColumn;
-  direction: SortDirection;
+  direction: SortDirectionEnum;
 };
 
 /* =====================================================

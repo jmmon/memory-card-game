@@ -59,13 +59,13 @@ export default component$<DropdownProps>(
         >
           {buttonText}
           <span
-            class={`transition-all inline-block ml-2 text-sky-300 ${
+            class={`transition-all inline-block ml-2 text-slate-300 ${
               isOpen.value ? `rotate-[0deg]` : `rotate-[180deg]`
             }`}
             style={{ transitionDuration: transitionTiming + "ms" }}
           >
             <ChevronSvg
-              style={{ fill: "#c0c8ff", width: "1em", height: "1em" }}
+              style={{ width: "1em", height: "1em" }}
             />
           </span>
         </Button>
