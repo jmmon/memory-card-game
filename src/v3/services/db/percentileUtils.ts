@@ -1,5 +1,5 @@
-import { Score, ScoreCount } from "~/v3/db/schemas/types";
-import {
+import type { Score, ScoreCount } from "~/v3/db/schemas/types";
+import type {
   LessThanOurScoreObj,
   ScoreWithPercentiles,
   ScoresByDeckSize,
@@ -467,7 +467,7 @@ export const updateWorseThanOurScoreMap_r1 = (
   oldJson: string,
   key: "gameTimeDs" | "mismatches",
 ) => {
-  let sortedEntries = Object.entries(
+  const sortedEntries = Object.entries(
     JSON.parse(oldJson) as Record<string, number>,
   );
   // console.log({ sortedEntries });
