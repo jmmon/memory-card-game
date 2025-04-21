@@ -21,22 +21,21 @@ import {scores500} from "./test_scores_500";
 
 const buildCounts = (scores: Score[], scoreCounts: ScoreCount, key: "mismatches" | "gameTimeDs") => {
   const countsKey = key === "mismatches" ? "worseThanOurMismatchesMap" : "worseThanOurGameTimeMap";
-  const [finalMapOld, finalMapNew] = scores.reduce((accum: [string, string], score, i) => {
-    const prevTotal = i + 1; // for index 0 we should have 1 score, since we start with 1 in the json
-    const old = updateWorseThanOurScoreMap_Orig(score, prevTotal, accum[0], key);
-    const newMap = updateWorseThanOurScoreMap(score, prevTotal, accum[1], key);
-    console.assert(newMap === old, `error:  on:`, {
-      prevOld: accum[0],
-      old,
-      new: newMap,
-      index: i,
-      [key]: score[key],
-    });
+  // const [finalMapOld, finalMapNew] = scores.reduce((accum: [string, string], score, i) => {
+  //   const prevTotal = i + 1; // for index 0 we should have 1 score, since we start with 1 in the json
+  //   const old = updateWorseThanOurScoreMap_Orig(score, prevTotal, accum[0], key);
+  //   const newMap = updateWorseThanOurScoreMap(score, prevTotal, accum[1], key);
+  //   console.assert(newMap === old, `error:  on:`, {
+  //     prevOld: accum[0],
+  //     old,
+  //     new: newMap,
+  //     index: i,
+  //     [key]: score[key],
+  //   });
+  //
+  //   return [old, newMap];
+  // }, [scoreCounts[countsKey], scoreCounts[countsKey]]);
 
-    return [old, newMap];
-  }, [scoreCounts[countsKey], scoreCounts[countsKey]]);
-
-  // const startOld = performance.now();
   let oldTotalTimes = 0;
   let oldTotalCounts = 0;
   const finalMapOldOnly = scores.reduce((accum , score, i) => {
@@ -49,11 +48,9 @@ const buildCounts = (scores: Score[], scoreCounts: ScoreCount, key: "mismatches"
 
     return old;
   }, scoreCounts[countsKey]);
-  // const endOld = performance.now();
   const oldAvgTime = oldTotalTimes / oldTotalCounts;
 
 
-  // const startNew = performance.now();
   let newTotalTimes = 0;
   let newTotalCounts = 0;
   const finalMapNewOnly = scores.reduce((accum , score, i) => {
@@ -65,7 +62,6 @@ const buildCounts = (scores: Score[], scoreCounts: ScoreCount, key: "mismatches"
 
     return newMap;
   }, scoreCounts[countsKey]);
-  // const endNew = performance.now();
   const newAvgTime = newTotalTimes / newTotalCounts;
 
   console.log(`Timing for ${key} for length ${scores.length}`, {
@@ -75,15 +71,25 @@ const buildCounts = (scores: Score[], scoreCounts: ScoreCount, key: "mismatches"
     percentTimeSaved: 100 - ((newAvgTime) / (oldAvgTime) * 100)
   });
 
-
-
   const totalOfEachScore = Object.fromEntries(Object.entries(scores100.reduce((accum: Record<number, number>, score) => {
     accum[score[key]] = (accum[score[key]] || 0) + 1;
     return accum;
   }, {})).sort(([sA], [sB]) => Number(sA) - Number(sB)));
 
-  return {finalMapOld, finalMapNew, totalOfEachScore};
+  return {finalMapOld: finalMapOldOnly, finalMapNew: finalMapNewOnly, totalOfEachScore};
 }
+
+
+const multiplyArray = (scores: Score[], count: number) => {
+  let newScores = scores;
+  for (let i = 0; i < count - 1; i++) {
+    newScores = newScores.concat(scores);
+  }
+  return newScores;
+};
+const multiplyJson = (json: string, count: number) => 
+  JSON.stringify(Object.fromEntries(Object.entries(JSON.parse(json) as Record<string, number>)
+    .map(([k, v]) => [k, v * count])));
 
 describe('percentileUtils', () => {
   describe('scores100 - old and revision 1', () => {
@@ -210,24 +216,14 @@ describe('percentileUtils', () => {
     });
   });
 
-  const multiplyArray = (scores: Score[], count: number) => {
-    let newScores = scores;
-    for (let i = 0; i < count - 1; i++) {
-      newScores = newScores.concat(scores);
-    }
-    return newScores;
-  };
-  const multiplyJson = (json: string, count: number) => 
-    JSON.stringify(Object.fromEntries(Object.entries(JSON.parse(json) as Record<string, number>)
-      .map(([k, v]) => [k, v * count])));
 
-  describe('scores10_000 - old and revision 1', () => {
-    const multiplier = 20;
-    const scores10_000 = multiplyArray(scores500, multiplier);
-    const totalScores = scores10_000.length;
-    const firstScore = scores10_000[0];
+  describe('scores20_000 - old and revision 1', () => {
+    const multiplier = 40;
+    const scores20_000 = multiplyArray(scores500, multiplier);
+    const totalScores = scores20_000.length;
+    const firstScore = scores20_000[0];
     console.log({totalScores});
-    const scores = scores10_000.slice(1);
+    const scores = scores20_000.slice(1);
     const scoreCounts: ScoreCount = {
       id: 0,
       createdAt: 123,
@@ -251,7 +247,7 @@ describe('percentileUtils', () => {
       });
 
       it('should match counts for the best score', () => {
-        const allScoresWith0Mismatches = scores10_000.filter(score => score.mismatches === 0);
+        const allScoresWith0Mismatches = scores20_000.filter(score => score.mismatches === 0);
         const objOld = JSON.parse(finalMapOld);
         expect(allScoresWith0Mismatches.length).toBe(totalScores - objOld["0"])
         const objNew = JSON.parse(finalMapNew);
@@ -272,7 +268,7 @@ describe('percentileUtils', () => {
       });
 
       it('shoould match counts for the best score', () => {
-        const { scoresByKey: scoresByGameTime } = getScoresByKey(scores10_000, "gameTimeDs");
+        const { scoresByKey: scoresByGameTime } = getScoresByKey(scores20_000, "gameTimeDs");
         const [gameTimeScore, countOfLowestGameTimeScores ] = Object.entries(scoresByGameTime)
           .map(([k, v]) => [Number(k), v])[0]
 

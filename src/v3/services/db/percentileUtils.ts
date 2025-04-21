@@ -330,6 +330,77 @@ export const calculatePercentilesWhileMaintainingOrder = (
  * (best)                                  (worst)
  * */
 
+
+// This is still the fastest! especially after some small modifications learned from the other revisions
+export const updateWorseThanOurScoreMap = (
+  score: Score,
+  total: number, // previous total, since this is run before the update to the scoreCounts
+  oldJson: string,
+  key: "gameTimeDs" | "mismatches",
+) => {
+  const newLessThanOurScoreJson: LessThanOurScoreObj = {};
+  const sortedEntries = Object.entries(
+    JSON.parse(oldJson) as Record<string, number>,
+  );
+  // no more map() so we save a bit of complexity
+
+  let nextBetterCount = total;
+  let isNeedToInsert = true;
+  const newScore = score[key];
+  let thisScore = 0;
+  let thisLessThanCount = 0;
+
+  // from lowest scores to highest
+  for (let i = 0; i < sortedEntries.length; i++) {
+    thisScore = Number(sortedEntries[i][0]);
+    thisLessThanCount = sortedEntries[i][1];
+
+    // probably most efficient to not skip branches, so equal is last since it's most rare
+    if (newScore > thisScore) {
+      newLessThanOurScoreJson[thisScore] = thisLessThanCount + 1;
+      nextBetterCount = thisLessThanCount;
+    } else if (newScore < thisScore) {
+      // do nothing
+      newLessThanOurScoreJson[thisScore] = thisLessThanCount;
+    } else {
+      // equal
+      isNeedToInsert = false;
+      newLessThanOurScoreJson[thisScore] = thisLessThanCount;
+    }
+  }
+  // time: loops through everything once
+
+  // if not already found (gets LESS LIKELY as we get more scores)
+  if (isNeedToInsert) {
+    newLessThanOurScoreJson[score[key]] = nextBetterCount;
+    // have to sort so our inserted score gets in the correct spot
+    const final = Object.entries(newLessThanOurScoreJson)
+      .sort(([scoreA], [scoreB]) => Number(scoreA) - Number(scoreB));
+    return JSON.stringify(Object.fromEntries(final));
+  }
+
+  return JSON.stringify(newLessThanOurScoreJson);
+};
+// only one (rarely two) loops per score
+// 
+// 10_000 scores vs Orig:
+// e.g. 6.89% saved mismatches
+// and 3.32%  saved gameTime
+//
+//e.g. 2.52% mismatches
+//5.19% gametime
+//2.89% mismatches
+//4.57% gametime
+//4.08 mismatches, 3.34% gametime!
+//consistently slightly better!!
+
+
+
+// ==================================================================================================================
+// testing different performances...
+// ==================================================================================================================
+
+
 export const updateWorseThanOurScoreMap_Orig = (
   score: Score,
   total: number, // previous total, since this is run before the update to the scoreCounts
@@ -340,8 +411,7 @@ export const updateWorseThanOurScoreMap_Orig = (
   const sortedEntries = Object.entries(
     JSON.parse(oldJson) as Record<string, number>,
   )
-    // .map(([k, v]) => [Number(k), v])
-    // .sort(([scoreA], [scoreB]) => scoreA - scoreB); // don't need to sort here since it's already sorted
+    .map(([k, v]) => [Number(k), v])
 
   let nextBetterCount = total;
   let isNeedToInsert = true;
@@ -370,8 +440,8 @@ export const updateWorseThanOurScoreMap_Orig = (
   if (isNeedToInsert) {
     newLessThanOurScoreJson[score[key]] = nextBetterCount;
     const final = Object.entries(newLessThanOurScoreJson)
-      // .map(([k, v]) => [Number(k), v])
-      .sort(([scoreA], [scoreB]) => Number(scoreA) - Number(scoreB));
+      .map(([k, v]) => [Number(k), v])
+      .sort(([scoreA], [scoreB]) => scoreA - scoreB);
     return JSON.stringify(Object.fromEntries(final));
   }
 
@@ -379,66 +449,6 @@ export const updateWorseThanOurScoreMap_Orig = (
 };
 
 
-// This is still the fastest! especially after some small modifications learned from the other revisions
-export const updateWorseThanOurScoreMap = (
-  score: Score,
-  total: number, // previous total, since this is run before the update to the scoreCounts
-  oldJson: string,
-  key: "gameTimeDs" | "mismatches",
-) => {
-  const newLessThanOurScoreJson: LessThanOurScoreObj = {};
-  const sortedEntries = Object.entries(
-    JSON.parse(oldJson) as Record<string, number>,
-  );
-  // no more map() so we save a bit of complexity
-
-  let i = 0;
-  let nextBetterCount = total;
-  let isNeedToInsert = true;
-  let thisScore = 0;
-  let thisLessThanCount = 0;
-
-  for (; i < sortedEntries.length; i++) {
-    thisScore = Number(sortedEntries[i][0]);
-    thisLessThanCount = sortedEntries[i][1];
-
-    if (score[key] > thisScore) {
-      newLessThanOurScoreJson[thisScore] = thisLessThanCount + 1;
-      nextBetterCount = thisLessThanCount;
-    } else {if (score[key] === thisScore) {
-      // equal
-      isNeedToInsert = false;
-      newLessThanOurScoreJson[thisScore] = thisLessThanCount;
-    } else {
-      // do nothing
-      newLessThanOurScoreJson[thisScore] = thisLessThanCount;
-    }
-    }
-  }
-  // time: loops through everything once
-
-  // if not already found (gets LESS LIKELY as we get more scores)
-  if (isNeedToInsert) {
-    newLessThanOurScoreJson[score[key]] = nextBetterCount;
-    // have to sort so our inserted score gets in the correct spot
-    const final = Object.entries(newLessThanOurScoreJson)
-      .sort(([scoreA], [scoreB]) => Number(scoreA) - Number(scoreB));
-    return JSON.stringify(Object.fromEntries(final));
-  }
-
-  return JSON.stringify(newLessThanOurScoreJson);
-};
-// only one (rarely two) loops per score
-// 10_000 scores:
-// e.g. 6.89% saved mismatches
-// and 3.32%  saved gameTime
-//
-//e.g. 2.52% mismatches
-//5.19% gametime
-//2.89% mismatches
-//4.57% gametime
-//4.08 mismatches, 3.34% gametime!
-//consistently slightly better!!
 
 
 
@@ -651,3 +661,13 @@ export const updateWorseThanOurScoreMap_r3 = (
   }
   return JSON.stringify(Object.fromEntries(final));
 };
+
+
+
+
+
+
+// one more potential idea for performance...
+// probably won't gain much....
+// break the object into values array and keys array, then I don't have to deal with entries
+// but then have to loop over all twice at start and twice at end to convert
