@@ -1,9 +1,13 @@
-import type { Score, ScoreCount } from "~/v3/db/schemas/types";
-import type { LessThanOurScoreObj, ScoreWithPercentiles, ScoresByDeckSize } from "~/v3/types/types";
+import { Score, ScoreCount } from "~/v3/db/schemas/types";
+import {
+  LessThanOurScoreObj,
+  ScoreWithPercentiles,
+  ScoresByDeckSize,
+} from "~/v3/types/types";
 import { roundToDecimals } from "~/v3/utils/formatTime";
 
 // this is puting the number in the middle of the percentile range than the lower end
-const calculatePercentile = (total: number, lessThanCount: number) => {
+export const calculatePercentile = (total: number, lessThanCount: number) => {
   const percentile = (lessThanCount / total) * 100;
   if (isNaN(percentile)) return 0;
   return roundToDecimals(percentile, 2);
@@ -104,12 +108,10 @@ const buildScoreWithPercentiles = (
 // };
 // sortScores;
 
-
 export const calculatePercentilesWhileMaintainingOrder = (
   allScores: Score[],
   allScoreCounts: ScoreCount[],
 ) => {
-
   const { scoresByDeckSize, orderedListOfScoreIds } = allScores.reduce(
     (
       mappers: {
@@ -165,7 +167,6 @@ export const calculatePercentilesWhileMaintainingOrder = (
     totals,
   };
 };
-
 
 /*
  * adding a score to the list:
@@ -329,10 +330,7 @@ export const calculatePercentilesWhileMaintainingOrder = (
  * (best)                                  (worst)
  * */
 
-
-// something like O(n*5)? map, sort, for, map, sort
-// could be more like O(n)
-export const updateWorseThanOurScoreMap = (
+export const updateWorseThanOurScoreMap_Orig = (
   score: Score,
   total: number, // previous total, since this is run before the update to the scoreCounts
   oldJson: string,
@@ -378,4 +376,278 @@ export const updateWorseThanOurScoreMap = (
   }
 
   return JSON.stringify(newLessThanOurScoreJson);
+};
+
+
+// This is still the fastest! especially after some small modifications learned from the other revisions
+export const updateWorseThanOurScoreMap = (
+  score: Score,
+  total: number, // previous total, since this is run before the update to the scoreCounts
+  oldJson: string,
+  key: "gameTimeDs" | "mismatches",
+) => {
+  const newLessThanOurScoreJson: LessThanOurScoreObj = {};
+  const sortedEntries = Object.entries(
+    JSON.parse(oldJson) as Record<string, number>,
+  );
+  // no more map() so we save a bit of complexity
+
+  let i = 0;
+  let nextBetterCount = total;
+  let isNeedToInsert = true;
+  let thisScore = 0;
+  let thisLessThanCount = 0;
+
+  for (; i < sortedEntries.length; i++) {
+    thisScore = Number(sortedEntries[i][0]);
+    thisLessThanCount = sortedEntries[i][1];
+
+    if (score[key] > thisScore) {
+      newLessThanOurScoreJson[thisScore] = thisLessThanCount + 1;
+      nextBetterCount = thisLessThanCount;
+    } else {if (score[key] === thisScore) {
+      // equal
+      isNeedToInsert = false;
+      newLessThanOurScoreJson[thisScore] = thisLessThanCount;
+    } else {
+      // do nothing
+      newLessThanOurScoreJson[thisScore] = thisLessThanCount;
+    }
+    }
+  }
+  // time: loops through everything once
+
+  // if not already found (gets LESS LIKELY as we get more scores)
+  if (isNeedToInsert) {
+    newLessThanOurScoreJson[score[key]] = nextBetterCount;
+    // have to sort so our inserted score gets in the correct spot
+    const final = Object.entries(newLessThanOurScoreJson)
+      .sort(([scoreA], [scoreB]) => Number(scoreA) - Number(scoreB));
+    return JSON.stringify(Object.fromEntries(final));
+  }
+
+  return JSON.stringify(newLessThanOurScoreJson);
+};
+// only one (rarely two) loops per score
+// 10_000 scores:
+// e.g. 6.89% saved mismatches
+// and 3.32%  saved gameTime
+//
+//e.g. 2.52% mismatches
+//5.19% gametime
+//2.89% mismatches
+//4.57% gametime
+//4.08 mismatches, 3.34% gametime!
+//consistently slightly better!!
+
+
+
+// the intention for this is to use same methods as v2 but duplicate v1 functionality
+// as in will be more optimized v1, without going through entire array and
+// without doing extra sorting and mapping
+/*
+ *
+ * {10s: 5, 20s: 4, 30s: 3, 40s: 2, 50s: 1, 60s: 0}
+ * (best)                                  (worst)
+ * insert a 20s score =>
+ * {10s: 6, 20s: 4, 30s: 3, 40s: 2, 50s: 1, 60s: 0}
+ * only 10s incremented
+ *
+ * insert a 25s score =>
+ * {10s: 7, 20s: 5, 25s: 4, 30s: 3, 40s: 2, 50s: 1, 60s: 0}
+ * 25s adapts 20s score
+ * 20s score increments by 1
+ *
+ * */
+// WORKING!
+// still slower...
+export const updateWorseThanOurScoreMap_r1 = (
+  score: Score,
+  total: number,
+  oldJson: string,
+  key: "gameTimeDs" | "mismatches",
+) => {
+  let sortedEntries = Object.entries(
+    JSON.parse(oldJson) as Record<string, number>,
+  );
+  // console.log({ sortedEntries });
+  // console.log(`~~ Inserting ${key} into entries:`, score[key]);
+
+  let i = 0;
+  let thisScore = Number(sortedEntries[i][0]);
+  const newScore = score[key];
+  if (newScore < thisScore) {
+    // when inserting at the beginning, need to know how many total scores there are and use that number
+    sortedEntries.unshift([String(newScore), total]);
+    return JSON.stringify(Object.fromEntries(sortedEntries));
+  }
+
+  // from lowest scores to highest ( best to worst)
+  for (i = 0; i < sortedEntries.length; i++) {
+    thisScore = Number(sortedEntries[i][0]);
+    if (thisScore < newScore) {
+      sortedEntries[i][1] += 1; // increment all better (lesser) scores
+    } else {
+      break;
+    }
+  }
+  // time: loop through average of half the counts
+  // memory: no new arrays!
+
+
+  // when inserting a new score (splice into it)
+  // we are taking next item and incrementing its count
+  // rather than taking prev item and using it as it is
+
+  if (i === sortedEntries.length) {
+    // append to end if we went through entire array
+    // sortedEntries.push([String(newScore), 0]);
+    sortedEntries[i] = ([String(newScore), 0]);
+  } else if (thisScore > newScore) {
+    // not the best, and not the worst
+    // new score adapts prev score's old count (subtract 1 since we already added 1 above)
+    const newCount = sortedEntries[i - 1][1] - 1;
+    sortedEntries.splice(i, 0, [String(newScore), newCount]);
+    // sortedEntries.copyWithin(i + 1, i)
+    // sortedEntries[i] = [String(newScore), newCount ];
+    //
+    // const obj = Object.fromEntries(sortedEntries);
+    // obj[newScore] = newCount;
+    // const final = Object.entries( obj )
+    //   .sort(([scoreA], [scoreB]) => Number(scoreA) - Number(scoreB));
+    // return JSON.stringify(Object.fromEntries(final));
+  }
+  // time: unshift probably does a loop... splice probably does a loop...
+  // memory: no more arrays!
+
+  return JSON.stringify(Object.fromEntries(sortedEntries));
+};
+
+
+
+
+
+
+
+// revision 2!
+//
+// what I need to do is basically store the target index for the new item
+// and if it needs to insert, then the later ones should be shifted to the right
+//
+// then at the end I can just insert the new item into the empty slot that was left at the targetIndex
+//
+//
+// WORKING!
+//
+// still slower lol...
+//
+export const updateWorseThanOurScoreMap_r2 = (
+  score: Score,
+  total: number, // previous total, since this is run before the update to the scoreCounts
+  oldJson: string,
+  key: "gameTimeDs" | "mismatches",
+) => {
+  const newLessThanOurScoreEntries: [number, number][] = [];
+  const sortedEntries = Object.entries(
+    JSON.parse(oldJson) as Record<string, number>,
+  );
+  // time: loops through everything once,
+  // memory: creates a new array, creates new nested arrays
+
+  let i = 0;
+  let targetIndex = -1;
+  let nextBetterCount = total;
+  let thisScore = 0;
+  let thisLessThanCount = 0;
+  let isFound = false;
+  const length = sortedEntries.length;
+
+  for (; i < length; i++) {
+    thisScore = Number(sortedEntries[i][0]);
+    thisLessThanCount = sortedEntries[i][1];
+
+    if (score[key] > thisScore) {
+      // ours is worse, increment the existing score
+      newLessThanOurScoreEntries[i] = [thisScore, thisLessThanCount + 1];
+      nextBetterCount = thisLessThanCount;
+      if (i === length - 1) {
+        newLessThanOurScoreEntries[i + 1] = [score[key], 0] // insert if we're the worst score
+      }
+    } else if (score[key] === thisScore) {
+      // equal
+      isFound = true;
+      newLessThanOurScoreEntries[i] = [thisScore, thisLessThanCount];
+    
+    } else if (score[key] < thisScore) {
+      // ours is better, shift remaining over to make a slot if we wern't already found
+      if (!isFound && targetIndex === -1) {
+        targetIndex = i;
+        // insert ours at this index on the first time we get there
+        newLessThanOurScoreEntries[i] = [score[key], nextBetterCount];
+      }
+      const entry: [number, number] = [thisScore, thisLessThanCount];
+      if (targetIndex !== -1) {
+        // leave that slot since we already inserted
+        newLessThanOurScoreEntries[i + 1] = entry;
+      } else {
+        // we've not yet inserted, so keep the same slot as original
+        newLessThanOurScoreEntries[i] = entry;
+      }
+    }
+  }
+
+
+  return JSON.stringify(Object.fromEntries(newLessThanOurScoreEntries));
+};
+
+
+
+
+
+// uses entrys instead of an object.. still slower!!!
+export const updateWorseThanOurScoreMap_r3 = (
+  score: Score,
+  total: number, // previous total, since this is run before the update to the scoreCounts
+  oldJson: string,
+  key: "gameTimeDs" | "mismatches",
+) => {
+  const newLessThanOurScoreEntries: [number, number][] = [];
+  const sortedEntries = Object.entries(
+    JSON.parse(oldJson) as Record<string, number>,
+  );
+  // time: loops through everything once,
+  // memory: creates a new array, creates new nested arrays
+
+  let i = 0;
+  let nextBetterCount = total;
+  let isNeedToInsert = true;
+  let thisScore = 0;
+  let thisLessThanCount = 0;
+
+  for (; i < sortedEntries.length; i++) {
+    thisScore = Number(sortedEntries[i][0]);
+    thisLessThanCount = sortedEntries[i][1];
+
+    if (score[key] > thisScore) {
+      newLessThanOurScoreEntries[i] = [thisScore, thisLessThanCount + 1];
+      nextBetterCount = thisLessThanCount;
+    } else if (score[key] === thisScore) {
+      // equal
+      isNeedToInsert = false;
+      newLessThanOurScoreEntries[i] = [thisScore, thisLessThanCount];
+    } else {
+      // do nothing
+      newLessThanOurScoreEntries[i] = [thisScore, thisLessThanCount];
+    }
+  }
+  // time: loops through everything once (again)
+
+  // if not already found (gets less likely as we get more scores)
+  let final = newLessThanOurScoreEntries;
+  if (isNeedToInsert) {
+    newLessThanOurScoreEntries[sortedEntries.length] = [score[key], nextBetterCount];
+    final = newLessThanOurScoreEntries
+      .sort(([scoreA], [scoreB]) => scoreA - scoreB);
+  }
+  return JSON.stringify(Object.fromEntries(final));
 };

@@ -26,8 +26,10 @@
     "preview": "qwik build preview && pnpm vite preview --open",
     "serve": "git branch --show-current && wrangler pages dev ./dist --compatibility-flags=nodejs_als",
     "serve.clean": "rm -rf ./dist && rm -rf ./server; pnpm run build; pnpm run serve",
-    "serve.clean:fix":"rm -rf ./dist && rm -rf ./server && pnpm run lint:fix; pnpm run build; pnpm run serve",
+    "serve.clean:fix": "rm -rf ./dist && rm -rf ./server && pnpm run lint:fix; pnpm run build; pnpm run serve",
     "start": "vite --open --mode ssr",
+    "test.unit": "vitest components",
+    "test.unit.ui": "vitest --ui components",
     "qwik": "qwik"
   },
   "devDependencies": {
@@ -40,6 +42,7 @@
     "@types/node": "20.14.11",
     "@typescript-eslint/eslint-plugin": "7.16.1",
     "@typescript-eslint/parser": "7.16.1",
+    "@vitest/ui": "^0.34.6",
     "autoprefixer": "^10.4.14",
     "compression": "^1.7.4",
     "dotenv": "^16.3.2",
@@ -56,6 +59,7 @@
     "undici": "*",
     "vite": "5.4.2",
     "vite-tsconfig-paths": "^4.2.1",
+    "vitest": "^0.34.6",
     "wrangler": "^4.8.0"
   },
   "dependencies": {
