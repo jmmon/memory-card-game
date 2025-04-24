@@ -2,7 +2,7 @@ import { component$, $, Slot } from "@builder.io/qwik";
 
 import ModalHeader from "~/v3/components/molecules/modal-header/modal-header";
 
-import type { ClassList, PropFunction } from "@builder.io/qwik";
+import type { ClassList, QRL } from "@builder.io/qwik";
 import Backdrop from "../../pages/backdrop/backdrop";
 
 const DURATION = "duration-[300ms]";
@@ -15,10 +15,9 @@ const DEFAULT_OPTIONS: Partial<ModalOptions> = { detectClickOutside: true };
 
 type Props = {
   isShowing: boolean;
-  hideModal$: PropFunction<() => void>;
+  hideModal$: QRL<() => void>;
   containerClasses?: ClassList;
   bgClasses?: ClassList;
-  bgStyles?: any;
   containerStyles?: any;
   wrapperSyles?: any;
   title: string;
@@ -47,6 +46,7 @@ export default component$<Props>(
     });
 
     // bg z-index needs to be more than card flip z-index (30) but less than header z-index (50)
+    // w-full sm:min-w-[31rem] sm:w-[60vw]
     return (
       <Backdrop
         isShowing={isShowing}
@@ -63,7 +63,7 @@ export default component$<Props>(
           style={containerStyles}
         >
           <ModalHeader hideModal$={hideModal$} title={title} />
-          <div class="h-full w-full overflow-y-auto" style={wrapperSyles}>
+          <div class="h-full w-full overflow-y-auto rounded-lg" style={wrapperSyles}>
             <Slot />
           </div>
         </div>

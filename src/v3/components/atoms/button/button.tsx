@@ -1,23 +1,29 @@
 import { component$, Slot } from "@builder.io/qwik";
-import type { ClassList, PropFunction, Signal } from "@builder.io/qwik";
+import type {
+  ClassList,
+  QRL,
+  PropsOf,
+  Signal,
+  CSSProperties,
+} from "@builder.io/qwik";
 
 type ButtonProps = {
-  onClick$: PropFunction<() => void>;
+  onClick$: QRL<() => void>;
   classes?: ClassList;
+  styles?: CSSProperties;
   disabled?: boolean;
   buttonRef?: Signal<HTMLButtonElement | undefined>;
-};
-export default component$<ButtonProps>(
-  ({ onClick$, classes = "", disabled = false, buttonRef }) => (
-    <button
-      ref={buttonRef}
-      onClick$={onClick$}
-      class={`transition p-2 border border-slate-200 bg-slate-700 rounded hover:bg-slate-500 ${
-        disabled ? "opacity-50" : ""
-      } ${classes}`}
-      disabled={disabled}
-    >
-      <Slot />
-    </button>
-  ),
-);
+} & PropsOf<"button">;
+export default component$<ButtonProps>((props) => (
+  <button
+    ref={props.buttonRef}
+    style={props.styles}
+    onClick$={props.onClick$}
+    class={`transition p-2 border border-slate-200 bg-slate-700 rounded hover:bg-slate-500 ${
+      props.disabled ? "opacity-50" : ""
+    } ${props.classes}`}
+    disabled={props.disabled}
+  >
+    <Slot />
+  </button>
+));

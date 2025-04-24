@@ -1,4 +1,8 @@
-import { isServer, useSignal, useTask$ } from "@builder.io/qwik";
+import {
+  isServer,
+  useSignal,
+  useTask$,
+} from "@builder.io/qwik";
 import type { QRL, Signal } from "@builder.io/qwik";
 import { DebugTypeEnum, LogLevel } from "../constants/game";
 import logger from "../services/logger";

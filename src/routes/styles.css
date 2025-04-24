@@ -170,74 +170,74 @@ ul {
 }
 
 /* CONTAINER ------------------------------------ */
-.container {
-  margin: 0 auto;
-  padding: 30px 40px;
-}
+/* .container { */
+/*   margin: 0 auto; */
+/*   padding: 30px 40px; */
+/* } */
 
-.container.container-purple {
-  background: var(--qwik-light-purple);
-}
+/* .container.container-purple { */
+/*   background: var(--qwik-light-purple); */
+/* } */
+/**/
+/* .container.container-dark { */
+/*   background: var(--qwik-dark-background); */
+/*   color: var(--qwik-dark-text); */
+/* } */
 
-.container.container-dark {
-  background: var(--qwik-dark-background);
-  color: var(--qwik-dark-text);
-}
+/* .container.container-center { */
+/*   text-align: center; */
+/* } */
 
-.container.container-center {
-  text-align: center;
-}
+/* .container.container-flex { */
+/* does nothing on mobile */
+/* } */
 
-.container.container-flex {
-  /* does nothing on mobile */
-}
+/* .container.container-spacing-xl { */
+/*   padding: 50px 40px; */
+/* } */
 
-.container.container-spacing-xl {
-  padding: 50px 40px;
-}
-
-@media screen and (min-width: 768px) {
-  .container {
-    padding: 50px 80px;
-  }
-
-  .container.container-spacing-xl {
-    padding: 100px 60px;
-  }
-
-  .container.container-flex {
-    display: flex;
-    justify-content: center;
-    gap: 60px;
-  }
-}
+/* @media screen and (min-width: 768px) { */
+/*   .container { */
+/*     padding: 50px 80px; */
+/*   } */
+/**/
+/*   .container.container-spacing-xl { */
+/*     padding: 100px 60px; */
+/*   } */
+/**/
+/*   .container.container-flex { */
+/*     display: flex; */
+/*     justify-content: center; */
+/*     gap: 60px; */
+/*   } */
+/* } */
 
 /* BUTTONS -------------------------------------- */
-a.button,
-button {
-  color: white;
-  cursor: pointer;
-  font-size: 0.8rem;
-  text-align: center;
-}
+/* a.button, */
+/* button { */
+/*   color: white; */
+/*   cursor: pointer; */
+/*   font-size: 0.8rem; */
+/*   text-align: center; */
+/* } */
 
-a.button.button-dark,
-button.button-dark {
-  background: var(--qwik-dirty-black);
-}
+/* a.button.button-dark, */
+/* button.button-dark { */
+/*   background: var(--qwik-dirty-black); */
+/* } */
 
-a.button.button-small,
-button.button-small {
-  padding: 15px 25px;
-}
+/* a.button.button-small, */
+/* button.button-small { */
+/*   padding: 15px 25px; */
+/* } */
 
-@media screen and (min-width: 768px) {
+/* @media screen and (min-width: 768px) {
 
   a.button,
   button {
     font-size: 1rem;
   }
-}
+} */
 
 /* DESIGN --------------------------------------- */
 .ellipsis {

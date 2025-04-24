@@ -75,11 +75,12 @@ export default component$<HeaderSettingsIconProps>(() => {
       buttonRef={ref}
       onClick$={() => {
         debounceUnfocus();
-        ctx.state.interfaceSettings.settingsModal.isShowing
-          ? ctx.handle.hideSettingsModal()
-          : ctx.handle.showSettingsModal();
+        ctx.handle.toggleModal(); // opens end-game modal if game has ended
+        // ctx.state.interfaceSettings.settingsModal.isShowing
+        //   ? ctx.handle.hideSettingsModal()
+        //   : ctx.handle.showSettingsModal();
       }}
-      classes={`p-[0.5em] my-auto text-[1.2em] sm:text-[1.5em] h-min settings-button ${ctx.state.interfaceSettings.settingsModal.isShowing ? "open bg-slate-800 border-slate-300 hover-bg-slate-700" : ""}`}
+      classes={`p-[0.5em] my-auto text-[1.2em] sm:text-[1.5em] h-min settings-button ${ctx.state.interfaceSettings.settingsModal.isShowing || ctx.state.interfaceSettings.endOfGameModal.isShowing ? "open bg-slate-800 border-slate-300 hover-bg-slate-700" : ""}`}
     >
       <div class={`bar-icon grid gap-[calc(calc(1.2em-6px)/2)]`}>
         <div class="bar-1 bg-slate-300 rounded-full w-[1.2em] h-[2px] " />

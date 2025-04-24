@@ -15,7 +15,6 @@ import {
   useTimeoutObj,
 } from "~/v3/hooks/useTimeout";
 
-import EndGame from "~/v3/components/pages/end-game/end-game";
 import GameHeader from "~/v3/components/organisms/game-header/game-header";
 import Settings from "~/v3/components/pages/settings/settings";
 import Loading from "~/v3/components/pages/loading/loading";
@@ -30,6 +29,11 @@ import type { iUserSettings } from "~/v3/types/types";
 import { header } from "~/v3/constants/header-constants";
 import logger from "~/v3/services/logger";
 import { useLocation } from "@builder.io/qwik-city";
+import GameEndModal from "../../game-end-modal/game-end-modal";
+import ScoresModal from "../../scores-modal/scores-modal";
+import {
+    useLoaderIsScoresEnabled,
+} from "~/routes/layout";
 // import InverseModal from "../inverse-modal/inverse-modal";
 
 // export const getKeysIfObject = (obj: object, prefix?: string) => {
@@ -55,19 +59,19 @@ import { useLocation } from "@builder.io/qwik-city";
 type GameProps = { settings: Partial<iUserSettings> };
 export default component$<GameProps>(
   ({ settings = INITIAL_STATE.userSettings }) => {
+    const isScoresEnabled = useLoaderIsScoresEnabled();
     const loc = useLocation();
     // console.log("game component settings:", { settings });
     const ctx = useGameContextProvider({
       userSettings: settings,
       // make sure state is cleared if going back/forward
       // else the cards will be on the board before it starts the deck deal animation
-      ...(loc.prevUrl?.pathname === "/"
-        ? {
-            gameData: {
-              cards: [],
-            },
-          }
-        : {}),
+      ...{
+        gameData: {
+          ...(loc.prevUrl?.pathname === "/" ? { cards: [] } : {}),
+          IS_SCORES_ENABLED: isScoresEnabled.value,
+        },
+      },
     });
 
     /* ================================
@@ -200,14 +204,24 @@ export default component$<GameProps>(
       onHidden$: ctx.handle.showSettingsModal,
     });
 
+    // maybe should have it handle scores as well.
+    // Currently scores is highest z-index
+    // and then the other two (end-game and settings) are managed with this one toggle function
+    // I would like that if the scores is open, it should close on escape, but not open on escape.
     useOnDocument(
       "keydown",
       $((event: KeyboardEvent) => {
         if (event.key !== "Escape") return;
 
+        // close scores modal is highest priority
+        if (ctx.state.interfaceSettings.scoresModal.isShowing) {
+          ctx.handle.hideScoresModal();
+          return;
+        }
+
         // smart modal toggle, if game is ended toggle end-game modal
         // else toggle settings
-        ctx.handle.toggleModalOnEscape();
+        ctx.handle.toggleModal();
       }),
     );
 
@@ -269,7 +283,8 @@ export default component$<GameProps>(
         {hasInitialized.value && (
           <>
             <Settings />
-            <EndGame />
+            <GameEndModal />
+            <ScoresModal />
           </>
         )}
       </>

@@ -7,14 +7,14 @@ import Dropdown from "~/v3/components/molecules/dropdown/dropdown";
 
 import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";
 import type { iUserSettings } from "~/v3/types/types";
-import type { ClassList, PropFunction, Signal } from "@builder.io/qwik";
+import type { ClassList, QRL, Signal } from "@builder.io/qwik";
 import InfoTooltip from "../info-tooltip/info-tooltip";
 import DeckSizeChanger from "../../molecules/deck-size-changer/deck-size-changer";
 import InputToggle from "../../atoms/input-toggle/input-toggle";
 
 type GameSettingsProps = {
   unsavedUserSettings: Signal<iUserSettings>;
-  startShuffling$?: PropFunction<() => void>;
+  startShuffling$?: QRL<() => void>;
   classes?: ClassList;
   isShufflingDisabled?: boolean;
 };
@@ -180,9 +180,9 @@ export default component$<GameSettingsProps>(
           <div class="grid gap-1 p-[min(12px,2.5vw)]">
             <ModalRow>
               <InputToggle
+                checked={unsavedUserSettings.value.interface.invertCardColors}
                 onChange$={handleChange$}
-                settings={unsavedUserSettings.value}
-                propertyPath="interface.invertCardColors"
+                propertyPath="interface.invertCardColors" // used for onChange
               >
                 <div class="flex flex-wrap gap-x-2" q:slot="label">
                   <span>Dark Mode</span>

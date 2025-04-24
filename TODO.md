@@ -10,8 +10,57 @@
 - can use the whole width, easier on mobile
   - (also keep the buttons)
 - slider dark mode! darker bg/fill
+## TODO: deck size changer with slide as well?
+- maybe hidden under dropdown so it can use the whole width, easier on mobile
+  - also keep the buttons
+  - or try a press and hold for the buttons, debounced timer to make it easier
 
-## bug:
+
+## Challenge modes:
+I think what I'll do is save it for later
+it will be set up as a brand new table completely separate from Scores
+then I can have the modal with a couple tabs (or something)
+and the scores can be kept separate since they should not be compared with normal-game scores
+
+
+
+
+#  YAY! I fixed the reordering of the sorted scores!
+
+## how to handle percentile sorting?
+1. only show percentiles when filtering for ONE deck size
+- since percentiles are per-decksize anyway
+2. DON'T sort by percentiles?? only by the raw number
+
+when dealing with same deck-size scores, the sorting will be the same for score and score-percentile
+- e.g. 0 mismatches === highest percentile, infinity mismatches === lowest percentile
+
+- they can still show the percentiles but they won't be sortable
+- maybe put them in parenthesis
+
+
+
+
+## scores modal:
+4. [low priority] save score button: loading indicator? 
+- it already turns green after but can go disabled while pending
+
+## scores button padding - make size similar to the hamburger on smaller screens
+## modal control ?
+- when opening scores, do I want the settings to open? 
+> I guess only if game is not in progress, so it pauses the game
+> or have scores also pause the game just like settings does
+
+
+## new deck size selector, maybe <dropdown> 
+- clear all
+- button selects for each
+
+## sticky table header? so you can always see the labels and sort?
+
+
+## chore: params to start game doesn't need to send the invert_cards, can pull from localstorage
+
 
 - less extra work for dark mode.
 > - use localstorage as single source of truth

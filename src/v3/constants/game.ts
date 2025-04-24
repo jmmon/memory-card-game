@@ -1,3 +1,4 @@
+import type { AvatarColorOptions} from "../types/types";
 import { ThemeEnum } from "../types/types";
 import BOARD from "./board";
 
@@ -18,7 +19,6 @@ export enum DebugTypeEnum {
   RENDER = "RENDER",
   UTIL = "UTIL",
 }
-export type DebugType = keyof typeof DebugTypeEnum;
 
 type Debug = {
   HANDLER: 0 | LogLevelValue;
@@ -29,7 +29,7 @@ type Debug = {
   UTIL: 0 | LogLevelValue;
 };
 
-const isProd = import.meta.env.PROD; // also affects wrangler serve
+export const isProd = import.meta.env.PROD;
 // const isProd = false;
 const DEBUG: Debug = {
   HANDLER: isProd ? 0 : LogLevel.TWO, //0, //LogLevel.ONE,
@@ -101,15 +101,27 @@ const FAN_OUT_DURATION_ADDITIONAL_PER_CARD_MS = 35 as const;
 const DECK_INITIALIZATION_START_POSITION_BOARD_PERCENTS = {
   percentX: 1,
   percentY: 1.6,
-} as const;
+};
 
 const DATA_THEME = "data-theme" as const;
 const STORAGE_KEY_THEME = "theme" as const;
 
-const DECK_DEAL_SCALE_MIN = 1.2;
+const INITIALS_MAX_LENGTH = 3 as const;
+
+const DEFAULT_COLOR_OPTIONS: AvatarColorOptions = {
+  backgroundColor: "#fff",
+  saturation: {
+    min: 20,
+    max: 80,
+  },
+  lightness: { min: 20, max: 80 },
+} as const;
+
+const DECK_DEAL_SCALE_MIN = 1.33 as const;
 
 const GAME = {
   DECK_DEAL_SCALE_MIN,
+  INITIALS_MAX_LENGTH,
   AUTO_SHUFFLE_INTERVAL,
   AUTO_SHUFFLE_DELAY,
   AUTO_PAUSE_DELAY_MS,
@@ -128,6 +140,7 @@ const GAME = {
   STORAGE_KEY_THEME,
   ThemeEnum,
   DEBUG,
+  DEFAULT_COLOR_OPTIONS,
 } as const;
 
 export default GAME;

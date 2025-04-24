@@ -4,7 +4,7 @@ import GAME from "~/v3/constants/game";
 import type { ClassList, Signal } from "@builder.io/qwik";
 import type { iUserSettings } from "~/v3/types/types";
 import InfoTooltip from "../../organisms/info-tooltip/info-tooltip";
-import { useDebouncer$ } from "~/v3/hooks/useDebouncer";
+import { useDebouncerQrl } from "~/v3/hooks/useDebouncer";
 import MinusIcon from "~/media/icons/minus.svg?jsx";
 import PlusIcon from "~/media/icons/plus.svg?jsx";
 import { selectFieldOnFocus$ } from "~/v3/handlers/handlers";
@@ -21,9 +21,18 @@ export default component$<DeckSizeChangerProps>((props) => {
   const name = `deck-size-changer${props.for ? `-${props.for}` : ""}`;
   const inputRef = useSignal<HTMLInputElement>();
 
-  const handleChangeSize$ = $((_: Event, t: HTMLButtonElement) => {
-    const oldValue = props.userSettings.value.deck.size;
-    let newValue = oldValue + (t.name === `${name}-increment` ? 2 : -2);
+  const handleChangeSize$ = $((_: Event, t: HTMLButtonElement | HTMLInputElement) => {
+    let newValue = props.userSettings.value.deck.size;
+    if (t.tagName === 'BUTTON') {
+      newValue += (t.name === `${name}-increment` ? 2 : -2);
+    } else {
+      // is input change
+      if (t.value === "") return;
+      newValue = Number(t.value);
+      if (newValue % 2 !== 0) {
+        newValue++;
+      }
+    }
 
     newValue = Math.min(
       Math.max(GAME.DECK_SIZE_MIN, newValue),
@@ -38,31 +47,16 @@ export default component$<DeckSizeChangerProps>((props) => {
         size: newValue,
       },
     };
-  });
-
-  const debouncedSetSize$ = useDebouncer$((_: Event, t: HTMLInputElement) => {
-    if (t.value === "") return;
-    let newValue = Number(t.value);
-    if (newValue % 2 !== 0) {
-      newValue++;
-    }
-    newValue = Math.min(
-      Math.max(GAME.DECK_SIZE_MIN, newValue),
-      GAME.DECK_SIZE_MAX,
-    );
-    props.userSettings.value = {
-      ...props.userSettings.value,
-      deck: {
-        ...props.userSettings.value.deck,
-        size: newValue,
-      },
-    };
-    // assert the ref has a value to the ts compiler (similar to "as HTMLInputElement")
+    
+    // for input
     inputRef.value!.value = String(newValue);
     inputRef.value!.blur();
-  }, 500);
+  });
+
+  const debouncedSetSize$ = useDebouncerQrl(handleChangeSize$, 500);
 
 
+  // hide the up/down arrows on the input
   useStylesScoped$(`
     input::-webkit-outer-spin-button,
     input::-webkit-inner-spin-button {

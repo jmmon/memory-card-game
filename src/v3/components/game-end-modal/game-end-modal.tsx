@@ -1,0 +1,249 @@
+import { component$, $, useSignal } from "@builder.io/qwik";
+import PixelAvatar from "../pixel-avatar/pixel-avatar";
+import Button from "../atoms/button/button";
+import Modal from "../templates/modal/modal";
+import type { InsertScore } from "~/v3/db/schemas/types";
+import ModalRow from "../atoms/modal-row/modal-row";
+import GameStats from "../molecules/game-stats/game-stats";
+import InfoTooltip from "../organisms/info-tooltip/info-tooltip";
+import GameSettings from "../organisms/game-settings/game-settings";
+import serverDbService from "~/v3/services/db";
+import { msToDs } from "~/v3/utils/formatTime";
+import GAME from "~/v3/constants/game";
+import { GameStateEnum } from "~/v3/types/types";
+import { useDefaultHash } from "~/routes/game";
+import { getRandomBytesBrowser } from "~/v3/utils/hashUtils";
+import { selectFieldOnFocus$ } from "~/v3/handlers/handlers";
+import useSyncedSettings from "~/v3/hooks/useSyncedSettings";
+import { FONT_SIZES } from "~/v3/constants/styles";
+
+const Asterisk = () => <span class="text-red-300">*</span>;
+
+export default component$(() => {
+  const { unsavedUserSettings, saveOrResetSettings$, ctx } =
+    useSyncedSettings("endOfGameModal");
+  const defaultHash = useDefaultHash();
+
+  const initials = useSignal("---");
+  const initialsRef = useSignal<HTMLInputElement>(); // to manipulate the input
+  const identifier = useSignal(defaultHash.value);
+  const userId = useSignal<string | undefined>("");
+
+  const saveScore$ = $(async () => {
+    if (ctx.state.gameData.IS_SCORES_ENABLED === false) return;
+    if (ctx.state.gameData.isSaved) return;
+
+    const newScore: InsertScore = {
+      createdAt: Date.now(),
+      deckSize: ctx.state.userSettings.deck.size,
+      gameTimeDs: msToDs(ctx.timer.state.time),
+      mismatches: ctx.state.gameData.mismatchPairs.length,
+      pairs: ctx.state.gameData.successfulPairs.length,
+      userId: userId.value ?? identifier.value,
+      initials: initials.value,
+    };
+
+    try {
+      console.log("saving score...", { newScore });
+      const saved = await serverDbService.saveNewScore(newScore);
+
+      if (!saved.newScore || !saved.newScoreCounts) {
+        throw new Error("Could not save score");
+      }
+
+      ctx.state.gameData.isSaved = true;
+      console.log("saved!", { saved });
+      ctx.handle.showScoresModal();
+      // do we want to close this end-game modal here?
+      ctx.handle.hideEndOfGameModal();
+    } catch (err) {
+      console.error(err);
+    }
+  });
+
+  return (
+    <Modal
+      isShowing={ctx.state.interfaceSettings.endOfGameModal.isShowing}
+      hideModal$={ctx.handle.hideEndOfGameModal}
+      title={
+        ctx.state.gameData.gameState === GameStateEnum.ENDED_WIN
+          ? "You Win!"
+          : "Game Over"
+      }
+      options={{
+        detectClickOutside: false,
+      }}
+    >
+      <div class="w-full h-full max-h-[50vh] overflow-y-auto grid gap-3">
+        <div class="flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%]">
+          <GameStats />
+
+          {/*
+          <ModalRow>
+            <div class="flex flex-grow justify-between">
+              <span>Time:</span>
+              <span>
+                <FormattedTime timeMs={ctx.timer.state.time} />
+              </span>
+            </div>
+          </ModalRow>
+          <ModalRow>
+            <div class="flex flex-grow justify-between">
+              <span>Pairs:</span>
+              <span>
+                {ctx.state.gameData.successfulPairs.length}/
+                {ctx.state.userSettings.deck.size / 2}
+              </span>
+            </div>
+          </ModalRow>
+          <ModalRow>
+            <div class="flex flex-grow justify-between">
+              <span>Mismatches:</span>
+              <span>
+                {ctx.state.gameData.mismatchPairs.length}
+                {ctx.state.userSettings.maxAllowableMismatches !== -1
+                  ? `/${ctx.state.userSettings.deck.size / 2} `
+                  : ""}
+              </span>
+            </div>
+          </ModalRow>
+*/}
+        </div>
+
+        {ctx.state.gameData.IS_SCORES_ENABLED && (
+          <>
+            <hr class="mx-2 border-slate-800 opacity-50" />
+
+            <div
+              class={`w-full h-full rounded-lg ${ctx.state.gameData.isSaved ? "bg-slate-700/50" : "bg-slate-600"}`}
+            >
+              <div class="w-full flex flex-col gap-2 items-center justify-center py-[2%] px-[4%]">
+                <h3 class={FONT_SIZES.STANDARD}>Avatar:</h3>
+                <PixelAvatar
+                  classes="w-[80px] h-[80px] sm:w-[100px] sm:h-[100px]"
+                  text={identifier}
+                  colorFrom={initials}
+                  outputTo$={({ hash }) => {
+                    // let PixelAvatar hash it so we don't have to hash twice
+                    userId.value = hash;
+                  }}
+                />
+              </div>
+              <div class="flex py-[2%] px-[4%]">
+                <ModalRow>
+                  <div class="flex flex-col gap-4 items-center w-full">
+                    <div class={`w-full ${FONT_SIZES.SMALL} flex flex-col`}>
+                      <label
+                        class="w-full flex justify-center gap-2"
+                        for="game-end-modal-input-initials"
+                      >
+                        Initials:
+                      </label>
+                      <input
+                        ref={initialsRef}
+                        disabled={ctx.state.gameData.isSaved}
+                        type="text"
+                        id="game-end-modal-input-initials"
+                        class={`monospace text-center bg-slate-800 text-slate-100 mx-auto`}
+                        style={`width: ${GAME.INITIALS_MAX_LENGTH * 2.5}ch;`}
+                        maxLength={GAME.INITIALS_MAX_LENGTH + 1} // needed the extra length??
+                        defaultValue={initials.value}
+                        onInput$={(_: Event, t: HTMLInputElement) => {
+                          const prev = t.value
+                            .replaceAll("-", "")
+                            .toUpperCase();
+                          const newString =
+                            prev.length > GAME.INITIALS_MAX_LENGTH
+                              ? prev.slice(0, GAME.INITIALS_MAX_LENGTH)
+                              : prev.padStart(3, "-");
+                          // force replace value using ref
+                          initialsRef.value!.value = newString;
+                          initials.value = newString;
+                        }}
+                        onFocus$={selectFieldOnFocus$}
+                      />
+                    </div>
+
+                    <div class={`flex flex-col w-full ${FONT_SIZES.SMALL}`}>
+                      <label
+                        for="game-end-modal-input-identifier "
+                        class="flex gap-[0.2em] items-center mx-auto"
+                      >
+                        Identifier:
+                        <Asterisk />
+                        <InfoTooltip>
+                          <Asterisk /> Identifier is never saved or sent
+                          anywhere. It's only to generate your avatar. If you
+                          want your avatar to be consistent across games and
+                          devices, use something unique and consistent like your
+                          name or email. The data is hashed and used to
+                          determine pixel placement.
+                        </InfoTooltip>
+                      </label>
+                      <button
+                        data-label="generate-random-identifier"
+                        onClick$={() => {
+                          identifier.value = getRandomBytesBrowser();
+                        }}
+                        class="text-xs px-0 py-0 "
+                        style="color: var(--qwik-light-blue);"
+                        type="button"
+                        disabled={ctx.state.gameData.isSaved}
+                      >
+                        (Or generate a random identifier)
+                      </button>
+
+                      <textarea
+                        id="game-end-modal-input-identifier"
+                        disabled={ctx.state.gameData.isSaved}
+                        class="overflow-y-hidden mx-auto px-1.5 monospace max-w-[34ch] h-[4em] md:h-[3em] block w-full bg-slate-800 text-slate-100 resize-none"
+                        onFocus$={selectFieldOnFocus$}
+                        bind:value={identifier}
+                        onKeyDown$={(event: KeyboardEvent) => {
+                          // shift+enter to submit!
+                          if (event.key === "Enter" && event.shiftKey) {
+                            saveScore$();
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
+                </ModalRow>
+              </div>
+
+              <div class="flex py-[2%] px-[4%]">
+                <Button
+                  classes="mx-auto bg-green-600 hover:bg-green-400 disabled:bg-green-700"
+                  onClick$={saveScore$}
+                  disabled={ctx.state.gameData.isSaved}
+                >
+                  Save Score
+                </Button>
+              </div>
+            </div>
+
+            <hr class="mx-2 border-slate-800 opacity-50" />
+          </>
+        )}
+
+        <GameSettings unsavedUserSettings={unsavedUserSettings}>
+          <div
+            q:slot="footer"
+            class="mt-5 flex flex-grow items-center justify-around"
+          >
+            <Button onClick$={ctx.handle.hideEndOfGameModal}>
+              <span class="text-slate-100">Close</span>
+            </Button>
+            <Button
+              onClick$={() => {
+                saveOrResetSettings$(unsavedUserSettings);
+              }}
+            >
+              <span class="text-slate-100">Play Again</span>
+            </Button>
+          </div>
+        </GameSettings>
+      </div>
+    </Modal>
+  );
+});

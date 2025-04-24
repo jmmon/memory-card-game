@@ -188,7 +188,7 @@ const generateDeckDealScale = (
   generateScaleTransformPercentToCenter(
     boardLayout,
     cardLayout,
-    ENLARGED_CARD__SCALE_RATIO_VS_LIMITING_DIMENSION / 3,
+    ENLARGED_CARD__SCALE_RATIO_VS_LIMITING_DIMENSION,
     BOARD.CARD_RATIO_VS_CONTAINER, // padding
   );
 

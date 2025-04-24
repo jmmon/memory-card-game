@@ -19,7 +19,7 @@ const toType = (value: string) => {
   }
 };
 
-export function toString(value: number | boolean | string) {
+export const toString = (value: number | boolean | string) => {
   switch (true) {
     case value === true:
       return "true";
@@ -28,11 +28,10 @@ export function toString(value: number | boolean | string) {
     case typeof value === "number":
       return String(value);
     case typeof value === "string":
-      return value;
     default:
       return value;
   }
-}
+};
 
 export const typeEntryValues = (entries: iEntriesStrings) =>
   Object.fromEntries(entries.map(([key, val]) => [key, toType(val)]));
@@ -118,3 +117,6 @@ export const pruneDefaultsFromSettings = (newSettings: iUserSettings) => {
   if (result.length === 0) return "";
   return "?" + result.join("&");
 };
+
+export const lowercaseHyphenate = (str: string) =>
+  str.toLowerCase().replace(/ /g, "-");

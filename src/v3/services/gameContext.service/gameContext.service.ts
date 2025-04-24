@@ -28,8 +28,8 @@ import {
 } from "~/v3/types/types";
 import logger from "../logger";
 import cardUtils from "~/v3/utils/cardUtils";
-import type { iTimer } from "~/v3/hooks/useTimer/types";
 import { FULL_DECK } from "~/v3/utils/cards";
+import type { UseTimer } from "~/v3/hooks/useTimer/types";
 
 export type GameService = ReturnType<typeof useGameContextProvider>;
 const GameContext = createContextId<GameService>("gameContext2");
@@ -42,7 +42,7 @@ export const useGameContextProvider = ({
   gameData?: Partial<iGameData>;
 }) => {
   // state
-  const timer: iTimer = useTimer();
+  const timer: UseTimer = useTimer();
   const state = useStore<iState>({
     ...INITIAL_STATE,
     userSettings: {
@@ -75,8 +75,28 @@ export const useGameContextProvider = ({
 
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "hideSettings:", {
       timerIsPaused: timer.state.isPaused,
-      ingerfaceSettingsSettingsModalIsShowing:
+      interfaceSettingsSettingsModalIsShowing:
         state.interfaceSettings.settingsModal.isShowing,
+    });
+  });
+
+  const showScoresModal = $(function () {
+    timer.pause();
+    state.interfaceSettings.scoresModal.isShowing = true;
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "showScores:", {
+      timerIsPaused: timer.state.isPaused,
+      interfaceSettingsScoresModalIsShowing:
+        state.interfaceSettings.scoresModal.isShowing,
+    });
+  });
+
+  const hideScoresModal = $(function () {
+    state.interfaceSettings.scoresModal.isShowing = false;
+    timer.resume();
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "hideScores:", {
+      timerIsPaused: timer.state.isPaused,
+      ingerfaceSettingsScoresModalIsShowing:
+        state.interfaceSettings.scoresModal.isShowing,
     });
   });
 
@@ -98,7 +118,11 @@ export const useGameContextProvider = ({
     });
   });
 
-  const toggleModalOnEscape = $(function () {
+  // TODO: use only one modal but swap the contents?
+  // e.g. modalContents = "scores" | "endOfGame" | "settings"
+  // height/width would be animated
+  const toggleModal = $(function () {
+    // if game has ended (and settings is not shown) then toggle endOfGameModal
     if (
       (state.gameData.gameState === GameStateEnum.ENDED_WIN ||
         state.gameData.gameState === GameStateEnum.ENDED_LOSE) &&
@@ -112,6 +136,7 @@ export const useGameContextProvider = ({
       return;
     }
 
+    // else toggle settings modal
     if (state.interfaceSettings.settingsModal.isShowing) {
       hideSettingsModal();
     } else {
@@ -266,6 +291,8 @@ export const useGameContextProvider = ({
 
     const isDeckSizeChanged =
       lastDeckSize.value !== state.userSettings.deck.size;
+    lastDeckSize.value = state.userSettings.deck.size;
+
     lastDeckSize.value = state.userSettings.deck.size;
 
     lastDeckSize.value = state.userSettings.deck.size;
@@ -459,11 +486,13 @@ export const useGameContextProvider = ({
     hideSettingsModal,
     showEndOfGameModal,
     hideEndOfGameModal,
+    showScoresModal,
+    hideScoresModal,
     isEndGameConditionsMet,
     startGame,
     endGame,
     resetGame,
-    toggleModalOnEscape,
+    toggleModal,
   };
 
   // hold the state, and the functions

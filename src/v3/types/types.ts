@@ -1,6 +1,16 @@
 import type { QRL } from "@builder.io/qwik";
 import type { iSchemas } from "../validation/schemas";
-import type { iTimer } from "../hooks/useTimer/types";
+import type { Score } from "../db/schemas/types";
+
+import type { D1Database } from "@cloudflare/workers-types";
+
+export type Env = {
+  DB: D1Database;
+};
+
+/* =====================================================
+ * Game Logic
+ * ===================================================== */
 
 export enum ThemeEnum {
   light = "light",
@@ -15,6 +25,7 @@ export type iCoords = { x: number; y: number };
 
 export type iPair = `${number}:${number}`;
 
+// colors are inferred from the symbol
 export type iPlayingCardSvgProps = {
   symbol: "diamonds" | "hearts" | "clubs" | "spades";
 };
@@ -28,6 +39,60 @@ export type iCard = {
   image?: string;
   localSVG?: string;
 };
+
+/* =====================================================
+ * Scoreboard: scores and sorting
+ * ===================================================== */
+
+// for mapping our current score to find how many other scores are less than it
+export type LessThanOurScoreObj = Record<number, number>;
+export type ScoreCountColumnOptions = "gameTime" | "mismatches";
+
+export type DeckSizesDictionary = { [key: string]: Score[] };
+
+export type ScoreWithPercentiles = Score & {
+  // [key: string]: number | string | undefined;
+  timePercentile?: number;
+  mismatchPercentile?: number;
+};
+
+export type ScoresByDeckSize = Record<number, Score[]>;
+
+export enum ScoreTableColumnEnum {
+  initials = "initials",
+  deck_size = "deck_size",
+  pairs = "pairs",
+  game_time_ds = "game_time_ds",
+  mismatches = "mismatches",
+  created_at = "created_at",
+}
+export type ScoreTableColumn = keyof typeof ScoreTableColumnEnum;
+
+export enum SortDirectionEnum {
+  asc = "asc",
+  desc = "desc",
+}
+export type SortDirection = keyof typeof SortDirectionEnum;
+
+export type SortColumnWithDirection = {
+  column: ScoreTableColumn;
+  direction: SortDirectionEnum;
+};
+
+export type AvatarColorOptions = {
+  backgroundColor?: string;
+  saturation: { min: number; max: number };
+  lightness: { min: number; max: number };
+};
+
+export type ScoreTotals = {
+  [key: number]: number;
+  all: number;
+};
+
+/* =====================================================
+ *
+ * ===================================================== */
 
 export enum iSelectCardEnum {
   OFF,
@@ -45,10 +110,12 @@ export enum GameStateEnum {
 export type iGameState = keyof typeof GameStateEnum;
 
 export type iGameData = {
+  IS_SCORES_ENABLED: boolean;
   startingCoords: iCoords;
   startingScale: number;
   lastClick: number;
   gameState: GameStateEnum;
+  isSaved: boolean;
   flippedCardId: number;
   selectedCardIds: number[];
   successfulPairs: iPair[];
@@ -69,9 +136,6 @@ export type iUserSettings = iSchemas["userSettings"] & {
   [key: string]: any;
 };
 
-// settings the user will not change
-export type iGameSettings = {};
-
 export type iInterfaceSettings = {
   isScrollable: boolean;
   successAnimation: boolean;
@@ -82,9 +146,11 @@ export type iInterfaceSettings = {
   settingsModal: {
     isShowing: boolean;
   };
+  scoresModal: {
+    isShowing: boolean;
+  };
   endOfGameModal: {
     isShowing: boolean;
-    isWin: boolean;
   };
 };
 
@@ -114,7 +180,6 @@ export type iState = {
   gameData: iGameData;
 
   userSettings: iUserSettings;
-  gameSettings: iGameSettings;
 
   interfaceSettings: iInterfaceSettings;
 };
@@ -136,7 +201,7 @@ export type StopDealingOpts = {
 };
 export type StartDealingOpts = {
   shouldHideSettings: boolean;
-}
+};
 
 export type iGameHandlers = {
   dealCard: QRL<() => void>;
@@ -163,12 +228,8 @@ export type iGameHandlers = {
   hideSettingsModal: QRL<() => void>;
   showEndOfGameModal: QRL<() => void>;
   hideEndOfGameModal: QRL<() => void>;
-  toggleModalOnEscape: QRL<() => void>;
+  showScoresModal: QRL<() => void>;
+  hideScoresModal: QRL<() => void>;
+  toggleModal: QRL<() => void>;
   endGame: QRL<(isWin: boolean) => void>;
 };
-
-// old
-export type iGameContext = {
-  timer: iTimer;
-} & iGameState &
-  iGameHandlers;

@@ -1,79 +1,117 @@
+import type {
+  CSSProperties} from "@builder.io/qwik";
 import {
   component$,
   useSignal,
   Slot,
   type ClassList,
   $,
+  type Signal,
+  type QRL,
+  useComputed$,
+  useVisibleTask$
 } from "@builder.io/qwik";
 import Button from "~/v3/components/atoms/button/button";
 import ChevronSvg from "~/media/icons/icons8-chevron-96 convertio.svg?jsx";
+import { FONT_SIZES } from "~/v3/constants/styles";
 
 type DropdownProps = {
-  buttonText: string;
+  buttonText?: string;
   buttonClasses?: ClassList;
   buttonClassesWhileOpen?: ClassList;
-  startAsOpen?: boolean;
+  buttonStyles?: CSSProperties;
+  contentClasses?: ClassList;
   transitionTiming?: number;
   wrapperClasses?: ClassList;
   clearFocusOnClose?: boolean;
-};
+} & ({
+  startAsOpen?: undefined;
+  isOpen: Signal<boolean>;
+  onClick$: QRL<() => void>;
+} | {
+  startAsOpen?: boolean;
+  isOpen?: undefined;
+  onClick$?: undefined;
+});
 
-export default component$<DropdownProps>(
+type InteractiveElements = HTMLElementTagNameMap["button" | "input" | "a" | "select" | "textarea" | "area"];
+
+const Dropdown = component$<DropdownProps>(
   ({
     buttonText,
     buttonClasses,
     buttonClassesWhileOpen,
+    buttonStyles,
+    contentClasses,
     startAsOpen = false,
     transitionTiming = 400,
     wrapperClasses,
     clearFocusOnClose = false,
+    isOpen,
+    onClick$,
   }) => {
-    const isOpen = useSignal(startAsOpen);
+    const _isOpen = useSignal(startAsOpen);
     const contentContainerRef = useSignal<HTMLDivElement>();
     const buttonRef = useSignal<HTMLButtonElement>();
 
-    const handleToggle = $(() => {
-      isOpen.value = !isOpen.value;
+    const handleChangeTabIndex = $((_isOpen: boolean) => {
       // prevent tab focus when dropdown content is hidden
-      contentContainerRef.value?.querySelectorAll("input").forEach((input) => {
-        input.tabIndex = isOpen.value ? 0 : -1;
-      });
       contentContainerRef.value
-        ?.querySelectorAll("button")
-        .forEach((button) => {
-          button.tabIndex = isOpen.value ? 0 : -1;
+        ?.querySelectorAll("button, input, a, select, textarea, area")
+        .forEach((input) => {
+          (input as InteractiveElements).tabIndex = _isOpen ? 0 : -1;
         });
+    });
 
-      if (!clearFocusOnClose) return;
-      if (!isOpen.value) {
+    const handleToggle = $((shouldOpen: boolean) => {
+      _isOpen.value = shouldOpen;
+      handleChangeTabIndex(shouldOpen);
+
+      if (!shouldOpen && clearFocusOnClose) {
         buttonRef.value?.blur();
       }
     });
 
+    // set initital tab index for closed
+    // eslint-disable-next-line qwik/no-use-visible-task
+    useVisibleTask$(() => {
+      handleChangeTabIndex(false);
+    });
+
+    const computedIsOpen = useComputed$(() =>
+      isOpen !== undefined ? isOpen.value : _isOpen.value,
+    );
+
     return (
-      <div class={`flex flex-col items-center w-full ${wrapperClasses}`}>
+      <div
+        class={`transition-all flex flex-col ${FONT_SIZES.SMALL} items-center w-full ${wrapperClasses}`}
+        data-label="wrapper"
+      >
         <Button
           buttonRef={buttonRef}
-          classes={`border-none ${buttonClasses} ${isOpen.value ? buttonClassesWhileOpen : ""}`}
-          onClick$={handleToggle}
+          styles={buttonStyles}
+          classes={`z-10 border-none ${buttonClasses} ${computedIsOpen.value ? buttonClassesWhileOpen : ""}`}
+          onClick$={() => {
+            onClick$?.(); // if acting as controlled component
+            handleToggle(!computedIsOpen.value);
+          }}
         >
-          {buttonText}
+          {buttonText ?? ""}
+          <Slot name="button" />
           <span
-            class={`transition-all inline-block ml-2 text-sky-300 ${
-              isOpen.value ? `rotate-[0deg]` : `rotate-[180deg]`
+            class={`transition-all inline-block ml-2 text-slate-300 ${
+              computedIsOpen.value ? `rotate-[0deg]` : `rotate-[180deg]`
             }`}
             style={{ transitionDuration: transitionTiming + "ms" }}
           >
-            <ChevronSvg
-              style={{ fill: "#c0c8ff", width: "1em", height: "1em" }}
-            />
+            <ChevronSvg style={{ width: "1em", height: "1em" }} />
           </span>
         </Button>
 
         <div
-          aria-open={isOpen.value}
-          class={`grid grid-rows-[0fr] w-full transition-all ${
-            isOpen.value ? "grid-rows-[1fr]" : ""
+          aria-open={isOpen && isOpen.value}
+          class={`grid grid-rows-[0fr] w-full transition-all bg-transparent ${
+            computedIsOpen.value ? "grid-rows-[1fr]" : ""
           }`}
           style={{
             transitionDuration: transitionTiming + "ms",
@@ -83,10 +121,10 @@ export default component$<DropdownProps>(
             data-label="dropdown-content"
             ref={contentContainerRef}
             class={`overflow-hidden transition-all border-box rounded-lg border-l border-b border-transparent ${
-              isOpen.value
+              computedIsOpen.value
                 ? "shadow-inner-2 border-l-slate-500 border-b-slate-500 opacity-100 scale-[1]"
-                : "opacity-20 scale-[0.95]"
-            }`}
+                : "opacity-20 scale-[0.95] translate-y-[-0.25rem]"
+            } ${contentClasses}`}
             style={{
               transitionDuration: transitionTiming + "ms",
             }}
@@ -98,3 +136,5 @@ export default component$<DropdownProps>(
     );
   },
 );
+
+export default Dropdown;
