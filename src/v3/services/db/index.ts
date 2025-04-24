@@ -58,11 +58,11 @@ const queryScoresAndCalculatePercentiles = async ({
 
   const allScores = resScores.value;
   const scoreCounts = resCounts.value;
-  console.log(
-    "fresh from query:",
-    allScores.map((score) => JSON.stringify(score)),
-    scoreCounts.map(count => JSON.stringify(count)),
-  );
+  // console.log(
+  //   "fresh from query:",
+  //   allScores.map((score) => JSON.stringify(score)),
+  //   scoreCounts.map(count => JSON.stringify(count)),
+  // );
 
   return calculatePercentilesWhileMaintainingOrder(allScores, scoreCounts);
 };

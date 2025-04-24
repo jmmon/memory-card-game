@@ -135,7 +135,7 @@ export const calculatePercentilesWhileMaintainingOrder = (
     { scoresByDeckSize: {}, orderedListOfScoreIds: [] },
   );
 
-  console.log({scoresByDeckSize, orderedListOfScoreIds});
+  // console.log({scoresByDeckSize, orderedListOfScoreIds});
 
   const allScoresWithPercentilesByScoreId: ScoreWithPercentiles[] = [];
   // need totals from scorecounts to get accurate percentile info for a given decksize
@@ -151,7 +151,7 @@ export const calculatePercentilesWhileMaintainingOrder = (
     } = allScoreCounts[i];
 
     totals[deckSize] = totalScoresForDeckSize;
-    console.log({'scoresByDeckSize[deckSize]': scoresByDeckSize[deckSize], deckSize, scoreCount: allScoreCounts[i]});
+    // console.log({'scoresByDeckSize[deckSize]': scoresByDeckSize[deckSize], deckSize, scoreCount: allScoreCounts[i]});
 
     // skip empty decksizes
     // e.g. when filtering for all decksizes, but only fetching 25 scores
@@ -181,7 +181,7 @@ export const calculatePercentilesWhileMaintainingOrder = (
     // scores: sortScores(allScoresWithPercentiles, sortByColumnHistory),
     totals,
   };
-  console.log({result});
+  // console.log({result});
   return result;
 };
 
