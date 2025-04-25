@@ -1,4 +1,4 @@
-import type { Signal} from "@builder.io/qwik";
+import type { Signal } from "@builder.io/qwik";
 import { $, useSignal, useTask$ } from "@builder.io/qwik";
 import type { iUserSettings } from "../types/types";
 import { useGameContextService } from "../services/gameContext.service/gameContext.service";
@@ -18,6 +18,7 @@ const useSyncedSettings = (modalName: ModalName) => {
   const handleName = ("hide" +
     modalName[0].toUpperCase() +
     modalName.slice(1)) as HideHandle;
+  const scrollToTopRef = useSignal<HTMLDivElement>();
 
   useGetSavedTheme(
     { ctx, unsavedUserSettings },
@@ -28,9 +29,13 @@ const useSyncedSettings = (modalName: ModalName) => {
 
   // resync when showing or hiding modal e.g. if home changed settings but didn't save
   useTask$(({ track }) => {
-    const isShowing = track(() => ctx.state.interfaceSettings[modalName].isShowing);
+    const isShowing = track(
+      () => ctx.state.interfaceSettings[modalName].isShowing,
+    );
 
     if (isShowing) {
+      scrollToTopRef.value?.scrollTo(0, 0);
+
       // ensure settings are resyncd from ctx when showing
       unsavedUserSettings.value = ctx.state.userSettings;
     } else {
@@ -46,6 +51,6 @@ const useSyncedSettings = (modalName: ModalName) => {
     ctx.handle.resetGame(newSettings ? newSettings.value : undefined);
   });
 
-  return { unsavedUserSettings, saveOrResetSettings$, ctx };
+  return { unsavedUserSettings, saveOrResetSettings$, ctx, scrollToTopRef };
 };
 export default useSyncedSettings;

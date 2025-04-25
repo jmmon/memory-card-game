@@ -20,7 +20,7 @@ import { FONT_SIZES } from "~/v3/constants/styles";
 const Asterisk = () => <span class="text-red-300">*</span>;
 
 export default component$(() => {
-  const { unsavedUserSettings, saveOrResetSettings$, ctx } =
+  const { unsavedUserSettings, saveOrResetSettings$, ctx, scrollToTopRef } =
     useSyncedSettings("endOfGameModal");
   const defaultHash = useDefaultHash();
 
@@ -73,8 +73,9 @@ export default component$(() => {
       options={{
         detectClickOutside: false,
       }}
+      wrapperSyles={{overflowY: "hidden"}}
     >
-      <div class="w-full h-full max-h-[50vh] overflow-y-auto grid gap-3">
+      <div ref={scrollToTopRef} class="w-full h-full max-h-[50vh] overflow-y-auto grid gap-3">
         <div class="flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%]">
           <GameStats />
 
