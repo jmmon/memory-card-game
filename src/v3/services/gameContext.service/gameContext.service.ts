@@ -345,6 +345,7 @@ export const useGameContextProvider = ({
     state.interfaceSettings.endOfGameModal.isShowing = false;
     state.interfaceSettings.settingsModal.isShowing = false;
 
+    state.gameData.isSaved = false;
     state.gameData.gameState = GameStateEnum.IDLE;
     state.gameData.isShaking = INITIAL_STATE.gameData.isShaking;
     state.gameData.flippedCardId = INITIAL_STATE.gameData.flippedCardId;
