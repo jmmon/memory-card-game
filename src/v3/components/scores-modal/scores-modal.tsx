@@ -143,7 +143,35 @@ export default component$(() => {
       ...opts,
     };
 
+    // console.log({ params });
     // console.log("queryAndSaveScores timing...", JSON.stringify(params), "\n", JSON.stringify(queryStore));
+    if (params.resultsPerPage !== queryStore.resultsPerPage) {
+      // page * count / newCount = newPage
+      // 4 * 25 === 100 / 50 = 2
+      // 5 * 25 === 125 / 50 = 2.5 => 3 math.ceil
+      // 6 * 25 === 150 / 50 = 3
+      // 4 * 25 === 100 / 100 = 1
+      //
+
+      // 4*100 === 400 / 25 = 16, want to place it on page 13 (e.g. starting at index 301) (- factor + 1 e.g. 100 / 25 = 4 => -4 + 1)
+      // 4*100 === 400 / 50 = 8, want to place on page 7 (- factor + 1 e.g. 100 / 50 = 2  => - 2 + 1)
+      // 1*100 === 100 / 50 = 2, want to be on page 1 (100 / 50 = 2 => -2 + 1)
+      //
+      // 4 - 1 * 100 === 300 / 50 = 6, + 1
+      // 4 - 1 * 100 === 300 / 25 = 12, + 1
+
+      const oldPage = queryStore.pageNumber;
+      const oldResultsPerPage = queryStore.resultsPerPage;
+      const newResultsPerPage = params.resultsPerPage;
+      let newPage = 1;
+      if (newResultsPerPage > oldResultsPerPage) {
+        newPage = Math.ceil(oldPage * oldResultsPerPage / newResultsPerPage
+);
+      } else {
+        newPage = (((oldPage - 1) * oldResultsPerPage) / newResultsPerPage) + 1
+      }
+      params.pageNumber = newPage;
+    }
 
     try {
       const [scoresRes, deckSizesRes] = await Promise.all([
@@ -178,56 +206,17 @@ export default component$(() => {
         0,
       );
       scoreTotals.value = {
-        ...totals,
-        all: totalCountForQuery,
+        ...totals, // totals by deck size
+        all: totalCountForQuery, // full score count for specific query
       };
       const newTotalPages = Math.ceil(
         totalCountForQuery / params.resultsPerPage,
       );
-      // breaks after here
 
-      // calculate new page number we should place them on, eg match the centers
-      if (params.resultsPerPage !== queryStore.resultsPerPage) {
-        // this is supposed to keep you seeing the same data when switching page-sizes
-        // e.g. it sets your new page to the same percentage you were at before
-        // so if you were on page 50/100 at page-size of 100 you are at 50%
-        // and then you switch to 25 page-size out of now 400 pages, attempt to place you at page 200/400
-        //
-        // e.g. page 49/90 @ 100/page => records 4800-4900 [e.g. 49 - 1 * 100]
-        // we want to place them at 4800+
-        // switch to 25/page => 193/360?  [193 - 1 * 25] = 4800-4825
-        //
-        // 49/90 = 0.544444%
-        // * 360 => 196, not quite right, need to subtract 1 before the percent
-        //
-        // (49 - 1) / 90 = 0.533333%
-        // * 360 => 192! then add 1
-        //
-        // how about 48/90
-        // 48 - 1 / 90 => .52222%
-        // * 360 => 188 + 1 = 189! correct
-        // 1/90? => 0/90 = 0%
-        // 0 + 1 => 1
-        // (2 - 1)/90 ?  => 0.01111%
-        // * 360 => 4 + 1 = newPage 5
-        const prevPagePercent = Math.min(
-          1,
-          (params.pageNumber - 1) / params.totalPages,
-        );
-        const newPage =
-          params.pageNumber === 1
-            ? 1
-            : Math.floor(prevPagePercent * newTotalPages) + 1;
-
-
-        // only update current page number if we changed resultsPerPage
-        queryStore.pageNumber = newPage;
-        queryStore.resultsPerPage = params.resultsPerPage;
-      }
       queryStore.pageNumber = params.pageNumber;
-
-      queryStore.sortByColumnHistory = params.sortByColumnHistory;
+      queryStore.resultsPerPage = params.resultsPerPage;
       queryStore.deckSizesFilter = params.deckSizesFilter;
+      queryStore.sortByColumnHistory = params.sortByColumnHistory;
       // always set new total pages, in case there's more data now
       queryStore.totalPages = newTotalPages;
       queryStore.totalResults = totalCountForQuery;
@@ -240,6 +229,8 @@ export default component$(() => {
       // > - then adjusting page size can just slice from the list
       //
       displayedScores.value = [...scores];
+
+      // console.log({ queryStore });
 
       isLoading.value = false;
     } catch (e) {
@@ -626,7 +617,7 @@ const TableDecksizeFilterHeaderDropdown = component$<DropdownProps>(
 
     const apply$ = $(() => {
       // runs the query
-      console.log(selectedFilter.value);
+      // console.log(selectedFilter.value);
       onChangeSelect$(selectedFilter.value);
       handleToggle(false, true);
     });
@@ -928,7 +919,8 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
           />
 
           <div class="text-slate-300">
-            Results: {(queryStore.pageNumber - 1) * queryStore.resultsPerPage}
+            Results:{" "}
+            {1 + (queryStore.pageNumber - 1) * queryStore.resultsPerPage}
             {" - "}
             {queryStore.pageNumber === queryStore.totalPages // is last page
               ? queryStore.totalResults // e.g. 400 - [463]
