@@ -302,7 +302,7 @@ export default component$(() => {
     );
     if (isServer || !isShowing) return;
 
-    queryScores$({ deckSizesFilter: [ctx.state.userSettings.deck.size] });
+    queryScores$();
   });
 
   useStyles$(`
