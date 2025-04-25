@@ -1,70 +1,66 @@
-## hash the cardIds instead of using math.random? doesn't matter the ids, as long as each card has its pair hash
-- e.g. math.random (or randomBytes e.g. 4 bytes or something small) for every new round, and append to card.text ['AS' === ace of spades] then hash that string (to obfuscate)
+## Scores - 
+### Mobile:
+- page buttons are pretty small, maybe make bigger and limit to -2 count vs desktop
+
+- settings button blur not working for the Button Hover effect!!! stays a light color until tapping elsewhere
+- modal footer buttons into a slot? so they are always present instead of scrolling
+
+- after saving score, only disable the save button, but let people play with the initials and identifier!
+> - next time they play it should keep those same ones they ended on, and they could always replace iwth their initials and email again.
+
+- maybe put percentiles in parenthesis, and 0.9em
+
+- scores modal should pause game timer!
+
+## extra: save initials and identifier in localstorage? (or hash of identifier!)
+
+## perf: if rowcount reduces and is on first page, don't bother fetching? just truncate the list?
+> - kind of a special case but common
+- if only filtering 1 deck size then don't bother sorting by decksize?
+- if query params are exactly the same, don't fetch again?
+> - but then if others play, you will have stale scores, so maybe update once per game?
+> > - or e.g. update if 10 seconds has elapsed since last fetch
+
+## deck size slider tooltip: (Hint: you can type a number in the box!)
+debounce slightly less? from 500 to 400? 420!
+
+### Help:
+- clicking => clicking/tapping
+- **(Your selected card gets a green border)**
+
+- dark mode: maybe increase brightness of green border, it's a bit hard to see
+
+- cards should have an aria-label={isCardFlipped.value ? "Ace of Spades" : "backside" }
 
 
-## [Soon(TM)] TODO: finish scores!!!
-- cloudflare D1 sql server with drizzle to save scores
+## hotfixes css:
+## Settings button, header: [low priority]
+- Maybe move hamburger to left? move timer to middle?
+> "Memory Card Game" on game is not really readable on mobile... timer covers it!
+> - timer opacity for background??? increase lightness but add opacity
+
+
+## check pair ids, make sure they are random (enough)
 
 
 ## TODO: deck size change slider dropdown! e.g. carot button (somewhere) to reveal slider
 - can use the whole width, easier on mobile
-  - (also keep the buttons)
-- slider dark mode! darker bg/fill
-## TODO: deck size changer with slide as well?
-- maybe hidden under dropdown so it can use the whole width, easier on mobile
-  - also keep the buttons
-  - or try a press and hold for the buttons, debounced timer to make it easier
+- (also keep the buttons)
+> - slider dark mode! darker bg/fill
 
 
 ## Challenge modes:
-I think what I'll do is save it for later
-it will be set up as a brand new table completely separate from Scores
-then I can have the modal with a couple tabs (or something)
-and the scores can be kept separate since they should not be compared with normal-game scores
+- save for later... next phase...
+- it will be set up as a brand new table, completely separate scorekeeping since they are not comparable to regular scores
+> then I can have the modal with a couple tabs (or something)
 
-
-
-
-#  YAY! I fixed the reordering of the sorted scores!
-
-## how to handle percentile sorting?
-1. only show percentiles when filtering for ONE deck size
-- since percentiles are per-decksize anyway
-2. DON'T sort by percentiles?? only by the raw number
-
-when dealing with same deck-size scores, the sorting will be the same for score and score-percentile
-- e.g. 0 mismatches === highest percentile, infinity mismatches === lowest percentile
-
-- they can still show the percentiles but they won't be sortable
-- maybe put them in parenthesis
-
-
-
-
-## scores modal:
-4. [low priority] save score button: loading indicator? 
-- it already turns green after but can go disabled while pending
-
-## scores button padding - make size similar to the hamburger on smaller screens
-## modal control ?
-- when opening scores, do I want the settings to open? 
-> I guess only if game is not in progress, so it pauses the game
-> or have scores also pause the game just like settings does
-
-
-## new deck size selector, maybe <dropdown> 
-- clear all
-- button selects for each
 
 ## sticky table header? so you can always see the labels and sort?
 
 
 ## chore: params to start game doesn't need to send the invert_cards, can pull from localstorage
 
-
 - less extra work for dark mode.
-> - use localstorage as single source of truth
-> - don't store in context/settings, would be much simpler
 - dark mode theme loading happens late, look into examples from qwik website
 > - insert script into head to load on startup immediately;
 > - could also check computer preferences...
@@ -91,63 +87,22 @@ when dealing with same deck-size scores, the sorting will be the same for score 
 ## excited for qwik 1.14!
 
 
-
-
-
-
-
-
 ## TODO: make an about page
-
-
-
-
-
 
 
 ## TODO: darkmode brightness adjust: dim the brightness of cards via another filter?
  brightness (number) slider e.g. 100%-10%
 > - also save in localstorage
 
-## TODO: Invert Dark Mode
-- more customization?
+## TODO: Invert Dark Mode customization
 > - make it affect the svg symbols rather than the entire card
 > - then can customise how each card or symbol or color looks instead of a blanket filter
 
-## TODO: challenge modes
-- implement the challenge modes in the game context!
-
-
-
-## revisit "inverse modal"?
-### and/or game homepage flip up/forward to reveal game
-> this could be used to pre-render the game, reducing loading times for game?
-> - e.g. game is loaded on homepage, while user is reading content or clicking Play
-
-
-
-## hotfixes css:
-## Settings button, header: [low priority]
-- Memory Card Game link flows over the timer
-> - maybe change "Settings" to hamburger? 
-> - Maybe move hamburger to left? move timer to middle?
-> - maybe use left carrot for "Back", with (or replacing) "Memory Card Game" 
-> > I like having "Memory Card Game" showing though
-
-### mobile:
-#### gameplay - browser auto hide top/bottom bars: [low priority]
-1. scroll down on mobile to adjust settings
-> the top and bottom browser bar hide, making the content show on fullscreen
-2. select 10 cards, hit play
-> the top and bottom browser bar are still hidden, and cards leave a large gap at the bottom of the screen
-> if I scroll back up in the game, the bars reappear, taking up that space so it looks normal
-> - and can no longer scroll since the size is 100% height
 
 
 ## developer settings: [low priority]
 - Cancel button inside dropdown
 > - to reset checkbox states to previous settings
-
 ## TODO: lock board / etc [low priority]
 - after saving game, if board is locked, do not let layout recalculate
 - seems like after saving, it triggers a recalculation
@@ -159,11 +114,18 @@ when dealing with same deck-size scores, the sorting will be the same for score 
 > e.g. preload game during homepage? in background, see through transparent layer?
 > - like render the game on home as well, and home will simply be an overlay
 > > - this would let game load on startup, would need to delay shuffling though
+> > - could shuffle in background, homepage opacity
 > - single source of truth for gamestate, to initialize deck etc after switching states?
 
+## revisit "inverse modal"?
+### and/or game homepage flip up/forward to reveal game
+> this could be used to pre-render the game, reducing loading times for game?
+> - e.g. game is loaded on homepage, while user is reading content or clicking Play
 ### make the main page transparent and the app loads behind the main page
 - so the homescreen is an overlay which moves out of the way to start the game
 > - can see the deck dealt in the backround on app load and the cards shuffling
+> - allow user to hit Play, but it would be in the loading state until done shuffling
+> > only show "Loading" after homescreen was moved out of the way
 - homescreen swings up out of the way when starting,
 > - and game re-deals if settings change
 > > - (for visual effect)
