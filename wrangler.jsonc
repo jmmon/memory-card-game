@@ -66,7 +66,7 @@
 		"preview": {
 			"vars": {
 				"WRANGLER_FEATURE_FLAG_SCORES_ENABLED": "true",
-				"WRANGLER_FEATURE_FLAG_SCORES_SEED_ENABLED": "true"
+				"WRANGLER_FEATURE_FLAG_SCORES_SEED_ENABLED": "false"
 			},
 			"d1_databases": [
 				{
