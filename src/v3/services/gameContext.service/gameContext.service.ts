@@ -198,6 +198,7 @@ export const useGameContextProvider = ({
   const readyGame = $(function () {
     state.gameData.shouldCloseModalDuringDeckAnimations = false;
     state.gameData.isLoading = false;
+    state.gameData.gameState = GameStateEnum.IDLE;
   });
 
   // also generates coords for deck dealing position
@@ -296,9 +297,6 @@ export const useGameContextProvider = ({
 
     const isDeckSizeChanged =
       lastDeckSize.value !== state.userSettings.deck.size;
-    lastDeckSize.value = state.userSettings.deck.size;
-
-    lastDeckSize.value = state.userSettings.deck.size;
 
     lastDeckSize.value = state.userSettings.deck.size;
 
@@ -351,7 +349,6 @@ export const useGameContextProvider = ({
     state.interfaceSettings.settingsModal.isShowing = false;
 
     state.gameData.isSaved = false;
-    state.gameData.gameState = GameStateEnum.IDLE;
     state.gameData.isShaking = INITIAL_STATE.gameData.isShaking;
     state.gameData.flippedCardId = INITIAL_STATE.gameData.flippedCardId;
     state.gameData.mismatchPair = INITIAL_STATE.gameData.mismatchPair;

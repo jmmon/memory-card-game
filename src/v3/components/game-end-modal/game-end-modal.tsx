@@ -54,8 +54,8 @@ export default component$(() => {
       ctx.state.gameData.isSaved = true;
       console.log("saved!", { saved });
       ctx.handle.showScoresModal();
-      // do we want to close this end-game modal here?
-      ctx.handle.hideEndOfGameModal();
+      // don't close end of game modal, so after closing scores can hit Play Again
+
     } catch (err) {
       console.error(err);
     }

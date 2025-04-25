@@ -42,8 +42,8 @@ const useSyncedSettings = (modalName: ModalName) => {
   });
 
   const saveOrResetSettings$ = $((newSettings?: Signal<iUserSettings>) => {
-    ctx.handle.resetGame(newSettings ? newSettings.value : undefined);
     ctx.handle[handleName]();
+    ctx.handle.resetGame(newSettings ? newSettings.value : undefined);
   });
 
   return { unsavedUserSettings, saveOrResetSettings$, ctx };
