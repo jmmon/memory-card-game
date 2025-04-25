@@ -122,6 +122,11 @@ export const useGameContextProvider = ({
   // e.g. modalContents = "scores" | "endOfGame" | "settings"
   // height/width would be animated
   const toggleModal = $(function () {
+    if (state.interfaceSettings.scoresModal.isShowing) {
+      hideScoresModal();
+      return;
+    }
+
     // if game has ended (and settings is not shown) then toggle endOfGameModal
     if (
       (state.gameData.gameState === GameStateEnum.ENDED_WIN ||

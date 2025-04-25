@@ -212,14 +212,9 @@ export default component$<GameProps>(
       "keydown",
       $((event: KeyboardEvent) => {
         if (event.key !== "Escape") return;
-
-        // close scores modal is highest priority
-        if (ctx.state.interfaceSettings.scoresModal.isShowing) {
-          ctx.handle.hideScoresModal();
-          return;
-        }
-
-        // smart modal toggle, if game is ended toggle end-game modal
+        // smart modal toggle, 
+        // if scores is open close; 
+        // if game is ended toggle end-game modal
         // else toggle settings
         ctx.handle.toggleModal();
       }),

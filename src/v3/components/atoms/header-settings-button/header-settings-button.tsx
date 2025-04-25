@@ -3,10 +3,7 @@ import Button from "../button/button";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 import { useDebouncer$ } from "~/v3/hooks/useDebouncer";
 
-type HeaderSettingsIconProps = {
-  isOpen?: boolean;
-};
-export default component$<HeaderSettingsIconProps>(() => {
+export default component$(() => {
   const ctx = useGameContextService();
   useStyles$(`
     .bar-1, .bar-2, .bar-3 {
@@ -76,11 +73,14 @@ export default component$<HeaderSettingsIconProps>(() => {
       onClick$={() => {
         debounceUnfocus();
         ctx.handle.toggleModal(); // opens end-game modal if game has ended
-        // ctx.state.interfaceSettings.settingsModal.isShowing
-        //   ? ctx.handle.hideSettingsModal()
-        //   : ctx.handle.showSettingsModal();
       }}
-      classes={`p-[0.5em] my-auto text-[1.2em] sm:text-[1.5em] h-min settings-button ${ctx.state.interfaceSettings.settingsModal.isShowing || ctx.state.interfaceSettings.endOfGameModal.isShowing ? "open bg-slate-800 border-slate-300 hover-bg-slate-700" : ""}`}
+      classes={`p-[0.5em] my-auto text-[1.2em] sm:text-[1.5em] h-min settings-button ${
+        ctx.state.interfaceSettings.settingsModal.isShowing ||
+        ctx.state.interfaceSettings.endOfGameModal.isShowing ||
+        ctx.state.interfaceSettings.scoresModal.isShowing
+          ? "open bg-slate-800 border-slate-300 hover-bg-slate-700"
+          : ""
+      }`}
     >
       <div class={`bar-icon grid gap-[calc(calc(1.2em-6px)/2)]`}>
         <div class="bar-1 bg-slate-300 rounded-full w-[1.2em] h-[2px] " />
