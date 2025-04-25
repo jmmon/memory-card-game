@@ -16,10 +16,12 @@ import {
 import { isServer } from "@builder.io/qwik/build";
 import ScoreTable from "./score-table";
 import {
-  COLUMNS_MAP_SORT_BY_DEFAULT,
-  DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY,
-  MAP_COL_TITLE_TO_OBJ_KEY,
-  MAX_SORT_COLUMN_HISTORY as SORT_COLUMN_HISTORY_MAX,
+  SORT_COLUMN_MAP,
+  COL_TITLE_TO_OBJ_KEY_MAP,
+  SORT_COLUMN_HISTORY_DEFAULT_SLICED,
+  SORT_COLUMN_HISTORY_MAX,
+  ROW_COUNT_OPTIONS,
+  ROW_COUNT_DEFAULT,
 } from "./constants";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 import Modal from "../templates/modal/modal";
@@ -91,13 +93,10 @@ export default component$(() => {
 
   const queryStore = useStore<QueryStore>(
     {
-      sortByColumnHistory: DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY.slice(
-        0,
-        SORT_COLUMN_HISTORY_MAX,
-      ),
+      sortByColumnHistory: SORT_COLUMN_HISTORY_DEFAULT_SLICED,
       deckSizesFilter: [ctx.state.userSettings.deck.size], // default to our deck.size
       pageNumber: 1,
-      resultsPerPage: 100,
+      resultsPerPage: ROW_COUNT_DEFAULT,
       totalResults: 1,
       totalPages: 1,
     },
@@ -256,7 +255,7 @@ export default component$(() => {
     ) as string;
 
     // map clicked data-attr to the column title
-    const clickedColumnTitle = MAP_COL_TITLE_TO_OBJ_KEY[clickedDataAttr];
+    const clickedColumnTitle = COL_TITLE_TO_OBJ_KEY_MAP[clickedDataAttr];
 
     let sortByColumnHistory = queryStore.sortByColumnHistory;
     const currentSortByColumn = queryStore.sortByColumnHistory[0];
@@ -273,7 +272,7 @@ export default component$(() => {
     } else {
       // set new column & direction
       sortByColumnHistory = [
-        COLUMNS_MAP_SORT_BY_DEFAULT[clickedColumnTitle], // new column first
+        SORT_COLUMN_MAP[clickedColumnTitle], // new column first
         ...sortByColumnHistory.filter(
           ({ column }) => column !== clickedColumnTitle, // make sure we don't have duplicates
         ),
@@ -563,7 +562,7 @@ export default component$(() => {
 type SelectElProps = {
   value: number;
   onChange$: QRL<(e: Event, t: HTMLSelectElement) => void>;
-  listOfOptions: Array<number>;
+  listOfOptions: Readonly<Array<number>>;
   classes?: string;
 };
 const SelectEl = component$<SelectElProps>(
@@ -925,7 +924,7 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
             classes={`z-10 justify-self-start`}
             value={queryStore.resultsPerPage}
             onChange$={onChangeResultsPerPage$}
-            listOfOptions={[25, 50, 100, 200]}
+            listOfOptions={ROW_COUNT_OPTIONS}
           />
 
           <div class="text-slate-300">

@@ -66,16 +66,14 @@ export enum ScoreTableColumnEnum {
   mismatches = "mismatches",
   created_at = "created_at",
 }
-export type ScoreTableColumn = keyof typeof ScoreTableColumnEnum;
 
 export enum SortDirectionEnum {
   asc = "asc",
   desc = "desc",
 }
-export type SortDirection = keyof typeof SortDirectionEnum;
 
 export type SortColumnWithDirection = {
-  column: ScoreTableColumn;
+  column: ScoreTableColumnEnum;
   direction: SortDirectionEnum;
 };
 

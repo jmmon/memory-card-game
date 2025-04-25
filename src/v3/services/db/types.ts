@@ -1,4 +1,4 @@
-import type { SortColumnWithDirection, SortDirection } from "../../types/types";
+import type { SortColumnWithDirection, SortDirectionEnum } from "../../types/types";
 
 export type ScoreQueryProps = {
   pageNumber: number;
@@ -8,5 +8,5 @@ export type ScoreQueryProps = {
 };
 export type CountsQueryProps = {
   deckSizesFilter: number[];
-  sortDirection: SortDirection;
+  sortDirection: SortDirectionEnum;
 };

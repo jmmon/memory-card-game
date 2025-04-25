@@ -9,10 +9,10 @@ import {
 import PixelAvatar from "../pixel-avatar/pixel-avatar";
 import type { QueryStore } from "./scores-modal";
 import {
-  DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY,
   HEADER_LIST,
-  MAP_COL_TITLE_TO_OBJ_KEY,
+  COL_TITLE_TO_OBJ_KEY_MAP,
   HEADER_UNSORTABLE,
+  SORT_COLUMN_HISTORY_DEFAULT_FULL,
 } from "./constants";
 import { formatTimeFromMs } from "~/v3/utils/formatTime";
 import { lowercaseHyphenate } from "~/v3/utils/utils";
@@ -43,7 +43,7 @@ export default component$<ScoreTableProps>(
           <tr>
             {HEADER_LIST.map((header) => {
               const hyphenated = lowercaseHyphenate(header);
-              const key = MAP_COL_TITLE_TO_OBJ_KEY[hyphenated];
+              const key = COL_TITLE_TO_OBJ_KEY_MAP[hyphenated];
               // should have the asc/desc and also the sort order/index
               // e.g. asc-1 asc-2 asc-n
               //
@@ -53,7 +53,7 @@ export default component$<ScoreTableProps>(
               //
               // this is only for css!
               const defaultClass: SortDirectionEnum =
-                DEFAULT_SORT_BY_COLUMNS_WITH_DIRECTION_HISTORY.find(
+                SORT_COLUMN_HISTORY_DEFAULT_FULL.find(
                   ({ column }) => column === key,
                 )?.direction ?? SortDirectionEnum.desc;
 

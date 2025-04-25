@@ -8,7 +8,7 @@ import type {
   Score,
   ScoreCount,
 } from "~/v3/db/schemas/types";
-import { COLUMNS_MAP_SORT_BY_DEFAULT } from "~/v3/components/scores-modal/constants";
+import { SORT_COLUMN_MAP } from "~/v3/components/scores-modal/constants";
 import { buildOrderBy } from "./utils";
 import { updateWorseThanOurScoreMap } from "./percentileUtils";
 
@@ -25,7 +25,7 @@ const getDeckSizeList = () =>
     .from(scoreCounts)
     .orderBy(
       ...buildOrderBy(
-        [COLUMNS_MAP_SORT_BY_DEFAULT[ScoreTableColumnEnum.deck_size]],
+        [SORT_COLUMN_MAP[ScoreTableColumnEnum.deck_size]],
         scoreCounts,
       ),
     )
