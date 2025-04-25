@@ -282,8 +282,18 @@ export default component$(() => {
   });
 
   const onChangeSelectDropdown = $((deckSizesFilter: number[]) => {
+    // TODO: if decksizes filter changed, then pass 1 as pageNumber
+    // const sortedDeckSizesFilter = deckSizesFilter.sort((a, b) => a - b);
+    // const sortedExisting = queryStore.deckSizesFilter.sort((a, b) => a - b);
+    // if (JSON.stringify(sortedDeckSizesFilter) !== JSON.stringify(sortedExisting)) {
+    //   return queryScores$({
+    //     deckSizesFilter,
+    //     pageNumber: 1,
+    //   });
+    // }
     queryScores$({
       deckSizesFilter,
+      pageNumber: 1,
     });
   });
 
