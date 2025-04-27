@@ -15,16 +15,16 @@ const BUTTON_STYLES: ClassList =
 type DeckSizeChangerProps = {
   userSettings: Signal<iUserSettings>;
   isLocked?: boolean;
-  for?: string;
+  name?: string;
 };
-export default component$<DeckSizeChangerProps>((props) => {
-  const name = `deck-size-changer${props.for ? `-${props.for}` : ""}`;
+export default component$<DeckSizeChangerProps>(({ userSettings, isLocked, name = "" }) => {
+  const _name = `deck-size-changer${name ? `-${name}` : ""}`;
   const inputRef = useSignal<HTMLInputElement>();
 
   const handleChangeSize$ = $((_: Event, t: HTMLButtonElement | HTMLInputElement) => {
-    let newValue = props.userSettings.value.deck.size;
+    let newValue = userSettings.value.deck.size;
     if (t.tagName === 'BUTTON') {
-      newValue += (t.name === `${name}-increment` ? 2 : -2);
+      newValue += (t.name === `${_name}-increment` ? 2 : -2);
     } else {
       // is input change
       if (t.value === "") return;
@@ -40,10 +40,10 @@ export default component$<DeckSizeChangerProps>((props) => {
     );
 
     // modify the signal directly
-    props.userSettings.value = {
-      ...props.userSettings.value,
+    userSettings.value = {
+      ...userSettings.value,
       deck: {
-        ...props.userSettings.value.deck,
+        ...userSettings.value.deck,
         size: newValue,
       },
     };
@@ -63,25 +63,24 @@ export default component$<DeckSizeChangerProps>((props) => {
         -webkit-appearance: none;
         margin: 0;
     }
-    input[type=number]{
+    input[type=number] {
         -moz-appearance: textfield;
     }
   `);
 
   return (
     <div class="flex w-full flex-grow items-center justify-center gap-[2%] py-1.5">
-      <label class="w-6/12 text-left text-slate-100" for={name}>
+      <label class="w-6/12 text-left text-slate-100" for={_name}>
         Card Count:
       </label>
       <div class="grid grid-cols-[1fr_auto_1fr] gap-4 items-center justify-center text-slate-100">
         <button
-          name={name + "-decrement"}
-          id={name + "-decrement"}
+          name={_name + "-decrement"}
           class={BUTTON_STYLES}
           onClick$={handleChangeSize$}
           disabled={
-            props.isLocked ||
-            props.userSettings.value.deck.size <= GAME.DECK_SIZE_MIN
+            isLocked ||
+            userSettings.value.deck.size <= GAME.DECK_SIZE_MIN
           }
         >
           <MinusIcon style="width: 16px; height: 16px"/>
@@ -90,21 +89,22 @@ export default component$<DeckSizeChangerProps>((props) => {
           onInput$={debouncedSetSize$}
           ref={inputRef}
           type="number"
+          name={_name}
+          id={_name}
           max={GAME.DECK_SIZE_MAX}
           min={GAME.DECK_SIZE_MIN}
           step="2"
           class="w-8 bg-slate-700 text-center text-slate-100 h-6"
-          value={props.userSettings.value.deck.size}
+          value={userSettings.value.deck.size}
           onFocus$={selectFieldOnFocus$}
         />
         <button
-          name={name + "-increment"}
-          id={name + "-increment"}
+          name={_name + "-increment"}
           class={BUTTON_STYLES}
           onClick$={handleChangeSize$}
           disabled={
-            props.isLocked ||
-            props.userSettings.value.deck.size >= GAME.DECK_SIZE_MAX
+            isLocked ||
+            userSettings.value.deck.size >= GAME.DECK_SIZE_MAX
           }
         >
           <PlusIcon style="width: 16px; height: 16px"/>

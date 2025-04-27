@@ -6,6 +6,7 @@ type InputToggleProps = {
   checked: boolean;
   /** set for the `name` property if change handler needs it */
   propertyPath?: string;
+  name?: string;
   classes?: ClassList;
   disabled?: boolean;
 };
@@ -13,6 +14,7 @@ export default component$<InputToggleProps>(
   ({
     onChange$,
     propertyPath,
+    name,
     checked,
     classes = "",
     disabled = false,
@@ -89,7 +91,7 @@ export default component$<InputToggleProps>(
             disabled={disabled}
             class="h-0 w-0 cursor-pointer opacity-0"
             type="checkbox"
-            name={propertyPath ?? ""} // could be used in onChange
+            name={propertyPath ?? name ?? ""} // could be used in onChange
             onChange$={onChange$}
             checked={checked}
           />

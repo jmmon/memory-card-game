@@ -68,7 +68,6 @@ export default component$<GameSettingsProps>(
               <DeckSizeChanger
                 userSettings={unsavedUserSettings}
                 isLocked={unsavedUserSettings.value.deck.isLocked}
-                for="game-settings"
               />
             </ModalRow>
           </div>

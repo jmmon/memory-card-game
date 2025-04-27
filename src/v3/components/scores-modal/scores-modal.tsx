@@ -772,6 +772,7 @@ const TableDecksizeFilterHeaderDropdown = component$<DropdownProps>(
               checked={
                 selectedFilter.value.length === allDeckSizesList.value.length
               }
+              name="toggle-all"
               onChange$={(_, t) => {
                 if (t.checked) {
                   // when toggling all, save the last selected first so we can restore
@@ -802,6 +803,7 @@ const TableDecksizeFilterHeaderDropdown = component$<DropdownProps>(
                     key={deckSize}
                     classes="rounded-full bg-slate-700 p-1 pl-[1em]"
                     checked={selectedFilter.value.includes(deckSize)}
+                    name={`${deckSize}`}
                     onChange$={(_, t) => {
                       selectedFilter.value = t.checked
                         ? [...selectedFilter.value, deckSize]
