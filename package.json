@@ -34,7 +34,7 @@
   "devDependencies": {
     "@builder.io/qwik": "^1.13.0",
     "@builder.io/qwik-city": "^1.13.0",
-    "@cloudflare/workers-types": "^4.20250407.0",
+    "@cloudflare/workers-types": "^4.20250427.0",
     "@qwik-ui/headless": "^0.6.6",
     "@types/compression": "^1.7.2",
     "@types/eslint": "8.56.10",
@@ -59,7 +59,7 @@
     "vite": "5.4.2",
     "vite-tsconfig-paths": "^4.2.1",
     "vitest": "^0.34.6",
-    "wrangler": "^4.12.0"
+    "wrangler": "^4.13.2"
   },
   "dependencies": {
     "crypto-js": "^4.2.0",
