@@ -3,7 +3,6 @@ import type {
   iBoardLayout,
   iCardLayout,
   iCoords,
-  // iPair,
   iCard,
 } from "~/v3/types/types";
 import GAME, { DebugTypeEnum, LogLevel } from "../constants/game";
@@ -104,6 +103,16 @@ const generateTranslateTransformPercentToCenter = (
   return 100 * slotsToTransverse;
 };
 
+const generateScale = (
+  boardLayout: iBoardLayout,
+  cardLayout: iCardLayout,
+) => 
+  generateScaleTransformPercentToCenter(
+    boardLayout,
+    cardLayout,
+    ENLARGED_CARD__SCALE_RATIO_VS_LIMITING_DIMENSION,
+    BOARD.CARD_RATIO_VS_CONTAINER, // padding
+  );
 /*
  * generateFlipTransform
  * uses positioning and layouts to calculate transform required to flip card over and land in the center, scaled up.
@@ -126,11 +135,9 @@ const generateFlipTranslateTransform = (
     newCoords.y,
   );
 
-  const scale = generateScaleTransformPercentToCenter(
+  const scale = generateScale(
     boardLayout,
     cardLayout,
-    ENLARGED_CARD__SCALE_RATIO_VS_LIMITING_DIMENSION,
-    BOARD.CARD_RATIO_VS_CONTAINER, // padding
   );
 
   return {
@@ -180,18 +187,6 @@ const generateCenterCoords = (cols: number, rows: number) => {
   return coords;
 };
 
-// to scale up the dealing deck, gives a more 3d effect
-const generateDeckDealScale = (
-  boardLayout: iBoardLayout,
-  cardLayout: iCardLayout,
-) => 
-  generateScaleTransformPercentToCenter(
-    boardLayout,
-    cardLayout,
-    ENLARGED_CARD__SCALE_RATIO_VS_LIMITING_DIMENSION,
-    BOARD.CARD_RATIO_VS_CONTAINER, // padding
-  );
-
 const cardUtils = {
   handleAddCardToSelected,
   checkMatch,
@@ -200,7 +195,7 @@ const cardUtils = {
   generateShuffleTranslateTransformPercent,
   generateFlipTranslateTransform,
   generateCenterCoords,
-  generateDeckDealScale,
+  generateScale,
 };
 
 export default cardUtils;

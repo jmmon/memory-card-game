@@ -46,7 +46,7 @@ const Dropdown = component$<DropdownProps>(
     startAsOpen = false,
     transitionTiming = 400,
     wrapperClasses,
-    clearFocusOnClose = false,
+    clearFocusOnClose = true,
     isOpen,
     onClick$,
   }) => {
@@ -90,7 +90,7 @@ const Dropdown = component$<DropdownProps>(
         <Button
           buttonRef={buttonRef}
           styles={buttonStyles}
-          classes={`z-10 border-none ${buttonClasses} ${computedIsOpen.value ? buttonClassesWhileOpen : ""}`}
+          classes={`z-10 border-none flex items-center ${buttonClasses} ${computedIsOpen.value ? buttonClassesWhileOpen : ""}`}
           onClick$={() => {
             onClick$?.(); // if acting as controlled component
             handleToggle(!computedIsOpen.value);
@@ -99,12 +99,14 @@ const Dropdown = component$<DropdownProps>(
           {buttonText ?? ""}
           <Slot name="button" />
           <span
-            class={`transition-all inline-block ml-2 text-slate-300 ${
-              computedIsOpen.value ? `rotate-[0deg]` : `rotate-[180deg]`
-            }`}
-            style={{ transitionDuration: transitionTiming + "ms" }}
+            class={`transition-all ml-2 text-slate-300`}
           >
-            <ChevronSvg style={{ width: "1em", height: "1em" }} />
+            <ChevronSvg style={{
+              transitionDuration: transitionTiming + "ms",
+              width: "1em",
+              height: "1em",
+              transform: `rotate(${computedIsOpen.value ? "0" : "180"}deg)`
+            }} />
           </span>
         </Button>
 

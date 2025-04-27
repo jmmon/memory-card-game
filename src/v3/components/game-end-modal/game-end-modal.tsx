@@ -28,11 +28,13 @@ export default component$(() => {
   const initialsRef = useSignal<HTMLInputElement>(); // to manipulate the input
   const identifier = useSignal(defaultHash.value);
   const userId = useSignal<string | undefined>("");
+  const saveState = useSignal<"idle" | "loading" | "error">("idle");
 
   const saveScore$ = $(async () => {
     if (ctx.state.gameData.IS_SCORES_ENABLED === false) return;
     if (ctx.state.gameData.isSaved) return;
 
+    saveState.value = "loading";
     const newScore: InsertScore = {
       createdAt: Date.now(),
       deckSize: ctx.state.userSettings.deck.size,
@@ -44,7 +46,7 @@ export default component$(() => {
     };
 
     try {
-      console.log("saving score...", { newScore });
+      // console.log("saving score...", { newScore });
       const saved = await serverDbService.saveNewScore(newScore);
 
       if (!saved.newScore || !saved.newScoreCounts) {
@@ -52,11 +54,12 @@ export default component$(() => {
       }
 
       ctx.state.gameData.isSaved = true;
-      console.log("saved!", { saved });
+      // console.log("saved!", { saved });
       ctx.handle.showScoresModal();
+      saveState.value = "idle";
       // don't close end of game modal, so after closing scores can hit Play Again
-
     } catch (err) {
+      saveState.value = "error";
       console.error(err);
     }
   });
@@ -73,9 +76,12 @@ export default component$(() => {
       options={{
         detectClickOutside: false,
       }}
-      wrapperSyles={{overflowY: "hidden"}}
+      wrapperSyles={{ overflowY: "hidden" }}
     >
-      <div ref={scrollToTopRef} class="w-full h-full max-h-[50vh] overflow-y-auto grid gap-3">
+      <div
+        ref={scrollToTopRef}
+        class="w-full h-full max-h-[50vh] overflow-y-auto grid gap-3"
+      >
         <div class="flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%]">
           <GameStats />
 
@@ -142,7 +148,6 @@ export default component$(() => {
                       </label>
                       <input
                         ref={initialsRef}
-                        disabled={ctx.state.gameData.isSaved}
                         type="text"
                         id="game-end-modal-input-initials"
                         class={`monospace text-center bg-slate-800 text-slate-100 mx-auto`}
@@ -160,6 +165,7 @@ export default component$(() => {
                           // force replace value using ref
                           initialsRef.value!.value = newString;
                           initials.value = newString;
+                          saveState.value = "idle";
                         }}
                         onFocus$={selectFieldOnFocus$}
                       />
@@ -189,19 +195,18 @@ export default component$(() => {
                         class="text-xs px-0 py-0 "
                         style="color: var(--qwik-light-blue);"
                         type="button"
-                        disabled={ctx.state.gameData.isSaved}
                       >
                         (Or generate a random identifier)
                       </button>
 
                       <textarea
                         id="game-end-modal-input-identifier"
-                        disabled={ctx.state.gameData.isSaved}
                         class="overflow-y-hidden mx-auto px-1.5 monospace max-w-[34ch] h-[4em] md:h-[3em] block w-full bg-slate-800 text-slate-100 resize-none"
                         onFocus$={selectFieldOnFocus$}
                         bind:value={identifier}
                         onKeyDown$={(event: KeyboardEvent) => {
                           // shift+enter to submit!
+                          saveState.value = "idle";
                           if (event.key === "Enter" && event.shiftKey) {
                             saveScore$();
                           }
@@ -214,11 +219,21 @@ export default component$(() => {
 
               <div class="flex py-[2%] px-[4%]">
                 <Button
-                  classes="mx-auto bg-green-600 hover:bg-green-400 disabled:bg-green-700"
+                  classes={`mx-auto ${
+                    ctx.state.gameData.isSaved ? "!bg-green-600" : ""
+                  }`}
                   onClick$={saveScore$}
-                  disabled={ctx.state.gameData.isSaved}
+                  disabled={
+                    ctx.state.gameData.isSaved || saveState.value === "loading"
+                  }
                 >
-                  Save Score
+                  {saveState.value === "error"
+                    ? "Try again"
+                    : saveState.value === "loading"
+                      ? "Saving..."
+                      : ctx.state.gameData.isSaved
+                        ? "Saved!"
+                        : "Save Score"}
                 </Button>
               </div>
             </div>
@@ -227,23 +242,23 @@ export default component$(() => {
           </>
         )}
 
-        <GameSettings unsavedUserSettings={unsavedUserSettings}>
-          <div
-            q:slot="footer"
-            class="mt-5 flex flex-grow items-center justify-around"
-          >
-            <Button onClick$={ctx.handle.hideEndOfGameModal}>
-              <span class="text-slate-100">Close</span>
-            </Button>
-            <Button
-              onClick$={() => {
-                saveOrResetSettings$(unsavedUserSettings);
-              }}
-            >
-              <span class="text-slate-100">Play Again</span>
-            </Button>
-          </div>
-        </GameSettings>
+        <GameSettings unsavedUserSettings={unsavedUserSettings} />
+      </div>
+
+      <div
+        q:slot="footer"
+        class="mt-5 flex flex-grow items-center justify-around"
+      >
+        <Button onClick$={ctx.handle.hideEndOfGameModal}>
+          <span class="text-slate-100">Close</span>
+        </Button>
+        <Button
+          onClick$={() => {
+            saveOrResetSettings$(unsavedUserSettings);
+          }}
+        >
+          <span class="text-slate-100">Play Again</span>
+        </Button>
       </div>
     </Modal>
   );

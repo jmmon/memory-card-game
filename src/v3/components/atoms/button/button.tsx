@@ -19,7 +19,7 @@ export default component$<ButtonProps>((props) => (
     ref={props.buttonRef}
     style={props.styles}
     onClick$={props.onClick$}
-    class={`transition p-2 border border-slate-200 bg-slate-700 rounded hover:bg-slate-500 ${
+    class={`transition p-2 border border-slate-200 bg-slate-700 rounded focus:bg-slate-500 lg:hover:bg-slate-500 ${
       props.disabled ? "opacity-50" : ""
     } ${props.classes}`}
     disabled={props.disabled}

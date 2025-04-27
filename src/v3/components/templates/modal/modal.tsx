@@ -45,27 +45,28 @@ export default component$<Props>(
       }
     });
 
-    // bg z-index needs to be more than card flip z-index (30) but less than header z-index (50)
-    // w-full sm:min-w-[31rem] sm:w-[60vw]
     return (
       <Backdrop
         isShowing={isShowing}
-        bgClasses={`backdrop-blur-[6px] ${bgClasses}`}
+        bgClasses={`${bgClasses}`}
         onClick={clickBackdrop$}
       >
         <div
           class={`bg-opacity-[98%] shadow-2xl ${containerClasses} min-w-[19rem] w-full sm:w-[80vw] sm:max-w-[32rem] max-h-[80vh] relative mx-auto text-center sm:rounded-lg lg:rounded-3xl flex flex-col gap-1 p-[1.5%] transition-all ${DURATION} ${
             isShowing
-              ? "pointer-events-auto z-[34] scale-100 opacity-100"
+              ? "pointer-events-auto z-10 scale-100 opacity-100"
               : "pointer-events-none z-[-1] scale-[120%] opacity-0"
           }`}
           data-name="modal"
           style={containerStyles}
         >
           <ModalHeader hideModal$={hideModal$} title={title} />
+
           <div class="h-full w-full overflow-y-auto rounded-lg" style={wrapperSyles}>
             <Slot />
           </div>
+
+          <Slot name="footer" />
         </div>
       </Backdrop>
     );

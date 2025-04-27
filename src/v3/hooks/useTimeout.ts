@@ -138,6 +138,7 @@ export const useDelayedTimeoutObj = ({
  * @property interval - interval in ms
  * @property initialDelay=undefined - delay before first run
  * @property runImmediatelyOnCondition=true - run the action immediately after initial delay (at start of interval)
+ * @property breakEarlyOnFalseCondition=true - break interval if condition goes false early
  * @returns signals to set delay and interval
  * */
 export const useIntervalObj = ({
@@ -146,12 +147,14 @@ export const useIntervalObj = ({
   interval,
   action,
   runImmediatelyOnCondition = true,
+  breakEarlyOnFalseCondition = true,
 }: {
   action: QRL<() => void>;
   triggerCondition: Signal<boolean>;
   interval: number;
   initialDelay?: number;
   runImmediatelyOnCondition?: boolean;
+  breakEarlyOnFalseCondition?: boolean;
 }) => {
   const initialDelayDuration = useSignal(initialDelay);
   const intervalDuration = useSignal(interval);
@@ -217,6 +220,10 @@ export const useIntervalObj = ({
         LogLevel.ONE,
         "~~ useIntervalObj interval running",
       );
+      if (breakEarlyOnFalseCondition && !triggerCondition.value) {
+        clearInterval(intervalTimer);
+        return;
+      }
       action();
     }, intervalDuration.value);
 
@@ -238,6 +245,8 @@ export const useIntervalObj = ({
  * @property occurrences - how many occurrences the interval runs
  * @property endingActionDelay - delay after all occurrences
  * @property endingAction - action to perform after all occurrences + ending delay
+ * @property runImmediatelyOnCondition=true - run the action immediately after initial delay (at start of interval)
+ * @property breakEarlyOnFalseCondition=true - break interval if condition goes false early
  * */
 export const useOccurrencesInterval = ({
   triggerCondition,
@@ -247,6 +256,7 @@ export const useOccurrencesInterval = ({
   endingActionDelay = 0,
   endingAction,
   runImmediatelyOnCondition = true,
+  breakEarlyOnFalseCondition = true,
 }: {
   triggerCondition: Signal<boolean>;
   interval: Signal<number>;
@@ -255,6 +265,7 @@ export const useOccurrencesInterval = ({
   endingActionDelay?: number | Signal<number>;
   endingAction: QRL<() => void>;
   runImmediatelyOnCondition?: boolean;
+  breakEarlyOnFalseCondition?: boolean;
 }) => {
   logger(DebugTypeEnum.HOOK, LogLevel.ONE, "SETUP useOccurrencesInterval", {
     triggerCondition: triggerCondition.value,
@@ -311,6 +322,12 @@ export const useOccurrencesInterval = ({
         },
       );
       lastOccurrenceTime = now;
+
+      if (breakEarlyOnFalseCondition && !triggerCondition.value) {
+        clearInterval(intervalTimer.value);
+        intervalTimer.value = undefined;
+        return;
+      }
 
       occurrencesCounter--;
       intervalAction();

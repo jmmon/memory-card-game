@@ -15,7 +15,7 @@ const Backdrop = component$<Props>(
       class={`overflow-hidden top-0 left-0 absolute w-full full-height bg-black flex justify-center items-center transition-all duration-[300ms]
       ${
         isShowing
-          ? `pointer-events-auto z-[32] bg-opacity-20 backdrop-blur-[2px] sm:backdrop-blur-[3px] ${bgClasses}`
+          ? `pointer-events-auto z-[5] bg-opacity-20 backdrop-blur-[2px] ${bgClasses}`
           : `pointer-events-none z-[-1] bg-opacity-0 ${bgHiddenClasses}`
       }`}
     >

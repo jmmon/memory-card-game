@@ -19,7 +19,7 @@ const CardView: FunctionComponent<CardViewProps> = ({
       {isFaceShowing && (
         <div
           class="w-full"
-          dangerouslySetInnerHTML={PlayingCardComponents[card.text]}
+          dangerouslySetInnerHTML={PlayingCardComponents[card.indexString]}
         />
       )}
     </CardFace>

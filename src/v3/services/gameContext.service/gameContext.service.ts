@@ -198,7 +198,6 @@ export const useGameContextProvider = ({
   const readyGame = $(function () {
     state.gameData.shouldCloseModalDuringDeckAnimations = false;
     state.gameData.isLoading = false;
-    state.gameData.gameState = GameStateEnum.IDLE;
   });
 
   // also generates coords for deck dealing position
@@ -232,7 +231,7 @@ export const useGameContextProvider = ({
 
     // update deck-dealing scale
     state.gameData.startingScale = Math.max(
-      cardUtils.generateDeckDealScale(boardLayout, cardLayout), GAME.DECK_DEAL_SCALE_MIN,
+      cardUtils.generateScale(boardLayout, cardLayout), GAME.DECK_DEAL_SCALE_MIN,
     );
 
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "calculateAndResizeBoard:", {
@@ -306,6 +305,9 @@ export const useGameContextProvider = ({
       await calculateAndResizeBoard();
     }
 
+    // make sure we change this before dealing so you don't open the end-game modal
+    state.gameData.gameState = GameStateEnum.IDLE;
+    
     startDealing({
       shouldHideSettings: true,
     });

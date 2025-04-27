@@ -265,7 +265,10 @@ const Help = () => (
   <Dropdown buttonText="Help" buttonClasses="w-full">
     <div class="w-full p-3">
       <ul class="grid w-full leading-5 list-disc gap-2 text-left text-slate-100">
-        <li>Select cards by clicking on them.</li>
+        <li>
+          Select cards by clicking/tapping on them. Your selected cards have a
+          green glow.
+        </li>
         <li>
           Cards are matched when the two selected cards have the same number and
           the color matches (i.e. red with red, black with black).

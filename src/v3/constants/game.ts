@@ -29,7 +29,7 @@ type Debug = {
   UTIL: 0 | LogLevelValue;
 };
 
-export const isProd = import.meta.env.PROD;
+export const isProd = import.meta.env.PROD || false;
 // const isProd = false;
 const DEBUG: Debug = {
   HANDLER: isProd ? 0 : LogLevel.TWO, //0, //LogLevel.ONE,
@@ -117,7 +117,7 @@ const DEFAULT_COLOR_OPTIONS: AvatarColorOptions = {
   lightness: { min: 20, max: 80 },
 } as const;
 
-const DECK_DEAL_SCALE_MIN = 1.33 as const;
+const DECK_DEAL_SCALE_MIN = 1.5 as const;
 
 const GAME = {
   DECK_DEAL_SCALE_MIN,

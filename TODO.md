@@ -1,36 +1,16 @@
 ## Scores - 
 ### Mobile:
-- page buttons are pretty small, maybe make bigger and limit to -2 count vs desktop
-
-- settings button blur not working for the Button Hover effect!!! stays a light color until tapping elsewhere
-- modal footer buttons into a slot? so they are always present instead of scrolling
-
-- after saving score, only disable the save button, but let people play with the initials and identifier!
-> - next time they play it should keep those same ones they ended on, and they could always replace iwth their initials and email again.
-
-- maybe put percentiles in parenthesis, and 0.9em
-
-- scores modal should pause game timer!
+- limit to -2 count vs desktop ?
+- how to limit other than ref to watch the width??
+display: none; on two buttons, when screen is small! but then we'll hide last page or something...
+- for now just reduced by 2 everywhere
 
 ## extra: save initials and identifier in localstorage? (or hash of identifier!)
 
-## perf: if rowcount reduces and is on first page, don't bother fetching? just truncate the list?
-> - kind of a special case but common
-- if only filtering 1 deck size then don't bother sorting by decksize?
-- if query params are exactly the same, don't fetch again?
-> - but then if others play, you will have stale scores, so maybe update once per game?
-> > - or e.g. update if 10 seconds has elapsed since last fetch
-
-## deck size slider tooltip: (Hint: you can type a number in the box!)
-debounce slightly less? from 500 to 400? 420!
-
-### Help:
-- clicking => clicking/tapping
-- **(Your selected card gets a green border)**
-
-- dark mode: maybe increase brightness of green border, it's a bit hard to see
-
-- cards should have an aria-label={isCardFlipped.value ? "Ace of Spades" : "backside" }
+## deck size slider
+- debounce slightly less? from 500 to 400? 420!
+- or remove debounce; make it correct the number just before saving
+> - this saves the mobile screen jitter from blur removing the keyboard!
 
 
 ## hotfixes css:

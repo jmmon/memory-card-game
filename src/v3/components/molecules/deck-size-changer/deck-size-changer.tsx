@@ -117,6 +117,9 @@ export default component$<DeckSizeChangerProps>((props) => {
           (Range: <strong>{GAME.DECK_SIZE_MIN}</strong> to{" "}
           <strong>{GAME.DECK_SIZE_MAX}</strong>)
         </div>
+        <div class="mt-1 text-slate-300">
+          (Tip: Type a number in the box!)
+        </div>
       </InfoTooltip>
     </div>
   );

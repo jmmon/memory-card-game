@@ -19,9 +19,8 @@ html {
 }
 
 html[data-theme="dark"] {
-  /* --card-glow: rgba(63, 123, 63, 1); */
   --success-color: rgba(63, 123, 63, 1);
-  --card-glow: rgba(63, 123, 63, 1);
+  --card-glow: rgba(123, 255, 123, 0.75);
   --mismatch-color: rgba(123, 63, 63, 1);
   /* --card-bg: #1e293b; */
   --qwik-dark-background: #0a0c19;
@@ -71,6 +70,7 @@ html[data-theme="dark"] .instructions code {
 }
 
 .playing-card {
+  /* note - inversed when dark mode toggle! */
   --card-background-color: #fff;
   --card-border-color: #000;
 }

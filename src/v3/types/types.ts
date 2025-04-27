@@ -32,7 +32,8 @@ export type iPlayingCardSvgProps = {
 
 export type iCard = {
   id: number;
-  text: string; // alternate content of the card (if no img)
+  indexString: string; // alternate content of the card (if no img)
+  label: string; // alternate content of the card
   position: number; // board slot index
   prevPosition: number | null; // used for shuffle transition calculations
   pairId: number; // id of paired card

@@ -7,7 +7,7 @@ export default component$(() => {
   const ctx = useGameContextService();
   return (
     <code
-      class={` bg-slate-800 flex gap-1.5 text-center ${header.CODE_TEXT_LIGHT} ${header.CODE_PADDING}`}
+      class={`bg-slate-600/60 flex gap-1.5 text-center ${header.CODE_TEXT_LIGHT} ${header.CODE_PADDING} !px-0.5 text-[0.95em] leading-[1.1]`}
     >
       <div class={` flex flex-col ${header.CODE_TEXT_DARK} items-end `}>
         <span>header~</span>
