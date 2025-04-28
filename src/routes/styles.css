@@ -107,6 +107,13 @@ html[data-theme="dark"] .card-face[data-label="card-front"]>* {
   filter: invert(100%) hue-rotate(180deg);
 }
 
+/* autofill for email textarea, and input just in case */
+textarea:is(:-webkit-autofill, :autofill),
+input:is(:-webkit-autofill, :autofill) {
+  border: 3px solid darkorange;
+}
+
+
 /* HEADINGS ------------------------------------- */
 h1,
 h2,
