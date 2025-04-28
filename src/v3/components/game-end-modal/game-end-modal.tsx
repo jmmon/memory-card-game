@@ -228,7 +228,7 @@ export default component$(() => {
                 </ModalRow>
               </div>
 
-              <div class="flex py-[2%] px-[4%]">
+              <div class="flex py-[2%] px-[4%] relative">
                 <Button
                   classes={`mx-auto ${
                     ctx.state.gameData.isSaved ? "!bg-green-600" : ""
@@ -248,6 +248,15 @@ export default component$(() => {
                         ? "Saved!"
                         : "Save Score"}
                 </Button>
+                <div class="absolute left-[calc(50%+0.5rem+2.75em)] top-[calc(50%-0.25em-0.5rem)]">
+                  <InfoTooltip>
+                    <div class="max-w-[18em]">
+                      Touch both fields before saving. 
+                      <br />
+                      Hint: Shift-Enter in the textbox to save.
+                    </div>
+                  </InfoTooltip>
+                </div>
               </div>
             </div>
 

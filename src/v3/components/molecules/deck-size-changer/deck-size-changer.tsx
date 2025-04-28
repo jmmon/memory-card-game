@@ -118,7 +118,7 @@ export default component$<DeckSizeChangerProps>(({ userSettings, isLocked, name 
           <strong>{GAME.DECK_SIZE_MAX}</strong>)
         </div>
         <div class="mt-1 text-slate-300">
-          (Tip: Type a number in the box!)
+          (Hint: Type a number in the box!)
         </div>
       </InfoTooltip>
     </div>
