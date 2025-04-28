@@ -155,7 +155,7 @@ export default component$(() => {
                       <input
                         ref={initialsRef}
                         type="text"
-                        id="game-end-modal-input-initials"
+                        id="initials"
                         class={`monospace text-center bg-slate-800 text-slate-100 mx-auto`}
                         onFocus$={[selectFieldOnFocus$, markTouched$]}
                         style={`width: ${GAME.INITIALS_MAX_LENGTH * 2.5}ch;`}
@@ -210,7 +210,7 @@ export default component$(() => {
                       <textarea
                         name="email"
                         autocomplete="email"
-                        id="game-end-modal-input-identifier"
+                        id="email"
                         class="overflow-y-hidden mx-auto px-1.5 monospace max-w-[34ch] h-[4em] md:h-[3em] block w-full bg-slate-800 text-slate-100 resize-none"
                         onFocus$={[selectFieldOnFocus$, markTouched$]}
                         bind:value={identifier}
