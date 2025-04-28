@@ -117,7 +117,7 @@ const DEFAULT_COLOR_OPTIONS: AvatarColorOptions = {
   lightness: { min: 20, max: 80 },
 } as const;
 
-const DECK_DEAL_SCALE_MIN = 1.5 as const;
+const DECK_DEAL_SCALE_MIN = 1.75 as const;
 
 const GAME = {
   DECK_DEAL_SCALE_MIN,

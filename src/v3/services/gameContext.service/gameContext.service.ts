@@ -227,11 +227,6 @@ export const useGameContextProvider = ({
       boardLayout.rows,
     );
 
-    // update deck-dealing scale
-    state.gameData.startingScale = Math.max(
-      cardUtils.generateScale(boardLayout, cardLayout), GAME.DECK_DEAL_SCALE_MIN,
-    );
-
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "calculateAndResizeBoard:", {
       boardLayout,
       cardLayout,

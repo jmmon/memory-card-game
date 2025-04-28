@@ -14,7 +14,6 @@ const GAME_DATA: iGameData = {
   IS_SCORES_ENABLED: false,
   /** for determining where deck is dealt from */
   startingCoords: { x: 0, y: 0 },
-  startingScale: GAME.DECK_DEAL_SCALE_MIN,
   lastClick: -1,
   gameState: GameStateEnum.IDLE,
   isSaved: false,

@@ -11,7 +11,7 @@ import CardView from "~/v3/components/molecules/card-view/card-view";
 import type { iCoords, iCard } from "~/v3/types/types";
 import type { FunctionComponent } from "@builder.io/qwik";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
-import { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
+import GAME, { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
 import logger from "~/v3/services/logger";
 
 type FlipTransform = {
@@ -118,27 +118,23 @@ export default component$<CardProps>(({ card, index }) => {
 
     // for -1 case, can tweak constants to change percent positions for deck initialization
     //    startingPosition is calculated inside handle.initializeDeck
-    let newCoords: iCoords;
-    if (card.position === -1) {
-      newCoords = ctx.state.gameData.startingCoords;
-      // append the transform with a scale
-      shuffleTransform.value += ` scale(${ctx.state.gameData.startingScale}) `;
-    } else {
-      newCoords = cardUtils.getXYFromPosition(
-        card.position,
-        ctx.state.boardLayout.columns,
-      );
-    }
+    const newCoords =
+      card.position === -1
+        ? ctx.state.gameData.startingCoords
+        : cardUtils.getXYFromPosition(
+            card.position,
+            ctx.state.boardLayout.columns,
+          );
 
     shuffleTransform.value = cardUtils.generateShuffleTranslateTransformPercent(
       ctx.state.cardLayout,
       newCoords,
     );
+
     if (card.position === -1) {
       // append the transform with a scale
-      shuffleTransform.value += ` scale(${ctx.state.gameData.startingScale}) `;
+      shuffleTransform.value += ` scale(${GAME.DECK_DEAL_SCALE_MIN}) `;
     }
-
 
     flipTransform.value = cardUtils.generateFlipTranslateTransform(
       ctx.state.boardLayout,

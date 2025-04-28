@@ -110,7 +110,6 @@ export type iGameState = keyof typeof GameStateEnum;
 export type iGameData = {
   IS_SCORES_ENABLED: boolean;
   startingCoords: iCoords;
-  startingScale: number;
   lastClick: number;
   gameState: GameStateEnum;
   isSaved: boolean;
