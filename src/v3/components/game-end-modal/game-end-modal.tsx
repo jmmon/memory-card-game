@@ -24,14 +24,15 @@ export default component$(() => {
   const defaultHash = useDefaultHash();
 
   const touchedFields = useSignal<string[]>([]);
-  const markTouched$ = $((_: Event, t: HTMLElement) => {
-    if (touchedFields.value.includes(t.tagName)) return;
-    touchedFields.value = [...touchedFields.value, t.tagName];
-  });
+  // const markTouched$ = $((_: Event, t: HTMLElement) => {
+  //   if (touchedFields.value.includes(t.tagName)) return;
+  //   touchedFields.value = [...touchedFields.value, t.tagName];
+  // });
 
   const initials = useSignal("---");
   const initialsRef = useSignal<HTMLInputElement>(); // to manipulate the input
   const identifier = useSignal(defaultHash.value);
+  // for after hashing, this is actually submitted to the score
   const userId = useSignal<string | undefined>("");
   const saveState = useSignal<"idle" | "loading" | "error">("idle");
 
@@ -157,7 +158,10 @@ export default component$(() => {
                         type="text"
                         id="initials"
                         class={`monospace text-center bg-slate-800 text-slate-100 mx-auto`}
-                        onFocus$={[selectFieldOnFocus$, markTouched$]}
+                        onFocus$={[
+                          selectFieldOnFocus$,
+                          // markTouched$
+                        ]}
                         style={`width: ${GAME.INITIALS_MAX_LENGTH * 2.5}ch;`}
                         maxLength={GAME.INITIALS_MAX_LENGTH + 1} // needed the extra length??
                         defaultValue={initials.value}
@@ -212,7 +216,10 @@ export default component$(() => {
                         autocomplete="email"
                         id="email"
                         class="overflow-y-hidden mx-auto px-1.5 monospace max-w-[34ch] h-[4em] md:h-[3em] block w-full bg-slate-800 text-slate-100 resize-none"
-                        onFocus$={[selectFieldOnFocus$, markTouched$]}
+                        onFocus$={[
+                          selectFieldOnFocus$,
+                          // markTouched$
+                        ]}
                         bind:value={identifier}
                         onKeyDown$={sync$((event: KeyboardEvent) => {
                           // shift+enter to submit!
@@ -235,9 +242,11 @@ export default component$(() => {
                   }`}
                   onClick$={saveScore$}
                   disabled={
-                    touchedFields.value.length < 2 ||
-                    ctx.state.gameData.isSaved ||
-                    saveState.value === "loading"
+                    // (touchedFields.value.length < 2 && (
+                    // initials.value === "---" // if initials was not saved from last time or not changed initially
+                    //
+                    // )) ||
+                    ctx.state.gameData.isSaved || saveState.value === "loading"
                   }
                 >
                   {saveState.value === "error"
@@ -251,8 +260,10 @@ export default component$(() => {
                 <div class="absolute left-[calc(50%+0.5rem+2.75em)] top-[calc(50%-0.25em-0.5rem)]">
                   <InfoTooltip>
                     <div class="max-w-[18em]">
+                      {/*
                       Touch both fields before saving. 
                       <br />
+*/}
                       Hint: Shift-Enter in the textbox to save.
                     </div>
                   </InfoTooltip>
