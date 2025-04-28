@@ -103,8 +103,7 @@ export enum iSelectCardEnum {
 export enum GameStateEnum {
   IDLE = "IDLE",
   STARTED = "STARTED",
-  ENDED_WIN = "ENDED_WIN",
-  ENDED_LOSE = "ENDED_LOSE",
+  ENDED = "ENDED",
 }
 export type iGameState = keyof typeof GameStateEnum;
 
@@ -150,6 +149,7 @@ export type iInterfaceSettings = {
   };
   endOfGameModal: {
     isShowing: boolean;
+    isWin: boolean;
   };
 };
 

@@ -129,8 +129,7 @@ export const useGameContextProvider = ({
 
     // if game has ended (and settings is not shown) then toggle endOfGameModal
     if (
-      (state.gameData.gameState === GameStateEnum.ENDED_WIN ||
-        state.gameData.gameState === GameStateEnum.ENDED_LOSE) &&
+      state.gameData.gameState === GameStateEnum.ENDED &&
       !state.interfaceSettings.settingsModal.isShowing
     ) {
       if (state.interfaceSettings.endOfGameModal.isShowing) {
@@ -183,9 +182,8 @@ export const useGameContextProvider = ({
 
   const endGame = $(function (isWin: boolean) {
     timer.stop();
-    state.gameData.gameState = isWin
-      ? GameStateEnum.ENDED_WIN
-      : GameStateEnum.ENDED_LOSE;
+    state.gameData.gameState = GameStateEnum.ENDED;
+    state.interfaceSettings.endOfGameModal.isWin = isWin;
     showEndOfGameModal();
 
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "endGame:", {

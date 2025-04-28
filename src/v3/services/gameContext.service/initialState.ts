@@ -178,6 +178,7 @@ const INTERFACE_SETTINGS: iInterfaceSettings = {
   },
   endOfGameModal: {
     isShowing: false,
+    isWin: false,
   },
   /** not used currently */
   inverseSettingsModal: {

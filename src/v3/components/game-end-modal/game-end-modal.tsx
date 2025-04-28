@@ -1,4 +1,4 @@
-import { component$, $, useSignal } from "@builder.io/qwik";
+import { component$, $, useSignal, sync$ } from "@builder.io/qwik";
 import PixelAvatar from "../pixel-avatar/pixel-avatar";
 import Button from "../atoms/button/button";
 import Modal from "../templates/modal/modal";
@@ -10,7 +10,6 @@ import GameSettings from "../organisms/game-settings/game-settings";
 import serverDbService from "~/v3/services/db";
 import { msToDs } from "~/v3/utils/formatTime";
 import GAME from "~/v3/constants/game";
-import { GameStateEnum } from "~/v3/types/types";
 import { useDefaultHash } from "~/routes/game";
 import { getRandomBytesBrowser } from "~/v3/utils/hashUtils";
 import { selectFieldOnFocus$ } from "~/v3/handlers/handlers";
@@ -23,6 +22,12 @@ export default component$(() => {
   const { unsavedUserSettings, saveOrResetSettings$, ctx, scrollToTopRef } =
     useSyncedSettings("endOfGameModal");
   const defaultHash = useDefaultHash();
+
+  const touchedFields = useSignal<string[]>([]);
+  const markTouched$ = $((_: Event, t: HTMLElement) => {
+    if (touchedFields.value.includes(t.tagName)) return;
+    touchedFields.value = [...touchedFields.value, t.tagName];
+  });
 
   const initials = useSignal("---");
   const initialsRef = useSignal<HTMLInputElement>(); // to manipulate the input
@@ -57,6 +62,7 @@ export default component$(() => {
       // console.log("saved!", { saved });
       ctx.handle.showScoresModal();
       saveState.value = "idle";
+      touchedFields.value.length = 0;
       // don't close end of game modal, so after closing scores can hit Play Again
     } catch (err) {
       saveState.value = "error";
@@ -69,7 +75,7 @@ export default component$(() => {
       isShowing={ctx.state.interfaceSettings.endOfGameModal.isShowing}
       hideModal$={ctx.handle.hideEndOfGameModal}
       title={
-        ctx.state.gameData.gameState === GameStateEnum.ENDED_WIN
+        ctx.state.interfaceSettings.endOfGameModal.isWin
           ? "You Win!"
           : "Game Over"
       }
@@ -151,6 +157,7 @@ export default component$(() => {
                         type="text"
                         id="game-end-modal-input-initials"
                         class={`monospace text-center bg-slate-800 text-slate-100 mx-auto`}
+                        onFocus$={[selectFieldOnFocus$, markTouched$]}
                         style={`width: ${GAME.INITIALS_MAX_LENGTH * 2.5}ch;`}
                         maxLength={GAME.INITIALS_MAX_LENGTH + 1} // needed the extra length??
                         defaultValue={initials.value}
@@ -167,7 +174,6 @@ export default component$(() => {
                           initials.value = newString;
                           saveState.value = "idle";
                         }}
-                        onFocus$={selectFieldOnFocus$}
                       />
                     </div>
 
@@ -179,12 +185,14 @@ export default component$(() => {
                         Identifier:
                         <Asterisk />
                         <InfoTooltip>
-                          <Asterisk /> Identifier is never saved or sent
-                          anywhere. It's only to generate your avatar. If you
-                          want your avatar to be consistent across games and
-                          devices, use something unique and consistent like your
-                          name or email. The data is hashed and used to
-                          determine pixel placement.
+                          <div class="max-w-[18em]">
+                            Identifier is never saved or sent anywhere. It's
+                            only to generate your avatar. If you want your
+                            avatar to be consistent across games and devices,
+                            use something unique and consistent like your name
+                            or email. The data is hashed and used to determine
+                            pixel placement.
+                          </div>
                         </InfoTooltip>
                       </label>
                       <button
@@ -200,17 +208,20 @@ export default component$(() => {
                       </button>
 
                       <textarea
+                        name="email"
+                        autocomplete="email"
                         id="game-end-modal-input-identifier"
                         class="overflow-y-hidden mx-auto px-1.5 monospace max-w-[34ch] h-[4em] md:h-[3em] block w-full bg-slate-800 text-slate-100 resize-none"
-                        onFocus$={selectFieldOnFocus$}
+                        onFocus$={[selectFieldOnFocus$, markTouched$]}
                         bind:value={identifier}
-                        onKeyDown$={(event: KeyboardEvent) => {
+                        onKeyDown$={sync$((event: KeyboardEvent) => {
                           // shift+enter to submit!
                           saveState.value = "idle";
                           if (event.key === "Enter" && event.shiftKey) {
                             saveScore$();
+                            event.preventDefault();
                           }
-                        }}
+                        })}
                       />
                     </div>
                   </div>
@@ -224,7 +235,9 @@ export default component$(() => {
                   }`}
                   onClick$={saveScore$}
                   disabled={
-                    ctx.state.gameData.isSaved || saveState.value === "loading"
+                    touchedFields.value.length < 2 ||
+                    ctx.state.gameData.isSaved ||
+                    saveState.value === "loading"
                   }
                 >
                   {saveState.value === "error"
