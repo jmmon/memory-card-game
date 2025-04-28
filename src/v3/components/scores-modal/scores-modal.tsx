@@ -353,9 +353,13 @@ export default component$(() => {
   });
 
   // update filter when user changes their decksize from settings
+  // e.g. when playing again, this will update the filter
   useTask$(({ track }) => {
     track(() => ctx.state.userSettings.deck.size);
     queryStore.deckSizesFilter = [ctx.state.userSettings.deck.size];
+    // reset page number in case previously was on a differeent page
+    // because that other page might not exist on new deckSizesFilter
+    queryStore.pageNumber = 1;
   });
 
   /*
