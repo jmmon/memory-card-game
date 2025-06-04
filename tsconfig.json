@@ -20,7 +20,7 @@
       "~/*": ["./src/*"]
     }
   },
-  "files": ["./.eslintrc.cjs"],
+  "/\/": "\"files\": [\".old.eslintrc.cjs\"]",
   "include": ["src", "./*.d.ts", "./*.config.ts"]
 }
 
