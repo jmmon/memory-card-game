@@ -68,7 +68,7 @@ export const useVisibilityChange = ({
       if (evt.type in evtMap) {
         document.body.dataset["visibilitychange"] = evtMap[evt.type];
       } else {
-        // @ts-ignore
+        // @ts-expect-error unknown
         document.body.dataset["visibilitychange"] = this[hidden]
           ? "hidden"
           : "visible";
