@@ -11,7 +11,7 @@ import CardView from "~/v3/components/molecules/card-view/card-view";
 import type { iCoords, iCard } from "~/v3/types/types";
 import type { FunctionComponent } from "@builder.io/qwik";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
-import { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
+import GAME, { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
 import logger from "~/v3/services/logger";
 
 type FlipTransform = {
@@ -118,22 +118,23 @@ export default component$<CardProps>(({ card, index }) => {
 
     // for -1 case, can tweak constants to change percent positions for deck initialization
     //    startingPosition is calculated inside handle.initializeDeck
-    let newCoords: iCoords;
-    if (card.position === -1) {
-      newCoords = ctx.state.gameData.startingCoords;
-      // append the transform with a scale
-      shuffleTransform.value += ` scale(${ctx.state.gameData.startingScale}) `;
-    } else {
-      newCoords = cardUtils.getXYFromPosition(
-        card.position,
-        ctx.state.boardLayout.columns,
-      );
-    }
+    const newCoords =
+      card.position === -1
+        ? ctx.state.gameData.startingCoords
+        : cardUtils.getXYFromPosition(
+            card.position,
+            ctx.state.boardLayout.columns,
+          );
 
     shuffleTransform.value = cardUtils.generateShuffleTranslateTransformPercent(
       ctx.state.cardLayout,
       newCoords,
     );
+
+    if (card.position === -1) {
+      // append the transform with a scale
+      shuffleTransform.value += ` scale(${GAME.DECK_DEAL_SCALE_MIN}) `;
+    }
 
     flipTransform.value = cardUtils.generateFlipTranslateTransform(
       ctx.state.boardLayout,
@@ -157,39 +158,19 @@ export default component$<CardProps>(({ card, index }) => {
       : "",
   );
 
-  // if flipTrasnform.value.translateX > 0, we're moving to the right. We should be higher z-index since we are on the left. And vice versa.
-  // if tarnslateY > 0, we're moving down. We should be higher z-index since we are on the top. And vice versa.
-  // (middle should have the lowest z-index)
-
   // for current fan-out card, make it higher z-index
+  // then if not loading, flipped has higher than non-flipped
   const zIndex = useComputed$(() =>
     ctx.state.gameData.isLoading
       ? ctx.state.userSettings.deck.size - ctx.state.gameData.dealCardIndex ===
         index
-        ? 10
+        ? 1
         : 0
-      : Math.floor(
-          // use coords to create gradient of z-index, lowest in center and highest on edges/corners
-          (Math.abs(
-            (flipTransform.value.translateX === 0
-              ? 0
-              : flipTransform.value.translateX) / 50,
-          ) +
-            Math.abs(
-              flipTransform.value.translateY === 0
-                ? 0
-                : flipTransform.value.translateY / 50,
-            )) /
-            2,
-        ) +
-        // extra z-index for cards being flipped
-        // first number applies while card is first clicked (max necessary is > 52/2)
-        // second number applies when flipping down (slightly less and still above 52/2)
-        (isThisCardFlipped.value
-          ? 30
-          : isFaceShowing.value || matchHideDelay.value
-            ? 28
-            : 0),
+      : isThisCardFlipped.value
+        ? 2
+        : isFaceShowing.value || matchHideDelay.value
+          ? 1
+          : 0,
   );
 
   logger(DebugTypeEnum.RENDER, LogLevel.THREE, "RENDER card.tsx", { index });
@@ -285,6 +266,7 @@ const CardFlippingWrapper: FunctionComponent<CardFlippingWrapperProps> = ({
 }) => (
   <div
     data-id={card.id}
+    aria-label={isFaceShowing ? card.label : "Backside"}
     data-label="card-flipping"
     class={`w-full card-flip relative`}
     style={{
@@ -294,7 +276,9 @@ const CardFlippingWrapper: FunctionComponent<CardFlippingWrapperProps> = ({
       boxShadow: isSelected
         ? `0 0 ${roundedCornersPx}px ${roundedCornersPx}px var(--card-glow)`
         : "",
-      background: "var(--card-background-color)",
+      background: isSelected
+        ? "var(--card-glow)"
+        : "var(--card-background-color)",
       aspectRatio: BOARD.CARD_RATIO,
     }}
   >

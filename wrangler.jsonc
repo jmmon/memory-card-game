@@ -26,13 +26,56 @@
 	 * https://developers.cloudflare.com/workers/runtime-apis/bindings/
 	 */
 
+	"vars": {
+		"WRANGLER_FEATURE_FLAG_SCORES_ENABLED": "true",
+		"WRANGLER_FEATURE_FLAG_SCORES_SEED_ENABLED": "true"
+	},
+
 	"env": {
 		"preview": {
 			"vars": {
-				"TEST_ENV": "testing preview deploy from config"
+				"WRANGLER_FEATURE_FLAG_SCORES_ENABLED": "true",
+				"WRANGLER_FEATURE_FLAG_SCORES_SEED_ENABLED": "true"
+			}
+		},
+		"production": {
+			"vars": {
+				"WRANGLER_FEATURE_FLAG_SCORES_ENABLED": "true",
+				"WRANGLER_FEATURE_FLAG_SCORES_SEED_ENABLED": "false"
 			}
 		}
+	},
+
+	"d1_databases": [
+		{
+		    "binding": "DB",
+		    "database_name": "preview-scores",
+		    "database_id": "a3b8805c-a64e-4ac0-aaf6-96627c3c4791",
+			"migrations_dir": "./src/v3/db/migrations"
+		}
+
+
+			/*
+		{
+			"binding": "DB",
+			"database_name": "scores-test-2",
+			"database_id": "7bc193fe-2497-4025-b15e-56866a1abf58",
+			"migrations_dir": "./src/v3/db/migrations"
+		}
+			*/
+
+			/**
+
+    {
+      "binding": "DB",
+      "database_name": "prod-scores",
+      "database_id": "941929bc-7ddc-491b-9bea-bf1c522066c4"
     }
+
+
+*/
+
+	]
 
 
 	/**

@@ -3,7 +3,6 @@ import { ThemeEnum, iSelectCardEnum, GameStateEnum } from "~/v3/types/types";
 import type {
   iUserSettings,
   iGameData,
-  iGameSettings,
   iState,
   iCardLayout,
   iBoardLayout,
@@ -12,11 +11,12 @@ import type {
 } from "~/v3/types/types";
 
 const GAME_DATA: iGameData = {
+  IS_SCORES_ENABLED: false,
   /** for determining where deck is dealt from */
   startingCoords: { x: 0, y: 0 },
-  startingScale: GAME.DECK_DEAL_SCALE_MIN,
   lastClick: -1,
   gameState: GameStateEnum.IDLE,
+  isSaved: false,
   cards: [],
   mismatchPair: "",
   isShaking: false, // to show shaking? for mismatch pair. Wonder if can be combined with header mismatchAnimation?
@@ -162,9 +162,6 @@ const USER_SETTINGS: iUserSettings = {
   },
 };
 
-// unadjustable settings: needed?
-const GAME_SETTINGS: iGameSettings = {};
-
 const INTERFACE_SETTINGS: iInterfaceSettings = {
   isScrollable: false, // not using currently?
   /** controls score header animations */
@@ -172,16 +169,19 @@ const INTERFACE_SETTINGS: iInterfaceSettings = {
   /** controls score header animations */
   mismatchAnimation: false,
 
-  /** not used currently */
-  inverseSettingsModal: {
+  settingsModal: {
     isShowing: false,
   },
-  settingsModal: {
+  scoresModal: {
     isShowing: false,
   },
   endOfGameModal: {
     isShowing: false,
     isWin: false,
+  },
+  /** not used currently */
+  inverseSettingsModal: {
+    isShowing: false,
   },
 };
 
@@ -209,7 +209,6 @@ const INITIAL_STATE: iState = {
   cardLayout: CARD_LAYOUT,
   gameData: GAME_DATA,
   userSettings: USER_SETTINGS,
-  gameSettings: GAME_SETTINGS,
   interfaceSettings: INTERFACE_SETTINGS,
 };
 

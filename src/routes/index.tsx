@@ -15,6 +15,8 @@ import Button from "~/v3/components/atoms/button/button";
 import Popover from "~/v3/components/molecules/popover/popover";
 import INITIAL_STATE from "~/v3/services/gameContext.service/initialState";
 import useGetSavedTheme from "~/v3/hooks/useGetSavedTheme";
+import { FONT_SIZES } from "~/v3/constants/styles";
+import { useLoaderIsScoresEnabled } from "./layout";
 
 const LI_CLASSES: ClassList = "pl-2 md:pl-4";
 
@@ -69,43 +71,58 @@ const SoonTmPopover = component$(() => {
   );
 });
 
-const Instructions: FunctionComponent = () => {
+const Instructions: FunctionComponent = component$(() => {
   const actionString = "Tap/Click";
+  const isScoresEnabled = useLoaderIsScoresEnabled();
+
   return (
-    <ul class="instructions my-4 mx-auto border-box text-md grid w-full max-w-[60ch] list-disc gap-4 px-6 marker:text-slate-400 md:text-lg">
+    <ul
+      class={`instructions my-4 mx-auto border-box ${FONT_SIZES.STANDARD} grid w-full max-w-[60ch] list-disc gap-4 px-6 marker:text-slate-400`}
+    >
       <li class={LI_CLASSES}>
         <strong>{actionString}</strong> a card to view it.
         <br />
         {actionString} <strong>again</strong> to return the card to the board.
       </li>
+
       <li class={LI_CLASSES}>
         After <strong>two</strong> cards have been flipped, if the{" "}
         <strong>numbers</strong> and <strong>colors</strong> match...
         <br />
-          <code class="block bg-slate-700 p-[0.6em] py-[0.3em]">
-            (e.g. <strong>Queen</strong> of <strong>Spades</strong> with{" "}
-            <strong>Queen</strong> of <strong>Clubs</strong>; or{" "}
-            <strong>2</strong> of <strong>Hearts</strong> with{" "}
-            <strong>2</strong> of <strong>Diamonds</strong>,)
-          </code>
+        <code class="block bg-slate-700 p-[0.6em] py-[0.3em]">
+          (e.g. <strong>Queen</strong> of <strong>Spades</strong> with{" "}
+          <strong>Queen</strong> of <strong>Clubs</strong>; or{" "}
+          <strong>2</strong> of <strong>Hearts</strong> with <strong>2</strong>{" "}
+          of <strong>Diamonds</strong>,)
+        </code>
         ...you found a <strong>pair</strong> and they're removed from the board!
       </li>
+
       <li class={LI_CLASSES}>
         <strong>Clear</strong> the <strong>board</strong> to{" "}
         <strong>win!</strong>
       </li>
+
       <li class={LI_CLASSES}>
         At the end, view your <strong>game time</strong>,{" "}
         <strong>pair count,</strong> and <strong>mismatch count.</strong>
       </li>
-      <li class={`text-slate-500 ${LI_CLASSES}`}>
-        COMING SOON
-        <SoonTmPopover />: Save your score, and see how you compare to other
-        players!
-      </li>
+
+      {isScoresEnabled.value === false ? (
+        <li class={`text-slate-500 ${LI_CLASSES}`}>
+          COMING SOON
+          <SoonTmPopover />: Save your score, and see how you compare to other
+          players!
+        </li>
+      ) : (
+        <li class={LI_CLASSES}>
+          At the end, <strong>save your score</strong> and see how you compare
+          to other players!
+        </li>
+      )}
     </ul>
   );
-};
+});
 
 export const GameStarter = component$(() => {
   const unsavedUserSettings = useSignal<iUserSettings>(
@@ -134,15 +151,15 @@ export const GameStarter = component$(() => {
             class="mt-5 flex flex-grow items-center justify-around"
           >
             <Button
-              onClick$={() =>
-                (unsavedUserSettings.value = INITIAL_STATE.userSettings)
-              }
+              onClick$={() => {
+                unsavedUserSettings.value = INITIAL_STATE.userSettings;
+              }}
               classes="min-w-[5em]"
             >
               <span class="text-slate-100">Reset</span>
             </Button>
             <Link
-              class="button p-2 min-w-[5em] border border-slate-200 bg-slate-700 rounded hover:bg-slate-500 "
+              class="cursor-pointer text-center p-2 min-w-[5em] border border-slate-200 bg-slate-700 rounded hover:bg-slate-500 "
               href={playHref.value}
             >
               <span class="text-slate-100">Play!</span>

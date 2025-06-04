@@ -1,21 +1,56 @@
-## hash the cardIds instead of using math.random? doesn't matter the ids, as long as each card has its pair hash
-- e.g. math.random (or randomBytes e.g. 4 bytes or something small) for every new round, and append to card.text ['AS' === ace of spades] then hash that string (to obfuscate)
+## Remove extra game route - make homescreen a modal and keep everything in one route
+- eliminates params consumption and loader errors
+- maybe a nice animation for swinging up the home screen (or to the side)
+
+## playable by keyboard?
+- tab the cards and space to flip card?
+- no tab index on removed cards
+- header would be at the top
+> - cycle back to top card? then could shift-tab to get to header if needed
+
+## Scores - 
+### Mobile:
+- limit to -2 count vs desktop ?
+- how to limit other than ref to watch the width??
+display: none; on two buttons, when screen is small! but then we'll hide last page or something...
+- for now just reduced by 2 everywhere
+
+## extra: save initials and identifier in localstorage? (or hash of identifier!)
+
+## deck size slider
+- debounce slightly less? from 500 to 400? 420!
+- or remove debounce; make it correct the number just before saving
+> - this saves the mobile screen jitter from blur removing the keyboard!
 
 
-## [Soon(TM)] TODO: finish scores!!!
-- cloudflare D1 sql server with drizzle to save scores
+## hotfixes css:
+## Settings button, header: [low priority]
+- Maybe move hamburger to left? move timer to middle?
+> "Memory Card Game" on game is not really readable on mobile... timer covers it!
+> - timer opacity for background??? increase lightness but add opacity
+
+
+## check pair ids, make sure they are random (enough)
 
 
 ## TODO: deck size change slider dropdown! e.g. carot button (somewhere) to reveal slider
 - can use the whole width, easier on mobile
-  - (also keep the buttons)
-- slider dark mode! darker bg/fill
+- (also keep the buttons)
+> - slider dark mode! darker bg/fill
 
-## bug:
+
+## Challenge modes:
+- save for later... next phase...
+- it will be set up as a brand new table, completely separate scorekeeping since they are not comparable to regular scores
+> then I can have the modal with a couple tabs (or something)
+
+
+## sticky table header? so you can always see the labels and sort?
+
+
+## chore: params to start game doesn't need to send the invert_cards, can pull from localstorage
 
 - less extra work for dark mode.
-> - use localstorage as single source of truth
-> - don't store in context/settings, would be much simpler
 - dark mode theme loading happens late, look into examples from qwik website
 > - insert script into head to load on startup immediately;
 > - could also check computer preferences...
@@ -42,63 +77,22 @@
 ## excited for qwik 1.14!
 
 
-
-
-
-
-
-
 ## TODO: make an about page
-
-
-
-
-
 
 
 ## TODO: darkmode brightness adjust: dim the brightness of cards via another filter?
  brightness (number) slider e.g. 100%-10%
 > - also save in localstorage
 
-## TODO: Invert Dark Mode
-- more customization?
+## TODO: Invert Dark Mode customization
 > - make it affect the svg symbols rather than the entire card
 > - then can customise how each card or symbol or color looks instead of a blanket filter
 
-## TODO: challenge modes
-- implement the challenge modes in the game context!
-
-
-
-## revisit "inverse modal"?
-### and/or game homepage flip up/forward to reveal game
-> this could be used to pre-render the game, reducing loading times for game?
-> - e.g. game is loaded on homepage, while user is reading content or clicking Play
-
-
-
-## hotfixes css:
-## Settings button, header: [low priority]
-- Memory Card Game link flows over the timer
-> - maybe change "Settings" to hamburger? 
-> - Maybe move hamburger to left? move timer to middle?
-> - maybe use left carrot for "Back", with (or replacing) "Memory Card Game" 
-> > I like having "Memory Card Game" showing though
-
-### mobile:
-#### gameplay - browser auto hide top/bottom bars: [low priority]
-1. scroll down on mobile to adjust settings
-> the top and bottom browser bar hide, making the content show on fullscreen
-2. select 10 cards, hit play
-> the top and bottom browser bar are still hidden, and cards leave a large gap at the bottom of the screen
-> if I scroll back up in the game, the bars reappear, taking up that space so it looks normal
-> - and can no longer scroll since the size is 100% height
 
 
 ## developer settings: [low priority]
 - Cancel button inside dropdown
 > - to reset checkbox states to previous settings
-
 ## TODO: lock board / etc [low priority]
 - after saving game, if board is locked, do not let layout recalculate
 - seems like after saving, it triggers a recalculation
@@ -110,11 +104,18 @@
 > e.g. preload game during homepage? in background, see through transparent layer?
 > - like render the game on home as well, and home will simply be an overlay
 > > - this would let game load on startup, would need to delay shuffling though
+> > - could shuffle in background, homepage opacity
 > - single source of truth for gamestate, to initialize deck etc after switching states?
 
+## revisit "inverse modal"?
+### and/or game homepage flip up/forward to reveal game
+> this could be used to pre-render the game, reducing loading times for game?
+> - e.g. game is loaded on homepage, while user is reading content or clicking Play
 ### make the main page transparent and the app loads behind the main page
 - so the homescreen is an overlay which moves out of the way to start the game
 > - can see the deck dealt in the backround on app load and the cards shuffling
+> - allow user to hit Play, but it would be in the loading state until done shuffling
+> > only show "Loading" after homescreen was moved out of the way
 - homescreen swings up out of the way when starting,
 > - and game re-deals if settings change
 > > - (for visual effect)

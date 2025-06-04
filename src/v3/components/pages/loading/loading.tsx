@@ -2,7 +2,6 @@ import { component$ } from "@builder.io/qwik";
 import Backdrop from "../backdrop/backdrop";
 
 type Props = {
-  blur?: boolean;
   isShowing?: boolean;
 };
 const Loading = component$<Props>(({ isShowing = true }) => (

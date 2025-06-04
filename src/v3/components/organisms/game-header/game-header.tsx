@@ -7,6 +7,7 @@ import HeaderScoresDisplay from "~/v3/components/atoms/header-scores-display/hea
 
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 import HeaderSettingsButton from "../../atoms/header-settings-button/header-settings-button";
+import Button from "../../atoms/button/button";
 
 export default component$(() => {
   const ctx = useGameContextService();
@@ -23,6 +24,19 @@ export default component$(() => {
           <HeaderGameDimensions />
         )}
         <HeaderTimerDisplay />
+
+        {ctx.state.gameData.IS_SCORES_ENABLED && (
+          <Button
+            classes={`my-auto sm:my-0 sm:px-4`}
+            onClick$={() =>
+              ctx.state.interfaceSettings.scoresModal.isShowing === true
+                ? ctx.handle.hideScoresModal()
+                : ctx.handle.showScoresModal()
+            }
+          >
+            Scores
+          </Button>
+        )}
       </HeaderSection>
 
       <HeaderSettingsButton />

@@ -123,15 +123,16 @@ export default component$(() => {
         unflipCard();
         return;
       }
-      // card is not flipped
-      if (isClickedOnCard) {
-        // initialize game timer on first click
-        if (!ctx.timer.state.isStarted) {
-          ctx.handle.startGame();
-        }
 
-        handleClickUnflippedCard(clickedId);
+      if (!isClickedOnCard) {
+        return;
       }
+
+      // initialize game timer on first click
+      if (!ctx.timer.state.isStarted) {
+        ctx.handle.startGame();
+      }
+      handleClickUnflippedCard(clickedId);
     },
   );
 
@@ -192,7 +193,7 @@ export default component$(() => {
   });
 
   useStyles$(`
-/* move to global? unless it uses variables */
+  /* move to global? unless it uses variables */
     .card-face img {
       width: 100%;
       height: auto;
@@ -206,17 +207,18 @@ export default component$(() => {
     }
 
     .card-flip {
-      /*
-        understanding cubic bezier: we control the two middle points
-        [ t:0, p:0 ], (t:0.2, p:1.285), (t:0.32, p:1.075), [t:1, p:1]
-        t == time, p == animationProgress
-        e.g.:
-        - so at 20%, our animation will be 128.5% complete,
-        - then at 32% ouranimation will be 107.5% complete,
-        - then finally at 100% our animation will complete
-      * */
-      transition-property: all;
+
 /*         transition-timing-function: cubic-bezier(0.35, 1.2, 0.60, 1.045); */
+      /*
+       *  understanding cubic bezier: we control the two middle points
+       *  [ t:0, p:0 ], (t:0.2, p:1.285), (t:0.32, p:1.075), [t:1, p:1]
+       *  t == time, p == animationProgress
+       *  e.g.:
+       *  - so at 20%, our animation will be 128.5% complete, -- reduce this complete amount to reduce overflip amount
+       *  - then at 32% ouranimation will be 107.5% complete,
+       *  - (then finally at 100% our animation will complete)
+       * */
+      transition-property: all;
       transition-timing-function: cubic-bezier(0.20, 1.285, 0.32, 1.075);
       transform-style: preserve-3d;
       transition-duration: ${BOARD.CARD_FLIP_ANIMATION_DURATION}ms;

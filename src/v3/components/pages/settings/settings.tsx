@@ -28,23 +28,23 @@ export default component$(() => {
         }
       >
         {ctx.timer.state.time > 0 && <GameStats q:slot="game-stats" />}
-
-        <div
-          q:slot="footer"
-          class="mt-5 flex flex-grow items-center justify-around"
-        >
-          <Button onClick$={saveOrResetSettings$}>
-            <span class="text-slate-100">Reset Game</span>
-          </Button>
-          <Button
-            onClick$={() => {
-              saveOrResetSettings$(unsavedUserSettings);
-            }}
-          >
-            <span class="text-slate-100">Save &amp; Reset</span>
-          </Button>
-        </div>
       </GameSettings>
+
+      <div
+        q:slot="footer"
+        class="mt-5 flex flex-grow items-center justify-around"
+      >
+        <Button onClick$={saveOrResetSettings$}>
+          <span class="text-slate-100">Reset Game</span>
+        </Button>
+        <Button
+          onClick$={() => {
+            saveOrResetSettings$(unsavedUserSettings);
+          }}
+        >
+          <span class="text-slate-100">Save &amp; Reset</span>
+        </Button>
+      </div>
     </Modal>
   );
 });
