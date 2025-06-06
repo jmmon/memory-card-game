@@ -15,6 +15,8 @@
     "build.preview": "vite build --ssr src/entry.preview.tsx",
     "build.server": "vite build -c adapters/cloudflare-pages/vite.config.ts",
     "build.types": "tsc --incremental --noEmit",
+    "deploy-clean:master": "git checkout cloudflare-master && pnpm run build.clean && pnpm run deploy:master",
+    "deploy-clean:stage": "git checkout cloudflare-stage && pnpm run build.clean && pnpm run deploy:stage",
     "deploy:master": "wrangler pages deploy ./dist --branch=cloudflare-master",
     "deploy:stage": "wrangler pages deploy ./dist --branch=cloudflare-stage",
     "dev": "vite --mode ssr",
