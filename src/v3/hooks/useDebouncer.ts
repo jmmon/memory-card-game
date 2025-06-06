@@ -23,7 +23,7 @@ export const useDebouncer$ = implicit$FirstArg(useDebouncerQrl);
 // debounce with adjustable delay
 // only takes an object as return function args
 // can call without args, and the first argument then will be the delay
-export const useAdjustableDebouncerQrl = <A extends Object, R>(
+export const useAdjustableDebouncerQrl = <A extends object, R>(
   fn: QRL<((args: A) => R) | (() => R)>,
   delay: number,
 ): QRL<(args?: A, delay?: number) => void> => {
