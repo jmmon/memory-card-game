@@ -11,7 +11,7 @@ export type DrizzleDb = DrizzleD1Database<typeof DatabaseSchema> & {
 let _db: DrizzleDb;
 
 export function getDB() {
-  // eslint-disable-next-line
+   
   if (!_db) {
     throw new Error("DB not set");
   }
@@ -19,7 +19,7 @@ export function getDB() {
 }
 
 export async function initializeDbIfNeeded(factory: () => Promise<DrizzleDb>) {
-  // eslint-disable-next-line
+   
   if (!_db) {
     _db = await factory();
   }

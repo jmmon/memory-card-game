@@ -64,7 +64,7 @@ export function useAccomodateScrollbar<T extends HTMLElement>(
   });
 
   return { scrollbarWidth, isElementScrollable } as {
-    scrollbarWidth: Readonly<Signal<Number>>;
-    isElementScrollable: Readonly<Signal<Boolean>>;
+    scrollbarWidth: Readonly<Signal<number>>;
+    isElementScrollable: Readonly<Signal<boolean>>;
   };
 }

@@ -12,7 +12,7 @@ type PreloadAllProps = {
 
 export const PreloadAll = component$<PreloadAllProps>(
   ({ rel = "modulepreload", fetchPriority = "low" }) => {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+     
     const bundles = Object.keys(manifest.bundles ?? {}).map(
       (bundle) => `/build/${bundle}`,
     );

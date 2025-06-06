@@ -5,7 +5,7 @@ export const ModulePreload = component$(() => {
     "load",
     sync$(async () => {
       // for safari support
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+       
       if (!window.requestIdleCallback) {
         window.requestIdleCallback = (
           callback: IdleRequestCallback,

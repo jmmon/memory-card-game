@@ -142,7 +142,7 @@ export const useTimer = ({
       intervalId = setInterval(updateRunningTime, 98);
 
       updateRunningTime(); // run immediately also
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+       
     } else if (status === "STOPPED" && (state.isPaused || state.isEnded)) {
       blinkId = setInterval(() => {
         state.blink = !state.blink;
