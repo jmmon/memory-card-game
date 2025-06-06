@@ -14,19 +14,18 @@ import {
   renderToStream,
   type RenderToStreamOptions,
 } from "@builder.io/qwik/server";
-import { manifest } from "@qwik-client-manifest";
 import Root from "./root";
 
 export default function(opts: RenderToStreamOptions) {
   return renderToStream(<Root />, {
-    manifest,
+    preloader: {
+      ssrPreloads: 5,
+      ssrPreloadProbability: 0.7,
+      debug: false,
+      maxIdlePreloads: 25,
+      preloadProbability: 0.35,
+    },
     ...opts,
-    // prefetchStrategy: {
-    //   implementation: {
-    //     linkInsert: "html-append"
-    //   },
-    // },
-    // qwikPrefetchServiceWorker: { include: true },
 
     // Use container attributes to set attributes on the html tag.
     containerAttributes: {
@@ -38,3 +37,4 @@ export default function(opts: RenderToStreamOptions) {
     }
   });
 }
+
