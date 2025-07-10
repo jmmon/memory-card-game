@@ -1,8 +1,10 @@
 import {
   component$,
-  useComputed$,
+  isServer,
+  // useComputed$,
   useSignal,
   useStyles$,
+  useTask$,
 } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
 import Dropdown from "~/v3/components/molecules/dropdown/dropdown";
@@ -129,10 +131,15 @@ export const GameStarter = component$(() => {
     INITIAL_STATE.userSettings,
   );
   useGetSavedTheme({ unsavedUserSettings });
+  // don't useComputed$ because it acts like a loader and has trouble
+  // with the utils
+  const playHref = useSignal("/game/");
 
-  const playHref = useComputed$(() => {
+  useTask$(({ track }) => {
+    track(unsavedUserSettings);
+    if (isServer) return;
     const params = pruneDefaultsFromSettings(unsavedUserSettings.value);
-    return `/game/${params}`;
+    playHref.value = `/game/${params}`;
   });
 
   return (

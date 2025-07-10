@@ -19,7 +19,7 @@ const toType = (value: string) => {
   }
 };
 
-export const toString = (value: number | boolean | string) => {
+export const valueToString = (value: number | boolean | string) => {
   switch (true) {
     case value === true:
       return "true";
@@ -54,7 +54,7 @@ export const flattenObjectToEntries = (
       const nested = result.concat(flattenObjectToEntries(value, prefixedKey));
       result = nested;
     } else {
-      const stringValue = toString(value);
+      const stringValue = valueToString(value);
       result.push([prefixedKey, stringValue]);
     }
   }

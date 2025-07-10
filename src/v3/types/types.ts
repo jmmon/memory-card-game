@@ -134,6 +134,7 @@ export type iUserSettings = iSchemas["userSettings"] & {
 };
 
 // settings the user will not change
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type iGameSettings = {};
 
 export type iInterfaceSettings = {
