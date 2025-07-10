@@ -15,36 +15,36 @@ const genId = (length = 5) =>
     .join("");
 
 //backup generator
-function v3GenerateDeck(total: number = FULL_DECK_COUNT) {
-  const unshuffledCards: iCard[] = [];
-  // build cards, pair by pair
-  for (let i = 0; i < total / 2; i++) {
-    const thisId = genId();
-    const id1 = Number(thisId + "0");
-    const id2 = Number(thisId + "1");
-    const num = i * 2;
-
-    const card1 = {
-      id: id1,
-      text: `card text ${num} a`,
-      pairId: id2,
-      position: num, // eventually should be a random position
-      prevPosition: null,
-      isMismatched: false,
-    };
-    const card2 = {
-      id: id2,
-      text: `card text ${num + 1} b`,
-      pairId: id1,
-      position: num + 1, // eventually should be a random position
-      prevPosition: null,
-      isMismatched: false,
-    };
-
-    unshuffledCards.push(card1, card2);
-  }
-  return unshuffledCards;
-}
+// function v3GenerateDeck(total: number = FULL_DECK_COUNT) {
+//   const unshuffledCards: iCard[] = [];
+//   // build cards, pair by pair
+//   for (let i = 0; i < total / 2; i++) {
+//     const thisId = genId();
+//     const id1 = Number(thisId + "0");
+//     const id2 = Number(thisId + "1");
+//     const num = i * 2;
+//
+//     const card1: iCard = {
+//       id: id1,
+//       indexString: `card text ${num} a`,
+//       label: `card text ${num} a`,
+//       pairId: id2,
+//       position: num, // eventually should be a random position
+//       prevPosition: null,
+//     };
+//     const card2: iCard = {
+//       id: id2,
+//       indexString: `card text ${num + 1} b`,
+//       label: `card text ${num + 1} b`,
+//       pairId: id1,
+//       position: num + 1, // eventually should be a random position
+//       prevPosition: null,
+//     };
+//
+//     unshuffledCards.push(card1, card2);
+//   }
+//   return unshuffledCards;
+// }
 
 // this shuffles indices into the remaining array
 function v3Shuffle_FY_algo<T>(_array: T[]): T[] {
@@ -127,7 +127,7 @@ const deckUtils = {
   shuffleDeckAndRefreshIds,
   v3Shuffle_FY_algo,
   genId,
-  v3GenerateDeck,
+  // v3GenerateDeck,
   FULL_DECK_COUNT,
 };
 

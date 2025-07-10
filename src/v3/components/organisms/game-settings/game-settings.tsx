@@ -7,14 +7,14 @@ import Dropdown from "~/v3/components/molecules/dropdown/dropdown";
 
 import { settingsModalConstants } from "~/v3/constants/settings-modal-constants";
 import type { iUserSettings } from "~/v3/types/types";
-import type { ClassList, PropFunction, Signal } from "@builder.io/qwik";
+import type { ClassList, QRL, Signal } from "@builder.io/qwik";
 import InfoTooltip from "../info-tooltip/info-tooltip";
 import DeckSizeChanger from "../../molecules/deck-size-changer/deck-size-changer";
 import InputToggle from "../../atoms/input-toggle/input-toggle";
 
 type GameSettingsProps = {
   unsavedUserSettings: Signal<iUserSettings>;
-  startShuffling$?: PropFunction<() => void>;
+  startShuffling$?: QRL<() => void>;
   classes?: ClassList;
   isShufflingDisabled?: boolean;
 };
@@ -68,7 +68,6 @@ export default component$<GameSettingsProps>(
               <DeckSizeChanger
                 userSettings={unsavedUserSettings}
                 isLocked={unsavedUserSettings.value.deck.isLocked}
-                for="game-settings"
               />
             </ModalRow>
           </div>
@@ -180,9 +179,9 @@ export default component$<GameSettingsProps>(
           <div class="grid gap-1 p-[min(12px,2.5vw)]">
             <ModalRow>
               <InputToggle
+                checked={unsavedUserSettings.value.interface.invertCardColors}
                 onChange$={handleChange$}
-                settings={unsavedUserSettings.value}
-                propertyPath="interface.invertCardColors"
+                propertyPath="interface.invertCardColors" // used for onChange
               >
                 <div class="flex flex-wrap gap-x-2" q:slot="label">
                   <span>Dark Mode</span>
@@ -265,7 +264,10 @@ const Help = () => (
   <Dropdown buttonText="Help" buttonClasses="w-full">
     <div class="w-full p-3">
       <ul class="grid w-full leading-5 list-disc gap-2 text-left text-slate-100">
-        <li>Select cards by clicking on them.</li>
+        <li>
+          Select cards by clicking/tapping on them. Your selected cards have a
+          green glow.
+        </li>
         <li>
           Cards are matched when the two selected cards have the same number and
           the color matches (i.e. red with red, black with black).

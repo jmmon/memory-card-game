@@ -1,10 +1,10 @@
 import { Slot, component$ } from "@builder.io/qwik";
-import type { ClassList, PropFunction } from "@builder.io/qwik";
+import type { ClassList, QRL } from "@builder.io/qwik";
 import type { iUserSettings } from "~/v3/types/types";
 
 type InputLock = {
   text: string;
-  onChange$: PropFunction<(e: Event, t: HTMLInputElement) => void>;
+  onChange$: QRL<(e: Event, t: HTMLInputElement) => void>;
   settings: iUserSettings;
   propertyPath: string;
   classes?: ClassList;

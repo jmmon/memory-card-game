@@ -4,7 +4,7 @@ import GAME from "~/v3/constants/game";
 import type { ClassList, Signal } from "@builder.io/qwik";
 import type { iUserSettings } from "~/v3/types/types";
 import InfoTooltip from "../../organisms/info-tooltip/info-tooltip";
-import { useDebouncer$ } from "~/v3/hooks/useDebouncer";
+import { useDebouncerQrl } from "~/v3/hooks/useDebouncer";
 import MinusIcon from "~/media/icons/minus.svg?jsx";
 import PlusIcon from "~/media/icons/plus.svg?jsx";
 import { selectFieldOnFocus$ } from "~/v3/handlers/handlers";
@@ -15,15 +15,24 @@ const BUTTON_STYLES: ClassList =
 type DeckSizeChangerProps = {
   userSettings: Signal<iUserSettings>;
   isLocked?: boolean;
-  for?: string;
+  name?: string;
 };
-export default component$<DeckSizeChangerProps>((props) => {
-  const name = `deck-size-changer${props.for ? `-${props.for}` : ""}`;
+export default component$<DeckSizeChangerProps>(({ userSettings, isLocked, name = "" }) => {
+  const _name = `deck-size-changer${name ? `-${name}` : ""}`;
   const inputRef = useSignal<HTMLInputElement>();
 
-  const handleChangeSize$ = $((_: Event, t: HTMLButtonElement) => {
-    const oldValue = props.userSettings.value.deck.size;
-    let newValue = oldValue + (t.name === `${name}-increment` ? 2 : -2);
+  const handleChangeSize$ = $((_: Event, t: HTMLButtonElement | HTMLInputElement) => {
+    let newValue = userSettings.value.deck.size;
+    if (t.tagName === 'BUTTON') {
+      newValue += (t.name === `${_name}-increment` ? 2 : -2);
+    } else {
+      // is input change
+      if (t.value === "") return;
+      newValue = Number(t.value);
+      if (newValue % 2 !== 0) {
+        newValue++;
+      }
+    }
 
     newValue = Math.min(
       Math.max(GAME.DECK_SIZE_MIN, newValue),
@@ -31,63 +40,47 @@ export default component$<DeckSizeChangerProps>((props) => {
     );
 
     // modify the signal directly
-    props.userSettings.value = {
-      ...props.userSettings.value,
+    userSettings.value = {
+      ...userSettings.value,
       deck: {
-        ...props.userSettings.value.deck,
+        ...userSettings.value.deck,
         size: newValue,
       },
     };
-  });
-
-  const debouncedSetSize$ = useDebouncer$((_: Event, t: HTMLInputElement) => {
-    if (t.value === "") return;
-    let newValue = Number(t.value);
-    if (newValue % 2 !== 0) {
-      newValue++;
-    }
-    newValue = Math.min(
-      Math.max(GAME.DECK_SIZE_MIN, newValue),
-      GAME.DECK_SIZE_MAX,
-    );
-    props.userSettings.value = {
-      ...props.userSettings.value,
-      deck: {
-        ...props.userSettings.value.deck,
-        size: newValue,
-      },
-    };
-    // assert the ref has a value to the ts compiler (similar to "as HTMLInputElement")
+    
+    // for input
     inputRef.value!.value = String(newValue);
     inputRef.value!.blur();
-  }, 500);
+  });
+
+  const debouncedSetSize$ = useDebouncerQrl(handleChangeSize$, 500);
 
 
+  // hide the up/down arrows on the input
   useStylesScoped$(`
     input::-webkit-outer-spin-button,
     input::-webkit-inner-spin-button {
         -webkit-appearance: none;
         margin: 0;
     }
-    input[type=number]{
+    input[type=number] {
         -moz-appearance: textfield;
     }
   `);
 
   return (
     <div class="flex w-full flex-grow items-center justify-center gap-[2%] py-1.5">
-      <label class="w-6/12 text-left text-slate-100" for={name}>
+      <label class="w-6/12 text-left text-slate-100" for={_name}>
         Card Count:
       </label>
       <div class="grid grid-cols-[1fr_auto_1fr] gap-4 items-center justify-center text-slate-100">
         <button
-          name={name + "-decrement"}
-          id={name + "-decrement"}
+          name={_name + "-decrement"}
           class={BUTTON_STYLES}
           onClick$={handleChangeSize$}
           disabled={
-            props.isLocked ||
-            props.userSettings.value.deck.size <= GAME.DECK_SIZE_MIN
+            isLocked ||
+            userSettings.value.deck.size <= GAME.DECK_SIZE_MIN
           }
         >
           <MinusIcon style="width: 16px; height: 16px"/>
@@ -96,21 +89,22 @@ export default component$<DeckSizeChangerProps>((props) => {
           onInput$={debouncedSetSize$}
           ref={inputRef}
           type="number"
+          name={_name}
+          id={_name}
           max={GAME.DECK_SIZE_MAX}
           min={GAME.DECK_SIZE_MIN}
           step="2"
           class="w-8 bg-slate-700 text-center text-slate-100 h-6"
-          value={props.userSettings.value.deck.size}
+          value={userSettings.value.deck.size}
           onFocus$={selectFieldOnFocus$}
         />
         <button
-          name={name + "-increment"}
-          id={name + "-increment"}
+          name={_name + "-increment"}
           class={BUTTON_STYLES}
           onClick$={handleChangeSize$}
           disabled={
-            props.isLocked ||
-            props.userSettings.value.deck.size >= GAME.DECK_SIZE_MAX
+            isLocked ||
+            userSettings.value.deck.size >= GAME.DECK_SIZE_MAX
           }
         >
           <PlusIcon style="width: 16px; height: 16px"/>
@@ -122,6 +116,9 @@ export default component$<DeckSizeChangerProps>((props) => {
         <div class="mt-1 text-slate-300">
           (Range: <strong>{GAME.DECK_SIZE_MIN}</strong> to{" "}
           <strong>{GAME.DECK_SIZE_MAX}</strong>)
+        </div>
+        <div class="mt-1 text-slate-300">
+          (Hint: Type a number in the box!)
         </div>
       </InfoTooltip>
     </div>

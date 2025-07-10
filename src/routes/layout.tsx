@@ -1,10 +1,28 @@
 import { component$, Slot, useStyles$ } from "@builder.io/qwik";
-import type { DocumentHead, RequestHandler } from "@builder.io/qwik-city";
+import {
+  routeLoader$,
+  server$,
+  type DocumentHead,
+  type RequestHandler,
+} from "@builder.io/qwik-city";
 
 import styles from "./styles.css?inline";
 import HEAD_CONSTANTS from "~/v3/constants/head";
 import CardSymbols from "~/v3/components/playing-card-components/symbols/card-symbols";
 import FaceCardSymbols from "~/v3/components/playing-card-components/symbols/face-card-symbols";
+// import IconDefs from "~/v3/components/svg-icons/icon-defs";
+
+export const useLoaderIsScoresEnabled = routeLoader$(function ({ env }) {
+  console.log(
+    "loader: isEnabled:",
+    env.get("WRANGLER_FEATURE_FLAG_SCORES_ENABLED"),
+  );
+  return env.get("WRANGLER_FEATURE_FLAG_SCORES_ENABLED") === "true";
+});
+
+export const serverIsScoresEnabled = server$(function () {
+  return this.env.get("WRANGLER_FEATURE_FLAG_SCORES_ENABLED") === "true";
+});
 
 export const onGet: RequestHandler = async (requestEvent) => {
   // Control caching for this request for best performance and to reduce hosting costs:
@@ -30,6 +48,9 @@ export default component$(() => {
       {/* SVG card symbols pre-rendered but hidden; so cards can build from these */}
       <CardSymbols />
       <FaceCardSymbols />
+      {/*
+      <IconDefs />
+      */}
     </main>
   );
 });

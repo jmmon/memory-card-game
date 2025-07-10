@@ -5,7 +5,6 @@
  *
  * */
 
-import type { iCard } from "~/v3/types/types";
 import deckUtils from "./deckUtils";
 
 const PARTIAL_DECK_API = "https://deckofcardsapi.com/api/deck/new/?cards=";
@@ -105,55 +104,55 @@ export const getCardsFromApi = async (cardCount: number) => {
   }
 };
 
-export const formatCards = (cards: DeckOfCardsApi_Card[]) => {
-  const outputCards: iCard[] = [];
-  for (let i = 0; i < cards.length / 2; i++) {
-    const num = i * 2;
-    const thisCard1 = cards[num];
-    const thisCard2 = cards[num + 1];
-
-    const thisId = deckUtils.genId();
-    const id1 = Number(thisId + "0");
-    const id2 = Number(thisId + "1");
-
-    const newCard1 = {
-      id: id1,
-      text: thisCard1.code,
-      pairId: id2,
-      position: num,
-      prevPosition: null,
-      isMismatched: false,
-      image: thisCard1.images[IMAGE_TYPE],
-    };
-    const newCard2 = {
-      id: id2,
-      text: thisCard2.code,
-      pairId: id1,
-      position: num + 1,
-      prevPosition: null,
-      isMismatched: false,
-      image: thisCard2.images[IMAGE_TYPE],
-    };
-
-    outputCards.push(newCard1, newCard2);
-  }
-  return outputCards;
-};
-
-// not used anymore
-export const fetchAndFormatDeck = async () => {
-  console.log("fetching cards...");
-  const cards = await getCardsFromApi(deckUtils.FULL_DECK_COUNT);
-
-  if (cards === undefined || cards.length === 0) {
-    const deck = deckUtils.v3GenerateDeck();
-    console.log("...failed, returning v3 cards");
-    return { deck, type: "v3" };
-  }
-
-  console.log(`fetched!\nformatting cards...`);
-  const formatted = formatCards(cards);
-  console.log("done!", { formatted: formatted });
-
-  return { deck: formatted, type: "api" };
-};
+// export const formatCards = (cards: DeckOfCardsApi_Card[]) => {
+//   const outputCards: iCard[] = [];
+//   for (let i = 0; i < cards.length / 2; i++) {
+//     const num = i * 2;
+//     const thisCard1 = cards[num];
+//     const thisCard2 = cards[num + 1];
+//
+//     const thisId = deckUtils.genId();
+//     const id1 = Number(thisId + "0");
+//     const id2 = Number(thisId + "1");
+//
+//     const newCard1: iCard = {
+//       id: id1,
+//       indexString: thisCard1.code,
+//       label: thisCard1.code,
+//       pairId: id2,
+//       position: num,
+//       prevPosition: null,
+//       image: thisCard1.images[IMAGE_TYPE],
+//     };
+//     const newCard2: iCard = {
+//       id: id2,
+//       indexString: thisCard2.code,
+//       label: thisCard2.code,
+//       pairId: id1,
+//       position: num + 1,
+//       prevPosition: null,
+//       image: thisCard2.images[IMAGE_TYPE],
+//     };
+//
+//     outputCards.push(newCard1, newCard2);
+//   }
+//   return outputCards;
+// };
+//
+// // not used anymore
+// export const fetchAndFormatDeck = async () => {
+//   console.log("fetching cards...");
+//   const cards = await getCardsFromApi(deckUtils.FULL_DECK_COUNT);
+//
+//   if (cards === undefined || cards.length === 0) {
+//     const deck = deckUtils.v3GenerateDeck();
+//     console.log("...failed, returning v3 cards");
+//     return { deck, type: "v3" };
+//   }
+//
+//   console.log(`fetched!\nformatting cards...`);
+//   const formatted = formatCards(cards);
+//   console.log("done!", { formatted: formatted });
+//
+//   return { deck: formatted, type: "api" };
+// };

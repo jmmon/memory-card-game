@@ -28,8 +28,8 @@ import {
 } from "~/v3/types/types";
 import logger from "../logger";
 import cardUtils from "~/v3/utils/cardUtils";
-import type { iTimer } from "~/v3/hooks/useTimer/types";
 import { FULL_DECK } from "~/v3/utils/cards";
+import type { UseTimer } from "~/v3/hooks/useTimer/types";
 
 export type GameService = ReturnType<typeof useGameContextProvider>;
 const GameContext = createContextId<GameService>("gameContext2");
@@ -42,7 +42,7 @@ export const useGameContextProvider = ({
   gameData?: Partial<iGameData>;
 }) => {
   // state
-  const timer: iTimer = useTimer();
+  const timer: UseTimer = useTimer();
   const state = useStore<iState>({
     ...INITIAL_STATE,
     userSettings: {
@@ -75,8 +75,28 @@ export const useGameContextProvider = ({
 
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "hideSettings:", {
       timerIsPaused: timer.state.isPaused,
-      ingerfaceSettingsSettingsModalIsShowing:
+      interfaceSettingsSettingsModalIsShowing:
         state.interfaceSettings.settingsModal.isShowing,
+    });
+  });
+
+  const showScoresModal = $(function () {
+    timer.pause();
+    state.interfaceSettings.scoresModal.isShowing = true;
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "showScores:", {
+      timerIsPaused: timer.state.isPaused,
+      interfaceSettingsScoresModalIsShowing:
+        state.interfaceSettings.scoresModal.isShowing,
+    });
+  });
+
+  const hideScoresModal = $(function () {
+    state.interfaceSettings.scoresModal.isShowing = false;
+    timer.resume();
+    logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "hideScores:", {
+      timerIsPaused: timer.state.isPaused,
+      ingerfaceSettingsScoresModalIsShowing:
+        state.interfaceSettings.scoresModal.isShowing,
     });
   });
 
@@ -98,10 +118,18 @@ export const useGameContextProvider = ({
     });
   });
 
-  const toggleModalOnEscape = $(function () {
+  // TODO: use only one modal but swap the contents?
+  // e.g. modalContents = "scores" | "endOfGame" | "settings"
+  // height/width would be animated
+  const toggleModal = $(function () {
+    if (state.interfaceSettings.scoresModal.isShowing) {
+      hideScoresModal();
+      return;
+    }
+
+    // if game has ended (and settings is not shown) then toggle endOfGameModal
     if (
-      (state.gameData.gameState === GameStateEnum.ENDED_WIN ||
-        state.gameData.gameState === GameStateEnum.ENDED_LOSE) &&
+      state.gameData.gameState === GameStateEnum.ENDED &&
       !state.interfaceSettings.settingsModal.isShowing
     ) {
       if (state.interfaceSettings.endOfGameModal.isShowing) {
@@ -112,6 +140,7 @@ export const useGameContextProvider = ({
       return;
     }
 
+    // else toggle settings modal
     if (state.interfaceSettings.settingsModal.isShowing) {
       hideSettingsModal();
     } else {
@@ -153,9 +182,8 @@ export const useGameContextProvider = ({
 
   const endGame = $(function (isWin: boolean) {
     timer.stop();
-    state.gameData.gameState = isWin
-      ? GameStateEnum.ENDED_WIN
-      : GameStateEnum.ENDED_LOSE;
+    state.gameData.gameState = GameStateEnum.ENDED;
+    state.interfaceSettings.endOfGameModal.isWin = isWin;
     showEndOfGameModal();
 
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "endGame:", {
@@ -197,11 +225,6 @@ export const useGameContextProvider = ({
     state.gameData.startingCoords = cardUtils.generateCenterCoords(
       boardLayout.columns,
       boardLayout.rows,
-    );
-
-    // update deck-dealing scale
-    state.gameData.startingScale = Math.max(
-      cardUtils.generateDeckDealScale(boardLayout, cardLayout), GAME.DECK_DEAL_SCALE_MIN,
     );
 
     logger(DebugTypeEnum.HANDLER, LogLevel.ONE, "calculateAndResizeBoard:", {
@@ -266,7 +289,6 @@ export const useGameContextProvider = ({
 
     const isDeckSizeChanged =
       lastDeckSize.value !== state.userSettings.deck.size;
-    lastDeckSize.value = state.userSettings.deck.size;
 
     lastDeckSize.value = state.userSettings.deck.size;
 
@@ -276,6 +298,9 @@ export const useGameContextProvider = ({
       await calculateAndResizeBoard();
     }
 
+    // make sure we change this before dealing so you don't open the end-game modal
+    state.gameData.gameState = GameStateEnum.IDLE;
+    
     startDealing({
       shouldHideSettings: true,
     });
@@ -318,7 +343,7 @@ export const useGameContextProvider = ({
     state.interfaceSettings.endOfGameModal.isShowing = false;
     state.interfaceSettings.settingsModal.isShowing = false;
 
-    state.gameData.gameState = GameStateEnum.IDLE;
+    state.gameData.isSaved = false;
     state.gameData.isShaking = INITIAL_STATE.gameData.isShaking;
     state.gameData.flippedCardId = INITIAL_STATE.gameData.flippedCardId;
     state.gameData.mismatchPair = INITIAL_STATE.gameData.mismatchPair;
@@ -459,11 +484,13 @@ export const useGameContextProvider = ({
     hideSettingsModal,
     showEndOfGameModal,
     hideEndOfGameModal,
+    showScoresModal,
+    hideScoresModal,
     isEndGameConditionsMet,
     startGame,
     endGame,
     resetGame,
-    toggleModalOnEscape,
+    toggleModal,
   };
 
   // hold the state, and the functions

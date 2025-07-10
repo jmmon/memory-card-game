@@ -5,7 +5,8 @@ import type { iCard } from "../types/types";
 export const FULL_DECK: iCard[] = [
   {
     id: 940760,
-    text: "AD",
+    indexString: "AD",
+    label: "Ace of Diamonds",
     pairId: 940761,
     position: -1,
     prevPosition: 0,
@@ -14,7 +15,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 940761,
-    text: "AH",
+    indexString: "AH",
+    label: "Ace of Hearts",
     pairId: 940760,
     position: -1,
     prevPosition: 0,
@@ -23,7 +25,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 309810,
-    text: "AC",
+    indexString: "AC",
+    label: "Ace of Clubs",
     pairId: 309811,
     position: -1,
     prevPosition: 0,
@@ -32,7 +35,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 309811,
-    text: "AS",
+    indexString: "AS",
+    label: "Ace of Spades",
     pairId: 309810,
     position: -1,
     prevPosition: 0,
@@ -41,7 +45,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 145490,
-    text: "2D",
+    indexString: "2D",
+    label: "Two of Diamonds",
     pairId: 145491,
     position: -1,
     prevPosition: 0,
@@ -50,7 +55,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 145491,
-    text: "2H",
+    indexString: "2H",
+    label: "Two of Hearts",
     pairId: 145490,
     position: -1,
     prevPosition: 0,
@@ -59,7 +65,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 190270,
-    text: "2C",
+    indexString: "2C",
+    label: "Two of Clubs",
     pairId: 190271,
     position: -1,
     prevPosition: 0,
@@ -68,7 +75,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 190271,
-    text: "2S",
+    indexString: "2S",
+    label: "Two of Spades",
     pairId: 190270,
     position: -1,
     prevPosition: 0,
@@ -77,7 +85,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 735020,
-    text: "3D",
+    indexString: "3D",
+    label: "Three of Diamonds",
     pairId: 735021,
     position: -1,
     prevPosition: 0,
@@ -86,7 +95,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 735021,
-    text: "3H",
+    indexString: "3H",
+    label: "Three of Hearts",
     pairId: 735020,
     position: -1,
     prevPosition: 0,
@@ -95,7 +105,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 890610,
-    text: "3C",
+    indexString: "3C",
+    label: "Three of Clubs",
     pairId: 890611,
     position: -1,
     prevPosition: 0,
@@ -104,7 +115,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 890611,
-    text: "3S",
+    indexString: "3S",
+    label: "Three of Spades",
     pairId: 890610,
     position: -1,
     prevPosition: 0,
@@ -113,7 +125,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 712320,
-    text: "4D",
+    indexString: "4D",
+    label: "Four of Diamonds",
     pairId: 712321,
     position: -1,
     prevPosition: 0,
@@ -122,7 +135,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 712321,
-    text: "4H",
+    indexString: "4H",
+    label: "Four of Diamonds",
     pairId: 712320,
     position: -1,
     prevPosition: 0,
@@ -131,7 +145,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 979860,
-    text: "4C",
+    indexString: "4C",
+    label: "Four of Clubs",
     pairId: 979861,
     position: -1,
     prevPosition: 0,
@@ -140,7 +155,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 979861,
-    text: "4S",
+    indexString: "4S",
+    label: "Four of Spades",
     pairId: 979860,
     position: -1,
     prevPosition: 0,
@@ -149,7 +165,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 774670,
-    text: "5D",
+    indexString: "5D",
+    label: "Five of Diamonds",
     pairId: 774671,
     position: -1,
     prevPosition: 0,
@@ -158,7 +175,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 774671,
-    text: "5H",
+    indexString: "5H",
+    label: "Five of Hearts",
     pairId: 774670,
     position: -1,
     prevPosition: 0,
@@ -167,7 +185,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 991980,
-    text: "5C",
+    indexString: "5C",
+    label: "Five of Clubs",
     pairId: 991981,
     position: -1,
     prevPosition: 0,
@@ -176,7 +195,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 991981,
-    text: "5S",
+    indexString: "5S",
+    label: "Five of Spades",
     pairId: 991980,
     position: -1,
     prevPosition: 0,
@@ -185,7 +205,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 325890,
-    text: "6D",
+    indexString: "6D",
+    label: "Six of Diamonds",
     pairId: 325891,
     position: -1,
     prevPosition: 0,
@@ -194,7 +215,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 325891,
-    text: "6H",
+    indexString: "6H",
+    label: "Six of Hearts",
     pairId: 325890,
     position: -1,
     prevPosition: 0,
@@ -203,7 +225,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 590610,
-    text: "6C",
+    indexString: "6C",
+    label: "Six of Clubs",
     pairId: 590611,
     position: -1,
     prevPosition: 0,
@@ -212,7 +235,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 590611,
-    text: "6S",
+    indexString: "6S",
+    label: "Six of Spades",
     pairId: 590610,
     position: -1,
     prevPosition: 0,
@@ -221,7 +245,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 215990,
-    text: "7D",
+    indexString: "7D",
+    label: "Seven of Diamonds",
     pairId: 215991,
     position: -1,
     prevPosition: 0,
@@ -230,7 +255,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 215991,
-    text: "7H",
+    indexString: "7H",
+    label: "Seven of Hearts",
     pairId: 215990,
     position: -1,
     prevPosition: 0,
@@ -239,7 +265,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 615530,
-    text: "7C",
+    indexString: "7C",
+    label: "Seven of Clubs",
     pairId: 615531,
     position: -1,
     prevPosition: 0,
@@ -248,7 +275,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 615531,
-    text: "7S",
+    indexString: "7S",
+    label: "Seven of Spades",
     pairId: 615530,
     position: -1,
     prevPosition: 0,
@@ -257,7 +285,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 173730,
-    text: "8D",
+    indexString: "8D",
+    label: "Eight of Diamonds",
     pairId: 173731,
     position: -1,
     prevPosition: 0,
@@ -266,7 +295,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 173731,
-    text: "8H",
+    indexString: "8H",
+    label: "Eight of Hearts",
     pairId: 173730,
     position: -1,
     prevPosition: 0,
@@ -275,7 +305,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 476300,
-    text: "8C",
+    indexString: "8C",
+    label: "Eight of Clubs",
     pairId: 476301,
     position: -1,
     prevPosition: 0,
@@ -284,7 +315,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 476301,
-    text: "8S",
+    indexString: "8S",
+    label: "Eight of Spades",
     pairId: 476300,
     position: -1,
     prevPosition: 0,
@@ -293,7 +325,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 118260,
-    text: "9D",
+    indexString: "9D",
+    label: "Nine of Diamonds",
     pairId: 118261,
     position: -1,
     prevPosition: 0,
@@ -302,7 +335,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 118261,
-    text: "9H",
+    indexString: "9H",
+    label: "Nine of Hearts",
     pairId: 118260,
     position: -1,
     prevPosition: 0,
@@ -311,7 +345,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 339380,
-    text: "9C",
+    indexString: "9C",
+    label: "Nine of Clubs",
     pairId: 339381,
     position: -1,
     prevPosition: 0,
@@ -320,7 +355,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 339381,
-    text: "9S",
+    indexString: "9S",
+    label: "Nine of Spades",
     pairId: 339380,
     position: -1,
     prevPosition: 0,
@@ -329,7 +365,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 603560,
-    text: "0D",
+    indexString: "0D",
+    label: "Ten of Diamonds",
     pairId: 603561,
     position: -1,
     prevPosition: 0,
@@ -338,7 +375,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 603561,
-    text: "0H",
+    indexString: "0H",
+    label: "Ten of Hearts",
     pairId: 603560,
     position: -1,
     prevPosition: 0,
@@ -347,7 +385,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 860980,
-    text: "0C",
+    indexString: "0C",
+    label: "Ten of Clubs",
     pairId: 860981,
     position: -1,
     prevPosition: 0,
@@ -356,7 +395,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 860981,
-    text: "0S",
+    indexString: "0S",
+    label: "Ten of Spades",
     pairId: 860980,
     position: -1,
     prevPosition: 0,
@@ -365,7 +405,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 741820,
-    text: "JD",
+    indexString: "JD",
+    label: "Jack of Diamonds",
     pairId: 741821,
     position: -1,
     prevPosition: 0,
@@ -374,7 +415,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 741821,
-    text: "JH",
+    indexString: "JH",
+    label: "Jack of Hearts",
     pairId: 741820,
     position: -1,
     prevPosition: 0,
@@ -383,7 +425,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 622610,
-    text: "JC",
+    indexString: "JC",
+    label: "Jack of Clubs",
     pairId: 622611,
     position: -1,
     prevPosition: 0,
@@ -392,7 +435,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 622611,
-    text: "JS",
+    indexString: "JS",
+    label: "Jack of Spades",
     pairId: 622610,
     position: -1,
     prevPosition: 0,
@@ -401,7 +445,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 116660,
-    text: "QD",
+    indexString: "QD",
+    label: "Queen of Diamonds",
     pairId: 116661,
     position: -1,
     prevPosition: 0,
@@ -410,7 +455,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 116661,
-    text: "QH",
+    indexString: "QH",
+    label: "Queen of Hearts",
     pairId: 116660,
     position: -1,
     prevPosition: 0,
@@ -419,7 +465,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 987380,
-    text: "QC",
+    indexString: "QC",
+    label: "Queen of Clubs",
     pairId: 987381,
     position: -1,
     prevPosition: 0,
@@ -428,7 +475,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 987381,
-    text: "QS",
+    indexString: "QS",
+    label: "Queen of Spades",
     pairId: 987380,
     position: -1,
     prevPosition: 0,
@@ -437,7 +485,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 649980,
-    text: "KD",
+    indexString: "KD",
+    label: "King of Diamonds",
     pairId: 649981,
     position: -1,
     prevPosition: 0,
@@ -446,7 +495,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 649981,
-    text: "KH",
+    indexString: "KH",
+    label: "King of Hearts",
     pairId: 649980,
     position: -1,
     prevPosition: 0,
@@ -455,7 +505,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 668400,
-    text: "KC",
+    indexString: "KC",
+    label: "King of Clubs",
     pairId: 668401,
     position: -1,
     prevPosition: 0,
@@ -464,7 +515,8 @@ export const FULL_DECK: iCard[] = [
   },
   {
     id: 668401,
-    text: "KS",
+    indexString: "KS",
+    label: "King of Spades",
     pairId: 668400,
     position: -1,
     prevPosition: 0,

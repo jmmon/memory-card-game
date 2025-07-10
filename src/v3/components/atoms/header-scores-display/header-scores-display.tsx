@@ -1,8 +1,12 @@
+import type { ClassList} from "@builder.io/qwik";
 import { component$, useStylesScoped$ } from "@builder.io/qwik";
 import { header } from "~/v3/constants/header-constants";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 
-export default component$(() => {
+type Props = {
+  classes?: ClassList;
+}
+export default component$<Props>(({classes}) => {
   const ctx = useGameContextService();
 
   // TODO: implement the challenge modes; only some may apply for animations
@@ -43,7 +47,7 @@ export default component$(() => {
 
   return (
     <code
-      class={`bg-slate-800 ${header.CODE_TEXT_LIGHT} grid w-min gap-1 ${header.CODE_PADDING}`}
+      class={`bg-slate-600/60 ${header.CODE_TEXT_LIGHT} grid w-min gap-1 ${header.CODE_PADDING} ${classes}`}
     >
       <Score
         animate={ctx.state.interfaceSettings.successAnimation}
