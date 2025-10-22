@@ -35,35 +35,37 @@
     "qwik": "qwik"
   },
   "devDependencies": {
-    "@builder.io/qwik": "^1.14.1",
-    "@builder.io/qwik-city": "^1.14.1",
-    "@cloudflare/workers-types": "^4.20250605.0",
+    "@builder.io/qwik": "^1.17",
+    "@builder.io/qwik-city": "^1.17",
+    "@cloudflare/workers-types": "^4.20250705.0",
     "@eslint/js": "latest",
     "@qwik-ui/headless": "^0.6.7",
     "@types/compression": "^1.7.2",
     "@types/eslint": "8.56.10",
-    "@types/node": "20.14.11",
+    "@types/node": "20.19.0",
     "@vitest/ui": "^0.34.6",
     "autoprefixer": "^10.4.14",
     "compression": "^1.7.4",
     "dotenv": "^16.3.2",
     "drizzle-kit": "^0.30.6",
-    "eslint": "9.25.1",
-    "eslint-plugin-qwik": "^1.14.1",
-    "globals": "16.0.0",
+    "eslint": "9.32.0",
+    "eslint-plugin-qwik": "^1.17",
+    "globals": "16.3.0",
     "node-env-run": "^4.0.2",
     "postcss": "^8.4.31",
-    "prettier": "3.3.3",
+    "postcss-nesting": "^13.0.2",
+    "prettier": "3.6.2",
     "prettier-plugin-tailwindcss": "^0.5.4",
-    "rollup": "4.39.0",
+    "rollup": "4.52.0",
     "tailwindcss": "3.3.3",
     "typescript": "5.4.5",
-    "typescript-eslint": "8.26.1",
+    "typescript-eslint": "8.38.0",
+    "typescript-plugin-css-modules": "latest",
     "undici": "*",
-    "vite": "5.4.2",
+    "vite": "7.1.7",
     "vite-tsconfig-paths": "^4.2.1",
     "vitest": "^0.34.6",
-    "wrangler": "^4.24.0"
+    "wrangler": "^4.44.0"
   },
   "dependencies": {
     "crypto-js": "^4.2.0",
@@ -72,4 +74,3 @@
     "zod": "^3.22.4"
   }
 }
-
