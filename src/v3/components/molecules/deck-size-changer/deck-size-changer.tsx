@@ -18,8 +18,34 @@ type DeckSizeChangerProps = {
   name?: string;
 };
 export default component$<DeckSizeChangerProps>(({ userSettings, isLocked, name = "" }) => {
+  // hide the up/down arrows on the input
+  useStylesScoped$(`
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+  `);
+
   const _name = `deck-size-changer${name ? `-${name}` : ""}`;
   const inputRef = useSignal<HTMLInputElement>();
+  
+  const setValue$ = $((newValue: number) => {
+    // modify the signal directly. This is the actual value being used!
+    userSettings.value = {
+      ...userSettings.value,
+      deck: {
+        ...userSettings.value.deck,
+        size: newValue,
+      },
+    };
+    
+    // for input display:
+    inputRef.value!.value = String(newValue);
+  });
 
   const handleChangeSize$ = $((_: Event, t: HTMLButtonElement | HTMLInputElement) => {
     let newValue = userSettings.value.deck.size;
@@ -39,34 +65,10 @@ export default component$<DeckSizeChangerProps>(({ userSettings, isLocked, name 
       GAME.DECK_SIZE_MAX,
     );
 
-    // modify the signal directly
-    userSettings.value = {
-      ...userSettings.value,
-      deck: {
-        ...userSettings.value.deck,
-        size: newValue,
-      },
-    };
-    
-    // for input
-    inputRef.value!.value = String(newValue);
-    inputRef.value!.blur();
+    setValue$(newValue);
   });
 
   const debouncedSetSize$ = useDebouncerQrl(handleChangeSize$, 500);
-
-
-  // hide the up/down arrows on the input
-  useStylesScoped$(`
-    input::-webkit-outer-spin-button,
-    input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-    input[type=number] {
-        -moz-appearance: textfield;
-    }
-  `);
 
   return (
     <div class="flex w-full flex-grow items-center justify-center gap-[2%] py-1.5">
@@ -86,7 +88,16 @@ export default component$<DeckSizeChangerProps>(({ userSettings, isLocked, name 
           <MinusIcon style="width: 16px; height: 16px"/>
         </button>
         <input
-          onInput$={debouncedSetSize$}
+          onInput$={(e, t) => {
+            const newValue = Number(t.value);
+            if (newValue <= GAME.DECK_SIZE_MAX && newValue >= GAME.DECK_SIZE_MIN) {
+              console.log('setting value instantly');
+              return setValue$(newValue);
+            }
+
+            console.log('value outside of range, debouncing');
+            debouncedSetSize$(e, t);
+          }}
           ref={inputRef}
           type="number"
           name={_name}

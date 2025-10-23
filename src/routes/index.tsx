@@ -161,7 +161,7 @@ export const GameStarter = component$(() => {
               onClick$={() => {
                 unsavedUserSettings.value = INITIAL_STATE.userSettings;
               }}
-              classes="min-w-[5em]"
+              class="min-w-[5em]"
             >
               <span class="text-slate-100">Reset</span>
             </Button>

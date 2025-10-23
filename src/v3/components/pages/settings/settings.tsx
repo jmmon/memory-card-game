@@ -16,35 +16,40 @@ export default component$(() => {
       hideModal$={ctx.handle.hideSettingsModal}
       title="Game Settings"
     >
-      <GameSettings
-        startShuffling$={() => ctx.handle.startShuffling({
-          shouldHideSettings: false,
-        })}
-        unsavedUserSettings={unsavedUserSettings}
-        isShufflingDisabled={
-          ctx.state.gameData.gameState !== GameStateEnum.IDLE ||
-          ctx.state.gameData.isDealing ||
-          ctx.state.gameData.isShuffling
-        }
+      <form
+        preventdefault:submit
+        onSubmit$={() => {
+          saveOrResetSettings$(unsavedUserSettings);
+        }}
       >
-        {ctx.timer.state.time > 0 && <GameStats q:slot="game-stats" />}
-      </GameSettings>
-
-      <div
-        q:slot="footer"
-        class="mt-5 flex flex-grow items-center justify-around"
-      >
-        <Button onClick$={saveOrResetSettings$}>
-          <span class="text-slate-100">Reset Game</span>
-        </Button>
-        <Button
-          onClick$={() => {
-            saveOrResetSettings$(unsavedUserSettings);
-          }}
+        <GameSettings
+          startShuffling$={() => ctx.handle.startShuffling({
+            shouldHideSettings: false,
+          })}
+          unsavedUserSettings={unsavedUserSettings}
+          isShufflingDisabled={
+            ctx.state.gameData.gameState !== GameStateEnum.IDLE ||
+            ctx.state.gameData.isDealing ||
+            ctx.state.gameData.isShuffling
+          }
         >
-          <span class="text-slate-100">Save &amp; Reset</span>
-        </Button>
-      </div>
+          {ctx.timer.state.time > 0 && <GameStats q:slot="game-stats" />}
+        </GameSettings>
+
+        <div
+          q:slot="footer"
+          class="mt-5 flex flex-grow items-center justify-around"
+        >
+          <Button onClick$={saveOrResetSettings$}>
+            <span class="text-slate-100">Reset Game</span>
+          </Button>
+          <Button
+            type="submit"
+          >
+            <span class="text-slate-100">Save &amp; Reset</span>
+          </Button>
+        </div>
+      </form>
     </Modal>
   );
 });

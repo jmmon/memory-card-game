@@ -832,10 +832,10 @@ const TableDecksizeFilterHeaderDropdown = component$<DropdownProps>(
             )}
 
             <div class="mx-auto flex w-full gap-[1.5em] max-w-[30em]">
-              <Button classes="w-full max-w-[12em]" onClick$={clear$}>
+              <Button class="w-full max-w-[12em]" onClick$={clear$}>
                 My Size Only ({defaultDeckSizeList[0]})
               </Button>
-              <Button classes="w-full" onClick$={apply$}>
+              <Button class="w-full" onClick$={apply$}>
                 Apply
               </Button>
             </div>

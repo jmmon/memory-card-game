@@ -236,7 +236,7 @@ export default component$(() => {
 
               <div class="flex py-[2%] px-[4%] relative">
                 <Button
-                  classes={`mx-auto ${
+                  class={`mx-auto ${
                     ctx.state.gameData.isSaved ? "!bg-green-600" : ""
                   }`}
                   onClick$={saveScore$}

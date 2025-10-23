@@ -8,8 +8,8 @@ import type {
 } from "@builder.io/qwik";
 
 type ButtonProps = {
-  onClick$: QRL<() => void>;
-  classes?: ClassList;
+  onClick$?: QRL<() => void>;
+  class?: ClassList;
   styles?: CSSProperties;
   disabled?: boolean;
   buttonRef?: Signal<HTMLButtonElement | undefined>;
@@ -21,7 +21,7 @@ export default component$<ButtonProps>((props) => (
     onClick$={props.onClick$}
     class={`transition p-2 border border-slate-200 bg-slate-700 rounded focus:bg-slate-500 lg:hover:bg-slate-500 ${
       props.disabled ? "opacity-50" : ""
-    } ${props.classes}`}
+    } ${props.class}`}
     disabled={props.disabled}
   >
     <Slot />

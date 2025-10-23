@@ -74,7 +74,7 @@ export default component$(() => {
         debounceUnfocus();
         ctx.handle.toggleModal();
       }}
-      classes={`p-[0.5em] my-auto text-[1.2em] sm:text-[1.5em] h-min settings-button ${
+      class={`p-[0.5em] my-auto text-[1.2em] sm:text-[1.5em] h-min settings-button ${
         ctx.state.interfaceSettings.settingsModal.isShowing ||
         ctx.state.interfaceSettings.endOfGameModal.isShowing ||
         ctx.state.interfaceSettings.scoresModal.isShowing

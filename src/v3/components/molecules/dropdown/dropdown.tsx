@@ -90,7 +90,7 @@ const Dropdown = component$<DropdownProps>(
         <Button
           buttonRef={buttonRef}
           styles={buttonStyles}
-          classes={`z-10 border-none flex items-center justify-center ${buttonClasses} ${computedIsOpen.value ? buttonClassesWhileOpen : ""}`}
+          class={`z-10 border-none flex items-center justify-center ${buttonClasses} ${computedIsOpen.value ? buttonClassesWhileOpen : ""}`}
           onClick$={() => {
             onClick$?.(); // if acting as controlled component
             handleToggle(!computedIsOpen.value);
