@@ -25,7 +25,7 @@ const CardView: FunctionComponent<CardViewProps> = ({
     </CardFace>
 
     <CardFace label="card-back">
-      <ImageBackFace loading="eager" decoding="sync" fetchPriority="high" />
+      <ImageBackFace class="relative z-[-1]" loading="eager" decoding="sync" fetchPriority="high" />
     </CardFace>
   </>
 );
