@@ -5,13 +5,21 @@ type ModalHeaderProps = {
   hideModal$: QRL<() => void>;
   title: string;
   buttonOpts?: Partial<{ onLeft?: boolean; text?: string }>;
+  autofocus?: boolean;
 };
 const ModalHeader: FunctionComponent<ModalHeaderProps> = ({
   hideModal$,
   title,
   buttonOpts = { onLeft: false, text: "x" },
+  autofocus = false,
 }) => {
-  const button = <CloseButton hideModal$={hideModal$} text={buttonOpts.text} />;
+  const button = (
+    <CloseButton
+      hideModal$={hideModal$}
+      text={buttonOpts.text}
+      autofocus={autofocus}
+    />
+  );
 
   return (
     <header class="grid max-h-full grid-cols-[0.3fr_1fr_0.3fr] items-center justify-center">

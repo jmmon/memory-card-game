@@ -61,7 +61,7 @@ export default component$<Props>(
           data-name="modal"
           style={containerStyles}
         >
-          <ModalHeader hideModal$={hideModal$} title={title} />
+          <ModalHeader hideModal$={hideModal$} title={title} autofocus={true} />
 
           <div class="h-full w-full overflow-y-auto rounded-lg" style={wrapperSyles}>
             <Slot />
