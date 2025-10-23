@@ -37,7 +37,7 @@ interface PixelAvatarProps {
   cols?: number;
   eachBlockSizePx?: number;
   colorOptions?: AvatarColorOptions;
-  classes?: ClassList;
+  class?: ClassList;
   text?: Signal<string>;
   hash?: Signal<string>;
   colorFrom?: Signal<string>;
@@ -67,7 +67,7 @@ export default component$(
     cols = 16,
     eachBlockSizePx = 1,
     colorOptions = GAME.DEFAULT_COLOR_OPTIONS,
-    classes = "",
+    class: classes = "",
     /**
      * inputs used on end-game modal when generating avatar
      * */

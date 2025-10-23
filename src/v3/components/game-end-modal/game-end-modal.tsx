@@ -1,4 +1,4 @@
-import { component$, $, useSignal, sync$ } from "@builder.io/qwik";
+import { component$, $, useSignal, sync$, useVisibleTask$ } from "@builder.io/qwik";
 import PixelAvatar from "../pixel-avatar/pixel-avatar";
 import Button from "../atoms/button/button";
 import Modal from "../templates/modal/modal";
@@ -15,7 +15,7 @@ import { selectFieldOnFocus$ } from "~/v3/handlers/handlers";
 import useSyncedSettings from "~/v3/hooks/useSyncedSettings";
 import { FONT_SIZES } from "~/v3/constants/styles";
 
-const Asterisk = () => <span class="text-red-300">*</span>;
+// const Asterisk = () => <span class="text-red-300">*</span>;
 
 export default component$(() => {
   const { unsavedUserSettings, saveOrResetSettings$, ctx, scrollToTopRef } =
@@ -68,6 +68,133 @@ export default component$(() => {
       saveState.value = "error";
       console.error(err);
     }
+  });
+
+  const timeouts = useSignal<ReturnType<typeof setTimeout>[]>([]);
+  const confettiOptions = {
+    spread: 360,
+    ticks: 70,
+    gravity: 1.5,
+    decay: 0.95,
+    startVelocity: 30,
+    colors: ["006ce9", "ac7ff4", "18b6f6", "713fc2", "ffffff"],
+    // origin: {
+    //   x: 0.5,
+    //   y: 0.35,
+    // },
+  };
+
+  const shootConfetti = $(() => {
+    // library is loaded on home or game route
+    const confetti = ((globalThis as any).confetti as (opts: any) => void);
+    confetti({
+      ...confettiOptions,
+      particleCount: 80,
+      scalar: 1.2,
+      origin: {
+        x: Math.random() * 0.5 + 0.25,
+        y: Math.random() * 0.5 + 0.1,
+      }
+    });
+
+    confetti({
+      ...confettiOptions,
+      particleCount: 60,
+      scalar: 0.75,
+      origin: {
+        x: Math.random() * 0.5 + 0.25,
+        y: Math.random() * 0.5 + 0.1,
+      }
+    });
+  });
+
+  const launchConfetti = $(() => {
+    // clean up last confetti timers
+    timeouts.value.forEach(t => clearTimeout(t));
+    timeouts.value = [
+      setTimeout(shootConfetti, 0),
+      setTimeout(shootConfetti, 100),
+      setTimeout(shootConfetti, 200),
+      setTimeout(shootConfetti, 400),
+      setTimeout(shootConfetti, 550),
+    ];
+  });
+
+  const sideConfetti = $(() => {
+    const confetti = ((globalThis as any).confetti as (opts: any) => void);
+    // do this for 30 seconds
+    const duration = 2 * 1000;
+    const end = Date.now() + duration;
+
+    (function frame() {
+      // launch a few confetti from the left edge
+      confetti({
+        particleCount: 7,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0 }
+      });
+      // and launch a few from the right edge
+      confetti({
+        particleCount: 7,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1 }
+      });
+
+      // keep going until we are out of time
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    }());
+  })
+
+  const timestamps = useSignal<number[]>([]);
+  const handleBunchOfConfetti = $(() => {
+    const now = Date.now();
+    const oldestAllowed = now - (2 * 1000);
+
+    const _timestamps = timestamps.value;
+    timestamps.value = [..._timestamps.filter(t => t >= oldestAllowed), now];
+    console.log({timestamps: timestamps.value});
+
+    if (timestamps.value.length >= 5) {
+      sideConfetti();
+      timestamps.value.length = 0;
+    }
+  });
+
+
+  useVisibleTask$(async ({track}) => {
+    track(() => ctx.state.interfaceSettings.endOfGameModal.isShowing);
+    if (
+      !ctx.state.interfaceSettings.endOfGameModal.isShowing
+      || !ctx.state.interfaceSettings.endOfGameModal.isWin
+    ) {
+      return;
+    }
+
+    function loadConfetti() {
+      return new Promise<(opts: any) => void>((resolve, reject) => {
+        if ((globalThis as any).confetti) {
+          console.log('confetti already loaded!');
+          return resolve((globalThis as any).confetti as any);
+        }
+        const script = document.createElement("script");
+        script.src =
+          "https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js";
+        script.onload = () => {
+          console.log('confetti loaded!');
+          resolve((globalThis as any).confetti as any);
+        }
+        script.onerror = reject;
+        document.head.appendChild(script);
+        script.remove();
+      });
+    }
+
+    await loadConfetti();
+    launchConfetti();
   });
 
   return (
@@ -130,33 +257,53 @@ export default component$(() => {
             <div
               class={`w-full h-full rounded-lg ${ctx.state.gameData.isSaved ? "bg-slate-700/50" : "bg-slate-600"}`}
             >
-              <div class="w-full flex flex-col gap-2 items-center justify-center py-[2%] px-[4%]">
-                <h3 class={FONT_SIZES.STANDARD}>Avatar:</h3>
-                <PixelAvatar
-                  classes="w-[80px] h-[80px] sm:w-[100px] sm:h-[100px]"
-                  text={identifier}
-                  colorFrom={initials}
-                  outputTo$={({ hash }) => {
-                    // let PixelAvatar hash it so we don't have to hash twice
-                    userId.value = hash;
-                  }}
-                />
-              </div>
               <div class="flex py-[2%] px-[4%]">
                 <ModalRow>
-                  <div class="flex flex-col gap-4 items-center w-full">
-                    <div class={`w-full ${FONT_SIZES.SMALL} flex flex-col`}>
+                  <div class="flex flex-col gap-6 items-center w-full">
+                    
+                    <button
+                      class="border-none bg-none p-0"
+                      onClick$={() => {
+                        if (ctx.state.interfaceSettings.endOfGameModal.isWin) {
+                          // const confetti = ((globalThis as any).confetti as (opts: any) => void);
+                          // confetti({
+                          //   ...confettiOptions,
+                          //   particleCount: 60,
+                          //   scalar: 0.75,
+                          //   origin: {
+                          //     x: Math.random() * 0.5 + 0.25,
+                          //     y: Math.random() * 0.5 + 0.1,
+                          //   }
+                          // });
+                          shootConfetti();
+                          handleBunchOfConfetti();
+                        }
+                      }}
+                    >
+                      <PixelAvatar
+                        class="w-[80px] h-[80px] sm:w-[100px] sm:h-[100px]"
+                        text={identifier}
+                        colorFrom={initials}
+                        outputTo$={({ hash }) => {
+                          // let PixelAvatar hash it so we don't have to hash twice
+                          userId.value = hash;
+                        }}
+                      />
+                    </button>
+
+                    <div class={`w-full grid grid-cols-[128px_1fr] gap-2 gap-y-4 ${FONT_SIZES.SMALL}`}>
                       <label
-                        class="w-full flex justify-center gap-2"
+                        class={`w-full`}
                         for="game-end-modal-input-initials"
                       >
                         Initials:
                       </label>
+
                       <input
                         ref={initialsRef}
                         type="text"
                         id="initials"
-                        class={`monospace text-center bg-slate-800 text-slate-100 mx-auto`}
+                        class={`font-mono text-center bg-slate-800 text-slate-100 ${FONT_SIZES.XL}`}
                         onFocus$={[
                           selectFieldOnFocus$,
                           // markTouched$
@@ -178,43 +325,43 @@ export default component$(() => {
                           saveState.value = "idle";
                         }}
                       />
-                    </div>
 
-                    <div class={`flex flex-col w-full ${FONT_SIZES.SMALL}`}>
-                      <label
-                        for="game-end-modal-input-identifier "
-                        class="flex gap-[0.2em] items-center mx-auto"
-                      >
-                        Identifier:
-                        <Asterisk />
-                        <InfoTooltip>
-                          <div class="max-w-[18em]">
-                            Identifier is never saved or sent anywhere. It's
-                            only to generate your avatar. If you want your
-                            avatar to be consistent across games and devices,
-                            use something unique and consistent like your name
-                            or email. The data is hashed and used to determine
-                            pixel placement.
-                          </div>
-                        </InfoTooltip>
-                      </label>
-                      <button
-                        data-label="generate-random-identifier"
-                        onClick$={() => {
-                          identifier.value = getRandomBytesBrowser();
-                        }}
-                        class="text-xs px-0 py-0 "
-                        style="color: var(--qwik-light-blue);"
-                        type="button"
-                      >
-                        (Or generate a random identifier)
-                      </button>
+
+                      <div class="flex flex-col gap-2 ">
+                        <label
+                          for="game-end-modal-input-identifier "
+                          class={`flex gap-[0.2em] items-center mx-auto`}
+                        >
+                          Identifier:
+                          <InfoTooltip>
+                            <div class="max-w-[18em]">
+                              Identifier is never saved or sent anywhere. It's
+                              only to generate your avatar. If you want your
+                              avatar to be consistent across games and devices,
+                              use something unique and consistent like your name
+                              or email. The data is hashed and used to determine
+                              pixel placement.
+                            </div>
+                          </InfoTooltip>
+                        </label>
+
+                        <button
+                          data-label="generate-random-identifier"
+                          onClick$={() => {
+                            identifier.value = getRandomBytesBrowser();
+                          }}
+                          class="text-xs px-2 py-1 text-slate-100 underline bg-[var(--qwik-light-blue)] bg-opacity-50 rounded-md mx-auto"
+                          type="button"
+                        >
+                          (Or generate a random identifier)
+                        </button>
+                      </div>
 
                       <textarea
                         name="email"
                         autocomplete="email"
                         id="email"
-                        class="overflow-y-hidden mx-auto px-1.5 monospace max-w-[34ch] h-[4em] md:h-[3em] block w-full bg-slate-800 text-slate-100 resize-none"
+                        class="px-1.5 font-mono max-w-[34ch] h-[6em] md:h-[6em] block w-full bg-slate-800 text-slate-100 resize-none"
                         onFocus$={[
                           selectFieldOnFocus$,
                           // markTouched$
@@ -229,7 +376,9 @@ export default component$(() => {
                           }
                         })}
                       />
+
                     </div>
+
                   </div>
                 </ModalRow>
               </div>
@@ -238,7 +387,7 @@ export default component$(() => {
                 <Button
                   class={`mx-auto ${
                     ctx.state.gameData.isSaved ? "!bg-green-600" : ""
-                  }`}
+                  } ${FONT_SIZES.STANDARD} p-3 px-4`}
                   onClick$={saveScore$}
                   disabled={
                     // (touchedFields.value.length < 2 && (
@@ -256,7 +405,7 @@ export default component$(() => {
                         ? "Saved!"
                         : "Save Score"}
                 </Button>
-                <div class="absolute left-[calc(50%+0.5rem+2.75em)] top-[calc(50%-0.25em-0.5rem)]">
+                <div class="absolute left-[calc(50%+1.5rem+2.75em)] top-[calc(50%-0.25em-0.5rem)]">
                   <InfoTooltip>
                     <div class="max-w-[18em]">
                       {/*

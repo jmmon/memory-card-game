@@ -163,7 +163,7 @@ const ScoreRow = component$<ScoreRowProps>(
       >
         <td>
           <PixelAvatar
-            classes={AVATAR_WIDTH}
+            class={AVATAR_WIDTH}
             hash={{ value: score.userId }}
             colorFrom={{ value: score.initials }}
             outputTo$={({ color }) => {

@@ -1,5 +1,5 @@
 import type { Signal } from "@builder.io/qwik";
-import { component$, useSignal, useTask$ } from "@builder.io/qwik";
+import { component$, useSignal, useTask$, useVisibleTask$ } from "@builder.io/qwik";
 import {
   useNavigate,
 } from "@builder.io/qwik-city";
@@ -50,6 +50,29 @@ export default component$(() => {
   );
 
   logger(DebugTypeEnum.RENDER, LogLevel.ONE, "RENDER /game route");
+
+  useVisibleTask$(async () => {
+    function loadConfetti() {
+      return new Promise<(opts: any) => void>((resolve, reject) => {
+        if ((globalThis as any).confetti) {
+          console.log('confetti already loaded!');
+          return resolve((globalThis as any).confetti as any);
+        }
+        const script = document.createElement("script");
+        script.src =
+          "https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js";
+        script.onload = () => {
+          console.log('confetti loaded!');
+          resolve((globalThis as any).confetti as any);
+        }
+        script.onerror = reject;
+        document.head.appendChild(script);
+        script.remove();
+      });
+    }
+
+    await loadConfetti();
+  });
 
   return (
     <div class="flex full-height w-full flex-col items-center overflow-hidden">
