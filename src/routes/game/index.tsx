@@ -1,55 +1,20 @@
 import type { Signal } from "@builder.io/qwik";
 import { component$, useSignal, useTask$ } from "@builder.io/qwik";
 import {
-  // Link,
   routeLoader$,
   useNavigate,
 } from "@builder.io/qwik-city";
 import Game from "~/v3/components/pages/game/game";
-import { typeEntryValues, unflattenObject } from "~/v3/utils/utils";
-import { validate } from "~/v3/validation/validate";
 import INITIAL_STATE from "~/v3/services/gameContext.service/initialState";
-import schemas from "~/v3/validation/schemas";
 import type { iUserSettings } from "~/v3/types/types";
 import useGetSavedTheme from "~/v3/hooks/useGetSavedTheme";
 import logger from "~/v3/services/logger";
 import { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
 import { getRandomBytesServer } from "~/v3/utils/hashUtils";
+import { useParams } from "../layout";
 
 // for game end modal, provides default hash
 export const useDefaultHash = routeLoader$(() => getRandomBytesServer());
-
-// params are settings which were changed from initial values
-export const useParams = routeLoader$(async (requestEvent) => {
-  const unflattenedParams = unflattenObject(
-    typeEntryValues(Array.from(requestEvent.url.searchParams.entries())),
-  ) as Partial<iUserSettings>;
-
-  const completedUserParams: iUserSettings = {
-    ...INITIAL_STATE.userSettings,
-    ...unflattenedParams,
-    deck: {
-      ...INITIAL_STATE.userSettings.deck,
-      ...unflattenedParams.deck,
-    },
-    board: {
-      ...INITIAL_STATE.userSettings.board,
-      ...unflattenedParams.board,
-    },
-    interface: {
-      ...INITIAL_STATE.userSettings.interface,
-      ...unflattenedParams.interface,
-    },
-  };
-  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useParams...");
-
-  if (validate(completedUserParams, schemas.userSettings).isValid) {
-    logger(DebugTypeEnum.HOOK, LogLevel.ONE, "...valid > using params");
-    return completedUserParams;
-  }
-  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "...invalid > using DEFAULTS");
-  return INITIAL_STATE.userSettings;
-});
 
 export const useConsumeParams = (paramsSettings: Signal<iUserSettings>) => {
   const nav = useNavigate();

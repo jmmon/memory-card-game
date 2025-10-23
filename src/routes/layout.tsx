@@ -10,17 +10,28 @@ import styles from "./styles.css?inline";
 import HEAD_CONSTANTS from "~/v3/constants/head";
 import CardSymbols from "~/v3/components/playing-card-components/symbols/card-symbols";
 import FaceCardSymbols from "~/v3/components/playing-card-components/symbols/face-card-symbols";
+import { typeEntryValues, unflattenObject } from "~/v3/utils/utils";
+import INITIAL_STATE from "~/v3/services/gameContext.service/initialState";
+import logger from "~/v3/services/logger";
+import { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
+import schemas from "~/v3/validation/schemas";
+import { validate } from "~/v3/validation/validate";
+import { iUserSettings } from "~/v3/types/types";
 // import IconDefs from "~/v3/components/svg-icons/icon-defs";
 
 export const useLoaderIsScoresEnabled = routeLoader$(function ({ env }) {
   console.log(
-    "loader: isEnabled:",
+    "scores loader$: isEnabled:",
     env.get("WRANGLER_FEATURE_FLAG_SCORES_ENABLED"),
   );
   return env.get("WRANGLER_FEATURE_FLAG_SCORES_ENABLED") === "true";
 });
 
 export const serverIsScoresEnabled = server$(function () {
+  console.log(
+    "scores server$: isEnabled:",
+    this.env.get("WRANGLER_FEATURE_FLAG_SCORES_ENABLED"),
+  );
   return this.env.get("WRANGLER_FEATURE_FLAG_SCORES_ENABLED") === "true";
 });
 
@@ -36,6 +47,38 @@ export const onGet: RequestHandler = async (requestEvent) => {
     maxAge: 5,
   });
 };
+
+// params are settings which were changed from initial values
+export const useParams = routeLoader$(async (requestEvent) => {
+  const unflattenedParams = unflattenObject(
+    typeEntryValues(Array.from(requestEvent.url.searchParams.entries())),
+  ) as Partial<iUserSettings>;
+
+  const completedUserParams: iUserSettings = {
+    ...INITIAL_STATE.userSettings,
+    ...unflattenedParams,
+    deck: {
+      ...INITIAL_STATE.userSettings.deck,
+      ...unflattenedParams.deck,
+    },
+    board: {
+      ...INITIAL_STATE.userSettings.board,
+      ...unflattenedParams.board,
+    },
+    interface: {
+      ...INITIAL_STATE.userSettings.interface,
+      ...unflattenedParams.interface,
+    },
+  };
+  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "useParams...");
+
+  if (validate(completedUserParams, schemas.userSettings).isValid) {
+    logger(DebugTypeEnum.HOOK, LogLevel.ONE, "...valid > using params");
+    return completedUserParams;
+  }
+  logger(DebugTypeEnum.HOOK, LogLevel.ONE, "...invalid > using DEFAULTS");
+  return INITIAL_STATE.userSettings;
+});
 
 export default component$(() => {
   useStyles$(styles);
