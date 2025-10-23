@@ -10,8 +10,7 @@ import GameSettings from "../organisms/game-settings/game-settings";
 import serverDbService from "~/v3/services/db";
 import { msToDs } from "~/v3/utils/formatTime";
 import GAME from "~/v3/constants/game";
-import { useDefaultHash } from "~/routes/game";
-import { getRandomBytesBrowser } from "~/v3/utils/hashUtils";
+import { getRandomBytesBrowser, getRandomBytesServer } from "~/v3/utils/hashUtils";
 import { selectFieldOnFocus$ } from "~/v3/handlers/handlers";
 import useSyncedSettings from "~/v3/hooks/useSyncedSettings";
 import { FONT_SIZES } from "~/v3/constants/styles";
@@ -21,7 +20,7 @@ const Asterisk = () => <span class="text-red-300">*</span>;
 export default component$(() => {
   const { unsavedUserSettings, saveOrResetSettings$, ctx, scrollToTopRef } =
     useSyncedSettings("endOfGameModal");
-  const defaultHash = useDefaultHash();
+  const defaultHash = getRandomBytesServer();
 
   const touchedFields = useSignal<string[]>([]);
   // const markTouched$ = $((_: Event, t: HTMLElement) => {
@@ -31,7 +30,7 @@ export default component$(() => {
 
   const initials = useSignal("---");
   const initialsRef = useSignal<HTMLInputElement>(); // to manipulate the input
-  const identifier = useSignal(defaultHash.value);
+  const identifier = useSignal(defaultHash);
   // for after hashing, this is actually submitted to the score
   const userId = useSignal<string | undefined>("");
   const saveState = useSignal<"idle" | "loading" | "error">("idle");

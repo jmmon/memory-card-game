@@ -1,7 +1,6 @@
 import type { Signal } from "@builder.io/qwik";
 import { component$, useSignal, useTask$ } from "@builder.io/qwik";
 import {
-  routeLoader$,
   useNavigate,
 } from "@builder.io/qwik-city";
 import Game from "~/v3/components/pages/game/game";
@@ -10,11 +9,8 @@ import type { iUserSettings } from "~/v3/types/types";
 import useGetSavedTheme from "~/v3/hooks/useGetSavedTheme";
 import logger from "~/v3/services/logger";
 import { DebugTypeEnum, LogLevel } from "~/v3/constants/game";
-import { getRandomBytesServer } from "~/v3/utils/hashUtils";
 import { useParams } from "../layout";
 
-// for game end modal, provides default hash
-export const useDefaultHash = routeLoader$(() => getRandomBytesServer());
 
 export const useConsumeParams = (paramsSettings: Signal<iUserSettings>) => {
   const nav = useNavigate();
