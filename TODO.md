@@ -1,3 +1,10 @@
+## scores modal:
+- change focus when modal opens/closes (all modals)
+- initials/identifier vertical padding ++
+- identifier (or generate a random identifier) text move BELOW the box instead
+of above
+
+
 ## Remove extra game route - make homescreen a modal and keep everything in one route
 - eliminates params consumption and loader errors
 - maybe a nice animation for swinging up the home screen (or to the side)
