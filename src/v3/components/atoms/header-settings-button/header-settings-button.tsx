@@ -42,7 +42,7 @@ export default component$(() => {
     }
 
     /* enable hover effects for larger screens */
-    @media screen and min-width(1024px) {
+    @media (min-width: 1024px) {
         .settings-button:not(.open):focus .bar-1
         ,.settings-button:not(.open):hover .bar-1 {
           transform: rotate(6deg) scaleX(1.06);
