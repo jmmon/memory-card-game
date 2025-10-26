@@ -30,22 +30,56 @@
 		"WRANGLER_FEATURE_FLAG_SCORES_ENABLED": "true",
 		"WRANGLER_FEATURE_FLAG_SCORES_SEED_ENABLED": "true"
 	},
+	// "d1_databases": [
+	// 	{
+	// 		"binding": "DB",
+	// 		"database_name": "preview-scores",
+	// 		"database_id": "a3b8805c-a64e-4ac0-aaf6-96627c3c4791",
+	// 		"migrations_dir": "./src/v3/db/migrations"
+	// 	},
+	// 	{
+	// 		"binding": "prodDB",
+	// 		"database_name": "production-scores",
+	// 		"database_id": "1215fffc-68e7-468d-aec0-a499580b0136",
+	// 		"migrations_dir": "./src/v3/db/migrations"
+	// 	}
+	// ],
 
 	"env": {
 		"preview": {
 			"vars": {
 				"WRANGLER_FEATURE_FLAG_SCORES_ENABLED": "true",
 				"WRANGLER_FEATURE_FLAG_SCORES_SEED_ENABLED": "true"
-			}
+			},
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "preview-scores",
+					"database_id": "a3b8805c-a64e-4ac0-aaf6-96627c3c4791",
+					"migrations_dir": "./src/v3/db/migrations"
+				}
+			]
 		},
 		"production": {
 			"vars": {
 				"WRANGLER_FEATURE_FLAG_SCORES_ENABLED": "true",
 				"WRANGLER_FEATURE_FLAG_SCORES_SEED_ENABLED": "false"
-			}
+			},
+			"d1_databases": [
+			  	{
+			  	    "binding": "DB",
+			  	    "database_name": "production-scores",
+			  	    "database_id": "1215fffc-68e7-468d-aec0-a499580b0136",
+					"migrations_dir": "./src/v3/db/migrations"
+			  	}
+			]
+
 		}
 	},
 
+
+
+			/**
 	"d1_databases": [
 		{
 		    "binding": "DB",
@@ -55,16 +89,13 @@
 		}
 
 
-			/*
 		{
 			"binding": "DB",
 			"database_name": "scores-test-2",
 			"database_id": "7bc193fe-2497-4025-b15e-56866a1abf58",
 			"migrations_dir": "./src/v3/db/migrations"
 		}
-			*/
 
-			/**
 
     {
       "binding": "DB",
@@ -73,9 +104,9 @@
     }
 
 
-*/
 
 	]
+*/
 
 
 	/**
