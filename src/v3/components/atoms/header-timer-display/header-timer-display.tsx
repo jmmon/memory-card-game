@@ -2,6 +2,7 @@ import type { ClassList} from "@builder.io/qwik";
 import { component$ } from "@builder.io/qwik";
 import FormattedTime from "~/v3/components/molecules/formatted-time/formatted-time";
 import { header } from "~/v3/constants/header-constants";
+import { FONT_SIZES } from "~/v3/constants/styles";
 import { useGameContextService } from "~/v3/services/gameContext.service/gameContext.service";
 
 type Props = {
@@ -12,7 +13,7 @@ export default component$<Props>(({classes}) => {
 
   return (
     <code
-      class={`bg-slate-600/60 flex items-center ${header.CODE_TEXT_LIGHT} ${header.CODE_PADDING} ${classes}`}
+      class={`bg-slate-600/60 flex items-center ${FONT_SIZES.SMALL} ${header.CODE_TEXT_LIGHT} ${header.CODE_PADDING} ${classes}`}
     >
       <FormattedTime
         classes={`w-[6.25em] min-w-min ${ctx.timer.shouldBlink.value ? "opacity-0" : ""}`}

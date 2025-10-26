@@ -18,7 +18,7 @@ const FormattedTime: FunctionComponent<FormattedTimeProps> = ({
   return (
     <div class={`text-center text-slate-100 ${classes}`}>
       <HeaderSpanGreyedAtZero val={minutes} text="m" /> {seconds}
-      <span class="text-xs text-slate-400">{limitedMs}s</span>
+      <span class={`text-[0.875em] text-slate-400`}>{limitedMs}s</span>
     </div>
   );
 };
