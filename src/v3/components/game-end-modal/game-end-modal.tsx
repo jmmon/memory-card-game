@@ -85,8 +85,8 @@ export default component$(() => {
   };
 
   const shootConfetti = $(() => {
-    // library is loaded on home or game route
     const confetti = ((globalThis as any).confetti as (opts: any) => void);
+    // library is loaded in layout
     confetti({
       ...confettiOptions,
       particleCount: 80,
@@ -122,7 +122,6 @@ export default component$(() => {
 
   const sideConfetti = $(() => {
     const confetti = ((globalThis as any).confetti as (opts: any) => void);
-    // do this for 30 seconds
     const duration = 2 * 1000;
     const end = Date.now() + duration;
 
@@ -149,14 +148,17 @@ export default component$(() => {
     }());
   })
 
+  const BUNCH_OF_CLICKS_DURATION_MS = 1000;
   const timestamps = useSignal<number[]>([]);
-  const handleBunchOfConfetti = $(() => {
+  const handleBunchOfClicksConfetti = $(() => {
     const now = Date.now();
-    const oldestAllowed = now - (2 * 1000);
+    const oldestAllowed = now - BUNCH_OF_CLICKS_DURATION_MS;
 
     const _timestamps = timestamps.value;
-    timestamps.value = [..._timestamps.filter(t => t >= oldestAllowed), now];
-    console.log({timestamps: timestamps.value});
+    timestamps.value = [
+      ..._timestamps.filter(t => t >= oldestAllowed),
+      now
+    ];
 
     if (timestamps.value.length >= 5) {
       sideConfetti();
@@ -174,26 +176,6 @@ export default component$(() => {
       return;
     }
 
-    function loadConfetti() {
-      return new Promise<(opts: any) => void>((resolve, reject) => {
-        if ((globalThis as any).confetti) {
-          console.log('confetti already loaded!');
-          return resolve((globalThis as any).confetti as any);
-        }
-        const script = document.createElement("script");
-        script.src =
-          "https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js";
-        script.onload = () => {
-          console.log('confetti loaded!');
-          resolve((globalThis as any).confetti as any);
-        }
-        script.onerror = reject;
-        document.head.appendChild(script);
-        script.remove();
-      });
-    }
-
-    await loadConfetti();
     launchConfetti();
   });
 
@@ -260,36 +242,28 @@ export default component$(() => {
               <div class="flex py-[2%] px-[4%]">
                 <ModalRow>
                   <div class="flex flex-col gap-6 items-center w-full">
-                    
-                    <button
-                      class="border-none bg-none p-0"
-                      onClick$={() => {
-                        if (ctx.state.interfaceSettings.endOfGameModal.isWin) {
-                          // const confetti = ((globalThis as any).confetti as (opts: any) => void);
-                          // confetti({
-                          //   ...confettiOptions,
-                          //   particleCount: 60,
-                          //   scalar: 0.75,
-                          //   origin: {
-                          //     x: Math.random() * 0.5 + 0.25,
-                          //     y: Math.random() * 0.5 + 0.1,
-                          //   }
-                          // });
-                          shootConfetti();
-                          handleBunchOfConfetti();
-                        }
-                      }}
-                    >
-                      <PixelAvatar
-                        class="w-[80px] h-[80px] sm:w-[100px] sm:h-[100px]"
-                        text={identifier}
-                        colorFrom={initials}
-                        outputTo$={({ hash }) => {
-                          // let PixelAvatar hash it so we don't have to hash twice
-                          userId.value = hash;
+                    <div class="flex flex-col gap-1 items-center w-full">
+                      <label class={FONT_SIZES.SMALL}>Avatar:</label>
+                      <button
+                        class="border-none bg-none p-0"
+                        onClick$={() => {
+                          if (ctx.state.interfaceSettings.endOfGameModal.isWin) {
+                            shootConfetti();
+                            handleBunchOfClicksConfetti();
+                          }
                         }}
-                      />
-                    </button>
+                      >
+                        <PixelAvatar
+                          class="w-[80px] h-[80px] sm:w-[100px] sm:h-[100px]"
+                          text={identifier}
+                          colorFrom={initials}
+                          outputTo$={({ hash }) => {
+                            // let PixelAvatar hash it so we don't have to hash twice
+                            userId.value = hash;
+                          }}
+                        />
+                      </button>
+                    </div>
 
                     <div class={`w-full grid grid-cols-[128px_1fr] gap-2 gap-y-4 ${FONT_SIZES.SMALL}`}>
                       <label

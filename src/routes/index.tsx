@@ -1,11 +1,9 @@
 import {
   component$,
   isServer,
-  // useComputed$,
   useSignal,
   useStyles$,
   useTask$,
-  useVisibleTask$,
 } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
 import Dropdown from "~/v3/components/molecules/dropdown/dropdown";
@@ -141,29 +139,6 @@ export const GameStarter = component$(() => {
     if (isServer) return;
     const params = pruneDefaultsFromSettings(unsavedUserSettings.value);
     playHref.value = `/game/${params}`;
-  });
-
-  useVisibleTask$(async () => {
-    function loadConfetti() {
-      return new Promise<(opts: any) => void>((resolve, reject) => {
-        if ((globalThis as any).confetti) {
-          console.log('confetti already loaded!');
-          return resolve((globalThis as any).confetti as any);
-        }
-        const script = document.createElement("script");
-        script.src =
-          "https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js";
-        script.onload = () => {
-          console.log('confetti loaded!');
-          resolve((globalThis as any).confetti as any);
-        }
-        script.onerror = reject;
-        document.head.appendChild(script);
-        script.remove();
-      });
-    }
-
-    await loadConfetti();
   });
 
   return (

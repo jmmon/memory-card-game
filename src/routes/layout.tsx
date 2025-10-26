@@ -1,4 +1,4 @@
-import { component$, Slot, useStyles$ } from "@builder.io/qwik";
+import { component$, Slot, useStyles$, useVisibleTask$ } from "@builder.io/qwik";
 import {
   routeLoader$,
   server$,
@@ -84,6 +84,29 @@ export default component$(() => {
   useStyles$(styles);
   // if context is here, can properly sync settings from game back to the homescreen
   // (or use localstorage for game settings lol so it saves across sessions as preferences...)
+
+  useVisibleTask$(async () => {
+    function loadConfetti() {
+      return new Promise<(opts: any) => void>((resolve, reject) => {
+        if ((globalThis as any).confetti) {
+          logger(DebugTypeEnum.TASK, LogLevel.ONE, "~~ Confetti was already loaded!");
+          return resolve((globalThis as any).confetti as any);
+        }
+        const script = document.createElement("script");
+        script.src =
+          "https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js";
+        script.onload = () => {
+          logger(DebugTypeEnum.TASK, LogLevel.ONE, "Confetti now loaded!");
+          resolve((globalThis as any).confetti as any);
+        }
+        script.onerror = reject;
+        document.head.appendChild(script);
+        script.remove();
+      });
+    }
+
+    await loadConfetti();
+  });
 
   return (
     <main class="full-height main-scroll">
