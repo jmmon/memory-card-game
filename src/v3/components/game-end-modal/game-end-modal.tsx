@@ -14,6 +14,7 @@ import { getRandomBytesBrowser, getRandomBytesServer } from "~/v3/utils/hashUtil
 import { selectFieldOnFocus$ } from "~/v3/handlers/handlers";
 import useSyncedSettings from "~/v3/hooks/useSyncedSettings";
 import { FONT_SIZES } from "~/v3/constants/styles";
+import ModalHeader from "../molecules/modal-header/modal-header";
 
 // const Asterisk = () => <span class="text-red-300">*</span>;
 
@@ -183,16 +184,23 @@ export default component$(() => {
     <Modal
       isShowing={ctx.state.interfaceSettings.endOfGameModal.isShowing}
       hideModal$={ctx.handle.hideEndOfGameModal}
-      title={
-        ctx.state.interfaceSettings.endOfGameModal.isWin
-          ? "You Win!"
-          : "Game Over"
-      }
       options={{
         detectClickOutside: false,
       }}
       wrapperSyles={{ overflowY: "hidden" }}
     >
+      <ModalHeader 
+        q:slot="header"
+        hideModal$={ctx.handle.hideEndOfGameModal}
+        title={
+          ctx.state.interfaceSettings.endOfGameModal.isWin
+            ? "You Win!"
+            : "Game Over"
+        }
+        autofocus={true}
+        isShowing={ctx.state.interfaceSettings.endOfGameModal.isShowing}
+      />
+
       <div
         ref={scrollToTopRef}
         class="w-full h-full max-h-[50vh] overflow-y-auto grid gap-3"

@@ -5,6 +5,7 @@ import GameStats from "../../molecules/game-stats/game-stats";
 import GameSettings from "../../organisms/game-settings/game-settings";
 import { GameStateEnum } from "~/v3/types/types";
 import useSyncedSettings from "~/v3/hooks/useSyncedSettings";
+import ModalHeader from "../../molecules/modal-header/modal-header";
 
 export default component$(() => {
   const { unsavedUserSettings, saveOrResetSettings$, ctx } =
@@ -14,8 +15,15 @@ export default component$(() => {
     <Modal
       isShowing={ctx.state.interfaceSettings.settingsModal.isShowing}
       hideModal$={ctx.handle.hideSettingsModal}
-      title="Game Settings"
     >
+      <ModalHeader 
+        q:slot="header"
+        hideModal$={ctx.handle.hideSettingsModal}
+        title="Game Settings"
+        autofocus={true}
+        isShowing={ctx.state.interfaceSettings.settingsModal.isShowing}
+      />
+
       <form
         preventdefault:submit
         onSubmit$={() => {

@@ -1,21 +1,31 @@
-import type { FunctionComponent, QRL } from "@builder.io/qwik";
+import {
+  component$,
+  type ClassList,
+  type QRL,
+  type Signal,
+} from "@builder.io/qwik";
 
 type ModalCloseButtonProps = {
-  text?: string;
   hideModal$: QRL<() => void>;
-  autofocus?: boolean;
+  ref: Signal<HTMLButtonElement | undefined>;
+  text?: string;
+  class?: ClassList;
+  onLeft?: boolean;
 };
-const ModalCloseButton: FunctionComponent<ModalCloseButtonProps> = ({
-  text = "X",
-  hideModal$,
-  autofocus = false,
-}) => (
-  <button
-    class="ml-auto rounded-lg text-xl border-none text-slate-400 bg-transparent px-2 py-0 transition-all hover:text-slate-200 focus:text-slate-200"
-    onClick$={hideModal$}
-    autofocus={autofocus}
-  >
-    {text}
-  </button>
-);
+const ModalCloseButton = component$<ModalCloseButtonProps>((props) => {
+  props = {
+    text: "X",
+    onLeft: false,
+    ...props,
+  };
+  return (
+    <button
+      ref={props.ref}
+      class={`${props.onLeft ? "mr-auto" : "ml-auto"} rounded-lg text-xl border-none text-slate-400 bg-transparent px-2 py-0 transition-all hover:text-slate-200 focus:text-slate-200 ${props.class}`}
+      onClick$={props.hideModal$}
+    >
+      {props.text}
+    </button>
+  );
+});
 export default ModalCloseButton;

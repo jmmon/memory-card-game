@@ -1,7 +1,5 @@
 import { component$, $, Slot } from "@builder.io/qwik";
 
-import ModalHeader from "~/v3/components/molecules/modal-header/modal-header";
-
 import type { ClassList, QRL } from "@builder.io/qwik";
 import Backdrop from "../../pages/backdrop/backdrop";
 
@@ -20,7 +18,6 @@ type Props = {
   bgClasses?: ClassList;
   containerStyles?: any;
   wrapperSyles?: any;
-  title: string;
   options?: Partial<ModalOptions>;
 };
 
@@ -30,7 +27,6 @@ export default component$<Props>(
     hideModal$,
     containerClasses,
     bgClasses,
-    title,
     containerStyles,
     wrapperSyles,
     options = DEFAULT_OPTIONS,
@@ -61,7 +57,7 @@ export default component$<Props>(
           data-name="modal"
           style={containerStyles}
         >
-          <ModalHeader hideModal$={hideModal$} title={title} autofocus={true} />
+          <Slot name="header" />
 
           <div class="h-full w-full overflow-y-auto rounded-lg" style={wrapperSyles}>
             <Slot />

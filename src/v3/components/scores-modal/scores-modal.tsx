@@ -31,6 +31,7 @@ import { FONT_SIZES } from "~/v3/constants/styles";
 import Dropdown from "../molecules/dropdown/dropdown";
 import InputToggle from "../atoms/input-toggle/input-toggle";
 import Button from "../atoms/button/button";
+import ModalHeader from "../molecules/modal-header/modal-header";
 
 // const ChevronStyled = ({ direction }: { direction: "left" | "right" }) => (
 //   <svg
@@ -627,12 +628,19 @@ export default component$(() => {
     <Modal
       isShowing={ctx.state.interfaceSettings.scoresModal.isShowing}
       hideModal$={ctx.handle.hideScoresModal}
-      title="Scoreboard"
       containerClasses="w-full sm:w-[max(640px,60vw)] sm:max-w-[max(640px,60vw)] md:w-[80vw] md:max-w-[50rem]"
       wrapperSyles={{
         overflowY: "hidden",
       }}
     >
+      <ModalHeader 
+        q:slot="header"
+        hideModal$={ctx.handle.hideScoresModal}
+        autofocus={true}
+        title="Scoreboard"
+        isShowing={ctx.state.interfaceSettings.scoresModal.isShowing}
+      />
+
       <div
         class={`${FONT_SIZES.SMALL} relative grid max-w-full h-[70vh] text-slate-50`}
         style={`grid-template-rows: calc(${HEADER_HEIGHT} + 1px) 1fr ${FOOTER_HEIGHT};`}
