@@ -27,6 +27,7 @@ export default component$(() => {
 
         {ctx.state.gameData.IS_SCORES_ENABLED && (
           <Button
+            type="button"
             class={`my-auto sm:my-0 sm:px-4`}
             onClick$={() =>
               ctx.state.interfaceSettings.scoresModal.isShowing === true

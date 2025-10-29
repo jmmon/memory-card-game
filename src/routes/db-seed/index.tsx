@@ -188,6 +188,7 @@ export default component$(() => {
           <>
             <div class="flex items-center justify-around">
               <button
+                type="button"
                 class="w-3/4 mx-auto p-2 rounded border border-slate-400 bg-slate-800"
                 onClick$={runSeed$}
               >
@@ -195,6 +196,7 @@ export default component$(() => {
               </button>
 
               <button
+                type="button"
                 class="w-3/4 mx-auto p-2 rounded border border-slate-400 bg-slate-800"
                 onClick$={clearDb$}
               >
@@ -260,12 +262,14 @@ export default component$(() => {
       <div class="grid gap-4 justify-center mx-auto mb-10 ">
         <div class="flex items-center gap-6">
           <button
+            type="button"
             class="w-[320px] mx-auto p-2 rounded border border-slate-400 bg-slate-800"
             onClick$={fetchAllScores}
           >
             Fetch all scores
           </button>
           <button
+            type="button"
             class="w-[320px] mx-auto p-2 rounded border border-slate-400 bg-slate-800"
             onClick$={fetchAllScoreCounts}
           >

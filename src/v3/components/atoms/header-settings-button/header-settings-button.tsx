@@ -69,6 +69,7 @@ export default component$(() => {
 
   return (
     <Button
+      type="button"
       buttonRef={ref}
       onClick$={() => {
         debounceUnfocus();

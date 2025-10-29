@@ -253,6 +253,7 @@ export default component$(() => {
                     <div class="flex flex-col gap-1 items-center w-full">
                       <label class={FONT_SIZES.SMALL}>Avatar:</label>
                       <button
+                        type="button"
                         class="border-none bg-none p-0"
                         onClick$={() => {
                           if (ctx.state.interfaceSettings.endOfGameModal.isWin) {
@@ -328,12 +329,12 @@ export default component$(() => {
                         </label>
 
                         <button
+                          type="button"
                           data-label="generate-random-identifier"
                           onClick$={() => {
                             identifier.value = getRandomBytesBrowser();
                           }}
                           class="text-xs px-2 py-1 text-slate-100 underline bg-[var(--qwik-light-blue)] bg-opacity-50 rounded-md mx-auto"
-                          type="button"
                         >
                           (Or generate a random identifier)
                         </button>
@@ -367,6 +368,7 @@ export default component$(() => {
 
               <div class="flex py-[2%] px-[4%] relative">
                 <Button
+                  type="button"
                   class={`mx-auto ${
                     ctx.state.gameData.isSaved ? "!bg-green-600" : ""
                   } ${FONT_SIZES.STANDARD} p-3 px-4`}
@@ -412,10 +414,14 @@ export default component$(() => {
         q:slot="footer"
         class="mt-5 flex flex-grow items-center justify-around"
       >
-        <Button onClick$={ctx.handle.hideEndOfGameModal}>
+        <Button
+          type="button"
+          onClick$={ctx.handle.hideEndOfGameModal}
+        >
           <span class="text-slate-100">Close</span>
         </Button>
         <Button
+          type="button"
           onClick$={() => {
             saveOrResetSettings$(unsavedUserSettings);
           }}

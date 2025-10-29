@@ -157,6 +157,7 @@ export const GameStarter = component$(() => {
             class="mt-5 flex flex-grow items-center justify-around"
           >
             <Button
+              type="button"
               onClick$={() => {
                 unsavedUserSettings.value = INITIAL_STATE.userSettings;
               }}

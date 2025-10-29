@@ -77,6 +77,7 @@ export default component$<DeckSizeChangerProps>(({ userSettings, isLocked, name 
       </label>
       <div class="grid grid-cols-[1fr_auto_1fr] gap-4 items-center justify-center text-slate-100">
         <button
+          type="button"
           name={_name + "-decrement"}
           class={BUTTON_STYLES}
           onClick$={handleChangeSize$}
@@ -110,6 +111,7 @@ export default component$<DeckSizeChangerProps>(({ userSettings, isLocked, name 
           onFocus$={selectFieldOnFocus$}
         />
         <button
+          type="button"
           name={_name + "-increment"}
           class={BUTTON_STYLES}
           onClick$={handleChangeSize$}

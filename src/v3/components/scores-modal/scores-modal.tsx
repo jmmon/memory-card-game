@@ -840,10 +840,18 @@ const TableDecksizeFilterHeaderDropdown = component$<DropdownProps>(
             )}
 
             <div class="mx-auto flex w-full gap-[1.5em] max-w-[30em]">
-              <Button class="w-full max-w-[12em]" onClick$={clear$}>
+              <Button
+                type="button"
+                class="w-full max-w-[12em]"
+                onClick$={clear$}
+              >
                 My Size Only ({defaultDeckSizeList[0]})
               </Button>
-              <Button class="w-full" onClick$={apply$}>
+              <Button
+                type="button"
+                class="w-full"
+                onClick$={apply$}
+              >
                 Apply
               </Button>
             </div>
@@ -1005,6 +1013,7 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
             onClick$={onClick$}
           >
             <button
+              type="button"
               disabled={!buttons.first}
               class={ARROW_BUTTON_CLASSES}
               data-label="page-first"
@@ -1014,6 +1023,7 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
               <ChevronStyled direction="left" />
             </button>
             <button
+              type="button"
               disabled={!buttons.prev}
               class={ARROW_BUTTON_CLASSES}
               data-label="page-prev"
@@ -1023,6 +1033,7 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
 
             {remainingPageButtons.value.map((number) => (
               <button
+                type="button"
                 key={number}
                 class={`${BASE_BUTTON_CLASSES} ${
                   number === queryStore.pageNumber
@@ -1037,6 +1048,7 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
             ))}
 
             <button
+              type="button"
               disabled={!buttons.next}
               class={ARROW_BUTTON_CLASSES}
               data-label="page-next"
@@ -1044,6 +1056,7 @@ const TablePagingFooter = component$<TablePagingFooterProps>(
               <ChevronStyled direction="right" />
             </button>
             <button
+              type="button"
               disabled={!buttons.last}
               class={ARROW_BUTTON_CLASSES}
               data-label="page-last"

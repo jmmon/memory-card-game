@@ -118,6 +118,7 @@ const ScoreTableHeader = component$<ScoreTableHeaderProps>(
           <div class="rotate">
             {onClick$ ? (
               <button
+                type="button"
                 class="background"
                 {...(onClick$ && {
                   onClick$: onClick$,

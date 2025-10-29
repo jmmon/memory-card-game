@@ -48,7 +48,10 @@ export default component$(() => {
           q:slot="footer"
           class="mt-5 flex flex-grow items-center justify-around"
         >
-          <Button onClick$={saveOrResetSettings$}>
+          <Button
+            type="button"
+            onClick$={saveOrResetSettings$}
+          >
             <span class="text-slate-100">Reset Game</span>
           </Button>
           <Button
