@@ -1,4 +1,4 @@
-import { component$, Slot, useStyles$, useVisibleTask$ } from "@builder.io/qwik";
+import { component$, Slot, useOnDocument, useStyles$, $ } from "@builder.io/qwik";
 import {
   routeLoader$,
   server$,
@@ -85,7 +85,7 @@ export default component$(() => {
   // if context is here, can properly sync settings from game back to the homescreen
   // (or use localstorage for game settings lol so it saves across sessions as preferences...)
 
-  useVisibleTask$(async () => {
+  useOnDocument('DOMContentLoaded', $(async () => {
     function loadConfetti() {
       return new Promise<(opts: any) => void>((resolve, reject) => {
         if ((globalThis as any).confetti) {
@@ -106,7 +106,7 @@ export default component$(() => {
     }
 
     await loadConfetti();
-  });
+  }));
 
   return (
     <main class="full-height main-scroll">

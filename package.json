@@ -10,7 +10,7 @@
   "type": "module",
   "scripts": {
     "build": "qwik build",
-    "build.clean": "rm -rf ./dist && rm -rf ./server && pnpm run lint:fix; pnpm run build",
+    "build.clean": "rm -rf ./dist && rm -rf ./server && pnpm run build",
     "build.client": "vite build",
     "build.preview": "vite build --ssr src/entry.preview.tsx",
     "build.server": "vite build -c adapters/cloudflare-pages/vite.config.ts",
@@ -29,7 +29,7 @@
     "lint:fix": "eslint \"src/**/*.ts*\" --fix",
     "preview": "qwik build preview && pnpm vite preview --open",
     "serve": "branch=$(git branch --show-current); echo \"* *\"; echo \" *  Running on branch $branch  *\"; echo \"* *\" && wrangler pages dev ./dist --compatibility-flags=nodejs_als",
-    "serve.clean": "rm -rf ./dist && rm -rf ./server && pnpm run lint:fix; pnpm run build; pnpm run serve",
+    "serve.clean": "rm -rf ./dist && rm -rf ./server && pnpm run build; pnpm run serve",
     "start": "vite --open --mode ssr",
     "test.unit": "vitest components",
     "test.unit.ui": "vitest --ui components",

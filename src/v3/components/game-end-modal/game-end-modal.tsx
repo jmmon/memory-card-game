@@ -1,4 +1,4 @@
-import { component$, $, useSignal, sync$, useVisibleTask$ } from "@builder.io/qwik";
+import { component$, $, useSignal, sync$, useTask$ } from "@builder.io/qwik";
 import PixelAvatar from "../pixel-avatar/pixel-avatar";
 import Button from "../atoms/button/button";
 import Modal from "../templates/modal/modal";
@@ -167,7 +167,7 @@ export default component$(() => {
   });
 
 
-  useVisibleTask$(async ({track}) => {
+  useTask$(async ({track}) => {
     track(() => ctx.state.interfaceSettings.endOfGameModal.isShowing);
     if (
       !ctx.state.interfaceSettings.endOfGameModal.isShowing
