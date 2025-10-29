@@ -41,6 +41,7 @@ export default component$<PopoverProps>(
         floating={floating}
       >
         <Popover.Trigger
+          type="button"
           class={`border-0 bg-transparent p-0 ${triggerClasses}`}
           style={{ width, height }}
         >
