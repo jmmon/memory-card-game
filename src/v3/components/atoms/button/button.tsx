@@ -16,6 +16,7 @@ type ButtonProps = {
 } & PropsOf<"button">;
 export default component$<ButtonProps>((props) => (
   <button
+    {...props}
     ref={props.buttonRef}
     style={props.styles}
     onClick$={props.onClick$}

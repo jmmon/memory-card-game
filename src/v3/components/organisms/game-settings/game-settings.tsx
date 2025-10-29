@@ -42,6 +42,7 @@ export default component$<GameSettingsProps>(
             <div class="w-full grid grid-cols-[1fr_8em_1fr] items-center justify-center gap-[2%]">
               <span></span>
               <Button
+                type="button"
                 onClick$={() => startShuffling$()}
                 disabled={isShufflingDisabled}
               >

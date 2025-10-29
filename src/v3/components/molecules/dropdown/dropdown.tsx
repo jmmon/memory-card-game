@@ -88,6 +88,7 @@ const Dropdown = component$<DropdownProps>(
         data-label="wrapper"
       >
         <Button
+          type="button"
           buttonRef={buttonRef}
           styles={buttonStyles}
           class={`z-10 border-none flex items-center justify-center ${buttonClasses} ${computedIsOpen.value ? buttonClassesWhileOpen : ""}`}
