@@ -158,15 +158,15 @@ export default component$(
         isMoreColored,
       };
 
-      if (outputTo$ !== undefined) {
-        outputTo$({
+      // if (outputTo$ !== undefined) {
+        outputTo$?.({
           cols,
           rows,
           halfPixels: generatedPixels,
           color: generatedColor,
           hash: hashed,
         });
-      }
+      // }
     });
 
     return (
