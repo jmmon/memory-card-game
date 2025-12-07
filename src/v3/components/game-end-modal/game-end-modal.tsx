@@ -16,6 +16,38 @@ import useSyncedSettings from "~/v3/hooks/useSyncedSettings";
 import { FONT_SIZES } from "~/v3/constants/styles";
 import ModalHeader from "../molecules/modal-header/modal-header";
 import storageService from "~/v3/services/storage.service";
+type ConfettiOpts = Partial<{
+  /** default is 50 */
+  particleCount: number;
+  /** 90 is straight up */
+  angle: number;
+  /** default 45: e.g. +- 22.5 degrees from the angle */
+  spread: number;
+  /** default 45: how many pixels rate confetti will start at */
+  startVelocity: number;
+  /** default 0.9: how fast they will lose speed (range: 0-1) */
+  decay: number;
+  /** default 1: how fast they will fall (1 is regular gravity, 0.5 is half gravity, -1 is falling up) */
+  gravity: number;
+  /** default: 0: negative will drift left, positive will drift right */
+  drift: number;
+  /** default false: if true removes the wobble and tilt */
+  flat: boolean;
+  /** default 200: how many times confetti will move; play with it if they disappear too fast */
+  ticks: number;
+  /** default {x: 0.5, y: 0.5}: aka center of screen */
+  origin: Partial<{x: number, y: number}>;
+  /** hex format color strings to use for confetti */
+  colors: string[];
+  /** `square`, `circle`, `star`, or custom shapes, for the confetti. Can change ratio e.g. [`square`, `square`, `circle`] */
+  shapes: string[];
+  /** default 1: scale factor for confetti size */
+  scalar: number;
+  /** default 100: adjust if needed */
+  zIndex: number;
+  /** default false: disables for reduced motion */
+  disableForReducedMotion: boolean;
+}>
 
 export default component$(() => {
   const { unsavedUserSettings, saveOrResetSettings$, ctx, scrollToTopRef } =
@@ -100,7 +132,7 @@ export default component$(() => {
   };
 
   const shootConfetti = $(() => {
-    const confetti = ((globalThis as any).confetti as (opts: any) => void);
+    const confetti = ((globalThis as any).confetti as (opts: ConfettiOpts) => void);
     // library is loaded in layout
     confetti({
       ...confettiOptions,
@@ -136,24 +168,70 @@ export default component$(() => {
   });
 
   const sideConfetti = $(() => {
-    const confetti = ((globalThis as any).confetti as (opts: any) => void);
+    const confetti = ((globalThis as any).confetti as (opts: ConfettiOpts) => void);
     const duration = 2 * 1000;
     const end = Date.now() + duration;
+
+    const width = document.documentElement.clientWidth;
+    const ANGLE_MAX_OFF_90 = 5;
+    const SCREEN_MIN = 400;
+    const SCREEN_MAX = 1920;
+    const ANGLE_RANGE = 30;
+    const SCREEN_RANGE = SCREEN_MAX - SCREEN_MIN;
+
+    const widthRatioBounded = Math.max(
+      0,
+      Math.min(
+        1,
+        ((width - SCREEN_MIN) / SCREEN_RANGE)
+      )
+    );
+
+    // reduce on wider screens (lower angle)
+    const left = 90 -  (ANGLE_MAX_OFF_90 + (widthRatioBounded * ANGLE_RANGE));
+
+    const right = 90 + (ANGLE_MAX_OFF_90 + (widthRatioBounded * ANGLE_RANGE));
+    
+    // increase on wider screens
+    const SPREAD_MAX = 55;
+    const SPREAD_MIN = 25;
+    const SPREAD = SPREAD_MAX - ((1 - widthRatioBounded) * (SPREAD_MAX - SPREAD_MIN));
+
+    // increase on wider screens
+    const PARTICLE_MAX = 8;
+    const PARTICLE_MIN = 4;
+    const PARTICLE_COUNT = PARTICLE_MAX - Math.round((1 - widthRatioBounded) * (PARTICLE_MAX - PARTICLE_MIN));
+
+    // increase on wider screens
+    const VELOCITY_MAX = 62;
+    const VELOCITY_MIN = 42;
+    const START_VELOCITY = VELOCITY_MAX - ((1 - widthRatioBounded) * (VELOCITY_MAX - VELOCITY_MIN));
+
+    const DRIFT_MAX = 1;
+    const DRIFT_MIN = 0.5;
+    const DRIFT = DRIFT_MAX - ((1 - widthRatioBounded) * (DRIFT_MAX - DRIFT_MIN));
+    const DRIFT_OFFSET = DRIFT / 2;
+
+    // TODO: play with ticks? increase on taller screens
 
     (function frame() {
       // launch a few confetti from the left edge
       confetti({
-        particleCount: 7,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0 }
+        particleCount: PARTICLE_COUNT,
+        angle: left,
+        spread: SPREAD,
+        origin: { x: 0 },
+        startVelocity: START_VELOCITY,
+        drift: Math.random() * DRIFT - DRIFT_OFFSET,
       });
       // and launch a few from the right edge
       confetti({
-        particleCount: 7,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1 }
+        particleCount: PARTICLE_COUNT,
+        angle: right,
+        spread: SPREAD,
+        origin: { x: 1 },
+        startVelocity: START_VELOCITY,
+        drift: Math.random() * DRIFT - DRIFT_OFFSET,
       });
 
       // keep going until we are out of time
