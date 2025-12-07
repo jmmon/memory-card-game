@@ -683,7 +683,7 @@ type SelectElProps = {
 const SelectEl = component$<SelectElProps>(
   ({ value, onChange$, listOfOptions, classes = "" }) => (
     <select
-      class={` bg-slate-800 ${classes}`}
+      class={`pl-0.5 bg-slate-800 ${classes}`}
       value={value}
       onChange$={onChange$}
     >
