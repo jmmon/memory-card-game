@@ -10,7 +10,7 @@ import themeService from "../services/theme.service";
 import type { iTheme, iUserSettings } from "../types/types";
 import { useVisibilityChange } from "./useVisibilityChange/useVisibilityChange";
 import { DEFAULT_THEME } from "../services/gameContext.service/initialState";
-import type { useGameContextService } from "../services/gameContext.service/gameContext.service";
+import { useGameContextService } from "../services/gameContext.service/gameContext.service";
 import logger from "../services/logger";
 import { DebugTypeEnum, LogLevel } from "../constants/game";
 

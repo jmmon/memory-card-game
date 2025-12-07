@@ -22,6 +22,29 @@ export default component$(() => {
         <meta charset="utf-8" />
         <link rel="manifest" href="/manifest.json" />
         <RouterHead />
+
+        <script
+          dangerouslySetInnerHTML={`
+            (function() {
+              function setTheme(theme) {
+                document.documentElement.setAttribute('theme', theme);
+                localStorage.setItem('theme', theme);
+              }
+
+              // load theme
+              const theme = localStorage.getItem('theme');
+              if (theme) {
+                setTheme(theme);
+              } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                setTheme('dark');
+              } else {
+                setTheme('light');
+              }
+
+            })();
+          `}
+        ></script>
+
         <ServiceWorkerRegister />
       </head>
       <body lang="en" class=" overflow-y-hidden">
