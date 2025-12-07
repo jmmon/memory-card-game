@@ -1,4 +1,4 @@
-import { component$, $, useSignal, sync$, useTask$ } from "@builder.io/qwik";
+import { component$, $, useSignal, sync$, useTask$, useVisibleTask$ } from "@builder.io/qwik";
 import PixelAvatar from "../pixel-avatar/pixel-avatar";
 import Button from "../atoms/button/button";
 import Modal from "../templates/modal/modal";
@@ -23,6 +23,18 @@ export default component$(() => {
   const defaultHash = getRandomBytesServer();
 
   const touchedFields = useSignal<string[]>([]);
+
+  // load user data from localStorage if exists
+  // eslint-disable-next-line qwik/no-use-visible-task
+  useVisibleTask$(() => {
+    const data = storageService.getJson<{identifier: string, userId: string, initials: string}>("score-identifier-data");
+    if (!data) return;
+
+    identifier.value = data.identifier;
+    userId.value = data.userId;
+    initials.value = data.initials;
+    initialsRef.value!.value = initials.value;
+  });
 
   const initials = useSignal("---");
   const initialsRef = useSignal<HTMLInputElement>(); // to manipulate the input
@@ -53,6 +65,13 @@ export default component$(() => {
       if (!saved.newScore || !saved.newScoreCounts) {
         throw new Error("Could not save score");
       }
+
+      // save user data into localStorage for prefilling next time
+      storageService.setJson("score-identifier-data", {
+        identifier: identifier.value,
+        userId: saved.newScore.userId,
+        initials: saved.newScore.initials,
+      });
 
       ctx.state.gameData.isSaved = true;
       // console.log("saved!", { saved });

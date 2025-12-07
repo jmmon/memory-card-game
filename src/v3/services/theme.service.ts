@@ -4,15 +4,16 @@ import GAME, { LogLevel, DebugTypeEnum } from "../constants/game";
 import logger from "./logger";
 
 function setHtml(theme: iTheme) {
-  const html = document.getElementsByTagName("html")[0];
-  html.setAttribute(GAME.DATA_THEME, theme);
+  document.documentElement.setAttribute(GAME.DATA_THEME, theme);
 }
 
 function getHtml() {
-  const html = document.getElementsByTagName("html")[0];
-  return html.getAttribute(GAME.DATA_THEME) as iTheme | null;
+  return document.documentElement.getAttribute(GAME.DATA_THEME) as iTheme | null;
 }
 
+/** 
+ * Saves theme into HTML data tag and localStorage
+ * */
 function saveTheme(selectedTheme: iTheme) {
   logger(DebugTypeEnum.SERVICE, LogLevel.ONE, "themeService.set():", {
     selectedTheme,
