@@ -295,7 +295,7 @@ export default component$(() => {
                   >
                     <PixelAvatar
                       class="w-12 h-12 flex-shrink-0"
-                      hash={{ value: score.userId }}
+                      incomingHashedIdentifier={{ value: score.userId }}
                       colorFrom={{ value: score.initials }}
                     />
                     {JSON.stringify(score)

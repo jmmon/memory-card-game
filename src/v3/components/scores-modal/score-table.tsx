@@ -165,7 +165,7 @@ const ScoreRow = component$<ScoreRowProps>(
         <td>
           <PixelAvatar
             class={AVATAR_WIDTH}
-            hash={{ value: score.userId }}
+            incomingHashedIdentifier={{ value: score.userId }}
             colorFrom={{ value: score.initials }}
             outputTo$={({ color }) => {
               backgroundColor.value = appendAlphaToHSL(color);

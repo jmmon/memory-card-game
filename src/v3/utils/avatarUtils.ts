@@ -34,8 +34,6 @@ export const stringToColor = (
       (Number(lightPercent) * (lightness.max - lightness.min)) / 100,
   );
 
-  // console.log({ satPercent, lightPercent, hue, sat, light });
-
   return `hsla(${hue}, ${sat}%, ${light}%, 1)`;
 };
 
@@ -112,9 +110,9 @@ export async function calculatePixelData(
   saturation: { min: number; max: number },
   lightness: { min: number; max: number },
 ) {
-  const hash = await getHexHashString(text);
+  const identifierHash = await getHexHashString(text);
 
-  const allButLast3 = hash.slice(0, -3);
+  const allButLast3 = identifierHash.slice(0, -3);
   const requiredLength = rows * Math.ceil(cols / 2);
   const { rebasedHash, base } = hexHash2BaseOfLength(
     allButLast3,
@@ -123,15 +121,13 @@ export async function calculatePixelData(
 
   const pixels = getPixels(rebasedHash, cols, rows, base);
 
-  const color = stringToColor(hash.slice(-3), saturation, lightness);
+  const color = stringToColor(identifierHash.slice(-3), saturation, lightness);
 
   const data = `${pixels}:${color}`;
-  // console.log({ data });
   return data;
 }
 
 export function calculateOnlyPixels(hash: string, cols: number, rows: number) {
-  // console.log("calculateOnlyPixels:", { hash });
   const requiredLength = rows * Math.ceil(cols / 2);
   const { rebasedHash, base } = hexHash2BaseOfLength(hash, requiredLength);
 
@@ -145,7 +141,6 @@ export async function calculateOnlyColor(
   lightness: { min: number; max: number } = GAME.DEFAULT_COLOR_OPTIONS
     .lightness,
 ) {
-  const hash = await getHexHashString(text);
-  // console.log("calculating color only for text:", text, hash);
-  return stringToColor(hash, saturation, lightness);
+  const initialsHash = await getHexHashString(text);
+  return stringToColor(initialsHash, saturation, lightness);
 }

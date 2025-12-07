@@ -1,5 +1,10 @@
 import type { ClassList, QRL, Signal } from "@builder.io/qwik";
-import { component$, useSignal, useTask$ } from "@builder.io/qwik";
+import {
+  component$,
+  useComputed$,
+  useSignal,
+  useTask$,
+} from "@builder.io/qwik";
 import GAME from "~/v3/constants/game";
 import type { AvatarColorOptions } from "~/v3/types/types";
 import {
@@ -31,16 +36,15 @@ export const Pixel = ({
   />
 );
 
-
 interface PixelAvatarProps {
   rows?: number;
   cols?: number;
   eachBlockSizePx?: number;
   colorOptions?: AvatarColorOptions;
   class?: ClassList;
-  text?: Signal<string>;
-  hash?: Signal<string>;
-  colorFrom?: Signal<string>;
+  identifierText?: Signal<string>;
+  colorFrom: Signal<string>;
+  incomingHashedIdentifier?: Signal<string>;
   color?: string;
   halfPixels?: string;
   /** for saving the data */
@@ -50,13 +54,13 @@ interface PixelAvatarProps {
       rows,
       halfPixels,
       color,
-      hash,
+      identifierHash,
     }: {
       cols: number;
       rows: number;
       halfPixels: string;
       color: string;
-      hash?: string;
+      identifierHash?: string;
     }) => void
   >;
 }
@@ -71,9 +75,9 @@ export default component$(
     /**
      * inputs used on end-game modal when generating avatar
      * */
-    text,
-    hash,
-    colorFrom,
+    colorFrom, // initials
+    identifierText, // identifier text
+    incomingHashedIdentifier, // used for scores table (and db-seed page)
 
     /**
      * function to send out the results
@@ -83,12 +87,7 @@ export default component$(
     const data = useSignal({
       pixels: "",
       color: "",
-      isMoreColored: false,
-    });
-    const meta = useSignal({
-      totalColored: 0,
-      totalPixels: 0,
-      avg: 0,
+      hashedIdentifier: "",
     });
     colorOptions = {
       backgroundColor:
@@ -105,68 +104,61 @@ export default component$(
     };
 
     useTask$(async ({ track }) => {
-      track(() => [
-        // can this track the signal instread of the signal value? maybe separate tracks
-        hash?.value,
-        text?.value,
-        colorFrom?.value,
-      ]);
-
-      let textToUseForPixels = text?.value ?? "";
-
-      // generate or get color
-      let colorSlice = "";
-      if (colorFrom) {
-        // gen color from colorFrom e.g. initials
-        colorSlice = colorFrom.value;
-      } else {
-        // gen color from slice of text
-        colorSlice = textToUseForPixels.substring(-3);
-        textToUseForPixels = textToUseForPixels.substring(0, -3);
-      }
+      track(colorFrom);
       const generatedColor = await calculateOnlyColor(
-        colorSlice,
+        colorFrom.value,
         colorOptions.saturation,
         colorOptions.lightness,
       );
+      data.value = {
+        ...data.value,
+        color: generatedColor,
+      };
+    });
 
-      let hashed = hash?.value;
-      if (!hashed) {
-        hashed = await getHexHashString(textToUseForPixels);
-      }
-      const generatedPixels = calculateOnlyPixels(hashed, cols, rows);
+    useTask$(async ({ track }) => {
+      track(() => [
+        incomingHashedIdentifier?.value,
+        identifierText?.value,
+      ]);
 
-      // console.log({ generatedPixels, generatedColor });
-      const totalColored = generatedPixels
+      const hashedIdentifier =
+        incomingHashedIdentifier?.value ??
+        (await getHexHashString(identifierText?.value ?? ""));
+      const generatedPixels = calculateOnlyPixels(hashedIdentifier, cols, rows);
+
+      data.value = {
+        ...data.value,
+        pixels: generatedPixels,
+        hashedIdentifier,
+      };
+    });
+
+    const meta = useComputed$(() => {
+      const pixelsLength = data.value.pixels.length;
+      const totalColored = data.value.pixels
         .split("")
         .reduce((accum, cur) => (accum += Number(cur)), 0);
-      const avg = totalColored / generatedPixels.length;
+      const avg = totalColored / pixelsLength;
       const isMoreColored = avg >= 0.5;
 
-      meta.value = {
+      return {
         totalColored: totalColored,
-        totalPixels: generatedPixels.length,
+        totalPixels: pixelsLength,
         avg,
-      };
-
-      // if lighter === 'nochange' this is always false
-      // if isMoreColored !== forceLighter  we can use color for base and white for blocks
-      // if isMoreColored == forceLighter  we can use white for base and color for blocks
-      data.value = {
-        pixels: generatedPixels,
-        color: generatedColor,
         isMoreColored,
       };
+    })
 
-      // if (outputTo$ !== undefined) {
-        outputTo$?.({
-          cols,
-          rows,
-          halfPixels: generatedPixels,
-          color: generatedColor,
-          hash: hashed,
-        });
-      // }
+    useTask$(({ track }) => {
+      track(() => [ data.value.pixels, data.value.color, data.value.hashedIdentifier ]);
+      outputTo$?.({
+        cols,
+        rows,
+        halfPixels: data.value.pixels,
+        color: data.value.color,
+        identifierHash: data.value.hashedIdentifier,
+      });
     });
 
     return (
@@ -175,7 +167,7 @@ export default component$(
         width="64px" // overwritten with css
         height="64px"
         style={`stroke-width: 0px; background-color: ${
-          data.value.isMoreColored
+          meta.value.isMoreColored
             ? data.value.color
             : (colorOptions.backgroundColor as string)
         };`}
@@ -188,12 +180,12 @@ export default component$(
         {data.value.pixels
           .split("")
           .map((pixel, index) =>
-            data.value.isMoreColored === (pixel === "1") ? null : (
+            meta.value.isMoreColored === (pixel === "1") ? null : (
               <Pixel
                 key={`${index}:${pixel}`}
                 index={index}
                 pixelColor={
-                  data.value.isMoreColored
+                  meta.value.isMoreColored
                     ? (colorOptions.backgroundColor as string)
                     : data.value.color
                 }
@@ -207,7 +199,3 @@ export default component$(
   },
 );
 
-/*
- *4278fc5a49c1f6e03179bb0968c78f71f0dbd17b6b7db75ab0096ff47999e4ca
- *7e0927d1c235c2f0766d393a9f7965b126e47756
- * */

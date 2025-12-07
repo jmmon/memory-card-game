@@ -15,8 +15,7 @@ import { selectFieldOnFocus$ } from "~/v3/handlers/handlers";
 import useSyncedSettings from "~/v3/hooks/useSyncedSettings";
 import { FONT_SIZES } from "~/v3/constants/styles";
 import ModalHeader from "../molecules/modal-header/modal-header";
-
-// const Asterisk = () => <span class="text-red-300">*</span>;
+import storageService from "~/v3/services/storage.service";
 
 export default component$(() => {
   const { unsavedUserSettings, saveOrResetSettings$, ctx, scrollToTopRef } =
@@ -24,10 +23,6 @@ export default component$(() => {
   const defaultHash = getRandomBytesServer();
 
   const touchedFields = useSignal<string[]>([]);
-  // const markTouched$ = $((_: Event, t: HTMLElement) => {
-  //   if (touchedFields.value.includes(t.tagName)) return;
-  //   touchedFields.value = [...touchedFields.value, t.tagName];
-  // });
 
   const initials = useSignal("---");
   const initialsRef = useSignal<HTMLInputElement>(); // to manipulate the input
@@ -38,7 +33,7 @@ export default component$(() => {
 
   const saveScore$ = $(async () => {
     if (ctx.state.gameData.IS_SCORES_ENABLED === false) return;
-    if (ctx.state.gameData.isSaved) return;
+    if (ctx.state.gameData.isSaved || saveState.value === "loading") return;
 
     saveState.value = "loading";
     const newScore: InsertScore = {
@@ -207,37 +202,6 @@ export default component$(() => {
       >
         <div class="flex gap-0.5 md:gap-1 flex-col py-[2%] px-[4%]">
           <GameStats />
-
-          {/*
-          <ModalRow>
-            <div class="flex flex-grow justify-between">
-              <span>Time:</span>
-              <span>
-                <FormattedTime timeMs={ctx.timer.state.time} />
-              </span>
-            </div>
-          </ModalRow>
-          <ModalRow>
-            <div class="flex flex-grow justify-between">
-              <span>Pairs:</span>
-              <span>
-                {ctx.state.gameData.successfulPairs.length}/
-                {ctx.state.userSettings.deck.size / 2}
-              </span>
-            </div>
-          </ModalRow>
-          <ModalRow>
-            <div class="flex flex-grow justify-between">
-              <span>Mismatches:</span>
-              <span>
-                {ctx.state.gameData.mismatchPairs.length}
-                {ctx.state.userSettings.maxAllowableMismatches !== -1
-                  ? `/${ctx.state.userSettings.deck.size / 2} `
-                  : ""}
-              </span>
-            </div>
-          </ModalRow>
-*/}
         </div>
 
         {ctx.state.gameData.IS_SCORES_ENABLED && (
@@ -264,9 +228,9 @@ export default component$(() => {
                       >
                         <PixelAvatar
                           class="w-[80px] h-[80px] sm:w-[100px] sm:h-[100px]"
-                          text={identifier}
+                          identifierText={identifier}
                           colorFrom={initials}
-                          outputTo$={({ hash }) => {
+                          outputTo$={({ identifierHash: hash }) => {
                             // let PixelAvatar hash it so we don't have to hash twice
                             userId.value = hash;
                           }}
@@ -374,10 +338,6 @@ export default component$(() => {
                   } ${FONT_SIZES.STANDARD} p-3 px-4`}
                   onClick$={saveScore$}
                   disabled={
-                    // (touchedFields.value.length < 2 && (
-                    // initials.value === "---" // if initials was not saved from last time or not changed initially
-                    //
-                    // )) ||
                     ctx.state.gameData.isSaved || saveState.value === "loading"
                   }
                 >
@@ -392,10 +352,6 @@ export default component$(() => {
                 <div class="absolute left-[calc(50%+1.5rem+2.75em)] top-[calc(50%-0.25em-0.5rem)]">
                   <InfoTooltip>
                     <div class="max-w-[18em]">
-                      {/*
-                      Touch both fields before saving. 
-                      <br />
-*/}
                       Hint: Shift-Enter in the textbox to save.
                     </div>
                   </InfoTooltip>
