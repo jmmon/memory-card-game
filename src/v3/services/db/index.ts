@@ -47,22 +47,22 @@ const queryScoresAndCalculatePercentiles = async ({
 
   // early return if error
   if (resScores.status !== "fulfilled" || resCounts.status !== "fulfilled") {
-    console.log({ resScores, resCounts });
+    // console.log({ resScores, resCounts });
     const rejectedRes = [resScores, resCounts]
       .filter((res) => res.status === "rejected")
       .map((each) => JSON.stringify(each, null, 2));
     const message = "Error querying for " + rejectedRes.join(" and ");
-    console.log({ message });
+    console.error({ message });
     return { scores: [], totals: {} };
   }
 
   const allScores = resScores.value;
   const scoreCounts = resCounts.value;
-  console.log(
-    "fresh from query:",
-    allScores.map((score) => JSON.stringify(score)),
-    scoreCounts.map(count => JSON.stringify(count)),
-  );
+  // console.log(
+  //   "fresh from query:",
+  //   allScores.map((score) => JSON.stringify(score)),
+  //   scoreCounts.map(count => JSON.stringify(count)),
+  // );
 
   return calculatePercentilesWhileMaintainingOrder(allScores, scoreCounts);
 };
