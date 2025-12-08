@@ -56,6 +56,13 @@ export default component$(() => {
 
   const touchedFields = useSignal<string[]>([]);
 
+  const initials = useSignal("---");
+  const initialsRef = useSignal<HTMLInputElement>(); // to manipulate the input
+  const identifier = useSignal(defaultHash);
+  // for after hashing, this is actually submitted to the score
+  const userId = useSignal<string | undefined>("");
+  const saveState = useSignal<"idle" | "loading" | "error">("idle");
+
   // load user data from localStorage if exists
   // eslint-disable-next-line qwik/no-use-visible-task
   useVisibleTask$(() => {
@@ -67,13 +74,6 @@ export default component$(() => {
     initials.value = data.initials;
     initialsRef.value!.value = initials.value;
   });
-
-  const initials = useSignal("---");
-  const initialsRef = useSignal<HTMLInputElement>(); // to manipulate the input
-  const identifier = useSignal(defaultHash);
-  // for after hashing, this is actually submitted to the score
-  const userId = useSignal<string | undefined>("");
-  const saveState = useSignal<"idle" | "loading" | "error">("idle");
 
   const saveScore$ = $(async () => {
     if (ctx.state.gameData.IS_SCORES_ENABLED === false) return;
