@@ -14,7 +14,7 @@ export default component$(() => {
 
   return (
     <header
-      class={`z-[40] mx-auto text-center text-xs md:text-sm flex gap-3 items-stretch justify-around w-full h-min`}
+      class={`z-[5] mx-auto text-center text-xs md:text-sm flex gap-3 items-stretch justify-around w-full h-min`}
     >
       <HeaderSection classes="justify-around">
         {ctx.state.userSettings.interface.showSelectedIds && (
